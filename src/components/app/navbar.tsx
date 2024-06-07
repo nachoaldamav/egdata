@@ -46,7 +46,7 @@ export default function Navbar() {
         </SheetTrigger>
         <SheetContent>
           <SheetHeader>
-            <Link to="#" className="mr-6 flex items-center gap-2">
+            <Link to="/" className="mr-6 flex items-center gap-2">
               <GamepadIcon className="h-6 w-6" />
               <span className="sr-only">GameDB</span>
             </Link>
@@ -74,7 +74,7 @@ export default function Navbar() {
           </SheetFooter>
         </SheetContent>
       </Sheet>
-      <Link to="#" className="mr-6 hidden lg:flex">
+      <Link to="/" className="mr-6 hidden lg:flex">
         <GamepadIcon className="h-6 w-6" />
         <span className="sr-only">GameDB</span>
       </Link>

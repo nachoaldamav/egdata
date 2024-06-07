@@ -98,7 +98,7 @@ export default function Index() {
             {games.map((game) => (
               <CarouselItem key={game.id} className="basis-1/4">
                 <Link
-                  to={`/games/${game.id}`}
+                  to={`/offers/${game.id}`}
                   className="h-auto w-80 relative select-none"
                   prefetch={'intent'}
                 >
@@ -107,8 +107,8 @@ export default function Index() {
                       src={getImage(game.keyImages, ['Thumbnail']).url}
                       alt={game.title}
                       width={400}
-                      height={300}
-                      className="w-full h-[300px] object-cover hover:scale-105 transition-transform duration-300"
+                      height={700}
+                      className="w-full h-96 object-cover hover:scale-105 transition-transform duration-300"
                     />
                     <CardContent className="p-6 space-y-4">
                       <div className="space-y-2">
