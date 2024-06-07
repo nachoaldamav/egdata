@@ -100,7 +100,7 @@ export default function Index() {
                 <Link
                   to={`/offers/${game.id}`}
                   className="h-auto w-80 relative select-none"
-                  prefetch={'intent'}
+                  prefetch="viewport"
                 >
                   <Card className="w-full max-w-sm rounded-lg overflow-hidden shadow-lg">
                     <Image
