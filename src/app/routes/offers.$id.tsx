@@ -4,7 +4,6 @@ import { Image } from '~/components/app/image';
 import { client } from '~/lib/client';
 import { getImage } from '~/lib/getImage';
 import { getSeller } from '~/lib/get-seller';
-import type { SingleItem } from '~/types/single-item';
 import type { SingleOffer } from '~/types/single-offer';
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -12,23 +11,13 @@ export async function loader({ params }: LoaderFunctionArgs) {
     .get<SingleOffer>(`/offers/${params.id}`)
     .then((response) => response.data);
 
-  const items = await client
-    .get<{
-      items: SingleItem[];
-    }>(`/items-from-offer/${params.id}`)
-    .then((response) => response.data)
-    .catch(() => ({
-      items: [],
-    }));
-
   return {
     offer,
-    items: items.items as SingleItem[],
   };
 }
 
 export default function Index() {
-  const { offer: offerData, items } = useLoaderData<typeof loader>();
+  const { offer: offerData } = useLoaderData<typeof loader>();
 
   if (!offerData) {
     return <div>Offer not found</div>;
