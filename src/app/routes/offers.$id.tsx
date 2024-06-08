@@ -342,12 +342,23 @@ const TimeAgo: React.FC<{
     const seconds = Math.floor(diffInMilliseconds / 1000);
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-    const months = Math.floor(days / 30);
-    const years = Math.floor(months / 12);
+    const years = new Date(date).getFullYear() - now.getFullYear();
+    const months = new Date(date).getMonth() - now.getMonth();
+    const days = new Date(date).getDate() - now.getDate();
 
     let timeAgo: number;
     let unit: Intl.RelativeTimeFormatUnit;
+
+    console.log({
+      seconds,
+      minutes,
+      hours,
+      days,
+      months,
+      years,
+      date,
+      current: now,
+    });
 
     if (Math.abs(years) > 0) {
       timeAgo = years;
@@ -373,7 +384,7 @@ const TimeAgo: React.FC<{
       localeMatcher: 'best fit',
       numeric: 'always',
       style: 'long',
-    }).format(-timeAgo, unit);
+    }).format(timeAgo, unit);
   };
 
   return (
