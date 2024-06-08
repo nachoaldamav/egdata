@@ -18,6 +18,19 @@ import { offersDictionary } from '~/lib/offers-dictionary';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import { useEffect, useState } from 'react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '~/components/ui/tooltip';
+import { cn } from '~/lib/utils';
+
+const internalNamespaces = [
+  'epic',
+  'SeaQA',
+  'd5241c76f178492ea1540fce45616757',
+];
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const [offer, items] = await Promise.all([
@@ -177,10 +190,28 @@ export default function Index() {
               <TableBody>
                 <TableRow>
                   <TableCell className="font-medium">Namespace</TableCell>
-                  <TableCell className="text-left font-mono border-l-gray-300/10 border-l">
-                    {offerData.namespace}
+                  <TableCell
+                    className={
+                      'text-left font-mono border-l-gray-300/10 border-l'
+                    }
+                  >
+                    {internalNamespaces.includes(offerData.namespace) ? (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger className="underline decoration-dotted underline-offset-4">
+                            {offerData.namespace}
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Epic Games internal namespace</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ) : (
+                      offerData.namespace
+                    )}
                   </TableCell>
                 </TableRow>
+
                 <TableRow>
                   <TableCell className="font-medium">Offer Type</TableCell>
                   <TableCell className="text-left border-l-gray-300/10 border-l">
@@ -351,12 +382,6 @@ const TimeAgo: React.FC<{
     </span>
   );
 };
-
-const internalNamespaces = [
-  'epic',
-  'SeaQA',
-  'd5241c76f178492ea1540fce45616757',
-];
 
 const InternalBanner: React.FC<{
   title: string;
