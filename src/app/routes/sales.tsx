@@ -12,9 +12,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const cookies = cookie.parse(cookieHeader || '');
   const country = cookies.EGDATA_COUNTRY || 'US';
 
-  console.log('cookieHeader', cookieHeader);
-  console.log('cookie', cookie);
-
   const [latestGames] = await Promise.all([
     client.get<{
       elements: SingleOffer[];
