@@ -27,7 +27,7 @@ export const Image: React.FC<ImageProps> = ({
   const sizes =
     '(max-width: 320px) 280px, (max-width: 480px) 440px, (max-width: 800px) 800px, 100vw';
 
-  const url = `https://egdata.app/cdn-cgi/image/width=${width},quality=${quality}/${src}`;
+  const url = `https://cdn.egdata.app/cdn-cgi/image/width=${width},quality=${quality}/${src}`;
   const srcSet = generateSrcSet(url, quality);
 
   return (

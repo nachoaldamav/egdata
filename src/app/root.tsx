@@ -13,6 +13,7 @@ import { SearchProvider } from '~/context/global-search';
 export const links: LinksFunction = () => [
   { rel: 'preload', href: stylesheet, as: 'style' },
   { rel: 'stylesheet', href: stylesheet },
+  { rel: 'preconnect', href: 'https://cdn.egdata.app/' },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
