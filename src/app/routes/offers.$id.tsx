@@ -21,15 +21,18 @@ import { useEffect, useState } from 'react';
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const [offer, items] = await Promise.all([
-    client.get<SingleOffer>(`/offers/${params.id}`).then((response) => {
-      if (response.status === 404) {
-        return {
-          title: 'Error',
-          description: 'Offer not found',
-        };
-      }
-      return response.data;
-    }),
+    client
+      .get<SingleOffer>(`/offers/${params.id}`)
+      .then((response) => {
+        return response.data;
+      })
+      .catch(
+        () =>
+          ({
+            title: 'Error',
+            description: 'Offer not found',
+          } as SingleOffer)
+      ),
     client
       .get<Array<SingleItem>>(`/items-from-offer/${params.id}`)
       .then((response) => response.data)
@@ -147,7 +150,7 @@ export default function Index() {
   }
 
   return (
-    <main className="flex flex-col items-start justify-start w-full min-h-screen">
+    <main className="flex flex-col items-start justify-start w-full min-h-screen gap-4">
       <header className="grid col-span-1 gap-4 md:grid-cols-2 w-full">
         <div className="flex flex-col gap-1">
           <h1 className="text-4xl font-bold">{offerData.title}</h1>
@@ -349,7 +352,11 @@ const TimeAgo: React.FC<{
   );
 };
 
-const internalNamespaces = ['epic', 'SeaQA'];
+const internalNamespaces = [
+  'epic',
+  'SeaQA',
+  'd5241c76f178492ea1540fce45616757',
+];
 
 const InternalBanner: React.FC<{
   title: string;
@@ -378,9 +385,9 @@ const InternalBanner: React.FC<{
       }>(`/autocomplete?query=${title}`)
       .then((response) => {
         setResults(
-          response.data.elements.filter(
-            ({ namespace }) => !internalNamespaces.includes(namespace)
-          )
+          response.data.elements
+            .filter(({ namespace }) => !internalNamespaces.includes(namespace))
+            .sort((a, b) => a.title.localeCompare(b.title))
         );
       });
   }, [title]);
