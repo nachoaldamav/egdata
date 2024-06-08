@@ -26,6 +26,7 @@ import {
 } from '~/components/ui/tooltip';
 import { timeAgo } from '~/lib/time-ago';
 import { internalNamespaces } from '~/lib/internal-namespaces';
+import GameFeatures from '~/components/app/game-features';
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const [offer, items] = await Promise.all([
@@ -157,6 +158,10 @@ export default function Index() {
     return <div>{offerData.description}</div>;
   }
 
+  const mergedCustomAttributes = items.reduce((acc, item) => {
+    return Object.assign({}, acc, item.customAttributes);
+  }, {});
+
   return (
     <main className="flex flex-col items-start justify-start w-full min-h-screen gap-4">
       <header className="grid col-span-1 gap-4 md:grid-cols-2 w-full">
@@ -172,7 +177,7 @@ export default function Index() {
               seller: offerData.seller.name,
             })}
           </h4>
-          <div className="rounded-xl border border-gray-300/10">
+          <div className="rounded-xl border border-gray-300/10 mt-2">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -286,22 +291,25 @@ export default function Index() {
             namespace={offerData.namespace}
           />
         </div>
-        <div className="flex justify-start items-start flex-col">
-          <Image
-            src={
-              getImage(offerData.keyImages, [
-                'OfferImageWide',
-                'DieselGameBoxWide',
-                'TakeoverWide',
-              ]).url
-            }
-            alt={offerData.title}
-            width={1920}
-            height={1080}
-            quality={100}
-            className="rounded-xl shadow-lg"
-          />
-          <p className="pt-2 px-1">{offerData.description}</p>
+        <div className="flex justify-start items-start flex-col gap-4">
+          <div className="relative w-full h-full">
+            <Image
+              src={
+                getImage(offerData.keyImages, [
+                  'OfferImageWide',
+                  'DieselGameBoxWide',
+                  'TakeoverWide',
+                ]).url
+              }
+              alt={offerData.title}
+              width={1920}
+              height={1080}
+              quality={100}
+              className="rounded-xl shadow-lg"
+            />
+            <GameFeatures attributes={mergedCustomAttributes} />
+          </div>
+          <p className="px-1">{offerData.description}</p>
         </div>
       </header>
       <section id="items" className="w-full">

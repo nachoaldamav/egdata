@@ -55,6 +55,7 @@ function GameCard({ game }: { game: SingleOffer }) {
             width={400}
             height={500}
             className="object-contain rounded-t-xl"
+            loading="lazy"
           />
         </CardHeader>
         <CardContent className="p-4 flex-grow flex flex-col justify-between">
