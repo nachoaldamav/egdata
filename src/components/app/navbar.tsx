@@ -27,8 +27,8 @@ const routes = [
     href: '#',
   },
   {
-    name: 'Platforms',
-    href: '#',
+    name: 'Sales',
+    href: '/sales',
   },
   {
     name: 'About',

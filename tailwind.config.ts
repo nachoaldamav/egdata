@@ -17,6 +17,15 @@ const config = {
         '2xl': '1400px',
       },
     },
+    gridColumn: {
+      'span-6': 'span 6 / span 6',
+      'span-7': 'span 7 / span 7',
+      'span-8': 'span 8 / span 8',
+      'span-9': 'span 9 / span 9',
+      'span-10': 'span 10 / span 10',
+      'span-11': 'span 11 / span 11',
+      'span-12': 'span 12 / span 12',
+    },
     fontFamily: {
       sans: ['Nunito Sans'],
       mono: [...require('tailwindcss/defaultConfig').theme.fontFamily.mono],
