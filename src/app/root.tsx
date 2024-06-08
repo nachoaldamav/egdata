@@ -31,6 +31,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
           {children}
           <ScrollRestoration />
           <Scripts />
+          <footer className="flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400 text-xs">
+            <p>
+              egdata.app is a fan-made website and is not affiliated by any
+              means with Epic Games, Inc.
+            </p>
+            <p>
+              All the logos, images, trademarks and creatives are property of
+              their respective owners.
+            </p>
+          </footer>
         </SearchProvider>
       </body>
     </html>

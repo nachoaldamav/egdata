@@ -241,9 +241,9 @@ function LastModifiedGames() {
   }, []);
 
   return (
-    <section className="w-full" id="last-modified-offers">
+    <section className="w-full h-full" id="last-modified-offers">
       <h4 className="text-xl font-bold text-left">Last Modified Offers</h4>
-      <Carousel className="mt-2 h-96 p-4">
+      <Carousel className="mt-2 h-full p-4">
         <CarouselPrevious />
         <CarouselContent>
           {games.map((game) => (
