@@ -85,6 +85,19 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
     {
       title: `${offerData.title} - egdata.app`,
       description: offerData.description,
+    },
+    {
+      'og:title': `${offerData.title} - egdata.app`,
+      'og:description': offerData.description,
+      'og:image': getImage(offerData.keyImages, [
+        'OfferImageWide',
+        'DieselGameBoxWide',
+        'TakeoverWide',
+      ]).url,
+      'og:type': 'product',
+      'og:url': `https://egdata.app/offers/${offerData.id}`,
+    },
+    {
       'script:ld+json': {
         '@context': 'https://schema.org',
         '@type': 'SoftwareApplication',
@@ -118,17 +131,6 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
           'TakeoverWide',
         ]).url,
       },
-    },
-    {
-      'og:title': `${offerData.title} - egdata.app`,
-      'og:description': offerData.description,
-      'og:image': getImage(offerData.keyImages, [
-        'OfferImageWide',
-        'DieselGameBoxWide',
-        'TakeoverWide',
-      ]).url,
-      'og:type': 'product',
-      'og:url': `https://egdata.app/offers/${offerData.id}`,
     },
   ];
 };
