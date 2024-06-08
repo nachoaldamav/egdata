@@ -99,16 +99,16 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
           '@type': 'Organization',
           name: offerData.seller.name,
         },
-        offers: {
-          '@type': 'Offer',
-          price: offerData.price.totalPrice.discountPrice / 100,
-          priceCurrency: offerData.price.currency,
-          priceValidUntil: undefined,
-          availability: 'https://schema.org/InStock',
-          url: `https://store.epicgames.com/product/${
-            offerData.productSlug ?? offerData.url ?? offerData.urlSlug
-          }`,
-        },
+        // offers: {
+        //   '@type': 'Offer',
+        //   price: (offerData.price?.totalPrice.discountPrice || 0) / 100,
+        //   priceCurrency: offerData.price?.currency,
+        //   priceValidUntil: undefined,
+        //   availability: 'https://schema.org/InStock',
+        //   url: `https://store.epicgames.com/product/${
+        //     offerData.productSlug ?? offerData.url ?? offerData.urlSlug
+        //   }`,
+        // },
         sameAs: `https://store.epicgames.com/product/${
           offerData.productSlug ?? offerData.url ?? offerData.urlSlug
         }`,
