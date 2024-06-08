@@ -296,8 +296,9 @@ export default function Index() {
               ]).url
             }
             alt={offerData.title}
-            width={1920}
-            height={1080}
+            width={1080}
+            height={720}
+            quality={100}
             className="rounded-xl shadow-lg"
           />
           <p className="pt-2 px-1">{offerData.description}</p>
