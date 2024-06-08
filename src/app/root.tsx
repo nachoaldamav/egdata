@@ -8,6 +8,7 @@ import {
 import type { LinksFunction } from '@remix-run/node';
 import stylesheet from '~/tailwind.css?url';
 import Navbar from '~/components/app/navbar';
+import { SearchProvider } from '~/context/global-search';
 
 export const links: LinksFunction = () => [
   { rel: 'preload', href: stylesheet, as: 'style' },
@@ -24,10 +25,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body className="container antialiased">
-        <Navbar />
-        {children}
-        <ScrollRestoration />
-        <Scripts />
+        <SearchProvider>
+          <Navbar />
+          {children}
+          <ScrollRestoration />
+          <Scripts />
+        </SearchProvider>
       </body>
     </html>
   );

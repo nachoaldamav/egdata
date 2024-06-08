@@ -24,14 +24,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '~/components/ui/tooltip';
-import { cn } from '~/lib/utils';
 import { timeAgo } from '~/lib/time-ago';
-
-const internalNamespaces = [
-  'epic',
-  'SeaQA',
-  'd5241c76f178492ea1540fce45616757',
-];
+import { internalNamespaces } from '~/lib/internal-namespaces';
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const [offer, items] = await Promise.all([
@@ -292,7 +286,7 @@ export default function Index() {
             namespace={offerData.namespace}
           />
         </div>
-        <div className="flex justify-center items-start flex-col">
+        <div className="flex justify-start items-start flex-col">
           <Image
             src={
               getImage(offerData.keyImages, [

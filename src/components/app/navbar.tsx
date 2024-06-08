@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react';
 import {
   Sheet,
   SheetTrigger,
@@ -14,6 +15,7 @@ import {
   navigationMenuTriggerStyle,
 } from '~/components/ui/navigation-menu';
 import { Input } from '~/components/ui/input';
+import { useSearch } from '~/hooks/use-search';
 
 const routes = [
   {
@@ -35,6 +37,8 @@ const routes = [
 ];
 
 export default function Navbar() {
+  const { query, setQuery, setFocus, inputRef } = useSearch();
+
   return (
     <header className="flex h-20 w-full shrink-0 items-center px-4 md:px-6">
       <Sheet>
@@ -97,6 +101,11 @@ export default function Navbar() {
               type="search"
               placeholder="Search games..."
               className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
+              onFocus={() => setFocus(true)}
+              onBlur={() => setFocus(false)}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              ref={inputRef}
             />
           </div>
         </form>
