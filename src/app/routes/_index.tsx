@@ -11,6 +11,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '~/components/ui/carousel';
+import type { SingleOffer } from '~/types/single-offer';
+import { useEffect, useState } from 'react';
 
 export interface Game {
   id: string;
@@ -92,7 +94,7 @@ export default function Index() {
       <FeaturedGame game={featured} />
       <section className="w-full" id="latest-games">
         <h4 className="text-xl font-bold text-left">Latest Games</h4>
-        <Carousel className="mt-2 h-96 p-4">
+        <Carousel className="mt-2 h-full p-4">
           <CarouselPrevious />
           <CarouselContent>
             {games.map((game) => (
@@ -130,6 +132,7 @@ export default function Index() {
           <CarouselNext />
         </Carousel>
       </section>
+      <LastModifiedGames />
     </main>
   );
 }
@@ -164,7 +167,7 @@ function FeaturedGame({ game }: { game: FeaturedGame }) {
   return (
     <section
       id="featured-game"
-      className="shadow-md rounded px-3 pt-6 pb-8 mb-4"
+      className="shadow-md rounded px-3 pt-6 pb-8 mb-4 w-full"
     >
       <h2 className="text-xl font-bold mb-4">Featured Game</h2>
       <div className="flex flex-row gap-10">
@@ -220,6 +223,67 @@ function FeaturedGame({ game }: { game: FeaturedGame }) {
           </div>
         </div>
       </div>
+    </section>
+  );
+}
+
+function LastModifiedGames() {
+  const [games, setGames] = useState<SingleOffer[]>([]);
+
+  useEffect(() => {
+    client
+      .get<{
+        elements: SingleOffer[];
+      }>('/offers?limit=25')
+      .then((response) => {
+        setGames(response.data.elements);
+      });
+  }, []);
+
+  return (
+    <section className="w-full" id="last-modified-offers">
+      <h4 className="text-xl font-bold text-left">Last Modified Offers</h4>
+      <Carousel className="mt-2 h-96 p-4">
+        <CarouselPrevious />
+        <CarouselContent>
+          {games.map((game) => (
+            <CarouselItem key={game.id} className="basis-1/4">
+              <Link
+                to={`/offers/${game.id}`}
+                className="h-auto w-80 relative select-none"
+                prefetch="viewport"
+              >
+                <Card className="w-full max-w-sm rounded-lg overflow-hidden shadow-lg">
+                  <Image
+                    src={getImage(game.keyImages, ['Thumbnail']).url}
+                    alt={game.title}
+                    width={400}
+                    height={500}
+                    className="w-full h-96 object-cover hover:scale-105 transition-transform duration-300"
+                  />
+                  <CardContent className="p-6 space-y-4">
+                    <div className="space-y-2">
+                      <h3 className="text-xl font-bold">{game.title}</h3>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">
+                        <GameSeller
+                          developerDisplayName={
+                            game.developerDisplayName as string
+                          }
+                          publisherDisplayName={
+                            game.publisherDisplayName as string
+                          }
+                          seller={game.seller.name}
+                        />
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselNext />
+      </Carousel>
     </section>
   );
 }

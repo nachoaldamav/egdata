@@ -257,7 +257,7 @@ export default function Index() {
             namespace={offerData.namespace}
           />
         </div>
-        <div className="flex justify-center flex-col">
+        <div className="flex justify-center items-start flex-col">
           <Image
             src={
               getImage(offerData.keyImages, [
