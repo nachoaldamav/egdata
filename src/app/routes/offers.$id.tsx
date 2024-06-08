@@ -25,6 +25,7 @@ import {
   TooltipTrigger,
 } from '~/components/ui/tooltip';
 import { cn } from '~/lib/utils';
+import { timeAgo } from '~/lib/time-ago';
 
 const internalNamespaces = [
   'epic',
@@ -334,62 +335,9 @@ export default function Index() {
 const TimeAgo: React.FC<{
   targetDate: string;
 }> = ({ targetDate }) => {
-  const getTimeAgo = (date: string) => {
-    const now = new Date();
-    const lastModified = new Date(date);
-    const diffInMilliseconds = now.getTime() - lastModified.getTime();
-
-    const seconds = Math.floor(diffInMilliseconds / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const years = new Date(date).getFullYear() - now.getFullYear();
-    const months = new Date(date).getMonth() - now.getMonth();
-    const days = new Date(date).getDate() - now.getDate();
-
-    let timeAgo: number;
-    let unit: Intl.RelativeTimeFormatUnit;
-
-    console.log({
-      seconds,
-      minutes,
-      hours,
-      days,
-      months,
-      years,
-      date,
-      current: now,
-    });
-
-    if (Math.abs(years) > 0) {
-      timeAgo = years;
-      unit = 'year';
-    } else if (Math.abs(months) > 0) {
-      timeAgo = months;
-      unit = 'month';
-    } else if (Math.abs(days) > 0) {
-      timeAgo = days;
-      unit = 'day';
-    } else if (Math.abs(hours) > 0) {
-      timeAgo = hours;
-      unit = 'hour';
-    } else if (Math.abs(minutes) > 0) {
-      timeAgo = minutes;
-      unit = 'minute';
-    } else {
-      timeAgo = seconds;
-      unit = 'second';
-    }
-
-    return new Intl.RelativeTimeFormat('en', {
-      localeMatcher: 'best fit',
-      numeric: 'always',
-      style: 'long',
-    }).format(timeAgo, unit);
-  };
-
   return (
     <span className="opacity-50">
-      ({targetDate ? getTimeAgo(targetDate) : 'Not available'})
+      ({targetDate ? timeAgo(new Date(targetDate)) : 'Not available'})
     </span>
   );
 };
