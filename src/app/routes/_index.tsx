@@ -107,7 +107,7 @@ export default function Index() {
                       src={getImage(game.keyImages, ['Thumbnail']).url}
                       alt={game.title}
                       width={400}
-                      height={700}
+                      height={500}
                       className="w-full h-96 object-cover hover:scale-105 transition-transform duration-300"
                     />
                     <CardContent className="p-6 space-y-4">
@@ -193,8 +193,8 @@ function FeaturedGame({ game }: { game: FeaturedGame }) {
               ]).url
             }
             alt={game.title}
-            width={2160}
-            height={1440}
+            width={1920}
+            height={1080}
             quality={75}
             className="w-full h-[450px] object-cover rounded-xl"
           />
@@ -211,7 +211,7 @@ function FeaturedGame({ game }: { game: FeaturedGame }) {
           </div>
           <div className="flex flex-col gap-2 font-extrabold">
             <Link
-              to={`/app/${game.namespace}`}
+              to={`/offers/${game.id}`}
               prefetch="intent"
               className="hover:bg-transparent border border-gray-800 bg-gray-800 inline-block px-4 py-2 rounded-md text-center transition-all duration-300 ease-in-out text-white"
             >

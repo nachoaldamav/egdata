@@ -10,18 +10,8 @@ import stylesheet from '~/tailwind.css?url';
 import Navbar from '~/components/app/navbar';
 
 export const links: LinksFunction = () => [
+  { rel: 'preload', href: stylesheet, as: 'style' },
   { rel: 'stylesheet', href: stylesheet },
-  { rel: 'prefetch', href: 'https://egdata.app' },
-  {
-    rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap',
-  },
-  { rel: 'preconnect', href: 'https://fonts.gstatic.com' },
-  {
-    rel: 'preconnect',
-    href: 'https://fonts.googleapis.com',
-    crossOrigin: 'anonymous',
-  },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {

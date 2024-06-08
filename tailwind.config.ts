@@ -18,10 +18,7 @@ const config = {
       },
     },
     fontFamily: {
-      sans: [
-        'Nunito Sans',
-        ...require('tailwindcss/defaultConfig').theme.fontFamily.sans,
-      ],
+      sans: ['Nunito Sans'],
       mono: [...require('tailwindcss/defaultConfig').theme.fontFamily.mono],
     },
     extend: {
