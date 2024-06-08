@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs } from '@remix-run/node';
-import { Link, useLoaderData } from '@remix-run/react';
+import { Link, useLoaderData, type MetaFunction } from '@remix-run/react';
 import { Image } from '~/components/app/image';
 import { client } from '~/lib/client';
 import { getImage } from '~/lib/getImage';
@@ -59,6 +59,79 @@ function supportedPlatforms(items: SingleItem[]): string[] {
     return [];
   }
 }
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  if (!data) {
+    return [
+      {
+        title: 'Offer not found',
+        description: 'Offer not found',
+      },
+    ];
+  }
+
+  const { offer: offerData } = data;
+
+  if (offerData.title === 'Error') {
+    return [
+      {
+        title: 'Offer not found',
+        description: 'Offer not found',
+      },
+    ];
+  }
+
+  return [
+    {
+      title: `${offerData.title} - egdata.app`,
+      description: offerData.description,
+      'script:ld+json': {
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        name: offerData.title,
+        applicationCategory: 'Game',
+        description: offerData.description,
+        softwareVersion: undefined,
+        operatingSystem: supportedPlatforms(data.items).join(', '),
+        datePublished: offerData.releaseDate,
+        dateModified: offerData.lastModifiedDate,
+        publisher: {
+          '@type': 'Organization',
+          name: offerData.seller.name,
+        },
+        offers: {
+          '@type': 'Offer',
+          price: offerData.price.totalPrice.discountPrice / 100,
+          priceCurrency: offerData.price.currency,
+          priceValidUntil: undefined,
+          availability: 'https://schema.org/InStock',
+          url: `https://store.epicgames.com/product/${
+            offerData.productSlug ?? offerData.url ?? offerData.urlSlug
+          }`,
+        },
+        sameAs: `https://store.epicgames.com/product/${
+          offerData.productSlug ?? offerData.url ?? offerData.urlSlug
+        }`,
+        image: getImage(offerData.keyImages, [
+          'OfferImageWide',
+          'DieselGameBoxWide',
+          'TakeoverWide',
+        ]).url,
+      },
+    },
+    {
+      'og:title': `${offerData.title} - egdata.app`,
+      'og:description': offerData.description,
+      'og:image': getImage(offerData.keyImages, [
+        'OfferImageWide',
+        'DieselGameBoxWide',
+        'TakeoverWide',
+      ]).url,
+      'og:type': 'product',
+      'og:url': `https://egdata.app/offers/${offerData.id}`,
+    },
+  ];
+};
 
 export default function Index() {
   const { offer: offerData, items } = useLoaderData<typeof loader>();
