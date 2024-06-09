@@ -80,6 +80,11 @@ const GameFeatures: React.FC<GameFeatureProps> = ({ attributes }) => {
       <div className="h-auto flex gap-4 w-fit bg-gray-500/30 py-2 px-6 rounded-xl justify-center items-center text-white backdrop-blur-sm">
         {uniqueFeatures.map((feature) => {
           const Icon = icons[feature];
+
+          if (!Icon) {
+            return null;
+          }
+
           return (
             <TooltipProvider key={feature}>
               <Tooltip delayDuration={50}>

@@ -1,6 +1,15 @@
 import { useLoaderData, Link } from '@remix-run/react';
 import cookie from 'cookie';
 import { Card, CardContent, CardHeader } from '~/components/ui/card';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '~/components/ui/pagination';
 import { client } from '~/lib/client';
 import { getImage } from '~/lib/getImage';
 import { Image } from '~/components/app/image';
@@ -8,6 +17,8 @@ import type { SingleOffer } from '~/types/single-offer';
 import type { LoaderFunctionArgs } from '@remix-run/node';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const url = new URL(request.url);
+  const page = parseInt(url.searchParams.get('page') || '1');
   const cookieHeader = request.headers.get('Cookie');
   const cookies = cookie.parse(cookieHeader || '');
   const country = cookies.EGDATA_COUNTRY || 'US';
@@ -15,26 +26,101 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const [latestGames] = await Promise.all([
     client.get<{
       elements: SingleOffer[];
-    }>(`/sales?limit=30&country=${country}`),
+      page: number;
+      total: number;
+      limit: number;
+    }>(`/sales?limit=32&country=${country}&page=${page}`),
   ]);
 
   const games = latestGames.data.elements || ([] as SingleOffer[]);
 
-  return { games };
+  return {
+    games,
+    meta: {
+      page: latestGames.data.page,
+      total: latestGames.data.total,
+      limit: latestGames.data.limit,
+    },
+  };
 };
 
 export default function Index() {
-  const { games } = useLoaderData<typeof loader>();
+  const { games, meta } = useLoaderData<typeof loader>();
+  const { page, total, limit } = meta;
+  const totalPages = Math.ceil(total / limit);
+
+  const getPaginationItems = () => {
+    const items = [];
+    const startPage = Math.max(page - 2, 1);
+    const endPage = Math.min(page + 2, totalPages);
+
+    if (startPage > 1) {
+      items.push(
+        <PaginationItem key={1}>
+          <PaginationLink to={`?page=1`}>1</PaginationLink>
+        </PaginationItem>
+      );
+      if (startPage > 2) {
+        items.push(<PaginationEllipsis key="start-ellipsis" />);
+      }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      items.push(
+        <PaginationItem key={i}>
+          {i === page ? (
+            <PaginationLink to={`?page=${i}`} isActive>
+              {i}
+            </PaginationLink>
+          ) : (
+            <PaginationLink to={`?page=${i}`}>{i}</PaginationLink>
+          )}
+        </PaginationItem>
+      );
+    }
+
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        items.push(<PaginationEllipsis key="end-ellipsis" />);
+      }
+      items.push(
+        <PaginationItem key={totalPages}>
+          <PaginationLink to={`?page=${totalPages}`}>
+            {totalPages}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+
+    return items;
+  };
 
   return (
     <main className="flex flex-col items-center justify-start h-full space-y-4 p-4">
       <section className="flex flex-col gap-4">
         <h4 className="text-2xl font-bold text-left">Current Sales</h4>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {games.map((game) => (
-            <GameCard key={game.id} game={game} />
-          ))}
+          {games
+            .filter((game) => game.id)
+            .map((game) => (
+              <GameCard key={game.id} game={game} />
+            ))}
         </div>
+        <Pagination>
+          <PaginationContent>
+            {page > 1 && (
+              <PaginationItem>
+                <PaginationPrevious to={`?page=${page - 1}`} />
+              </PaginationItem>
+            )}
+            {getPaginationItems()}
+            {page < totalPages && (
+              <PaginationItem>
+                <PaginationNext to={`?page=${page + 1}`} />
+              </PaginationItem>
+            )}
+          </PaginationContent>
+        </Pagination>
       </section>
     </main>
   );
@@ -45,12 +131,13 @@ function GameCard({ game }: { game: SingleOffer }) {
     style: 'currency',
     currency: game.price.currency,
   });
+
   return (
     <Link to={`/offers/${game.id}`} prefetch="viewport">
       <Card className="rounded-xl shadow-lg h-full flex flex-col">
         <CardHeader className="p-0 rounded-t-xl">
           <Image
-            src={getImage(game.keyImages, ['Thumbnail']).url}
+            src={getImage(game.keyImages, ['OfferImageTall', 'Thumbnail']).url}
             alt={game.title}
             width={400}
             height={500}
