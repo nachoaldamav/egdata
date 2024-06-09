@@ -97,42 +97,76 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [
     {
       title: `${offerData.title} - egdata.app`,
-      description: offerData.description,
     },
     {
-      'og:title': `${offerData.title} - egdata.app`,
+      name: 'description',
+      content: offerData.description,
     },
     {
-      'og:description': offerData.description,
+      name: 'keywords',
+      content: 'Epic Games, Epic Games Store, Offer, Sale, Game',
     },
     {
-      'og:image': getImage(offerData.keyImages, [
+      name: 'author',
+      content: offerData.seller.name,
+    },
+    {
+      name: 'robots',
+      content: 'index, follow',
+    },
+    {
+      property: 'og:title',
+      content: `${offerData.title} - egdata.app`,
+    },
+    {
+      property: 'og:description',
+      content: offerData.description,
+    },
+    {
+      property: 'og:image',
+      content: getImage(offerData.keyImages, [
         'OfferImageWide',
         'DieselGameBoxWide',
         'TakeoverWide',
       ]).url,
     },
     {
-      'og:type': 'product',
+      property: 'og:url',
+      content: `https://store.epicgames.com/product/${
+        offerData.productSlug ?? offerData.url ?? offerData.urlSlug
+      }`,
     },
     {
-      'og:url': `https://egdata.app/offers/${offerData.id}`,
+      property: 'og:type',
+      content: 'website',
     },
     {
-      'twitter:title': `${offerData.title} - egdata.app`,
+      property: 'og:site_name',
+      content: 'egdata.app',
     },
     {
-      'twitter:description': offerData.description,
+      name: 'twitter:card',
+      content: 'summary_large_image',
     },
     {
-      'twitter:image': getImage(offerData.keyImages, [
+      name: 'twitter:site',
+      content: '@egdataapp',
+    },
+    {
+      name: 'twitter:title',
+      content: `${offerData.title} - egdata.app`,
+    },
+    {
+      name: 'twitter:description',
+      content: offerData.description,
+    },
+    {
+      name: 'twitter:image',
+      content: getImage(offerData.keyImages, [
         'OfferImageWide',
         'DieselGameBoxWide',
         'TakeoverWide',
       ]).url,
-    },
-    {
-      'twitter:card': 'summary_large_image',
     },
     {
       'script:ld+json': {
