@@ -101,14 +101,38 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
     },
     {
       'og:title': `${offerData.title} - egdata.app`,
+    },
+    {
       'og:description': offerData.description,
+    },
+    {
       'og:image': getImage(offerData.keyImages, [
         'OfferImageWide',
         'DieselGameBoxWide',
         'TakeoverWide',
       ]).url,
+    },
+    {
       'og:type': 'product',
+    },
+    {
       'og:url': `https://egdata.app/offers/${offerData.id}`,
+    },
+    {
+      'twitter:title': `${offerData.title} - egdata.app`,
+    },
+    {
+      'twitter:description': offerData.description,
+    },
+    {
+      'twitter:image': getImage(offerData.keyImages, [
+        'OfferImageWide',
+        'DieselGameBoxWide',
+        'TakeoverWide',
+      ]).url,
+    },
+    {
+      'twitter:card': 'summary_large_image',
     },
     {
       'script:ld+json': {
@@ -226,16 +250,6 @@ export default function Index() {
                   </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className="font-medium">
-                    Supported Platforms
-                  </TableCell>
-                  <TableCell className="text-left border-l-gray-300/10 border-l">
-                    {supportedPlatforms(items).length > 0
-                      ? supportedPlatforms(items).join(', ')
-                      : 'Unknown'}
-                  </TableCell>
-                </TableRow>
-                <TableRow>
                   <TableCell className="font-medium">Developer</TableCell>
                   <TableCell className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l">
                     {offerData.developerDisplayName ?? offerData.seller.name}
@@ -245,6 +259,16 @@ export default function Index() {
                         ({offerData.publisherDisplayName})
                       </span>
                     )}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-medium">
+                    Supported Platforms
+                  </TableCell>
+                  <TableCell className="text-left border-l-gray-300/10 border-l">
+                    {supportedPlatforms(items).length > 0
+                      ? supportedPlatforms(items).join(', ')
+                      : 'Unknown'}
                   </TableCell>
                 </TableRow>
                 <TableRow>
