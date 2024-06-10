@@ -357,7 +357,7 @@ export default function Index() {
                   'OfferImageWide',
                   'DieselGameBoxWide',
                   'TakeoverWide',
-                ]).url
+                ])?.url ?? 'https://via.placeholder.com/1920x1080'
               }
               alt={offerData.title}
               width={1920}
