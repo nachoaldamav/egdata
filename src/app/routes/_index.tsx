@@ -255,7 +255,10 @@ function LastModifiedGames() {
               >
                 <Card className="w-full max-w-sm rounded-lg overflow-hidden shadow-lg">
                   <Image
-                    src={getImage(game.keyImages, ['Thumbnail']).url}
+                    src={
+                      getImage(game.keyImages, ['Thumbnail'])?.url ||
+                      'https://via.placeholder.com/400x500'
+                    }
                     alt={game.title}
                     width={400}
                     height={500}
