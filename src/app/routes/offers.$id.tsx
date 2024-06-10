@@ -24,7 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '~/components/ui/tooltip';
-import { timeAgo } from '~/lib/time-ago';
+import { compareDates, timeAgo } from '~/lib/time-ago';
 import { internalNamespaces } from '~/lib/internal-namespaces';
 import GameFeatures from '~/components/app/game-features';
 import { cn } from '~/lib/utils';
@@ -309,19 +309,10 @@ export default function Index() {
                 <TableRow>
                   <TableCell className="font-medium">Release Date</TableCell>
                   <TableCell className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l">
-                    {!offerData.releaseDate?.includes('2099')
-                      ? new Date(offerData.releaseDate).toLocaleDateString(
-                          'en-UK',
-                          {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          }
-                        )
-                      : 'Not available'}
-                    {!offerData.releaseDate?.includes('2099') && (
-                      <TimeAgo targetDate={offerData.releaseDate} />
-                    )}
+                    <ReleaseDate
+                      releaseDate={offerData.releaseDate}
+                      pcReleaseDate={offerData.pcReleaseDate}
+                    />
                   </TableCell>
                 </TableRow>
                 <TableRow>
@@ -406,6 +397,53 @@ const TimeAgo: React.FC<{
     <span className="opacity-50">
       ({targetDate ? timeAgo(new Date(targetDate)) : 'Not available'})
     </span>
+  );
+};
+
+const ReleaseDate: React.FC<{
+  releaseDate: string | null;
+  pcReleaseDate: string | null;
+}> = ({ releaseDate, pcReleaseDate }) => {
+  if (!releaseDate || releaseDate.includes('2099')) {
+    return <span>Not available</span>;
+  }
+
+  return (
+    <>
+      <TooltipProvider>
+        <Tooltip open={!pcReleaseDate ? false : undefined}>
+          <TooltipTrigger className="flex items-center gap-1 cursor-default">
+            <span
+              className={cn(
+                pcReleaseDate &&
+                  releaseDate !== pcReleaseDate &&
+                  'underline decoration-dotted underline-offset-4'
+              )}
+            >
+              {new Date(releaseDate).toLocaleDateString('en-UK', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>
+            {!pcReleaseDate || releaseDate === pcReleaseDate ? (
+              'Released on Epic the same day as PC'
+            ) : (
+              <span>
+                <span>Released on PC </span>
+                <span>
+                  {compareDates(new Date(pcReleaseDate), new Date(releaseDate))}
+                </span>
+                <span> the EGS</span>
+              </span>
+            )}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+      <TimeAgo targetDate={releaseDate} />
+    </>
   );
 };
 
