@@ -132,9 +132,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
     },
     {
       property: 'og:url',
-      content: `https://store.epicgames.com/product/${
-        offerData.productSlug ?? offerData.url ?? offerData.urlSlug
-      }`,
+      content: `https://egdata.app/offers/${offerData.id}`,
     },
     {
       property: 'og:type',
@@ -372,6 +370,9 @@ export default function Index() {
           <p className="px-1">{offerData.description}</p>
         </div>
       </header>
+      <section id="historical-prices" className="w-full">
+        <h2 className="text-2xl font-bold">Historical Prices</h2>
+      </section>
       <section id="items" className="w-full">
         <h2 className="text-2xl font-bold">Items</h2>
         <Table>
