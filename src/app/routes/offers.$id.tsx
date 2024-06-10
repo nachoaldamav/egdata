@@ -124,11 +124,12 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
     },
     {
       property: 'og:image',
-      content: getImage(offerData.keyImages, [
-        'OfferImageWide',
-        'DieselGameBoxWide',
-        'TakeoverWide',
-      ]).url,
+      content:
+        getImage(offerData.keyImages, [
+          'OfferImageWide',
+          'DieselGameBoxWide',
+          'TakeoverWide',
+        ])?.url ?? 'https://via.placeholder.com/1920x1080',
     },
     {
       property: 'og:url',
@@ -160,11 +161,12 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
     },
     {
       name: 'twitter:image',
-      content: getImage(offerData.keyImages, [
-        'OfferImageWide',
-        'DieselGameBoxWide',
-        'TakeoverWide',
-      ]).url,
+      content:
+        getImage(offerData.keyImages, [
+          'OfferImageWide',
+          'DieselGameBoxWide',
+          'TakeoverWide',
+        ])?.url ?? 'https://via.placeholder.com/1920x1080',
     },
     {
       'script:ld+json': {
@@ -194,11 +196,12 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
         sameAs: `https://store.epicgames.com/product/${
           offerData.productSlug ?? offerData.url ?? offerData.urlSlug
         }`,
-        image: getImage(offerData.keyImages, [
-          'OfferImageWide',
-          'DieselGameBoxWide',
-          'TakeoverWide',
-        ]).url,
+        image:
+          getImage(offerData.keyImages, [
+            'OfferImageWide',
+            'DieselGameBoxWide',
+            'TakeoverWide',
+          ])?.url ?? 'https://via.placeholder.com/1920x1080',
       },
     },
   ];
@@ -306,7 +309,7 @@ export default function Index() {
                 <TableRow>
                   <TableCell className="font-medium">Release Date</TableCell>
                   <TableCell className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l">
-                    {!offerData.releaseDate.includes('2099')
+                    {!offerData.releaseDate?.includes('2099')
                       ? new Date(offerData.releaseDate).toLocaleDateString(
                           'en-UK',
                           {
@@ -316,7 +319,7 @@ export default function Index() {
                           }
                         )
                       : 'Not available'}
-                    {!offerData.releaseDate.includes('2099') && (
+                    {!offerData.releaseDate?.includes('2099') && (
                       <TimeAgo targetDate={offerData.releaseDate} />
                     )}
                   </TableCell>
@@ -477,11 +480,12 @@ const BaseGame: React.FC<{ offer: SingleOffer }> = ({ offer }) => {
     return null;
   }
 
-  const image = getImage(game.keyImages, [
-    'DieselGameBox',
-    'DieselGameBoxWide',
-    'OfferImageWide',
-  ]).url;
+  const image =
+    getImage(game.keyImages, [
+      'DieselGameBox',
+      'DieselGameBoxWide',
+      'OfferImageWide',
+    ])?.url || 'https://via.placeholder.com/1920x1080';
 
   return (
     <Link
