@@ -22,6 +22,7 @@ function CountryProvider({ children }: CountryProviderProps) {
       path: '/',
       maxAge: 31536000,
       sameSite: 'lax',
+      domain: '.egdata.app',
     });
     setCountryState(selectedCountry);
   };
