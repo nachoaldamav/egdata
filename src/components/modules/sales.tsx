@@ -12,6 +12,7 @@ import {
 } from '~/components/ui/carousel';
 import { Skeleton } from '~/components/ui/skeleton';
 import { Image } from '~/components/app/image';
+import { useCountry } from '~/hooks/use-country';
 
 export interface SingleOffer {
   id: string;
@@ -72,15 +73,18 @@ export function SalesModule({
   eventId: string;
   event: string;
 }) {
+  const { country } = useCountry();
   const [loading, setLoading] = useState(true);
   const [games, setGames] = useState<SingleOffer[]>([]);
 
   useEffect(() => {
-    client.get<SingleOffer[]>(`/promotions/${eventId}`).then((res) => {
-      setGames(res.data);
-      setLoading(false);
-    });
-  }, [eventId]);
+    client
+      .get<SingleOffer[]>(`/promotions/${eventId}?country=${country || 'US'}`)
+      .then((res) => {
+        setGames(res.data);
+        setLoading(false);
+      });
+  }, [eventId, country]);
 
   return (
     <section className="w-full h-full" id={`promotion-${eventId}`}>
