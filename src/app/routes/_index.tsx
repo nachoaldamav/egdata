@@ -1,4 +1,5 @@
 import type { MetaFunction } from '@remix-run/node';
+import type { FullTag } from '~/types/tags';
 import { Link, useLoaderData } from '@remix-run/react';
 import { Image } from '~/components/app/image';
 import { Card, CardContent } from '~/components/ui/card';
@@ -14,6 +15,7 @@ import {
 import type { SingleOffer } from '~/types/single-offer';
 import { useEffect, useState } from 'react';
 import { Skeleton } from '~/components/ui/skeleton';
+import { SalesModule } from '~/components/modules/sales';
 
 export interface Game {
   id: string;
@@ -77,19 +79,21 @@ export const meta: MetaFunction = () => {
 };
 
 export const loader = async () => {
-  const [latestGames, featuredGame] = await Promise.all([
+  const [latestGames, featuredGame, eventsData] = await Promise.all([
     client.get<Game[]>('/latest-games'),
     client.get<FeaturedGame>('/featured'),
+    client.get<FullTag[]>('/promotions'),
   ]);
 
   const games = latestGames.data;
   const featured = featuredGame.data;
+  const events = eventsData.data;
 
-  return { games, featured };
+  return { games, featured, events };
 };
 
 export default function Index() {
-  const { games, featured } = useLoaderData<typeof loader>();
+  const { games, featured, events } = useLoaderData<typeof loader>();
   return (
     <main className="flex flex-col items-center justify-start h-full space-y-4 p-4">
       <FeaturedGame game={featured} />
@@ -134,6 +138,9 @@ export default function Index() {
         </Carousel>
       </section>
       <LastModifiedGames />
+      {events.map((event) => (
+        <SalesModule key={event.id} event={event.name} eventId={event.id} />
+      ))}
     </main>
   );
 }
