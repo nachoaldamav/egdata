@@ -6,7 +6,7 @@ import {
 } from '@radix-ui/react-icons';
 
 import { cn } from '~/lib/utils';
-import { ButtonProps, buttonVariants } from '~/components/ui/button';
+import { type ButtonProps, buttonVariants } from '~/components/ui/button';
 import { Link } from '@remix-run/react';
 
 const Pagination = ({ className, ...props }: React.ComponentProps<'nav'>) => (
@@ -42,6 +42,7 @@ PaginationItem.displayName = 'PaginationItem';
 type PaginationLinkProps = {
   isActive?: boolean;
   to: string;
+  prefetch?: 'intent' | 'render' | 'none' | 'viewport';
 } & Pick<ButtonProps, 'size'> &
   React.ComponentProps<'a'>;
 
@@ -60,7 +61,7 @@ const PaginationLink = ({
       }),
       className
     )}
-    prefetch="intent"
+    prefetch={props.prefetch ?? 'none'}
     {...props}
   />
 );

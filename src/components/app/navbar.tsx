@@ -78,14 +78,14 @@ export default function Navbar() {
           </SheetFooter>
         </SheetContent>
       </Sheet>
-      <Link to="/" className="mr-6 hidden lg:flex">
+      <Link to="/" className="mr-6 hidden lg:flex" prefetch="render">
         <GamepadIcon className="h-6 w-6" />
         <span className="sr-only">GameDB</span>
       </Link>
       <NavigationMenu className="hidden lg:flex">
         <NavigationMenuList>
           {routes.map((route) => (
-            <Link key={route.name} to={route.href}>
+            <Link key={route.name} to={route.href} prefetch="render">
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                 {route.name}
               </NavigationMenuLink>
