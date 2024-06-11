@@ -31,9 +31,18 @@ type KeyImages = {
   md5: string;
 };
 
+/**
+ * Get the image from the keyImages array (the types are in order of preference)
+ * @param keyImages - Array of keyImages
+ * @param types - Array of types to search for
+ */
 export const getImage = (keyImages: KeyImages[], types: EGSImageTypes[]) => {
-  return (
-    keyImages.find((image) => types.includes(image.type as EGSImageTypes)) ||
-    keyImages[0]
-  );
+  for (const type of types) {
+    const image = keyImages.find((image) => image.type === type);
+    if (image) {
+      return image;
+    }
+  }
+
+  return keyImages[0];
 };
