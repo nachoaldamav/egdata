@@ -13,6 +13,7 @@ import {
 } from '~/components/ui/carousel';
 import type { SingleOffer } from '~/types/single-offer';
 import { useEffect, useState } from 'react';
+import { Skeleton } from '~/components/ui/skeleton';
 
 export interface Game {
   id: string;
@@ -228,6 +229,7 @@ function FeaturedGame({ game }: { game: FeaturedGame }) {
 }
 
 function LastModifiedGames() {
+  const [loading, setLoading] = useState(true);
   const [games, setGames] = useState<SingleOffer[]>([]);
 
   useEffect(() => {
@@ -237,6 +239,9 @@ function LastModifiedGames() {
       }>('/offers?limit=25')
       .then((response) => {
         setGames(response.data.elements);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, []);
 
@@ -246,6 +251,14 @@ function LastModifiedGames() {
       <Carousel className="mt-2 h-full p-4">
         <CarouselPrevious />
         <CarouselContent>
+          {loading &&
+            games.length === 0 &&
+            [...Array(25)].map((_, index) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: This is a skeleton loader
+              <CarouselItem key={index} className="basis-1/4">
+                <Skeleton className="w-80 h-96" />
+              </CarouselItem>
+            ))}
           {games.map((game) => (
             <CarouselItem key={game.id} className="basis-1/4">
               <Link
