@@ -3,17 +3,14 @@ import {
   useEffect,
   useCallback,
   useRef,
-  createContext,
   type ReactNode,
 } from 'react';
 import lodash from 'lodash';
 import { Portal } from '@radix-ui/react-portal';
 import { client } from '~/lib/client';
 import { defaultState, SearchContext } from './search-context';
-import { getImage } from '~/lib/getImage';
 import { internalNamespaces } from '~/lib/internal-namespaces';
 import { Link } from '@remix-run/react';
-import { Image } from '~/components/app/image';
 
 const { debounce } = lodash;
 

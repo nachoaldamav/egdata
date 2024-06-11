@@ -9,6 +9,7 @@ import type { LinksFunction } from '@remix-run/node';
 import stylesheet from '~/tailwind.css?url';
 import Navbar from '~/components/app/navbar';
 import { SearchProvider } from '~/context/global-search';
+import { CountryProvider } from '~/context/country';
 
 export const links: LinksFunction = () => [
   { rel: 'preload', href: stylesheet, as: 'style' },
@@ -27,20 +28,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body className="container antialiased">
         <SearchProvider>
-          <Navbar />
-          {children}
-          <ScrollRestoration />
-          <Scripts />
-          <footer className="flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400 text-xs">
-            <p>
-              egdata.app is a fan-made website and is not affiliated by any
-              means with Epic Games, Inc.
-            </p>
-            <p>
-              All the logos, images, trademarks and creatives are property of
-              their respective owners.
-            </p>
-          </footer>
+          <CountryProvider>
+            <Navbar />
+            {children}
+            <ScrollRestoration />
+            <Scripts />
+            <footer className="flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400 text-xs">
+              <p>
+                egdata.app is a fan-made website and is not affiliated by any
+                means with Epic Games, Inc.
+              </p>
+              <p>
+                All the logos, images, trademarks and creatives are property of
+                their respective owners.
+              </p>
+            </footer>
+          </CountryProvider>
         </SearchProvider>
       </body>
     </html>

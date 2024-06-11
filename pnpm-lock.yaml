@@ -20,6 +20,9 @@ importers:
       '@radix-ui/react-navigation-menu':
         specifier: ^1.1.4
         version: 1.1.4(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-popover':
+        specifier: ^1.0.7
+        version: 1.0.7(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@radix-ui/react-portal':
         specifier: ^1.0.4
         version: 1.0.4(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -47,6 +50,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      cmdk:
+        specifier: ^1.0.0
+        version: 1.0.0(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       cookie:
         specifier: ^0.6.0
         version: 0.6.0
@@ -65,6 +71,9 @@ importers:
       react:
         specifier: ^18.2.0
         version: 18.3.1
+      react-cookie:
+        specifier: ^7.1.4
+        version: 7.1.4(react@18.3.1)
       react-dom:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
@@ -872,6 +881,19 @@ packages:
       '@types/react-dom':
         optional: true
 
+  '@radix-ui/react-popover@1.0.7':
+    resolution: {integrity: sha512-shtvVnlsxT6faMnK/a7n0wptwBD23xc1Z5mdrtKLwVEfsEMXodS0r5s0/g5P0hX//EKYZS2sxUjqfzlg52ZSnQ==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0
+      react-dom: ^16.8 || ^17.0 || ^18.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
   '@radix-ui/react-popper@1.1.3':
     resolution: {integrity: sha512-cKpopj/5RHZWjrbF2846jBNacjQVwkP068DfmgrNJXpvVWrOvlAmE9xSiy5OqeE+Gi8D9fP+oDhUnPqNMY8/5w==}
     peerDependencies:
@@ -1206,6 +1228,9 @@ packages:
 
   '@types/hast@2.3.10':
     resolution: {integrity: sha512-McWspRw8xx8J9HurkVBfYj0xKoE25tOFlHGdx4MJ5xORQrMGZNqJhVQWaIbm6Oyla5kYOXtDiopzKRJzEOkwJw==}
+
+  '@types/hoist-non-react-statics@3.3.5':
+    resolution: {integrity: sha512-SbcrWzkKBw2cdwRTwQAswfpB9g9LJWfjtUeW/jvNwbhC8cpmmNYVePa+ncbUe0rGTQ7G3Ff6mYUN2VMfLVr+Sg==}
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
@@ -1599,6 +1624,12 @@ packages:
   clsx@2.1.1:
     resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
     engines: {node: '>=6'}
+
+  cmdk@1.0.0:
+    resolution: {integrity: sha512-gDzVf0a09TvoJ5jnuPvygTB77+XdOSwEmJ88L6XPFPlv7T3RxbP9jgenfylrAMD0+Le1aO0nVjQUzl2g+vjz5Q==}
+    peerDependencies:
+      react: ^18.0.0
+      react-dom: ^18.0.0
 
   color-convert@1.9.3:
     resolution: {integrity: sha512-QfAUtd+vFdAtFQcC8CCyYt1fYWxSqAiK2cSD6zDB8N3cpsEBAvRxp9zOGg6G/SHHJYAT88/az/IuDGALsNVbGg==}
@@ -2281,6 +2312,9 @@ packages:
 
   hast-util-whitespace@2.0.1:
     resolution: {integrity: sha512-nAxA0v8+vXSBDt3AnRUNjyRIQ0rD+ntpbAp4LnPkumc5M9yUbSMa4XDU9Q6etY4f1Wp4bNgvc1yjiZtsTTrSng==}
+
+  hoist-non-react-statics@3.3.2:
+    resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
 
   hosted-git-info@6.1.1:
     resolution: {integrity: sha512-r0EI+HBMcXadMrugk0GCQ+6BQV39PiWAZVfq7oIckeGiN7sjRGyQxPdft3nQekFTCQbYxLBH+/axZMeH8UX6+w==}
@@ -3253,6 +3287,11 @@ packages:
     resolution: {integrity: sha512-8zGqypfENjCIqGhgXToC8aB2r7YrBX+AQAfIPs/Mlk+BtPTztOvTS01NRW/3Eh60J+a48lt8qsCzirQ6loCVfA==}
     engines: {node: '>= 0.8'}
 
+  react-cookie@7.1.4:
+    resolution: {integrity: sha512-wDxxa/HYaSXSMlyWJvJ5uZTzIVtQTPf1gMksFgwAz/2/W3lCtY8r4OChCXMPE7wax0PAdMY97UkNJedGv7KnDw==}
+    peerDependencies:
+      react: '>= 16.3.0'
+
   react-dom@18.3.1:
     resolution: {integrity: sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==}
     peerDependencies:
@@ -3774,6 +3813,9 @@ packages:
 
   unist-util-visit@4.1.2:
     resolution: {integrity: sha512-MSd8OUGISqHdVvfY9TPhyK2VdUrPgxkUtWSuMHF6XAAFuL4LokseigBnZtPnJMu+FbynTkFNnFlyjxpVKujMRg==}
+
+  universal-cookie@7.1.4:
+    resolution: {integrity: sha512-Q+DVJsdykStWRMtXr2Pdj3EF98qZHUH/fXv/gwFz/unyToy1Ek1w5GsWt53Pf38tT8Gbcy5QNsj61Xe9TggP4g==}
 
   universalify@2.0.1:
     resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
@@ -4677,6 +4719,30 @@ snapshots:
       '@types/react': 18.3.3
       '@types/react-dom': 18.3.0
 
+  '@radix-ui/react-popover@1.0.7(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@babel/runtime': 7.24.7
+      '@radix-ui/primitive': 1.0.1
+      '@radix-ui/react-compose-refs': 1.0.1(@types/react@18.3.3)(react@18.3.1)
+      '@radix-ui/react-context': 1.0.1(@types/react@18.3.3)(react@18.3.1)
+      '@radix-ui/react-dismissable-layer': 1.0.5(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-focus-guards': 1.0.1(@types/react@18.3.3)(react@18.3.1)
+      '@radix-ui/react-focus-scope': 1.0.4(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-id': 1.0.1(@types/react@18.3.3)(react@18.3.1)
+      '@radix-ui/react-popper': 1.1.3(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-portal': 1.0.4(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-presence': 1.0.1(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-primitive': 1.0.3(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-slot': 1.0.2(@types/react@18.3.3)(react@18.3.1)
+      '@radix-ui/react-use-controllable-state': 1.0.1(@types/react@18.3.3)(react@18.3.1)
+      aria-hidden: 1.2.4
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-remove-scroll: 2.5.5(@types/react@18.3.3)(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 18.3.3
+      '@types/react-dom': 18.3.0
+
   '@radix-ui/react-popper@1.1.3(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.24.7
@@ -5052,6 +5118,11 @@ snapshots:
   '@types/hast@2.3.10':
     dependencies:
       '@types/unist': 2.0.10
+
+  '@types/hoist-non-react-statics@3.3.5':
+    dependencies:
+      '@types/react': 18.3.3
+      hoist-non-react-statics: 3.3.2
 
   '@types/json-schema@7.0.15': {}
 
@@ -5554,6 +5625,16 @@ snapshots:
   clsx@2.0.0: {}
 
   clsx@2.1.1: {}
+
+  cmdk@1.0.0(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      '@radix-ui/react-dialog': 1.0.5(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-primitive': 1.0.3(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    transitivePeerDependencies:
+      - '@types/react'
+      - '@types/react-dom'
 
   color-convert@1.9.3:
     dependencies:
@@ -6442,6 +6523,10 @@ snapshots:
       - supports-color
 
   hast-util-whitespace@2.0.1: {}
+
+  hoist-non-react-statics@3.3.2:
+    dependencies:
+      react-is: 16.13.1
 
   hosted-git-info@6.1.1:
     dependencies:
@@ -7539,6 +7624,13 @@ snapshots:
       iconv-lite: 0.4.24
       unpipe: 1.0.0
 
+  react-cookie@7.1.4(react@18.3.1):
+    dependencies:
+      '@types/hoist-non-react-statics': 3.3.5
+      hoist-non-react-statics: 3.3.2
+      react: 18.3.1
+      universal-cookie: 7.1.4
+
   react-dom@18.3.1(react@18.3.1):
     dependencies:
       loose-envify: 1.4.0
@@ -8192,6 +8284,11 @@ snapshots:
       '@types/unist': 2.0.10
       unist-util-is: 5.2.1
       unist-util-visit-parents: 5.1.3
+
+  universal-cookie@7.1.4:
+    dependencies:
+      '@types/cookie': 0.6.0
+      cookie: 0.6.0
 
   universalify@2.0.1: {}
 

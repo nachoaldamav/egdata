@@ -16,6 +16,7 @@ import {
 } from '~/components/ui/navigation-menu';
 import { Input } from '~/components/ui/input';
 import { useSearch } from '~/hooks/use-search';
+import { CountriesSelector } from './country-selector';
 
 const routes = [
   {
@@ -40,7 +41,7 @@ export default function Navbar() {
   const { query, setQuery, setFocus, inputRef } = useSearch();
 
   return (
-    <header className="flex h-20 w-full shrink-0 items-center px-4 md:px-6">
+    <header className="flex h-20 w-full shrink-0 items-center px-4 md:px-6 gap-2">
       <Sheet>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon" className="lg:hidden">
@@ -110,6 +111,7 @@ export default function Navbar() {
           </div>
         </form>
       </div>
+      <CountriesSelector />
     </header>
   );
 }
