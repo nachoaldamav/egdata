@@ -47,6 +47,7 @@ export const Image: React.FC<ImageProps> = ({
     quality === 100 ? generateSrcSet(src as string, quality, 'webp') : '';
 
   useEffect(() => {
+    setLoading(true);
     const img = new globalThis.Image();
     img.src = url;
     img.onload = () => setLoading(false);
