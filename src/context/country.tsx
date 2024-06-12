@@ -1,6 +1,8 @@
 import { useState, type ReactNode } from 'react';
 import { CookiesProvider, useCookies } from 'react-cookie';
 import { CountryContext } from './country-context';
+import getCountryCode from '~/lib/get-country-code';
+import { useLocation } from '@remix-run/react';
 
 export interface CountryState {
   country: string;
@@ -12,10 +14,11 @@ interface CountryProviderProps {
 }
 
 function CountryProvider({ children }: CountryProviderProps) {
+  const location = useLocation();
+  const url = new URL(`https://dummy${location.pathname}${location.search}`);
+
   const [cookies, setCookie] = useCookies(['EGDATA_COUNTRY']);
-  const [countryState, setCountryState] = useState<string>(
-    cookies.EGDATA_COUNTRY || 'US',
-  );
+  const [countryState, setCountryState] = useState<string>(getCountryCode(url, cookies));
 
   const handleCountry = (selectedCountry: string) => {
     setCookie('EGDATA_COUNTRY', selectedCountry, {

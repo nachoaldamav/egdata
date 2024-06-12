@@ -9,6 +9,7 @@ type EGSImageTypes =
   | 'DieselGameBox'
   | 'DieselGameBoxWide'
   | 'DieselGameBoxTall'
+  | 'DieselGameBoxLogo'
   | 'TakeoverLogo'
   | 'TakeoverLogoSmall'
   | 'TakeoverTall'
@@ -17,12 +18,20 @@ type EGSImageTypes =
   | 'VaultClosed'
   | 'Sale'
   | 'ComingSoon'
+  | 'ComingSoon_Small'
   | 'Featured'
   | 'ESRB'
   | 'OgImage'
   | 'ProductLogo'
   | 'CodeRedemption_340x440'
   | 'heroCarouselVideo'
+  | 'AndroidIcon'
+  | 'horizontal'
+  | 'img_banner'
+  | 'img_small'
+  | 'img_thumbnail'
+  | 'storefront'
+  | 'vertical'
   | 'image name';
 
 type KeyImages = {

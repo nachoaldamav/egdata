@@ -18,13 +18,14 @@ import type { LoaderFunctionArgs } from '@remix-run/node';
 import type { SingleOfferWithPrice } from '~/types/single-offer-price';
 import { useCountry } from '~/hooks/use-country';
 import { useEffect, useState } from 'react';
+import getPagingPage from '~/lib/get-paging-page';
+import getCountryCode from '~/lib/get-country-code';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
-  const page = Number.parseInt(url.searchParams.get('page') || '1');
-  const cookieHeader = request.headers.get('Cookie');
-  const cookies = cookie.parse(cookieHeader || '');
-  const country = cookies.EGDATA_COUNTRY || 'US';
+
+  const page = getPagingPage(url);
+  const country = getCountryCode(url, cookie.parse(request.headers.get('Cookie') || ''));
 
   const [latestGames] = await Promise.all([
     client.get<{
@@ -50,15 +51,18 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export default function Index() {
   const { games, meta, country } = useLoaderData<typeof loader>();
-  const [userSelectedCountry, setUserSelectedCountry] =
-    useState<string>(country);
+  const [userSelectedCountry, setUserSelectedCountry] = useState<string>(country);
   const { country: userCountry } = useCountry();
   const { page, total, limit } = meta;
   const totalPages = Math.ceil(total / limit);
 
   useEffect(() => {
     if (userSelectedCountry !== userCountry) {
-      window.location.reload();
+      const url = new URL(window.location.href);
+
+      url.searchParams.set('country', userCountry);
+
+      window.location.href = url.href;
     }
   }, [userCountry, userSelectedCountry]);
 
@@ -127,13 +131,13 @@ export default function Index() {
           <PaginationContent>
             {page > 1 && (
               <PaginationItem>
-                <PaginationPrevious to={`?page=${page - 1}`} />
+                <PaginationPrevious to={`?page=${page - 1}&country=${userCountry}`} />
               </PaginationItem>
             )}
             {getPaginationItems()}
             {page < totalPages && (
               <PaginationItem>
-                <PaginationNext to={`?page=${page + 1}`} />
+                <PaginationNext to={`?page=${page + 1}&country=${userCountry}`} />
               </PaginationItem>
             )}
           </PaginationContent>
@@ -164,14 +168,10 @@ function GameCard({ game }: { game: SingleOfferWithPrice }) {
         </CardHeader>
         <CardContent className="p-4 flex-grow flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-semibold max-w-xs truncate">
-              {game.title}
-            </h3>
+            <h3 className="text-xl font-semibold max-w-xs truncate">{game.title}</h3>
           </div>
           <div className="mt-2 flex items-end justify-between gap-2 h-full">
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              {game.seller.name}
-            </span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">{game.seller.name}</span>
             <div className="flex items-center gap-2">
               <span className="text-gray-500 line-through dark:text-gray-400">
                 {fmt.format(game.price.lastPrice.originalPrice / 100)}
