@@ -334,6 +334,25 @@ export default function Index() {
                     <TimeAgo targetDate={offerData.lastModifiedDate} />
                   </TableCell>
                 </TableRow>
+                <TableRow>
+                  <TableCell className="font-medium">Creation Date</TableCell>
+                  <TableCell className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l">
+                    {offerData.creationDate
+                      ? new Date(offerData.creationDate).toLocaleDateString(
+                          'en-UK',
+                          {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: 'numeric',
+                            minute: 'numeric',
+                          },
+                        )
+                      : 'Not available'}
+                    {' (UTC) '}
+                    <TimeAgo targetDate={offerData.creationDate} />
+                  </TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           </div>
