@@ -14,7 +14,7 @@ import { CountryProvider } from '~/context/country';
 export const links: LinksFunction = () => [
   { rel: 'preload', href: stylesheet, as: 'style' },
   { rel: 'stylesheet', href: stylesheet },
-  { rel: 'preconnect', href: 'https://cdn.egdata.app/' },
+  { rel: 'preconnect', href: 'https://cdn1.epicgames.com/' },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
