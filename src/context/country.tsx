@@ -24,6 +24,12 @@ function CountryProvider({ children }: CountryProviderProps) {
       sameSite: 'lax',
       domain: '.egdata.app',
     });
+    setCookie('EGDATA_COUNTRY', selectedCountry, {
+      path: '/',
+      maxAge: 31536000,
+      sameSite: 'lax',
+      domain: 'localhost',
+    });
     setCountryState(selectedCountry);
   };
 
