@@ -41,7 +41,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
           ({
             title: 'Error',
             description: 'Offer not found',
-          } as SingleOffer)
+          }) as SingleOffer,
       ),
     client
       .get<Array<SingleItem>>(`/items-from-offer/${params.id}`)
@@ -327,7 +327,7 @@ export default function Index() {
                             day: 'numeric',
                             hour: 'numeric',
                             minute: 'numeric',
-                          }
+                          },
                         )
                       : 'Not available'}
                     {' (UTC) '}
@@ -417,7 +417,7 @@ const ReleaseDate: React.FC<{
               className={cn(
                 pcReleaseDate &&
                   releaseDate !== pcReleaseDate &&
-                  'underline decoration-dotted underline-offset-4'
+                  'underline decoration-dotted underline-offset-4',
               )}
             >
               {new Date(releaseDate).toLocaleDateString('en-UK', {
@@ -476,7 +476,7 @@ const InternalBanner: React.FC<{
         setResults(
           response.data.elements
             .filter(({ namespace }) => !internalNamespaces.includes(namespace))
-            .sort((a, b) => a.title.localeCompare(b.title))
+            .sort((a, b) => a.title.localeCompare(b.title)),
         );
       });
   }, [title]);
@@ -540,7 +540,7 @@ const BaseGame: React.FC<{ offer: SingleOffer }> = ({ offer }) => {
           'absolute inset-0 z-[11]',
           'from-gray-700/20 to-gray-700/20 backdrop-blur-sm',
           'group-hover:backdrop-blur-none transition-all duration-700',
-          'bg-gradient-to-r group-hover:from-gray-700/30 group-hover:from-40% group-hover:to-transparent'
+          'bg-gradient-to-r group-hover:from-gray-700/30 group-hover:from-40% group-hover:to-transparent',
         )}
       />
       <div className="absolute inset-0">

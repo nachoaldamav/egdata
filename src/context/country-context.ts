@@ -11,5 +11,5 @@ export const defaultState: CountryState = {
 };
 
 export const CountryContext = createContext<CountryState | undefined>(
-  undefined
+  undefined,
 );

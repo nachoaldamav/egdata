@@ -14,7 +14,7 @@ interface CountryProviderProps {
 function CountryProvider({ children }: CountryProviderProps) {
   const [cookies, setCookie] = useCookies(['EGDATA_COUNTRY']);
   const [countryState, setCountryState] = useState<string>(
-    cookies.EGDATA_COUNTRY || 'US'
+    cookies.EGDATA_COUNTRY || 'US',
   );
 
   const handleCountry = (selectedCountry: string) => {

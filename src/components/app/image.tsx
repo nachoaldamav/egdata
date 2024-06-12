@@ -13,7 +13,7 @@ const generateUrl = (
   src: string,
   width: number,
   quality: number,
-  format?: string
+  format?: string,
 ) => `${src}?h=${width}&quality=medium&resize=1&w=${width}`;
 
 export const Image: React.FC<ImageProps> = ({

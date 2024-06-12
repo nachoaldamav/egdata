@@ -73,7 +73,7 @@ export default function Index() {
           <PaginationLink to={'?page=1'} prefetch="render">
             1
           </PaginationLink>
-        </PaginationItem>
+        </PaginationItem>,
       );
       if (startPage > 2) {
         items.push(<PaginationEllipsis key="start-ellipsis" />);
@@ -92,7 +92,7 @@ export default function Index() {
               {i}
             </PaginationLink>
           )}
-        </PaginationItem>
+        </PaginationItem>,
       );
     }
 
@@ -105,7 +105,7 @@ export default function Index() {
           <PaginationLink to={`?page=${totalPages}`} prefetch="viewport">
             {totalPages}
           </PaginationLink>
-        </PaginationItem>
+        </PaginationItem>,
       );
     }
 

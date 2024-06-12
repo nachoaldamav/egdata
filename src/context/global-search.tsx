@@ -71,7 +71,7 @@ function SearchProvider({ children }: SearchProviderProps) {
           }));
         });
     }, 300), // 300ms debounce time
-    []
+    [],
   );
 
   useEffect(() => {

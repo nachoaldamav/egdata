@@ -38,8 +38,8 @@ export function CountriesSelector() {
   React.useEffect(() => {
     getCountries().then((data) =>
       setCountries(
-        data.map((c) => ({ name: regionNameFmt.of(c) as string, code: c }))
-      )
+        data.map((c) => ({ name: regionNameFmt.of(c) as string, code: c })),
+      ),
     );
   }, []);
 
@@ -68,7 +68,7 @@ export function CountriesSelector() {
                   value={c.name}
                   onSelect={(currentCountry: string) => {
                     const country = countries.find(
-                      (c) => c.name === currentCountry
+                      (c) => c.name === currentCountry,
                     );
                     if (country) {
                       setCountry(country.code);

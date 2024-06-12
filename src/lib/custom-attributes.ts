@@ -135,7 +135,7 @@ export function getGameFeatures(attributes: {
   };
 }) {
   const features = Object.keys(attributes).filter((key) =>
-    gameFeatures.includes(key)
+    gameFeatures.includes(key),
   );
   return features;
 }

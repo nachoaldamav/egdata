@@ -59,7 +59,7 @@ const PaginationLink = ({
         variant: isActive ? 'outline' : 'ghost',
         size,
       }),
-      className
+      className,
     )}
     prefetch={props.prefetch ?? 'none'}
     {...props}
