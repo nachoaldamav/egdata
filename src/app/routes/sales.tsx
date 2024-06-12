@@ -1,4 +1,5 @@
 import { useLoaderData, Link } from '@remix-run/react';
+import { redirect } from '@remix-run/node';
 import cookie from 'cookie';
 import { Card, CardContent, CardHeader } from '~/components/ui/card';
 import {
@@ -21,11 +22,27 @@ import { useEffect, useState } from 'react';
 import getPagingPage from '~/lib/get-paging-page';
 import getCountryCode from '~/lib/get-country-code';
 
+function checkCountryCode(country: string) {
+  try {
+    return new Intl.DisplayNames(['en'], { type: 'region' }).of(country);
+  } catch (e) {
+    return false;
+  }
+}
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
-
   const page = getPagingPage(url);
-  const country = getCountryCode(url, cookie.parse(request.headers.get('Cookie') || ''));
+  const country = getCountryCode(
+    url,
+    cookie.parse(request.headers.get('Cookie') || ''),
+  );
+
+  // Check if the country is a valid ISO code using Intl API
+  if (!checkCountryCode(country)) {
+    console.warn(`Invalid country code: ${country}`);
+    return redirect('/sales?country=US', 302);
+  }
 
   const [latestGames] = await Promise.all([
     client.get<{
@@ -51,7 +68,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export default function Index() {
   const { games, meta, country } = useLoaderData<typeof loader>();
-  const [userSelectedCountry, setUserSelectedCountry] = useState<string>(country);
+  const [userSelectedCountry] = useState<string>(country);
   const { country: userCountry } = useCountry();
   const { page, total, limit } = meta;
   const totalPages = Math.ceil(total / limit);
@@ -131,13 +148,17 @@ export default function Index() {
           <PaginationContent>
             {page > 1 && (
               <PaginationItem>
-                <PaginationPrevious to={`?page=${page - 1}&country=${userCountry}`} />
+                <PaginationPrevious
+                  to={`?page=${page - 1}&country=${userCountry}`}
+                />
               </PaginationItem>
             )}
             {getPaginationItems()}
             {page < totalPages && (
               <PaginationItem>
-                <PaginationNext to={`?page=${page + 1}&country=${userCountry}`} />
+                <PaginationNext
+                  to={`?page=${page + 1}&country=${userCountry}`}
+                />
               </PaginationItem>
             )}
           </PaginationContent>
@@ -168,10 +189,14 @@ function GameCard({ game }: { game: SingleOfferWithPrice }) {
         </CardHeader>
         <CardContent className="p-4 flex-grow flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-semibold max-w-xs truncate">{game.title}</h3>
+            <h3 className="text-xl font-semibold max-w-xs truncate">
+              {game.title}
+            </h3>
           </div>
           <div className="mt-2 flex items-end justify-between gap-2 h-full">
-            <span className="text-sm text-gray-600 dark:text-gray-400">{game.seller.name}</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              {game.seller.name}
+            </span>
             <div className="flex items-center gap-2">
               <span className="text-gray-500 line-through dark:text-gray-400">
                 {fmt.format(game.price.lastPrice.originalPrice / 100)}
