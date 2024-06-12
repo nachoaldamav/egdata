@@ -15,6 +15,7 @@ export const links: LinksFunction = () => [
   { rel: 'preload', href: stylesheet, as: 'style' },
   { rel: 'stylesheet', href: stylesheet },
   { rel: 'preconnect', href: 'https://cdn1.epicgames.com/' },
+  { rel: 'preconnect', href: 'https://api.egdata.app/' },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
