@@ -14,10 +14,7 @@ const generateUrl = (
   width: number,
   quality: number,
   format?: string
-) =>
-  `https://cdn.egdata.app/cdn-cgi/image/width=${width},quality=${quality}${
-    format ? `,format=${format}` : ''
-  }/${src}`;
+) => `${src}?h=${width}&quality=medium&resize=1&w=${width}`;
 
 export const Image: React.FC<ImageProps> = ({
   src,

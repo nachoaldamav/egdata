@@ -79,15 +79,26 @@ export const meta: MetaFunction = () => {
 };
 
 export const loader = async () => {
-  const [latestGames, featuredGame, eventsData] = await Promise.all([
-    client.get<Game[]>('/latest-games'),
-    client.get<FeaturedGame>('/featured'),
-    client.get<FullTag[]>('/promotions'),
+  const [latestGames, featuredGame, eventsData] = await Promise.allSettled([
+    client.get<Game[]>('/latest-games').catch((error) => {
+      console.error('Failed to fetch latest games', error);
+      return { data: [] as Game[] };
+    }),
+    client.get<FeaturedGame>('/featured').catch((error) => {
+      console.error('Failed to fetch featured game', error);
+      return { data: null };
+    }),
+    client.get<FullTag[]>('/promotions').catch((error) => {
+      console.error('Failed to fetch events', error);
+      return { data: [] as FullTag[] };
+    }),
   ]);
 
-  const games = latestGames.data;
-  const featured = featuredGame.data;
-  const events = eventsData.data;
+  const games =
+    latestGames.status === 'fulfilled' ? latestGames.value.data : [];
+  const featured =
+    featuredGame.status === 'fulfilled' ? featuredGame.value.data : null;
+  const events = eventsData.status === 'fulfilled' ? eventsData.value.data : [];
 
   return { games, featured, events };
 };
@@ -96,7 +107,13 @@ export default function Index() {
   const { games, featured, events } = useLoaderData<typeof loader>();
   return (
     <main className="flex flex-col items-center justify-start h-full space-y-4 p-4">
-      <FeaturedGame game={featured} />
+      {featured && <FeaturedGame game={featured} />}
+      {!featured && (
+        <section className="w-full h-full">
+          <h4 className="text-xl font-bold text-left">Featured Game</h4>
+          <Skeleton className="w-full h-[450px]" />
+        </section>
+      )}
       <section className="w-full" id="latest-games">
         <h4 className="text-xl font-bold text-left">Latest Games</h4>
         <Carousel className="mt-2 h-full p-4">
