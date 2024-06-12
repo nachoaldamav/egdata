@@ -16,6 +16,8 @@ import { Image } from '~/components/app/image';
 import type { SingleOffer } from '~/types/single-offer';
 import type { LoaderFunctionArgs } from '@remix-run/node';
 import type { SingleOfferWithPrice } from '~/types/single-offer-price';
+import { useCountry } from '~/hooks/use-country';
+import { useEffect, useState } from 'react';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
@@ -42,13 +44,23 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       total: latestGames.data.total,
       limit: latestGames.data.limit,
     },
+    country,
   };
 };
 
 export default function Index() {
-  const { games, meta } = useLoaderData<typeof loader>();
+  const { games, meta, country } = useLoaderData<typeof loader>();
+  const [userSelectedCountry, setUserSelectedCountry] =
+    useState<string>(country);
+  const { country: userCountry } = useCountry();
   const { page, total, limit } = meta;
   const totalPages = Math.ceil(total / limit);
+
+  useEffect(() => {
+    if (userSelectedCountry !== userCountry) {
+      window.location.reload();
+    }
+  }, [userCountry, userSelectedCountry]);
 
   const getPaginationItems = () => {
     const items = [];
