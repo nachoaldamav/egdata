@@ -34,13 +34,14 @@ export function CountriesSelector() {
 
   const regionNameFmt = new Intl.DisplayNames(['en'], { type: 'region' });
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should only run once
   React.useEffect(() => {
     getCountries().then((data) =>
       setCountries(
         data.map((c) => ({ name: regionNameFmt.of(c) as string, code: c }))
       )
     );
-  });
+  }, []);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
