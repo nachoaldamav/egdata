@@ -9,16 +9,13 @@ import {
   CommandItem,
   CommandList,
 } from '~/components/ui/command';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '~/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
 import { client } from '~/lib/client';
 import { useCountry } from '~/hooks/use-country';
 
 async function getCountries(): Promise<string[]> {
   const response = await client.get<string[]>('/countries');
+
   return response.data;
 }
 
@@ -37,11 +34,14 @@ export function CountriesSelector() {
   // biome-ignore lint/correctness/useExhaustiveDependencies: This effect should only run once
   React.useEffect(() => {
     getCountries().then((data) =>
-      setCountries(
-        data.map((c) => ({ name: regionNameFmt.of(c) as string, code: c })),
-      ),
+      setCountries(data.map((c) => ({ name: regionNameFmt.of(c) as string, code: c }))),
     );
   }, []);
+
+  // TODO: unknown country --> reset
+  if (!countries.find((x) => x.code === country)) {
+    // setCountry('US');
+  }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -67,9 +67,7 @@ export function CountriesSelector() {
                   key={c.code}
                   value={c.name}
                   onSelect={(currentCountry: string) => {
-                    const country = countries.find(
-                      (c) => c.name === currentCountry,
-                    );
+                    const country = countries.find((c) => c.name === currentCountry);
                     if (country) {
                       setCountry(country.code);
                       setOpen(false);
