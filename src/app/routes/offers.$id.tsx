@@ -18,12 +18,7 @@ import { offersDictionary } from '~/lib/offers-dictionary';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import { useEffect, useState } from 'react';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '~/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 import { compareDates, timeAgo } from '~/lib/time-ago';
 import { internalNamespaces } from '~/lib/internal-namespaces';
 import GameFeatures from '~/components/app/game-features';
@@ -125,11 +120,8 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
     {
       property: 'og:image',
       content:
-        getImage(offerData.keyImages, [
-          'OfferImageWide',
-          'DieselGameBoxWide',
-          'TakeoverWide',
-        ])?.url ?? 'https://via.placeholder.com/1920x1080',
+        getImage(offerData.keyImages, ['OfferImageWide', 'DieselGameBoxWide', 'TakeoverWide'])
+          ?.url ?? 'https://via.placeholder.com/1920x1080',
     },
     {
       property: 'og:url',
@@ -162,11 +154,8 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
     {
       name: 'twitter:image',
       content:
-        getImage(offerData.keyImages, [
-          'OfferImageWide',
-          'DieselGameBoxWide',
-          'TakeoverWide',
-        ])?.url ?? 'https://via.placeholder.com/1920x1080',
+        getImage(offerData.keyImages, ['OfferImageWide', 'DieselGameBoxWide', 'TakeoverWide'])
+          ?.url ?? 'https://via.placeholder.com/1920x1080',
     },
     {
       'script:ld+json': {
@@ -197,12 +186,17 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
           offerData.productSlug ?? offerData.url ?? offerData.urlSlug
         }`,
         image:
-          getImage(offerData.keyImages, [
-            'OfferImageWide',
-            'DieselGameBoxWide',
-            'TakeoverWide',
-          ])?.url ?? 'https://via.placeholder.com/1920x1080',
+          getImage(offerData.keyImages, ['OfferImageWide', 'DieselGameBoxWide', 'TakeoverWide'])
+            ?.url ?? 'https://via.placeholder.com/1920x1080',
       },
+    },
+    {
+      rel: 'canonical',
+      href: `https://egdata.app/offers/${offerData.id}`,
+    },
+    {
+      rel: 'prefetch',
+      href: `https://api.egdata.app/base-game/${offerData.namespace}`,
     },
   ];
 };
@@ -250,11 +244,7 @@ export default function Index() {
               <TableBody>
                 <TableRow>
                   <TableCell className="font-medium">Namespace</TableCell>
-                  <TableCell
-                    className={
-                      'text-left font-mono border-l-gray-300/10 border-l'
-                    }
-                  >
+                  <TableCell className={'text-left font-mono border-l-gray-300/10 border-l'}>
                     {internalNamespaces.includes(offerData.namespace) ? (
                       <TooltipProvider>
                         <Tooltip>
@@ -288,18 +278,13 @@ export default function Index() {
                   <TableCell className="font-medium">Developer</TableCell>
                   <TableCell className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l">
                     {offerData.developerDisplayName ?? offerData.seller.name}
-                    {offerData.publisherDisplayName !==
-                      offerData.developerDisplayName && (
-                      <span className="opacity-50">
-                        ({offerData.publisherDisplayName})
-                      </span>
+                    {offerData.publisherDisplayName !== offerData.developerDisplayName && (
+                      <span className="opacity-50">({offerData.publisherDisplayName})</span>
                     )}
                   </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className="font-medium">
-                    Supported Platforms
-                  </TableCell>
+                  <TableCell className="font-medium">Supported Platforms</TableCell>
                   <TableCell className="text-left border-l-gray-300/10 border-l">
                     {supportedPlatforms(items).length > 0
                       ? supportedPlatforms(items).join(', ')
@@ -319,16 +304,13 @@ export default function Index() {
                   <TableCell className="font-medium">Last Update</TableCell>
                   <TableCell className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l">
                     {offerData.lastModifiedDate
-                      ? new Date(offerData.lastModifiedDate).toLocaleDateString(
-                          'en-UK',
-                          {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            hour: 'numeric',
-                            minute: 'numeric',
-                          },
-                        )
+                      ? new Date(offerData.lastModifiedDate).toLocaleDateString('en-UK', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: 'numeric',
+                        })
                       : 'Not available'}
                     {' (UTC) '}
                     <TimeAgo targetDate={offerData.lastModifiedDate} />
@@ -338,16 +320,13 @@ export default function Index() {
                   <TableCell className="font-medium">Creation Date</TableCell>
                   <TableCell className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l">
                     {offerData.creationDate
-                      ? new Date(offerData.creationDate).toLocaleDateString(
-                          'en-UK',
-                          {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            hour: 'numeric',
-                            minute: 'numeric',
-                          },
-                        )
+                      ? new Date(offerData.creationDate).toLocaleDateString('en-UK', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: 'numeric',
+                        })
                       : 'Not available'}
                     {' (UTC) '}
                     <TimeAgo targetDate={offerData.creationDate} />
@@ -356,10 +335,7 @@ export default function Index() {
               </TableBody>
             </Table>
           </div>
-          <InternalBanner
-            title={offerData.title}
-            namespace={offerData.namespace}
-          />
+          <InternalBanner title={offerData.title} namespace={offerData.namespace} />
           <BaseGame offer={offerData} />
         </div>
         <div className="flex justify-start items-start flex-col gap-4">
@@ -452,9 +428,7 @@ const ReleaseDate: React.FC<{
             ) : (
               <span>
                 <span>Released on PC </span>
-                <span>
-                  {compareDates(new Date(pcReleaseDate), new Date(releaseDate))}
-                </span>
+                <span>{compareDates(new Date(pcReleaseDate), new Date(releaseDate))}</span>
                 <span> the EGS</span>
               </span>
             )}
@@ -505,8 +479,8 @@ const InternalBanner: React.FC<{
       <ExclamationTriangleIcon className="h-4 w-4" />
       <AlertTitle className="font-bold">Epic Internal Offer</AlertTitle>
       <AlertDescription>
-        This offer is an internal entry from Epic Games and may not be available
-        to the general public.
+        This offer is an internal entry from Epic Games and may not be available to the general
+        public.
       </AlertDescription>
       {results.length > 0 && (
         <Link to={`/offers/${results[0].id}`} className="underline">
@@ -518,10 +492,7 @@ const InternalBanner: React.FC<{
 };
 
 const BaseGame: React.FC<{ offer: SingleOffer }> = ({ offer }) => {
-  if (
-    offer.offerType === 'BASE_GAME' ||
-    internalNamespaces.includes(offer.namespace)
-  ) {
+  if (offer.offerType === 'BASE_GAME' || internalNamespaces.includes(offer.namespace)) {
     return null;
   }
 
@@ -538,11 +509,8 @@ const BaseGame: React.FC<{ offer: SingleOffer }> = ({ offer }) => {
   }
 
   const image =
-    getImage(game.keyImages, [
-      'DieselGameBox',
-      'DieselGameBoxWide',
-      'OfferImageWide',
-    ])?.url || 'https://via.placeholder.com/1920x1080';
+    getImage(game.keyImages, ['DieselGameBox', 'DieselGameBoxWide', 'OfferImageWide'])?.url ||
+    'https://via.placeholder.com/1920x1080';
 
   return (
     <Link

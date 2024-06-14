@@ -13,10 +13,37 @@ import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover
 import { client } from '~/lib/client';
 import { useCountry } from '~/hooks/use-country';
 
+/**
+ * Retrieves a list of countries from the API
+ * Uses localstorage if exists (TTL 1 week)
+ */
 async function getCountries(): Promise<string[]> {
-  const response = await client.get<string[]>('/countries');
+  const isBrowser = typeof window !== 'undefined';
+  const cacheKey = 'egdata:countries';
+  const cache = isBrowser ? localStorage.getItem(cacheKey) : null;
 
-  return response.data;
+  const currentDateTime = new Date().getTime();
+  const cacheData = cache ? JSON.parse(cache) : null;
+  const cacheDateTime = cacheData ? cacheData.exiresAt : null;
+
+  if (cacheDateTime && currentDateTime < cacheDateTime) {
+    return cacheData.data;
+  }
+
+  const response = await client.get<string[]>('/countries');
+  const data = response.data;
+
+  if (isBrowser) {
+    localStorage.setItem(
+      cacheKey,
+      JSON.stringify({
+        data,
+        exiresAt: new Date().setDate(new Date().getDate() + 7),
+      }),
+    );
+  }
+
+  return data;
 }
 
 export function CountriesSelector() {
