@@ -1,10 +1,11 @@
 import type { LoaderFunctionArgs } from '@remix-run/node';
 import { Link, useLoaderData, type MetaFunction } from '@remix-run/react';
+import cookie from 'cookie';
 import { Image } from '~/components/app/image';
 import { client } from '~/lib/client';
 import { getImage } from '~/lib/getImage';
 import { getSeller } from '~/lib/get-seller';
-import type { SingleOffer } from '~/types/single-offer';
+import type { Price, SingleOffer } from '~/types/single-offer';
 import type { SingleItem } from '~/types/single-item';
 import {
   Table,
@@ -17,38 +18,15 @@ import {
 import { offersDictionary } from '~/lib/offers-dictionary';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
-import { useEffect, useState } from 'react';
+import { lazy, useEffect, useState } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 import { compareDates, timeAgo } from '~/lib/time-ago';
 import { internalNamespaces } from '~/lib/internal-namespaces';
 import GameFeatures from '~/components/app/game-features';
 import { cn } from '~/lib/utils';
-
-export async function loader({ params }: LoaderFunctionArgs) {
-  const [offer, items] = await Promise.all([
-    client
-      .get<SingleOffer>(`/offers/${params.id}`)
-      .then((response) => {
-        return response.data;
-      })
-      .catch(
-        () =>
-          ({
-            title: 'Error',
-            description: 'Offer not found',
-          }) as SingleOffer,
-      ),
-    client
-      .get<Array<SingleItem>>(`/items-from-offer/${params.id}`)
-      .then((response) => response.data)
-      .catch(() => [] as SingleItem[]),
-  ]);
-
-  return {
-    offer: offer as SingleOffer,
-    items: (items ?? []) as SingleItem[],
-  };
-}
+import { BaseGame } from '~/components/app/base-game';
+import { Echarts } from '~/components/app/echarts';
+import getCountryCode from '~/lib/get-country-code';
 
 function supportedPlatforms(items: SingleItem[]): string[] {
   try {
@@ -201,8 +179,45 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
   ];
 };
 
+export async function loader({ params, request }: LoaderFunctionArgs) {
+  const url = new URL(request.url);
+  const country = getCountryCode(url, cookie.parse(request.headers.get('Cookie') || ''));
+
+  const [offerData, itemsData, priceData, regionData] = await Promise.allSettled([
+    client.get<SingleOffer>(`/offers/${params.id}`).then((response) => response.data),
+    client
+      .get<Array<SingleItem>>(`/items-from-offer/${params.id}`)
+      .then((response) => response.data),
+    client
+      .get<Array<Price>>(`/offers/${params.id}/price-history?country=${country}`)
+      .then((response) => response.data),
+    client
+      .get<{
+        region: {
+          code: string;
+          currencyCode: string;
+          description: string;
+          countries: string[];
+        };
+      }>(`/region?country=${country}`)
+      .then((response) => response.data),
+  ]);
+
+  const offer = offerData.status === 'fulfilled' ? offerData.value : null;
+  const items = itemsData.status === 'fulfilled' ? itemsData.value : [];
+  const prices = priceData.status === 'fulfilled' ? priceData.value : [];
+  const region = regionData.status === 'fulfilled' ? regionData.value : null;
+
+  return {
+    offer: offer as SingleOffer,
+    items,
+    prices,
+    region: region?.region,
+  };
+}
+
 export default function Index() {
-  const { offer: offerData, items } = useLoaderData<typeof loader>();
+  const { offer: offerData, items, prices } = useLoaderData<typeof loader>();
 
   if (!offerData) {
     return <div>Offer not found</div>;
@@ -361,6 +376,7 @@ export default function Index() {
       </header>
       <section id="historical-prices" className="w-full">
         <h2 className="text-2xl font-bold">Historical Prices</h2>
+        <Echarts offerId={offerData.id} initialData={prices} />
       </section>
       <section id="items" className="w-full">
         <h2 className="text-2xl font-bold">Items</h2>
@@ -488,59 +504,5 @@ const InternalBanner: React.FC<{
         </Link>
       )}
     </Alert>
-  );
-};
-
-const BaseGame: React.FC<{ offer: SingleOffer }> = ({ offer }) => {
-  if (offer.offerType === 'BASE_GAME' || internalNamespaces.includes(offer.namespace)) {
-    return null;
-  }
-
-  const [game, setGame] = useState<SingleOffer | null>(null);
-
-  useEffect(() => {
-    client.get(`/base-game/${offer.namespace}`).then((response) => {
-      setGame(response.data);
-    });
-  }, [offer.namespace]);
-
-  if (!game) {
-    return null;
-  }
-
-  const image =
-    getImage(game.keyImages, ['DieselGameBox', 'DieselGameBoxWide', 'OfferImageWide'])?.url ||
-    'https://via.placeholder.com/1920x1080';
-
-  return (
-    <Link
-      className="flex items-center bg-gray-800 rounded-lg shadow-lg w-full h-16 relative mt-2 overflow-hidden group"
-      to={`/offers/${game.id}`}
-      prefetch="viewport"
-    >
-      <span className="text-white font-bold absolute z-20 flex-col px-5 gap-1">
-        <h6 className="text-xs">Check the base game</h6>
-        <h4 className="text-lg font-bold">{game.title}</h4>
-      </span>
-      <span
-        className={cn(
-          'absolute inset-0 z-[11]',
-          'from-gray-700/20 to-gray-700/20 backdrop-blur-sm',
-          'group-hover:backdrop-blur-none transition-all duration-700',
-          'bg-gradient-to-r group-hover:from-gray-700/30 group-hover:from-40% group-hover:to-transparent',
-        )}
-      />
-      <div className="absolute inset-0">
-        <img
-          style={{
-            objectFit: 'cover',
-          }}
-          src={`https://cdn.egdata.app/cdn-cgi/image/width=720,quality=100,f=webp/${image}`}
-          alt={game.title}
-          className="rounded-lg h-full w-full absolute object-cover z-10 opacity-40 group-hover:opacity-75 transition-opacity duration-500"
-          loading="lazy"
-        />
-      </div>
-    </Link>
   );
 };

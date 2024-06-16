@@ -59,6 +59,7 @@ export interface CustomAttribute {
 
 export interface Price {
   _id: string;
+  date: string;
   offerId: string;
   currency: string;
   country: string;

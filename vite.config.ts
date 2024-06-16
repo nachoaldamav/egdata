@@ -14,4 +14,10 @@ export default defineConfig({
     }),
     tsconfigPaths(),
   ],
+  optimizeDeps: {
+    include: ['@amcharts/amcharts5'],
+  },
+  ssr: {
+    noExternal: ['@amcharts/amcharts5', 'remix-utils'],
+  },
 });

@@ -78,12 +78,10 @@ export function SalesModule({
   const [games, setGames] = useState<SingleOffer[]>([]);
 
   useEffect(() => {
-    client
-      .get<SingleOffer[]>(`/promotions/${eventId}?country=${country || 'US'}`)
-      .then((res) => {
-        setGames(res.data);
-        setLoading(false);
-      });
+    client.get<SingleOffer[]>(`/promotions/${eventId}?country=${country || 'US'}`).then((res) => {
+      setGames(res.data);
+      setLoading(false);
+    });
   }, [eventId, country]);
 
   return (
@@ -121,7 +119,7 @@ export function SalesModule({
 function GameCard({ game }: { game: SingleOffer }) {
   const fmt = Intl.NumberFormat(undefined, {
     style: 'currency',
-    currency: game.price?.currency || 'USD',
+    currency: game.price?.totalPrice.currencyCode ?? 'USD',
   });
 
   return (
@@ -139,14 +137,10 @@ function GameCard({ game }: { game: SingleOffer }) {
         </CardHeader>
         <CardContent className="p-4 flex-grow flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-semibold max-w-xs truncate">
-              {game.title}
-            </h3>
+            <h3 className="text-xl font-semibold max-w-xs truncate">{game.title}</h3>
           </div>
           <div className="mt-2 flex items-end justify-between gap-2 h-full">
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              {game.seller.name}
-            </span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">{game.seller.name}</span>
             {game.price && (
               <div className="flex items-center gap-2">
                 {game.price.totalPrice.discount > 0 && (
