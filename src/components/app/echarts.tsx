@@ -1,3 +1,4 @@
+import type * as echarts from 'echarts';
 import { init, type EChartsOption } from 'echarts';
 import { useEffect, useRef, useState } from 'react';
 import { useCountry } from '~/hooks/use-country';
@@ -34,8 +35,6 @@ export function Echarts({ offerId, initialData }: { offerId: string; initialData
   } | null>(null);
   const chartRef = useRef<HTMLDivElement>(null);
 
-  console.log(data);
-
   const fmt = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: initialData[0]?.currency ?? 'USD',
@@ -48,10 +47,12 @@ export function Echarts({ offerId, initialData }: { offerId: string; initialData
       setRegion(response.data);
     });
 
+    if (!data || data[0]?.currency === initialData[0]?.currency) return;
+
     loadHistoricalPricing(offerId, country).then((response) => {
       setData(response.data ?? []);
     });
-  }, [country, offerId]);
+  }, [country, offerId, data, initialData]);
 
   useEffect(() => {
     if (!chartRef.current) return;
@@ -60,18 +61,28 @@ export function Echarts({ offerId, initialData }: { offerId: string; initialData
     const chart = init(chartRef.current);
 
     const option: EChartsOption = {
+      darkMode: true,
       tooltip: {
         trigger: 'axis',
-        formatter: (params) => {
-          const price = params[0].data as number;
-          return `
+        formatter: (params: echarts.TooltipComponentFormatterCallbackParams) => {
+          if (Array.isArray(params)) {
+            const date = new Date(params[0].axisValue as string).toLocaleDateString();
+            return `
             <div class="p-2 bg-white rounded shadow">
-              <div class="text-sm font-semibold text-gray-800">${new Date(
-                data[params[0].dataIndex].date,
-              ).toLocaleDateString()}</div>
-              <div class="text-sm font-semibold text-gray-600">${fmt.format(price)}</div>
+              <div class="text-sm font-semibold text-gray-800">${date}</div>
+              ${params
+                .map((param) => {
+                  return `
+                  <div class="flex items center justify-between">
+                    <div class="text-sm font-semibold text-gray-600">${fmt.format(param.data as number)}</div>
+                  </div>`;
+                })
+                .join('')}
             </div>
           `;
+          }
+
+          return '';
         },
       },
       grid: {
@@ -80,18 +91,11 @@ export function Echarts({ offerId, initialData }: { offerId: string; initialData
         bottom: '3%',
         containLabel: true,
       },
-      legend: {
-        data: [region?.region.description ?? 'Price'],
-      },
       toolbox: {},
       xAxis: {
         type: 'category',
         boundaryGap: false,
-        data: [
-          new Date().toISOString(),
-          ...data.map((price) => price.date),
-          new Date('2024-06-10').toISOString(),
-        ],
+        data: data.map((price) => new Date(price.date).toISOString()),
         inverse: true,
         axisLabel: {
           formatter: (value) => new Date(value).toLocaleDateString(),
@@ -100,19 +104,21 @@ export function Echarts({ offerId, initialData }: { offerId: string; initialData
       yAxis: {
         type: 'value',
         min: 0,
-        // max: (Math.max(...data.map((price) => price.totalPrice.discountPrice / 100)) + 10).toFixed(
-        //   0,
-        // ),
       },
       series: [
         {
           name: 'Price',
           type: 'line',
-          data: [0, ...data.map((price) => price.totalPrice.discountPrice / 100), 69.99],
+          data: data.map((price) => price.totalPrice.discountPrice / 100),
           smooth: true,
+          areaStyle: {
+            color: 'rgba(24, 144, 255, 0.2)',
+          },
         },
       ],
     };
+
+    console.log(option);
 
     chart.setOption(option);
 
@@ -121,5 +127,5 @@ export function Echarts({ offerId, initialData }: { offerId: string; initialData
     };
   }, [data, fmt, region]);
 
-  return <div ref={chartRef} className="w-full max-w-7xl h-[50vh] mx-auto px-4 sm:px-6 lg:px-8" />;
+  return <div ref={chartRef} className="w-full max-w-7xl h-[25vh] mx-auto px-4 sm:px-6 lg:px-8" />;
 }
