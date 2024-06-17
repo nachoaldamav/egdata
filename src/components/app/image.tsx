@@ -9,12 +9,8 @@ export type ImageProps = {
   alt?: string;
 } & React.ImgHTMLAttributes<HTMLImageElement>;
 
-const generateUrl = (
-  src: string,
-  width: number,
-  quality: number,
-  format?: string,
-) => `${src}?h=${width}&quality=medium&resize=1&w=${width}`;
+const generateUrl = (src: string, width: number, quality: number, format?: string) =>
+  `${src}?h=${width}&quality=medium&resize=1&w=${width}`;
 
 export const Image: React.FC<ImageProps> = ({
   src,
@@ -30,9 +26,7 @@ export const Image: React.FC<ImageProps> = ({
 
   const generateSrcSet = (src: string, quality: number, format?: string) => {
     const widths = [320, 480, 800, 1200];
-    return widths
-      .map((w) => `${generateUrl(src, w, quality, format)} ${w}w`)
-      .join(', ');
+    return widths.map((w) => `${generateUrl(src, w, quality, format)} ${w}w`).join(', ');
   };
 
   const sizes =
@@ -40,8 +34,7 @@ export const Image: React.FC<ImageProps> = ({
 
   const url = generateUrl(src as string, width, quality);
   const srcSet = generateSrcSet(src as string, quality);
-  const webpSrcSet =
-    quality === 100 ? generateSrcSet(src as string, quality, 'webp') : '';
+  const webpSrcSet = quality === 100 ? generateSrcSet(src as string, quality, 'webp') : '';
 
   useEffect(() => {
     setLoading(true);
@@ -71,9 +64,7 @@ export const Image: React.FC<ImageProps> = ({
         />
       )}
       <picture style={{ display: loading ? 'none' : 'block' }}>
-        {quality === 100 && (
-          <source type="image/webp" srcSet={webpSrcSet} sizes={sizes} />
-        )}
+        {quality === 100 && <source type="image/webp" srcSet={webpSrcSet} sizes={sizes} />}
         <source srcSet={srcSet} sizes={sizes} />
         {/* biome-ignore lint/a11y/useAltText: <explanation> */}
         <img
@@ -90,6 +81,7 @@ export const Image: React.FC<ImageProps> = ({
             objectFit: 'cover',
             display: loading ? 'none' : 'block',
           }}
+          decoding="async"
           onLoad={() => setLoading(false)}
           {...props}
         />

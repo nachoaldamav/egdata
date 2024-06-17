@@ -24,32 +24,6 @@ import { internalNamespaces } from '~/lib/internal-namespaces';
 import GameFeatures from '~/components/app/game-features';
 import { cn } from '~/lib/utils';
 
-export async function loader({ params }: LoaderFunctionArgs) {
-  const [offer, items] = await Promise.all([
-    client
-      .get<SingleOffer>(`/offers/${params.id}`)
-      .then((response) => {
-        return response.data;
-      })
-      .catch(
-        () =>
-          ({
-            title: 'Error',
-            description: 'Offer not found',
-          }) as SingleOffer,
-      ),
-    client
-      .get<Array<SingleItem>>(`/items-from-offer/${params.id}`)
-      .then((response) => response.data)
-      .catch(() => [] as SingleItem[]),
-  ]);
-
-  return {
-    offer: offer as SingleOffer,
-    items: (items ?? []) as SingleItem[],
-  };
-}
-
 function supportedPlatforms(items: SingleItem[]): string[] {
   try {
     if (items.length === 0) {
@@ -66,6 +40,74 @@ function supportedPlatforms(items: SingleItem[]): string[] {
   } catch (error) {
     return [];
   }
+}
+
+export async function loader({ params }: LoaderFunctionArgs) {
+  const start = Date.now();
+  const [offer, items] = await Promise.all([
+    client
+      .get<SingleOffer>(`/offers/${params.id}`)
+      .then((response) => {
+        return response.data;
+      })
+      .catch(
+        () =>
+          ({
+            title: 'Error',
+            description: 'Offer not found',
+          }) as SingleOffer,
+      )
+      .finally(() => {
+        console.log(`[loader] Offer fetch time: ${Date.now() - start}ms`);
+      }),
+    client
+      .get<Array<SingleItem>>(`/items-from-offer/${params.id}`)
+      .then((response) => response.data)
+      .catch(() => [] as SingleItem[])
+      .finally(() => {
+        console.log(`[loader] Items fetch time: ${Date.now() - start}ms`);
+      }),
+  ]);
+  // console.log(`[loader] Execution time: ${Date.now() - start}ms`);
+
+  return {
+    offer: offer as SingleOffer,
+    items: (items ?? []) as SingleItem[],
+  };
+}
+
+export async function clientLoader({ params }: LoaderFunctionArgs) {
+  const start = Date.now();
+  const [offer, items] = await Promise.all([
+    client
+      .get<SingleOffer>(`/offers/${params.id}`)
+      .then((response) => {
+        return response.data;
+      })
+      .catch(
+        () =>
+          ({
+            title: 'Error',
+            description: 'Offer not found',
+          }) as SingleOffer,
+      )
+      .finally(() => {
+        console.log(`[clientLoader] Offer fetch time: ${Date.now() - start}ms`);
+      }),
+    client
+      .get<Array<SingleItem>>(`/items-from-offer/${params.id}`)
+      .then((response) => response.data)
+      .catch(() => [] as SingleItem[])
+      .finally(() => {
+        console.log(`[clientLoader] Items fetch time: ${Date.now() - start}ms`);
+      }),
+  ]);
+  // console.log(`[clientLoader] Execution time: ${Date.now() - start}ms`);
+
+  return {
+    offer: offer as SingleOffer,
+    items: (items ?? []) as SingleItem[],
+  };
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {

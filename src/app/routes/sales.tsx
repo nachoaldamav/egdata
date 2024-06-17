@@ -120,7 +120,7 @@ export default function Index() {
       }
       items.push(
         <PaginationItem key={totalPages}>
-          <PaginationLink to={`?page=${totalPages}`} prefetch="viewport">
+          <PaginationLink to={`?page=${totalPages}`} prefetch="render">
             {totalPages}
           </PaginationLink>
         </PaginationItem>,
