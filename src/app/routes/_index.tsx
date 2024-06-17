@@ -72,10 +72,7 @@ export interface KeyImage {
 }
 
 export const meta: MetaFunction = () => {
-  return [
-    { title: 'EGData' },
-    { name: 'description', content: 'Epic Games database' },
-  ];
+  return [{ title: 'EGData' }, { name: 'description', content: 'Epic Games database' }];
 };
 
 export const loader = async () => {
@@ -94,10 +91,8 @@ export const loader = async () => {
     }),
   ]);
 
-  const games =
-    latestGames.status === 'fulfilled' ? latestGames.value.data : [];
-  const featured =
-    featuredGame.status === 'fulfilled' ? featuredGame.value.data : null;
+  const games = latestGames.status === 'fulfilled' ? latestGames.value.data : [];
+  const featured = featuredGame.status === 'fulfilled' ? featuredGame.value.data : null;
   const events = eventsData.status === 'fulfilled' ? eventsData.value.data : [];
 
   return { games, featured, events };
@@ -128,7 +123,7 @@ export default function Index() {
                 >
                   <Card className="w-full max-w-sm rounded-lg overflow-hidden shadow-lg">
                     <Image
-                      src={getImage(game.keyImages, ['Thumbnail']).url}
+                      src={getImage(game.keyImages, ['Thumbnail'])?.url}
                       alt={game.title}
                       width={400}
                       height={500}
@@ -190,10 +185,7 @@ function GameSeller({
 
 function FeaturedGame({ game }: { game: FeaturedGame }) {
   return (
-    <section
-      id="featured-game"
-      className="shadow-md rounded px-3 pt-6 pb-8 mb-4 w-full"
-    >
+    <section id="featured-game" className="shadow-md rounded px-3 pt-6 pb-8 mb-4 w-full">
       <h2 className="text-xl font-bold mb-4">Featured Game</h2>
       <div className="flex flex-row gap-10">
         <div className="flex flex-col w-2/3 relative">
@@ -214,16 +206,12 @@ function FeaturedGame({ game }: { game: FeaturedGame }) {
           </div>
           <Image
             src={
-              getImage(game.keyImages, [
-                'OfferImageWide',
-                'DieselStoreFrontWide',
-                'featuredMedia',
-              ]).url
+              getImage(game.keyImages, ['OfferImageWide', 'DieselStoreFrontWide', 'featuredMedia'])
+                ?.url
             }
             alt={game.title}
             width={1920}
             height={1080}
-            quality={75}
             className="w-full h-[450px] object-cover rounded-xl"
           />
         </div>
@@ -231,9 +219,7 @@ function FeaturedGame({ game }: { game: FeaturedGame }) {
           <div className="flex flex-col gap-2">
             <div className="inline-block">
               <h3 className="text-2xl font-bold">{game.title}</h3>
-              <span className="text-sm text-gray-500">
-                {game.seller.name || ''}
-              </span>
+              <span className="text-sm text-gray-500">{game.seller.name || ''}</span>
             </div>
             <p className="text-sm">{game.description}</p>
           </div>
@@ -292,10 +278,7 @@ function LastModifiedGames() {
               >
                 <Card className="w-full max-w-sm rounded-lg overflow-hidden shadow-lg">
                   <Image
-                    src={
-                      getImage(game.keyImages, ['Thumbnail'])?.url ||
-                      'https://via.placeholder.com/400x500'
-                    }
+                    src={getImage(game.keyImages, ['Thumbnail'])?.url}
                     alt={game.title}
                     width={400}
                     height={500}
@@ -306,12 +289,8 @@ function LastModifiedGames() {
                       <h3 className="text-xl font-bold">{game.title}</h3>
                       <p className="text-gray-500 dark:text-gray-400 text-sm">
                         <GameSeller
-                          developerDisplayName={
-                            game.developerDisplayName as string
-                          }
-                          publisherDisplayName={
-                            game.publisherDisplayName as string
-                          }
+                          developerDisplayName={game.developerDisplayName as string}
+                          publisherDisplayName={game.publisherDisplayName as string}
                           seller={game.seller.name}
                         />
                       </p>

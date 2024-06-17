@@ -23,6 +23,7 @@ import { compareDates, timeAgo } from '~/lib/time-ago';
 import { internalNamespaces } from '~/lib/internal-namespaces';
 import GameFeatures from '~/components/app/game-features';
 import { cn } from '~/lib/utils';
+import buildImageUrl from '~/lib/build-image-url';
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const [offer, items] = await Promise.all([
@@ -121,7 +122,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
       property: 'og:image',
       content:
         getImage(offerData.keyImages, ['OfferImageWide', 'DieselGameBoxWide', 'TakeoverWide'])
-          ?.url ?? 'https://via.placeholder.com/1920x1080',
+          ?.url || 'https://via.placeholder.com/1920x1080',
     },
     {
       property: 'og:url',
@@ -155,7 +156,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
       name: 'twitter:image',
       content:
         getImage(offerData.keyImages, ['OfferImageWide', 'DieselGameBoxWide', 'TakeoverWide'])
-          ?.url ?? 'https://via.placeholder.com/1920x1080',
+          ?.url || 'https://via.placeholder.com/1920x1080',
     },
     {
       'script:ld+json': {
@@ -183,11 +184,11 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
         //   }`,
         // },
         sameAs: `https://store.epicgames.com/product/${
-          offerData.productSlug ?? offerData.url ?? offerData.urlSlug
+          offerData.productSlug || offerData.url || offerData.urlSlug
         }`,
         image:
           getImage(offerData.keyImages, ['OfferImageWide', 'DieselGameBoxWide', 'TakeoverWide'])
-            ?.url ?? 'https://via.placeholder.com/1920x1080',
+            ?.url || 'https://via.placeholder.com/1920x1080',
       },
     },
     {
@@ -265,7 +266,7 @@ export default function Index() {
                 <TableRow>
                   <TableCell className="font-medium">Offer Type</TableCell>
                   <TableCell className="text-left border-l-gray-300/10 border-l">
-                    {offersDictionary[offerData.offerType]}
+                    {offersDictionary[offerData.offerType] || offerData.offerType}
                   </TableCell>
                 </TableRow>
                 <TableRow>
@@ -346,12 +347,11 @@ export default function Index() {
                   'OfferImageWide',
                   'DieselGameBoxWide',
                   'TakeoverWide',
-                ])?.url ?? 'https://via.placeholder.com/1920x1080'
+                ])?.url
               }
               alt={offerData.title}
               width={1920}
               height={1080}
-              quality={100}
               className="rounded-xl shadow-lg"
             />
             <GameFeatures attributes={mergedCustomAttributes} />
@@ -369,6 +369,8 @@ export default function Index() {
             <TableRow>
               <TableHead className="w-[300px]">Item ID</TableHead>
               <TableHead>Item Name</TableHead>
+              <TableHead>Entitlement Type</TableHead>
+              <TableHead>Entitlement Name</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -376,6 +378,8 @@ export default function Index() {
               <TableRow key={item.id}>
                 <TableCell className="font-mono">{item.id}</TableCell>
                 <TableCell className="text-left">{item.title}</TableCell>
+                <TableCell className="text-left">{item.entitlementType}</TableCell>
+                <TableCell className="text-left">{item.entitlementName}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -508,7 +512,7 @@ const BaseGame: React.FC<{ offer: SingleOffer }> = ({ offer }) => {
     return null;
   }
 
-  const image =
+  const imageUrl =
     getImage(game.keyImages, ['DieselGameBox', 'DieselGameBoxWide', 'OfferImageWide'])?.url ||
     'https://via.placeholder.com/1920x1080';
 
@@ -535,7 +539,7 @@ const BaseGame: React.FC<{ offer: SingleOffer }> = ({ offer }) => {
           style={{
             objectFit: 'cover',
           }}
-          src={`https://cdn.egdata.app/cdn-cgi/image/width=720,quality=100,f=webp/${image}`}
+          src={buildImageUrl(imageUrl, 500)}
           alt={game.title}
           className="rounded-lg h-full w-full absolute object-cover z-10 opacity-40 group-hover:opacity-75 transition-opacity duration-500"
           loading="lazy"

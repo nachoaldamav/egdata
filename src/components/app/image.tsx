@@ -1,47 +1,43 @@
 import { useState, useEffect } from 'react';
 import { Skeleton } from '~/components/ui/skeleton';
+import buildImageUrl from '~/lib/build-image-url';
+import type { ImageQuality } from '~/lib/build-image-url';
 
 export type ImageProps = {
-  quality?: number;
+  quality?: ImageQuality;
   unoptimized?: boolean;
   width: number;
   height: number;
   alt?: string;
 } & React.ImgHTMLAttributes<HTMLImageElement>;
 
-const generateUrl = (
-  src: string,
-  width: number,
-  quality: number,
-  format?: string,
-) => `${src}?h=${width}&quality=medium&resize=1&w=${width}`;
-
 export const Image: React.FC<ImageProps> = ({
   src,
   width,
   height,
-  quality = 75,
+  quality = 'medium',
   unoptimized = false,
   alt,
   ...props
 }) => {
+  if (!src && width && height) {
+    src = `https://via.placeholder.com/${width}x${height}`;
+  }
+
   const [loading, setLoading] = useState(true);
   const aspectRatio = (height / width) * 100;
 
-  const generateSrcSet = (src: string, quality: number, format?: string) => {
+  const generateSrcSet = (src: string, quality: ImageQuality) => {
     const widths = [320, 480, 800, 1200];
-    return widths
-      .map((w) => `${generateUrl(src, w, quality, format)} ${w}w`)
-      .join(', ');
+
+    return widths.map((w) => `${buildImageUrl(src, w, quality)} ${w}w`).join(', ');
   };
 
   const sizes =
     '(max-width: 320px) 280px, (max-width: 480px) 440px, (max-width: 800px) 800px, 100vw';
 
-  const url = generateUrl(src as string, width, quality);
+  const url = buildImageUrl(src as string, width, quality);
   const srcSet = generateSrcSet(src as string, quality);
-  const webpSrcSet =
-    quality === 100 ? generateSrcSet(src as string, quality, 'webp') : '';
 
   useEffect(() => {
     setLoading(true);
@@ -71,9 +67,6 @@ export const Image: React.FC<ImageProps> = ({
         />
       )}
       <picture style={{ display: loading ? 'none' : 'block' }}>
-        {quality === 100 && (
-          <source type="image/webp" srcSet={webpSrcSet} sizes={sizes} />
-        )}
         <source srcSet={srcSet} sizes={sizes} />
         {/* biome-ignore lint/a11y/useAltText: <explanation> */}
         <img
