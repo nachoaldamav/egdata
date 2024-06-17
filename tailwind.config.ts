@@ -29,6 +29,7 @@ const config = {
     fontFamily: {
       sans: ['Nunito Sans'],
       mono: [...require('tailwindcss/defaultConfig').theme.fontFamily.mono],
+      montserrat: ['Montserrat'],
     },
     extend: {
       colors: {

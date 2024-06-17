@@ -1,11 +1,4 @@
-import { useRef, useEffect } from 'react';
-import {
-  Sheet,
-  SheetTrigger,
-  SheetContent,
-  SheetHeader,
-  SheetFooter,
-} from '~/components/ui/sheet';
+import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetFooter } from '~/components/ui/sheet';
 import { Button } from '~/components/ui/button';
 import { Link } from '@remix-run/react';
 import {
@@ -69,19 +62,15 @@ export default function Navbar() {
             <form className="flex-1">
               <div className="relative">
                 <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
-                <Input
-                  type="search"
-                  placeholder="Search games..."
-                  className="pl-8 w-full"
-                />
+                <Input type="search" placeholder="Search games..." className="pl-8 w-full" />
               </div>
             </form>
           </SheetFooter>
         </SheetContent>
       </Sheet>
-      <Link to="/" className="mr-6 hidden lg:flex" prefetch="render">
-        <GamepadIcon className="h-6 w-6" />
-        <span className="sr-only">GameDB</span>
+      <Link to="/" className="hidden lg:flex justify-center items-center" prefetch="render">
+        <img src="/logo_simple_white.png" alt="EGDATA Logo" width={40} height={40} />
+        <span className="text-xl text-white font-montserrat ml-2 font-bold">EGDATA</span>
       </Link>
       <NavigationMenu className="hidden lg:flex">
         <NavigationMenuList>
