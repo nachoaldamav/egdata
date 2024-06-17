@@ -83,6 +83,7 @@ export const Image: React.FC<ImageProps> = ({
             objectFit: 'cover',
             display: loading ? 'none' : 'block',
           }}
+          decoding="async"
           onLoad={() => setLoading(false)}
           {...props}
         />
