@@ -21,7 +21,7 @@ import { useEffect, useState } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 import { compareDates, timeAgo } from '~/lib/time-ago';
 import { internalNamespaces } from '~/lib/internal-namespaces';
-import GameFeatures from '~/components/app/game-features';
+import { GameFeatures } from '~/components/app/features';
 import { cn } from '~/lib/utils';
 import buildImageUrl from '~/lib/build-image-url';
 
@@ -78,8 +78,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
 }
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const start = Date.now();
-  const [offer, items] = await Promise.all([
+  const [offerData, itemsData, featuresData] = await Promise.allSettled([
     client
       .get<SingleOffer>(`/offers/${params.id}`)
       .then((response) => {
@@ -91,23 +90,28 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
             title: 'Error',
             description: 'Offer not found',
           }) as SingleOffer,
-      )
-      .finally(() => {
-        console.log(`[clientLoader] Offer fetch time: ${Date.now() - start}ms`);
-      }),
+      ),
     client
       .get<Array<SingleItem>>(`/items-from-offer/${params.id}`)
       .then((response) => response.data)
-      .catch(() => [] as SingleItem[])
-      .finally(() => {
-        console.log(`[clientLoader] Items fetch time: ${Date.now() - start}ms`);
-      }),
+      .catch(() => [] as SingleItem[]),
+    client
+      .get<{
+        launcher: string;
+        features: string[];
+        epicFeatures: string[];
+      }>(`/offers/${params.id}/features`)
+      .then((response) => response.data),
   ]);
-  // console.log(`[clientLoader] Execution time: ${Date.now() - start}ms`);
+
+  const offer = offerData.status === 'fulfilled' ? offerData.value : null;
+  const items = itemsData.status === 'fulfilled' ? itemsData.value : null;
+  const features = featuresData.status === 'fulfilled' ? featuresData.value : null;
 
   return {
     offer: offer as SingleOffer,
     items: (items ?? []) as SingleItem[],
+    features: features ?? { launcher: '', features: [], epicFeatures: [] },
   };
 }
 
@@ -245,7 +249,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 };
 
 export default function Index() {
-  const { offer: offerData, items } = useLoaderData<typeof loader>();
+  const { offer: offerData, items } = useLoaderData<typeof loader | typeof clientLoader>();
 
   if (!offerData) {
     return <div>Offer not found</div>;
@@ -396,7 +400,7 @@ export default function Index() {
               height={1080}
               className="rounded-xl shadow-lg"
             />
-            <GameFeatures attributes={mergedCustomAttributes} />
+            <GameFeatures id={offerData.id} />
           </div>
           <p className="px-1">{offerData.description}</p>
         </div>
