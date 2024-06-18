@@ -60,8 +60,13 @@ export interface CustomAttribute {
 
 export interface Price {
   _id: string;
-  lastPrice: LastPrice;
-  lastPaymentPrice: LastPaymentPrice;
+  totalPrice: LastPrice;
+  totalPaymentPrice: LastPaymentPrice;
+  metadata: {
+    id: string;
+    country: string;
+    region: string;
+  };
 }
 
 export interface LastPrice {
