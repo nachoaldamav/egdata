@@ -197,7 +197,7 @@ function FeaturedGame({ game }: { game: FeaturedGame }) {
                 .map((tag) => (
                   <span
                     key={tag.id}
-                    className="bg-gray-800 bg-opacity-50 text-white px-2 py-1 rounded-md backdrop-blur"
+                    className="bg-gray-800 bg-opacity-50 text-white px-2 py-1 rounded-md backdrop-blur text-xs lg:text-sm"
                   >
                     {tag.name}
                   </span>
