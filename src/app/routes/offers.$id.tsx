@@ -78,7 +78,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
 }
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
-  const [offerData, itemsData, featuresData] = await Promise.allSettled([
+  const [offerData, itemsData] = await Promise.allSettled([
     client
       .get<SingleOffer>(`/offers/${params.id}`)
       .then((response) => {
@@ -95,23 +95,14 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
       .get<Array<SingleItem>>(`/items-from-offer/${params.id}`)
       .then((response) => response.data)
       .catch(() => [] as SingleItem[]),
-    client
-      .get<{
-        launcher: string;
-        features: string[];
-        epicFeatures: string[];
-      }>(`/offers/${params.id}/features`)
-      .then((response) => response.data),
   ]);
 
   const offer = offerData.status === 'fulfilled' ? offerData.value : null;
   const items = itemsData.status === 'fulfilled' ? itemsData.value : null;
-  const features = featuresData.status === 'fulfilled' ? featuresData.value : null;
 
   return {
     offer: offer as SingleOffer,
     items: (items ?? []) as SingleItem[],
-    features: features ?? { launcher: '', features: [], epicFeatures: [] },
   };
 }
 
