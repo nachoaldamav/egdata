@@ -45,11 +45,11 @@ export default function Navbar() {
         <SheetContent>
           <SheetHeader>
             <Link to="/" className="mr-6 flex items-center gap-2">
-              <GamepadIcon className="h-6 w-6" />
-              <span className="sr-only">GameDB</span>
+              <img src="/logo_simple_white.png" alt="GameDB Logo" width={40} height={40} />
+              <span className="text-xl text-white font-montserrat font-bold">EGDATA</span>
             </Link>
           </SheetHeader>
-          <div className="grid gap-2 py-6">
+          <NavigationMenu className="grid gap-2 py-6">
             {routes.map((route) => (
               <Link key={route.name} to={route.href}>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
@@ -57,7 +57,7 @@ export default function Navbar() {
                 </NavigationMenuLink>
               </Link>
             ))}
-          </div>
+          </NavigationMenu>
           <SheetFooter>
             <form className="flex-1">
               <div className="relative">

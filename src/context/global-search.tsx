@@ -1,10 +1,4 @@
-import {
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-  type ReactNode,
-} from 'react';
+import { useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
 import lodash from 'lodash';
 import { Portal } from '@radix-ui/react-portal';
 import { client } from '~/lib/client';
@@ -99,41 +93,34 @@ function SearchProvider({ children }: SearchProviderProps) {
     >
       {children}
       <Portal>
-        {inputRef.current &&
-          searchState.results.length > 0 &&
-          searchState.query !== '' && (
-            <div
-              className="absolute bg-gray-900 rounded-lg shadow-lg w-auto"
-              style={{
-                top:
-                  inputRef.current.getBoundingClientRect().bottom +
-                  window.scrollY +
-                  10,
-                left:
-                  inputRef.current.getBoundingClientRect().left +
-                  window.scrollX,
-                width: inputRef.current.offsetWidth,
-              }}
-            >
-              <div className="p-4 space-y-4 max-h-[400px] overflow-auto">
-                {searchState.results.map((result) => (
-                  <Link
-                    key={result.id}
-                    className="flex items-center gap-4 border-b border-gray-800 py-2"
-                    to={`/offers/${result.id}`}
-                    onClick={() => setSearchState(defaultState)}
-                  >
-                    <div className="inline-flex relative justify-start items-center gap-4">
-                      <h3 className="font-medium">{result.title}</h3>
-                      {internalNamespaces.includes(result.namespace) && (
-                        <span className="text-sm text-gray-400">Internal</span>
-                      )}
-                    </div>
-                  </Link>
-                ))}
-              </div>
+        {inputRef.current && searchState.results.length > 0 && searchState.query !== '' && (
+          <div
+            className="absolute bg-gray-900 rounded-lg shadow-lg w-auto z-20"
+            style={{
+              top: inputRef.current.getBoundingClientRect().bottom + window.scrollY + 10,
+              left: inputRef.current.getBoundingClientRect().left + window.scrollX,
+              width: inputRef.current.offsetWidth,
+            }}
+          >
+            <div className="p-4 space-y-4 max-h-[400px] overflow-auto">
+              {searchState.results.map((result) => (
+                <Link
+                  key={result.id}
+                  className="flex items-center gap-4 border-b border-gray-800 py-2"
+                  to={`/offers/${result.id}`}
+                  onClick={() => setSearchState(defaultState)}
+                >
+                  <div className="inline-flex relative justify-start items-center gap-4">
+                    <h3 className="font-medium">{result.title}</h3>
+                    {internalNamespaces.includes(result.namespace) && (
+                      <span className="text-sm text-gray-400">Internal</span>
+                    )}
+                  </div>
+                </Link>
+              ))}
             </div>
-          )}
+          </div>
+        )}
       </Portal>
     </SearchContext.Provider>
   );

@@ -187,8 +187,8 @@ function FeaturedGame({ game }: { game: FeaturedGame }) {
   return (
     <section id="featured-game" className="shadow-md rounded px-3 pt-6 pb-8 mb-4 w-full">
       <h2 className="text-xl font-bold mb-4">Featured Game</h2>
-      <div className="flex flex-row gap-10">
-        <div className="flex flex-col w-2/3 relative">
+      <div className="flex flex-col lg:flex-row gap-10">
+        <div className="flex flex-col lg:flex-row lg:w-2/3 relative">
           <div className="absolute inset-0 z-10 pointer-events-none">
             <div className="flex flex-row gap-2 absolute top-4 left-4">
               {game.tags
@@ -215,7 +215,7 @@ function FeaturedGame({ game }: { game: FeaturedGame }) {
             className="w-full h-[450px] object-cover rounded-xl"
           />
         </div>
-        <div className="flex flex-col w-1/3 justify-between">
+        <div className="flex flex-col lg:w-1/3 justify-between gap-3">
           <div className="flex flex-col gap-2">
             <div className="inline-block">
               <h3 className="text-2xl font-bold">{game.title}</h3>
