@@ -16,7 +16,7 @@ import {
 } from '~/components/ui/table';
 import { offersDictionary } from '~/lib/offers-dictionary';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
-import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
+import { ExclamationTriangleIcon, OpenInNewWindowIcon } from '@radix-ui/react-icons';
 import { useEffect, useState } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 import { compareDates, timeAgo } from '~/lib/time-ago';
@@ -24,6 +24,9 @@ import { internalNamespaces } from '~/lib/internal-namespaces';
 import { GameFeatures } from '~/components/app/features';
 import { cn } from '~/lib/utils';
 import buildImageUrl from '~/lib/build-image-url';
+import { EpicGamesIcon } from '~/components/icons/epic';
+import { Button } from '~/components/ui/button';
+import { OpenLauncher } from '~/components/app/open-launcher';
 
 function supportedPlatforms(items: SingleItem[]): string[] {
   try {
@@ -250,25 +253,24 @@ export default function Index() {
     return <div>{offerData.description}</div>;
   }
 
-  const mergedCustomAttributes = items.reduce((acc, item) => {
-    return Object.assign({}, acc, item.customAttributes);
-  }, {});
-
   return (
     <main className="flex flex-col items-start justify-start w-full min-h-screen gap-4">
       <header className="grid col-span-1 gap-4 md:grid-cols-2 w-full">
         <div className="flex flex-col gap-1">
           <h1 className="text-4xl font-bold">{offerData.title}</h1>
-          <h4
-            className="text-lg font-semibold opacity-50"
-            aria-label={`Offered by ${offerData.seller.name}`}
-          >
-            {getSeller({
-              developerDisplayName: offerData.developerDisplayName as string,
-              publisherDisplayName: offerData.publisherDisplayName as string,
-              seller: offerData.seller.name,
-            })}
-          </h4>
+          <div className="inline-flex items-center justify-between gap-2">
+            <h4
+              className="text-lg font-semibold opacity-50"
+              aria-label={`Offered by ${offerData.seller.name}`}
+            >
+              {getSeller({
+                developerDisplayName: offerData.developerDisplayName as string,
+                publisherDisplayName: offerData.publisherDisplayName as string,
+                seller: offerData.seller.name,
+              })}
+            </h4>
+            <OpenLauncher id={offerData.id} />
+          </div>
           <div className="rounded-xl border border-gray-300/10 mt-2">
             <Table>
               <TableHeader>
