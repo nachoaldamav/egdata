@@ -55,7 +55,7 @@ export function GameFeatures({
             </Tooltip>
           </TooltipProvider>
         )}
-        {features.map((feature) => (
+        {storeFeatures.map((feature) => (
           <TooltipProvider key={feature.key}>
             <Tooltip delayDuration={50}>
               <TooltipTrigger>{feature.icon}</TooltipTrigger>
@@ -65,7 +65,7 @@ export function GameFeatures({
             </Tooltip>
           </TooltipProvider>
         ))}
-        {storeFeatures.map((feature) => (
+        {features.map((feature) => (
           <TooltipProvider key={feature.key}>
             <Tooltip delayDuration={50}>
               <TooltipTrigger>{feature.icon}</TooltipTrigger>
