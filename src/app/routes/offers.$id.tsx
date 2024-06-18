@@ -258,19 +258,17 @@ export default function Index() {
       <header className="grid col-span-1 gap-4 md:grid-cols-2 w-full">
         <div className="flex flex-col gap-1">
           <h1 className="text-4xl font-bold">{offerData.title}</h1>
-          <div className="inline-flex items-center justify-between gap-2">
-            <h4
-              className="text-lg font-semibold opacity-50"
-              aria-label={`Offered by ${offerData.seller.name}`}
-            >
-              {getSeller({
-                developerDisplayName: offerData.developerDisplayName as string,
-                publisherDisplayName: offerData.publisherDisplayName as string,
-                seller: offerData.seller.name,
-              })}
-            </h4>
-            <OpenLauncher id={offerData.id} />
-          </div>
+          <h4
+            className="text-lg font-semibold opacity-50"
+            aria-label={`Offered by ${offerData.seller.name}`}
+          >
+            {getSeller({
+              developerDisplayName: offerData.developerDisplayName as string,
+              publisherDisplayName: offerData.publisherDisplayName as string,
+              seller: offerData.seller.name,
+            })}
+          </h4>
+
           <div className="rounded-xl border border-gray-300/10 mt-2">
             <Table>
               <TableHeader>
@@ -379,6 +377,23 @@ export default function Index() {
           <BaseGame offer={offerData} />
         </div>
         <div className="flex justify-start items-start flex-col gap-4">
+          <div className="inline-flex items-center gap-2 justify-end w-full h-8">
+            {offerData.productSlug && (
+              <Button
+                variant="outline"
+                className="bg-gray-900 text-white dark:hover:text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
+                onClick={() =>
+                  open(`com.epicgames.launcher://store/product/${offerData.productSlug}`)
+                }
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <EpicGamesIcon className="h-6 w-6" />
+                  <span className="font-semibold">Open</span>
+                </div>
+              </Button>
+            )}
+            <OpenLauncher id={offerData.id} />
+          </div>
           <div className="relative w-full h-auto">
             <Image
               src={
