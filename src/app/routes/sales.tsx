@@ -40,7 +40,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       page: number;
       total: number;
       limit: number;
-    }>(`/sales?limit=32&country=${country}&page=${page}`),
+    }>(`/sales?limit=28&country=${country}&page=${page}`),
   ]);
 
   const games = latestGames.data.elements || ([] as SingleOffer[]);
