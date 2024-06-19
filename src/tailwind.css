@@ -129,3 +129,32 @@
   font-weight: bold;
   font-style: normal;
 }
+
+/* Add this to your CSS file or inside a <style> tag in your component */
+
+.cover-section {
+  position: relative;
+  height: 60vh;
+  max-height: 600px;
+  overflow: hidden;
+}
+
+.cover-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cover-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.3));
+  margin-radius: 2rem;
+}
+
+.cover-content {
+  z-index: 1;
+}

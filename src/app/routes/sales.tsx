@@ -21,14 +21,7 @@ import { useCountry } from '~/hooks/use-country';
 import { useEffect, useState } from 'react';
 import getPagingPage from '~/lib/get-paging-page';
 import getCountryCode from '~/lib/get-country-code';
-
-function checkCountryCode(country: string) {
-  try {
-    return new Intl.DisplayNames(['en'], { type: 'region' }).of(country);
-  } catch (e) {
-    return false;
-  }
-}
+import { checkCountryCode } from '~/lib/check-country';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
