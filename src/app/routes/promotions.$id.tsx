@@ -10,11 +10,109 @@ import getCountryCode from '~/lib/get-country-code';
 import { checkCountryCode } from '~/lib/check-country';
 import cookie from 'cookie';
 
-export const meta: MetaFunction = () => {
+export const meta: MetaFunction<typeof loader> = ({ params, data }) => {
+  if (!data || !data.promotion) {
+    return [{ title: 'Promotion not found' }];
+  }
+
+  const { title, count } = data.promotion;
+
+  const coverImage =
+    getImage(data.cover?.keyImages, [
+      'OfferImageWide',
+      'featuredMedia',
+      'DieselGameBoxWide',
+      'DieselStoreFrontWide',
+    ])?.url ?? 'https://via.placeholder.com/1920x1080?text=No+Cover+Image';
+
   return [
     {
+      title: `${title} - egdata.app`,
+    },
+    {
       name: 'description',
-      content: 'Promotions',
+      content: `Checkout ${count} available offers for ${title} on egdata.app.`,
+    },
+    {
+      name: 'og:title',
+      content: `${title} - egdata.app`,
+    },
+    {
+      name: 'og:description',
+      content: `Checkout ${count} available offers for ${title} on egdata.app.`,
+    },
+    {
+      name: 'twitter:title',
+      content: `${title} - egdata.app`,
+    },
+    {
+      name: 'twitter:description',
+      content: `Checkout ${count} available offers for ${title} on egdata.app.`,
+    },
+    {
+      name: 'og:image',
+      content: coverImage,
+    },
+    {
+      name: 'twitter:image',
+      content: coverImage,
+    },
+    {
+      name: 'twitter:card',
+      content: 'summary_large_image',
+    },
+    {
+      name: 'og:type',
+      content: 'website',
+    },
+    {
+      name: 'og:site_name',
+      content: 'egdata.app',
+    },
+    {
+      name: 'og:url',
+      content: `https://egdata.app/promotions/${params.id}`,
+    },
+    {
+      'script:ld+json': {
+        '@context': 'https://schema.org',
+        '@type': 'Event',
+        name: title,
+        description: `Checkout ${count} available offers for ${title} on egdata.app.`,
+        image: coverImage,
+        url: `https://egdata.app/promotions/${params.id}`,
+        location: {
+          url: `https://egdata.app/promotions/${params.id}`,
+          name: title,
+          image: coverImage,
+        },
+        organizer: {
+          '@type': 'Organization',
+          name: 'Epic Games',
+          url: 'https://store.epicgames.com',
+        },
+        offers: {
+          '@type': 'AggregateOffer',
+          availability: 'https://schema.org/InStock',
+          priceCurrency: data.promotion.elements[0].price?.currency ?? 'USD',
+          lowPrice: Math.min(
+            ...data.promotion.elements.map((game) => game.price?.totalPrice.originalPrice ?? 0),
+          ),
+          highPrice: Math.max(
+            ...data.promotion.elements.map((game) => game.price?.totalPrice.originalPrice ?? 0),
+          ),
+          offerCount: count,
+          offers: data.promotion.elements.map((game) => ({
+            '@type': 'Offer',
+            url: `https://egdata.app/offers/${game.id}`,
+          })),
+        },
+      },
+    },
+    {
+      tagName: 'link',
+      rel: 'canonical',
+      href: `https://egdata.app/promotions/${params.id}`,
     },
   ];
 };
@@ -28,7 +126,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   // Check if the country is a valid ISO code using Intl API
   if (!checkCountryCode(country)) {
     console.warn(`Invalid country code: ${country}`);
-    return redirect('/sales?country=US', 302);
+    return redirect(`/promotions/${id}?country=US`, 302);
   }
 
   const [promotionData, coverData] = await Promise.allSettled([
