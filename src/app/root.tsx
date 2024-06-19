@@ -1,10 +1,4 @@
-import {
-  Links,
-  Meta,
-  Outlet,
-  Scripts,
-  ScrollRestoration,
-} from '@remix-run/react';
+import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
 import type { LinksFunction } from '@remix-run/node';
 import stylesheet from '~/tailwind.css?url';
 import Navbar from '~/components/app/navbar';
@@ -34,15 +28,28 @@ export function Layout({ children }: { children: React.ReactNode }) {
             {children}
             <ScrollRestoration />
             <Scripts />
-            <footer className="flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400 text-xs">
+            <footer className="flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400 text-xs gap-1">
               <p>
-                egdata.app is a fan-made website and is not affiliated by any
-                means with Epic Games, Inc.
+                egdata.app is a fan-made website and is not affiliated by any means with Epic Games,
+                Inc.
               </p>
               <p>
-                All the logos, images, trademarks and creatives are property of
-                their respective owners.
+                All the logos, images, trademarks and creatives are property of their respective
+                owners.
               </p>
+              <hr className="w-1/3 my-2 border-gray-300/40" />
+              <div className="inline-flex gap-2">
+                <span>
+                  Countries flags by{' '}
+                  <Link to="https://flagpedia.net" target="_blank" rel="noopener noreferrer">
+                    <strong>Flagpedia</strong>
+                  </Link>
+                </span>
+                <span>|</span>
+                <span className="inline-flex gap-1 items-center">
+                  Made in <img src="https://flagcdn.com/16x12/eu.webp" alt="EU Flag" />
+                </span>
+              </div>
             </footer>
           </CountryProvider>
         </SearchProvider>
