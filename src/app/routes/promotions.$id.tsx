@@ -9,6 +9,10 @@ import getPagingPage from '~/lib/get-paging-page';
 import getCountryCode from '~/lib/get-country-code';
 import { checkCountryCode } from '~/lib/check-country';
 import cookie from 'cookie';
+import { useState } from 'react';
+import { Button } from '~/components/ui/button';
+import { ReloadIcon } from '@radix-ui/react-icons';
+import { useCountry } from '~/hooks/use-country';
 
 export const meta: MetaFunction<typeof loader> = ({ params, data }) => {
   if (!data || !data.promotion) {
@@ -126,7 +130,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   // Check if the country is a valid ISO code using Intl API
   if (!checkCountryCode(country)) {
     console.warn(`Invalid country code: ${country}`);
-    return redirect(`/promotions/${id}?country=US`, 302);
+    return redirect(`/promotions/${id}?country=US&limit=20&page=1`, 302);
   }
 
   const [promotionData, coverData] = await Promise.allSettled([
@@ -137,7 +141,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
       start: number;
       page: number;
       count: number;
-    }>(`/promotions/${id}?country=${country}&page=${page}&limit=32`),
+    }>(`/promotions/${id}?country=${country}&page=${page}&limit=20`),
     client.get(`/promotions/${id}/cover`),
   ]);
 
@@ -147,11 +151,60 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   return {
     promotion,
     cover,
+    id,
   };
 }
 
 export default function Promotion() {
-  const { cover, promotion } = useLoaderData<typeof loader>();
+  const { country } = useCountry();
+  const { cover, promotion: promotionInitialData, id } = useLoaderData<typeof loader>();
+  const [promotion, setPromotion] = useState<{
+    elements: SingleOffer[];
+    title: string;
+    limit: number;
+    start: number;
+    page: number;
+    count: number;
+  } | null>(promotionInitialData);
+  const [loading, setLoading] = useState(false);
+
+  if (!promotion) {
+    return null;
+  }
+
+  const handleLoadMore = async () => {
+    setLoading(true);
+    const { page } = promotion;
+    const newPage = page + 1;
+    const { data } = await client
+      .get<{
+        elements: SingleOffer[];
+        page: number;
+        total: number;
+        limit: number;
+      }>(`/promotions/${id}?country=${country}&page=${newPage}&limit=20`)
+      .catch(() => ({
+        data: {
+          elements: [],
+          page: 0,
+          total: 0,
+          limit: 0,
+        },
+      }));
+
+    if (data.elements.length) {
+      // @ts-expect-error
+      setPromotion((prev) => ({
+        ...prev,
+        // @ts-expect-error
+        elements: [...prev.elements, ...data.elements],
+        page: newPage,
+        limit: data.limit,
+      }));
+    }
+
+    setLoading(false);
+  };
 
   return (
     <main className="container mx-auto">
@@ -182,6 +235,15 @@ export default function Promotion() {
           <GameCard key={game.id} game={game} />
         ))}
       </section>
+      <div className="flex justify-center mt-8">
+        <Button
+          disabled={loading || promotion.limit * promotion.page >= promotion.count}
+          onClick={handleLoadMore}
+        >
+          {loading && <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />}
+          Load More
+        </Button>
+      </div>
     </main>
   );
 }
