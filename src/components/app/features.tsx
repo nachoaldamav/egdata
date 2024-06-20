@@ -87,7 +87,7 @@ const getLauncher = (launcher: string): { name: string; icon: JSX.Element } | nu
 
     case 'ea':
       return {
-        name: 'EA Play',
+        name: 'EA App',
         icon: <EaIcon />,
       };
 
