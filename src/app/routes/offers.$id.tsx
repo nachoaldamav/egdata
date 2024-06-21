@@ -466,6 +466,7 @@ export default function Index() {
             }
             navigate(`/offers/${offerData.id}/${value}`);
           }}
+          key={`subsection-${offerData.id}`}
         >
           <TabsList>
             <TabsTrigger value="price">Price</TabsTrigger>
