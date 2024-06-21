@@ -471,6 +471,7 @@ export default function Index() {
             <TabsTrigger value="price">Price</TabsTrigger>
             <TabsTrigger value="items">Items</TabsTrigger>
             <TabsTrigger value="achievements">Achievements</TabsTrigger>
+            <TabsTrigger value="related">Related</TabsTrigger>
             <TabsTrigger value="metadata">Metadata</TabsTrigger>
             <TabsTrigger value="changelog">Changelog</TabsTrigger>
           </TabsList>
@@ -482,6 +483,9 @@ export default function Index() {
             <Outlet context={{ items }} />
           </TabsContent>
           <TabsContent value="achievements">
+            <Outlet />
+          </TabsContent>
+          <TabsContent value="related">
             <Outlet />
           </TabsContent>
           <TabsContent value="metadata">

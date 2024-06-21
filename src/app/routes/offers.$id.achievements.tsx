@@ -66,6 +66,7 @@ export default function OfferAchievements() {
         <Button
           className="hover:bg-transparent border border-gray-800 bg-gray-800 inline-flex px-4 py-2 rounded-md text-center transition-all duration-300 ease-in-out text-white"
           onClick={handleFlipAll}
+          disabled={data.length === 0}
         >
           <CardStackIcon className="w-6 h-6 mr-2" />
           Flip All
@@ -88,6 +89,11 @@ export default function OfferAchievements() {
           <hr className="w-full my-4 border-gray-300/40" />
         </div>
       ))}
+      {data.length === 0 && (
+        <div className="flex justify-center items-center h-96">
+          <p className="text-gray-500">No achievements found</p>
+        </div>
+      )}
     </div>
   );
 }
