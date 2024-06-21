@@ -36,7 +36,7 @@ import { Button } from '~/components/ui/button';
 import { OpenLauncher } from '~/components/app/open-launcher';
 import { EGSIcon } from '~/components/icons/egs';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
-import { OfferAchievements } from '~/components/app/offer-achievements';
+import { RegionalPricing } from '~/components/app/regional-pricing';
 
 function supportedPlatforms(items: SingleItem[]): string[] {
   try {
@@ -460,6 +460,10 @@ export default function Index() {
           defaultValue={subPath ?? 'price'}
           className="w-full min-h-96"
           onValueChange={(value: string) => {
+            if (value === 'price') {
+              navigate(`/offers/${offerData.id}`);
+              return;
+            }
             navigate(`/offers/${offerData.id}/${value}`);
           }}
         >
@@ -471,7 +475,8 @@ export default function Index() {
             <TabsTrigger value="changelog">Changelog</TabsTrigger>
           </TabsList>
           <TabsContent value="price">
-            <Outlet />
+            <h2 className="text-2xl font-bold">Price</h2>
+            <RegionalPricing id={offerData.id} />
           </TabsContent>
           <TabsContent value="items" className="w-full">
             <Outlet context={{ items }} />
