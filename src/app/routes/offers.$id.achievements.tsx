@@ -1,25 +1,47 @@
-import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
-import { type Achievement, fetchAchievementsSets } from '~/queries/offer-achievements';
-import { Image } from './image';
-import { useState } from 'react';
-import { Skeleton } from '../ui/skeleton';
-import { cn } from '~/lib/utils';
-import { getRarity } from '~/lib/get-rarity';
-import { Button } from '../ui/button';
 import { CardStackIcon } from '@radix-ui/react-icons';
+import type { LoaderFunction } from '@remix-run/node';
+import { json, useLoaderData, type ClientLoaderFunctionArgs } from '@remix-run/react';
+import { useState } from 'react';
+import { Image } from '~/components/app/image';
+import { Button } from '~/components/ui/button';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardDescription,
+  CardFooter,
+} from '~/components/ui/card';
+import { client } from '~/lib/client';
+import { getRarity } from '~/lib/get-rarity';
+import { cn } from '~/lib/utils';
+import type { Achievement, AchievementsSets } from '~/queries/offer-achievements';
 
-export function OfferAchievements({ id }: { id: string }) {
-  const { data, error } = useQuery({
-    queryKey: ['offer-achievements', { id }],
-    queryFn: () => fetchAchievementsSets({ id }),
+export const loader: LoaderFunction = async ({ params }) => {
+  const data = await client
+    .get<AchievementsSets>(`/offers/${params.id}/achievements`)
+    .then((res) => res.data);
+
+  return json({
+    data,
   });
+};
+
+export const clientLoader = async ({ params }: ClientLoaderFunctionArgs) => {
+  const data = await client
+    .get<AchievementsSets>(`/offers/${params.id}/achievements`)
+    .then((res) => res.data);
+
+  return {
+    data,
+  };
+};
+
+export default function OfferAchievements() {
+  const { data } = useLoaderData<typeof clientLoader>();
+
   const [flipAll, setFlipAll] = useState(false);
   const [flippedStates, setFlippedStates] = useState<{ [key: string]: boolean }>({});
-
-  if (error) {
-    return <div>Error: {error.message}</div>;
-  }
 
   const handleFlipAll = () => {
     setFlipAll(!flipAll);
@@ -31,17 +53,6 @@ export function OfferAchievements({ id }: { id: string }) {
       [achievementName]: !prev[achievementName],
     }));
   };
-
-  if (!data) {
-    return (
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 mt-4">
-        {Array.from({ length: 20 }).map((_, i) => (
-          // biome-ignore lint/suspicious/noArrayIndexKey: This is a skeleton component
-          <SkeletonCard key={i} />
-        ))}
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -168,22 +179,5 @@ function FlippableCard({
         </div>
       </div>
     </div>
-  );
-}
-
-function SkeletonCard() {
-  return (
-    <Card className="justify-between flex flex-col h-full">
-      <CardHeader className="flex flex-col w-full items-center gap-2">
-        <Skeleton className="h-16 w-16" />
-        <Skeleton className="h-4 w-32" />
-      </CardHeader>
-      <CardContent className="h-full">
-        <Skeleton className="h-16" />
-      </CardContent>
-      <CardFooter>
-        <Skeleton className="h-4 w-16" />
-      </CardFooter>
-    </Card>
   );
 }

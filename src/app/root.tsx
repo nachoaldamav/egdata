@@ -5,6 +5,8 @@ import stylesheet from '~/tailwind.css?url';
 import Navbar from '~/components/app/navbar';
 import { SearchProvider } from '~/context/global-search';
 import { CountryProvider } from '~/context/country';
+import '../tailwind.css';
+import '../fonts.css';
 
 export const links: LinksFunction = () => [
   { rel: 'preload', href: stylesheet, as: 'style' },

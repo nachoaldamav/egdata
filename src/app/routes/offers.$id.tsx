@@ -1,5 +1,12 @@
 import type { LoaderFunctionArgs } from '@remix-run/node';
-import { Link, useLoaderData, type MetaFunction } from '@remix-run/react';
+import {
+  Link,
+  Outlet,
+  useLoaderData,
+  useNavigate,
+  useNavigation,
+  type MetaFunction,
+} from '@remix-run/react';
 import { Image } from '~/components/app/image';
 import { client } from '~/lib/client';
 import { getImage } from '~/lib/getImage';
@@ -76,9 +83,12 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
       }),
   ]);
 
+  const subPath = request.url.split(`/${params.id}/`)[1] as string | undefined;
+
   return {
     offer: offer as SingleOffer,
     items: (items ?? []) as SingleItem[],
+    subPath,
   };
 }
 
@@ -105,9 +115,12 @@ export async function clientLoader({ params, request }: LoaderFunctionArgs) {
   const offer = offerData.status === 'fulfilled' ? offerData.value : null;
   const items = itemsData.status === 'fulfilled' ? itemsData.value : null;
 
+  const subPath = request.url.split(`/${params.id}/`)[1] as string | undefined;
+
   return {
     offer: offer as SingleOffer,
     items: (items ?? []) as SingleItem[],
+    subPath,
   };
 }
 
@@ -245,7 +258,11 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 };
 
 export default function Index() {
+  const navigate = useNavigate();
+  const navigation = useNavigation();
   const { offer: offerData, items } = useLoaderData<typeof loader | typeof clientLoader>();
+
+  const subPath = navigation.location?.pathname.split(`/${offerData.id}/`)[1];
 
   if (!offerData) {
     return <div>Offer not found</div>;
@@ -435,7 +452,13 @@ export default function Index() {
       </header>
 
       <section id="offer-information" className="w-full">
-        <Tabs defaultValue={'price'} className="w-full min-h-96">
+        <Tabs
+          defaultValue={subPath ?? 'price'}
+          className="w-full min-h-96"
+          onValueChange={(value: string) => {
+            navigate(`/offers/${offerData.id}/${value}`);
+          }}
+        >
           <TabsList>
             <TabsTrigger value="price">Price</TabsTrigger>
             <TabsTrigger value="items">Items</TabsTrigger>
@@ -444,33 +467,13 @@ export default function Index() {
             <TabsTrigger value="changelog">Changelog</TabsTrigger>
           </TabsList>
           <TabsContent value="price">
-            <h2 className="text-2xl font-bold">Price</h2>
+            <Outlet />
           </TabsContent>
           <TabsContent value="items" className="w-full">
-            <h2 className="text-2xl font-bold">Items</h2>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[300px]">Item ID</TableHead>
-                  <TableHead>Item Name</TableHead>
-                  <TableHead>Entitlement Type</TableHead>
-                  <TableHead>Entitlement Name</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {items.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell className="font-mono">{item.id}</TableCell>
-                    <TableCell className="text-left">{item.title}</TableCell>
-                    <TableCell className="text-left">{item.entitlementType}</TableCell>
-                    <TableCell className="text-left">{item.entitlementName}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <Outlet context={{ items }} />
           </TabsContent>
           <TabsContent value="achievements">
-            <OfferAchievements id={offerData.id} />
+            <Outlet />
           </TabsContent>
           <TabsContent value="metadata">
             <h2 className="text-2xl font-bold">Metadata</h2>
