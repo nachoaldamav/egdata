@@ -27,6 +27,7 @@ import buildImageUrl from '~/lib/build-image-url';
 import { EpicGamesIcon } from '~/components/icons/epic';
 import { Button } from '~/components/ui/button';
 import { OpenLauncher } from '~/components/app/open-launcher';
+import { EGSIcon } from '~/components/icons/egs';
 
 function supportedPlatforms(items: SingleItem[]): string[] {
   try {
@@ -378,6 +379,24 @@ export default function Index() {
         </div>
         <div className="flex justify-start items-start flex-col gap-4">
           <div className="inline-flex items-center gap-2 justify-end w-full h-8">
+            {offerData.productSlug && (
+              <Button
+                asChild
+                className="bg-gray-900 text-white dark:hover:text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
+              >
+                <Link
+                  to={`https://store.epicgames.com/p/${offerData.productSlug}?utm_source=egdata.app`}
+                  rel="noopener noreferrer"
+                  referrerPolicy="no-referrer"
+                  target="_blank"
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <EGSIcon className="h-6 w-6" />
+                    <span className="font-semibold">Store</span>
+                  </div>
+                </Link>
+              </Button>
+            )}
             {offerData.productSlug && (
               <Button
                 variant="outline"
