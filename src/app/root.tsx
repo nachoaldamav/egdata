@@ -6,13 +6,23 @@ import Navbar from '~/components/app/navbar';
 import { SearchProvider } from '~/context/global-search';
 import { CountryProvider } from '~/context/country';
 import '../tailwind.css';
-import '../fonts.css';
+// import '../fonts.css';
 
 export const links: LinksFunction = () => [
   { rel: 'preload', href: stylesheet, as: 'style' },
   { rel: 'stylesheet', href: stylesheet },
   { rel: 'preconnect', href: 'https://cdn1.epicgames.com/' },
   { rel: 'preconnect', href: 'https://api.egdata.app/' },
+  { rel: 'preconnect', href: 'https://fonts.googleapis.com/' },
+  // Load nunito sans and Montserrat from google fonts
+  {
+    rel: 'stylesheet',
+    href: 'https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&family=Montserrat:wght@400;600;700&display=swap',
+  },
+  {
+    rel: 'stylesheet',
+    href: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap',
+  },
 ];
 
 const queryClient = new QueryClient();
