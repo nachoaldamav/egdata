@@ -1,4 +1,4 @@
-import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetFooter } from '~/components/ui/sheet';
+import { Sheet, SheetTrigger, SheetContent, SheetHeader } from '~/components/ui/sheet';
 import { Button } from '~/components/ui/button';
 import { Link } from '@remix-run/react';
 import {
@@ -58,14 +58,6 @@ export default function Navbar() {
               </Link>
             ))}
           </NavigationMenu>
-          <SheetFooter>
-            <form className="flex-1">
-              <div className="relative">
-                <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
-                <Input type="search" placeholder="Search games..." className="pl-8 w-full" />
-              </div>
-            </form>
-          </SheetFooter>
         </SheetContent>
       </Sheet>
       <Link to="/" className="hidden lg:flex justify-center items-center" prefetch="render">

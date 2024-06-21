@@ -115,35 +115,7 @@ export default function Index() {
           <CarouselPrevious />
           <CarouselContent>
             {games.map((game) => (
-              <CarouselItem key={game.id} className="basis-1/4">
-                <Link
-                  to={`/offers/${game.id}`}
-                  className="h-auto w-80 relative select-none"
-                  prefetch="viewport"
-                >
-                  <Card className="w-full max-w-sm rounded-lg overflow-hidden shadow-lg">
-                    <Image
-                      src={getImage(game.keyImages, ['Thumbnail'])?.url}
-                      alt={game.title}
-                      width={400}
-                      height={500}
-                      className="w-full h-96 object-cover hover:scale-105 transition-transform duration-300"
-                    />
-                    <CardContent className="p-6 space-y-4">
-                      <div className="space-y-2">
-                        <h3 className="text-xl font-bold">{game.title}</h3>
-                        <p className="text-gray-500 dark:text-gray-400 text-sm">
-                          <GameSeller
-                            developerDisplayName={game.developerDisplayName}
-                            publisherDisplayName={game.publisherDisplayName}
-                            seller={game.seller}
-                          />
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              </CarouselItem>
+              <GameCard game={game} key={game.id} />
             ))}
           </CarouselContent>
           <CarouselNext />
@@ -270,39 +242,45 @@ function LastModifiedGames() {
               </CarouselItem>
             ))}
           {games.map((game) => (
-            <CarouselItem key={game.id} className="basis-1/4">
-              <Link
-                to={`/offers/${game.id}`}
-                className="h-auto w-80 relative select-none"
-                prefetch="viewport"
-              >
-                <Card className="w-full max-w-sm rounded-lg overflow-hidden shadow-lg">
-                  <Image
-                    src={getImage(game.keyImages, ['Thumbnail'])?.url}
-                    alt={game.title}
-                    width={400}
-                    height={500}
-                    className="w-full h-96 object-cover hover:scale-105 transition-transform duration-300"
-                  />
-                  <CardContent className="p-6 space-y-4">
-                    <div className="space-y-2">
-                      <h3 className="text-xl font-bold">{game.title}</h3>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm">
-                        <GameSeller
-                          developerDisplayName={game.developerDisplayName as string}
-                          publisherDisplayName={game.publisherDisplayName as string}
-                          seller={game.seller.name}
-                        />
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            </CarouselItem>
+            <GameCard game={game} key={game.id} />
           ))}
         </CarouselContent>
         <CarouselNext />
       </Carousel>
     </section>
+  );
+}
+
+function GameCard({ game }: { game: SingleOffer }) {
+  return (
+    <CarouselItem key={game.id} className="basis-1/1 lg:basis-1/4">
+      <Link
+        to={`/offers/${game.id}`}
+        className="h-auto w-96 relative select-none"
+        prefetch="viewport"
+      >
+        <Card className="w-72  lg:max-w-sm rounded-lg overflow-hidden shadow-lg">
+          <Image
+            src={getImage(game.keyImages, ['Thumbnail'])?.url}
+            alt={game.title}
+            width={400}
+            height={500}
+            className="w-full h-96 object-cover hover:scale-105 transition-transform duration-300"
+          />
+          <CardContent className="p-6 space-y-4">
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold">{game.title}</h3>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
+                <GameSeller
+                  developerDisplayName={game.developerDisplayName as string}
+                  publisherDisplayName={game.publisherDisplayName as string}
+                  seller={game.seller.name}
+                />
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
+    </CarouselItem>
   );
 }

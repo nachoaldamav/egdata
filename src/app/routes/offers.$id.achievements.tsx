@@ -133,7 +133,7 @@ function FlippableCard({
 
   return (
     <div
-      className="relative h-72 w-full perspective cursor-default"
+      className="relative h-72 w-full perspective cursor-default select-none"
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       role="button"
