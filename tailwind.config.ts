@@ -27,9 +27,9 @@ const config = {
       'span-12': 'span 12 / span 12',
     },
     fontFamily: {
-      sans: ['Nunito Sans'],
+      sans: ['Nunito Sans', 'sans-serif'],
       mono: [...require('tailwindcss/defaultConfig').theme.fontFamily.mono],
-      montserrat: ['Montserrat'],
+      montserrat: ['Montserrat', 'sans-serif'],
     },
     extend: {
       colors: {

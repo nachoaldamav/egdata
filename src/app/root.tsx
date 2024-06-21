@@ -14,10 +14,11 @@ export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://cdn1.epicgames.com/' },
   { rel: 'preconnect', href: 'https://api.egdata.app/' },
   { rel: 'preconnect', href: 'https://fonts.googleapis.com/' },
+  { rel: 'preconnect', href: 'https://fonts.gstatic.com/', crossOrigin: 'anonymous' },
   // Load nunito sans and Montserrat from google fonts
   {
     rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&family=Montserrat:wght@400;600;700&display=swap',
+    href: 'https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap',
   },
   {
     rel: 'stylesheet',
