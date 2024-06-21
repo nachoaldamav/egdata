@@ -10,9 +10,19 @@ import {
 import type { SingleItem } from '~/types/single-item';
 
 export default function ItemsSection() {
-  const { items } = useOutletContext<{
+  const data = useOutletContext<{
     items: SingleItem[];
   }>();
+
+  if (!data) {
+    return null;
+  }
+
+  const items = data.items;
+
+  if (!items.length) {
+    return null;
+  }
 
   return (
     <>

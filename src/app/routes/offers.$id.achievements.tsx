@@ -12,20 +12,11 @@ import {
   CardDescription,
   CardFooter,
 } from '~/components/ui/card';
+import { Skeleton } from '~/components/ui/skeleton';
 import { client } from '~/lib/client';
 import { getRarity } from '~/lib/get-rarity';
 import { cn } from '~/lib/utils';
 import type { Achievement, AchievementsSets } from '~/queries/offer-achievements';
-
-export const loader: LoaderFunction = async ({ params }) => {
-  const data = await client
-    .get<AchievementsSets>(`/offers/${params.id}/achievements`)
-    .then((res) => res.data);
-
-  return json({
-    data,
-  });
-};
 
 export const clientLoader = async ({ params }: ClientLoaderFunctionArgs) => {
   const data = await client
@@ -36,6 +27,20 @@ export const clientLoader = async ({ params }: ClientLoaderFunctionArgs) => {
     data,
   };
 };
+
+export function HydrateFallback() {
+  return (
+    <div className="flex flex-col gap-4">
+      <h1 className="text-2xl font-bold">Achievements</h1>
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 mt-4">
+        {Array.from({ length: 20 }).map((_, index) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: This is a fallback component
+          <SkeletonCard key={index} />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function OfferAchievements() {
   const { data } = useLoaderData<typeof clientLoader>();
@@ -179,5 +184,22 @@ function FlippableCard({
         </div>
       </div>
     </div>
+  );
+}
+
+function SkeletonCard() {
+  return (
+    <Card className="justify-between flex flex-col h-full">
+      <CardHeader className="flex flex-col w-full items-center gap-2">
+        <Skeleton className="h-16 w-16" />
+        <Skeleton className="h-4 w-32" />
+      </CardHeader>
+      <CardContent className="h-full">
+        <Skeleton className="h-16" />
+      </CardContent>
+      <CardFooter>
+        <Skeleton className="h-4 w-16" />
+      </CardFooter>
+    </Card>
   );
 }

@@ -260,9 +260,13 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 export default function Index() {
   const navigate = useNavigate();
   const navigation = useNavigation();
-  const { offer: offerData, items } = useLoaderData<typeof loader | typeof clientLoader>();
+  const {
+    offer: offerData,
+    items,
+    subPath: serverSubPath,
+  } = useLoaderData<typeof loader | typeof clientLoader>();
 
-  const subPath = navigation.location?.pathname.split(`/${offerData.id}/`)[1];
+  const subPath = serverSubPath ?? navigation.location?.pathname.split(`/${offerData.id}/`)[1];
 
   if (!offerData) {
     return <div>Offer not found</div>;
