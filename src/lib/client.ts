@@ -6,6 +6,7 @@ const client = Axios.create({
     : 'https://api.egdata.app',
   headers: {
     'Content-Type': 'application/json',
+    'User-Agent': import.meta.env.SSR ? 'egdata.app/0.0.1 (https://egdata.app)' : undefined,
   },
 });
 

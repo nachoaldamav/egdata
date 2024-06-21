@@ -16,7 +16,7 @@ import {
 } from '~/components/ui/table';
 import { offersDictionary } from '~/lib/offers-dictionary';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
-import { ExclamationTriangleIcon, OpenInNewWindowIcon } from '@radix-ui/react-icons';
+import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import { useEffect, useState } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 import { compareDates, timeAgo } from '~/lib/time-ago';
@@ -28,6 +28,8 @@ import { EpicGamesIcon } from '~/components/icons/epic';
 import { Button } from '~/components/ui/button';
 import { OpenLauncher } from '~/components/app/open-launcher';
 import { EGSIcon } from '~/components/icons/egs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
+import { OfferAchievements } from '~/components/app/offer-achievements';
 
 function supportedPlatforms(items: SingleItem[]): string[] {
   try {
@@ -47,7 +49,7 @@ function supportedPlatforms(items: SingleItem[]): string[] {
   }
 }
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader({ params, request }: LoaderFunctionArgs) {
   const start = Date.now();
   const [offer, items] = await Promise.all([
     client
@@ -73,7 +75,6 @@ export async function loader({ params }: LoaderFunctionArgs) {
         console.log(`[loader] Items fetch time: ${Date.now() - start}ms`);
       }),
   ]);
-  // console.log(`[loader] Execution time: ${Date.now() - start}ms`);
 
   return {
     offer: offer as SingleOffer,
@@ -81,7 +82,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
   };
 }
 
-export async function clientLoader({ params }: LoaderFunctionArgs) {
+export async function clientLoader({ params, request }: LoaderFunctionArgs) {
   const [offerData, itemsData] = await Promise.allSettled([
     client
       .get<SingleOffer>(`/offers/${params.id}`)
@@ -432,31 +433,52 @@ export default function Index() {
           <p className="px-1">{offerData.description}</p>
         </div>
       </header>
-      <section id="historical-prices" className="w-full">
-        <h2 className="text-2xl font-bold">Historical Prices</h2>
-      </section>
-      <section id="items" className="w-full">
-        <h2 className="text-2xl font-bold">Items</h2>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[300px]">Item ID</TableHead>
-              <TableHead>Item Name</TableHead>
-              <TableHead>Entitlement Type</TableHead>
-              <TableHead>Entitlement Name</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {items.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell className="font-mono">{item.id}</TableCell>
-                <TableCell className="text-left">{item.title}</TableCell>
-                <TableCell className="text-left">{item.entitlementType}</TableCell>
-                <TableCell className="text-left">{item.entitlementName}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+
+      <section id="offer-information" className="w-full">
+        <Tabs defaultValue={'price'} className="w-full min-h-96">
+          <TabsList>
+            <TabsTrigger value="price">Price</TabsTrigger>
+            <TabsTrigger value="items">Items</TabsTrigger>
+            <TabsTrigger value="achievements">Achievements</TabsTrigger>
+            <TabsTrigger value="metadata">Metadata</TabsTrigger>
+            <TabsTrigger value="changelog">Changelog</TabsTrigger>
+          </TabsList>
+          <TabsContent value="price">
+            <h2 className="text-2xl font-bold">Price</h2>
+          </TabsContent>
+          <TabsContent value="items" className="w-full">
+            <h2 className="text-2xl font-bold">Items</h2>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[300px]">Item ID</TableHead>
+                  <TableHead>Item Name</TableHead>
+                  <TableHead>Entitlement Type</TableHead>
+                  <TableHead>Entitlement Name</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {items.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="font-mono">{item.id}</TableCell>
+                    <TableCell className="text-left">{item.title}</TableCell>
+                    <TableCell className="text-left">{item.entitlementType}</TableCell>
+                    <TableCell className="text-left">{item.entitlementName}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TabsContent>
+          <TabsContent value="achievements">
+            <OfferAchievements id={offerData.id} />
+          </TabsContent>
+          <TabsContent value="metadata">
+            <h2 className="text-2xl font-bold">Metadata</h2>
+          </TabsContent>
+          <TabsContent value="changelog">
+            <h2 className="text-2xl font-bold">Changelog</h2>
+          </TabsContent>
+        </Tabs>
       </section>
     </main>
   );
