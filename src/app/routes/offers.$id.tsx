@@ -163,11 +163,6 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
     ];
   }
 
-  const priceFormatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: price.totalPaymentPrice.paymentCurrencyCode ?? 'USD',
-  });
-
   return [
     {
       title: `${offerData.title} - egdata.app`,
@@ -563,7 +558,7 @@ export default function Index() {
             <h2 className="text-2xl font-bold">Metadata</h2>
           </TabsContent>
           <TabsContent value="changelog">
-            <h2 className="text-2xl font-bold">Changelog</h2>
+            <Outlet />
           </TabsContent>
         </Tabs>
       </section>
