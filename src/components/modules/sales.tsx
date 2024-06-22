@@ -13,6 +13,7 @@ import {
 import { Skeleton } from '~/components/ui/skeleton';
 import { Image } from '~/components/app/image';
 import { useCountry } from '~/hooks/use-country';
+import { ArrowLeftIcon, ArrowRightIcon } from '@radix-ui/react-icons';
 
 export interface SingleOffer {
   id: string;
@@ -90,11 +91,12 @@ export function SalesModule({
   return (
     <section className="w-full h-full" id={`promotion-${eventId}`}>
       <Link
-        className="text-xl font-bold text-left"
+        className="text-xl font-bold text-left inline-flex group items-center gap-2"
         to={`/promotions/${eventId}`}
         prefetch="viewport"
       >
-        {event}
+        {event}{' '}
+        <ArrowRightIcon className="w-6 h-6 inline-block group-hover:translate-x-1 transition-transform duration-300 ease-in-out" />
       </Link>
       <Carousel className="mt-2 h-full p-4">
         <CarouselPrevious />
