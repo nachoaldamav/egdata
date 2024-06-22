@@ -1,6 +1,5 @@
 import { CardStackIcon } from '@radix-ui/react-icons';
-import type { LoaderFunction } from '@remix-run/node';
-import { json, useLoaderData, type ClientLoaderFunctionArgs } from '@remix-run/react';
+import { useLoaderData, type ClientLoaderFunctionArgs } from '@remix-run/react';
 import { useState } from 'react';
 import { Image } from '~/components/app/image';
 import { Button } from '~/components/ui/button';
