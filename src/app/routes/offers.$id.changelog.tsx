@@ -35,13 +35,9 @@ export function HydrateFallback() {
   );
 }
 
-const uniqueId = (changeType: string, oldValue: unknown, newValue: unknown) => {
-  const stringifiedOldValue = typeof oldValue === 'object' ? JSON.stringify(oldValue) : oldValue;
-  const stringifiedNewValue = typeof newValue === 'object' ? JSON.stringify(newValue) : newValue;
-  return btoa(`${changeType}-${stringifiedOldValue}-${stringifiedNewValue}`).slice(0, 25);
-};
-
-const icons = {
+const icons: {
+  [key in Change['changeType']]: JSX.Element;
+} = {
   update: <GitPullRequestIcon size={16} className="text-blue-600" />,
   insert: <PlusIcon size={16} className="text-green-500" />,
   delete: <GitPullRequestClosedIcon size={16} className="text-red-500" />,
@@ -60,26 +56,43 @@ export default function OfferChangelog() {
           .map((changelist) => (
             <article
               key={changelist._id}
-              className="flex flex-col gap-4 border border-gray-400 w-full rounded-xl"
+              className="flex flex-col border border-gray-400 w-full rounded-xl"
             >
-              <header className="p-2 bg-gray-800 rounded-t-xl">
-                <Link to={`/changelists/${changelist._id}`}>{changelist._id.slice(0, 10)}</Link>
+              <header className="p-2 bg-slate-900 rounded-t-xl inline-flex">
+                <Link
+                  to={`/changelists/${changelist._id}`}
+                  className="text-gray-300 font-semibold underline decoration-dotted underline-offset-4"
+                >
+                  {changelist._id.slice(0, 10)}
+                </Link>
+                <span className="text-gray-300 ml-auto font-semibold">
+                  {new Date(changelist.timestamp).toLocaleDateString('en-UK', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: 'numeric',
+                  })}
+                </span>
               </header>
-              <div className="px-4 pb-4">
+              <div className="px-4 py-4 rounded-b-xl">
                 <ul className="list-inside">
-                  {changelist.metadata.changes.map((change) => (
+                  {changelist.metadata.changes.map((change, i) => (
                     <li
-                      key={uniqueId(change.changeType, change.oldValue, change.newValue)}
+                      key={`${changelist}-${
+                        // biome-ignore lint/suspicious/noArrayIndexKey: The index is the ID for each change in the list
+                        i
+                      }`}
                       className="flex flex-row gap-2 items-center justify-start my-1"
                     >
                       <span className="inline-flex items-center justify-center w-6 h-6 border rounded-md my-1">
                         {icons[change.changeType]}
                       </span>
-                      <i className="text-gray-500 font-mono">{change.field}</i>
+                      <i className="text-gray-300 font-mono">{change.field}:</i>
                       <span className="text-red-500 line-through font-mono">
-                        {valueToText(change.oldValue, change.field)}
+                        {valueToText(change.oldValue, change.field) || 'N/A'}
                       </span>
-                      <ArrowRightIcon size={16} className="text-gray-500" />
+                      <ArrowRightIcon className="text-gray-500" />
                       <span className="text-green-400 font-mono">
                         {valueToText(change.newValue, change.field)}
                       </span>
@@ -107,12 +120,12 @@ function valueToText(value: unknown, field: string) {
     }
   }
   if (field.includes('Date'))
-    return new Date(value).toLocaleDateString('en-UK', {
+    return new Date(value as string).toLocaleDateString('en-UK', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
       hour: 'numeric',
       minute: 'numeric',
     });
-  return value;
+  return value as string;
 }
