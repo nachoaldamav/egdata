@@ -16,6 +16,7 @@ import type { SingleOffer } from '~/types/single-offer';
 import { useEffect, useState } from 'react';
 import { Skeleton } from '~/components/ui/skeleton';
 import { SalesModule } from '~/components/modules/sales';
+import { ChangelistModule } from '~/components/modules/changelist';
 
 export interface Game {
   id: string;
@@ -122,6 +123,7 @@ export default function Index() {
         </Carousel>
       </section>
       <LastModifiedGames />
+      <ChangelistModule />
       {events.map((event) => (
         <SalesModule key={event.id} event={event.name} eventId={event.id} />
       ))}
@@ -228,11 +230,11 @@ function LastModifiedGames() {
   }, []);
 
   return (
-    <section className="w-full h-full" id="last-modified-offers">
+    <section className="w-full" id="last-modified-offers">
       <h4 className="text-xl font-bold text-left">Last Modified Offers</h4>
-      <Carousel className="mt-2 h-full p-4">
+      <Carousel className="mt-2 p-4">
         <CarouselPrevious />
-        <CarouselContent>
+        <CarouselContent className="items-center">
           {loading &&
             games.length === 0 &&
             [...Array(25)].map((_, index) => (
@@ -254,12 +256,8 @@ function LastModifiedGames() {
 function GameCard({ game }: { game: SingleOffer }) {
   return (
     <CarouselItem key={game.id} className="basis-1/1 lg:basis-1/4">
-      <Link
-        to={`/offers/${game.id}`}
-        className="h-auto w-96 relative select-none"
-        prefetch="viewport"
-      >
-        <Card className="w-72  lg:max-w-sm rounded-lg overflow-hidden shadow-lg">
+      <Link to={`/offers/${game.id}`} className="w-96 relative select-none" prefetch="viewport">
+        <Card className="w-72 lg:max-w-sm rounded-lg overflow-hidden shadow-lg">
           <Image
             src={getImage(game.keyImages, ['Thumbnail'])?.url}
             alt={game.title}
