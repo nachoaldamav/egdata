@@ -25,6 +25,7 @@ import { offersDictionary } from '~/lib/offers-dictionary';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import { useEffect, useState } from 'react';
+import cookie from 'cookie';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 import { compareDates, timeAgo } from '~/lib/time-ago';
 import { internalNamespaces } from '~/lib/internal-namespaces';
@@ -37,6 +38,8 @@ import { OpenLauncher } from '~/components/app/open-launcher';
 import { EGSIcon } from '~/components/icons/egs';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { RegionalPricing } from '~/components/app/regional-pricing';
+import type { Price } from '~/types/price';
+import getCountryCode from '~/lib/get-country-code';
 
 function supportedPlatforms(items: SingleItem[]): string[] {
   try {
@@ -57,8 +60,11 @@ function supportedPlatforms(items: SingleItem[]): string[] {
 }
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
+  const url = new URL(request.url);
+  const country = getCountryCode(url, cookie.parse(request.headers.get('Cookie') || ''));
+
   const start = Date.now();
-  const [offer, items] = await Promise.all([
+  const [offer, items, price] = await Promise.all([
     client
       .get<SingleOffer>(`/offers/${params.id}`)
       .then((response) => {
@@ -81,6 +87,9 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
       .finally(() => {
         console.log(`[loader] Items fetch time: ${Date.now() - start}ms`);
       }),
+    client
+      .get<Price>(`/offers/${params.id}/price?country=${country || 'US'}`)
+      .then((response) => response.data),
   ]);
 
   const subPath = request.url.split(`/${params.id}/`)[1] as string | undefined;
@@ -89,11 +98,15 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     offer: offer as SingleOffer,
     items: (items ?? []) as SingleItem[],
     subPath,
+    price: price as Price,
   };
 }
 
 export async function clientLoader({ params, request }: LoaderFunctionArgs) {
-  const [offerData, itemsData] = await Promise.allSettled([
+  const url = new URL(request.url);
+  const country = getCountryCode(url, cookie.parse(request.headers.get('Cookie') || ''));
+
+  const [offerData, itemsData, priceData] = await Promise.allSettled([
     client
       .get<SingleOffer>(`/offers/${params.id}`)
       .then((response) => {
@@ -110,10 +123,14 @@ export async function clientLoader({ params, request }: LoaderFunctionArgs) {
       .get<Array<SingleItem>>(`/items-from-offer/${params.id}`)
       .then((response) => response.data)
       .catch(() => [] as SingleItem[]),
+    client
+      .get<Price>(`/offers/${params.id}/price?country=${country || 'US'}`)
+      .then((response) => response.data),
   ]);
 
   const offer = offerData.status === 'fulfilled' ? offerData.value : null;
   const items = itemsData.status === 'fulfilled' ? itemsData.value : null;
+  const price = priceData.status === 'fulfilled' ? priceData.value : null;
 
   const subPath = request.url.split(`/${params.id}/`)[1] as string | undefined;
 
@@ -121,6 +138,7 @@ export async function clientLoader({ params, request }: LoaderFunctionArgs) {
     offer: offer as SingleOffer,
     items: (items ?? []) as SingleItem[],
     subPath,
+    price,
   };
 }
 
@@ -134,7 +152,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
     ];
   }
 
-  const { offer: offerData } = data;
+  const { offer: offerData, price } = data;
 
   if (offerData.title === 'Error') {
     return [
@@ -144,6 +162,11 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
       },
     ];
   }
+
+  const priceFormatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: price.totalPaymentPrice.paymentCurrencyCode ?? 'USD',
+  });
 
   return [
     {
@@ -155,7 +178,18 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
     },
     {
       name: 'keywords',
-      content: 'Epic Games, Epic Games Store, Offer, Sale, Game',
+      content: [
+        'Epic Games',
+        'Epic Games Store',
+        'Offer',
+        'Game',
+        'Epic Games DB',
+        'Epic DB',
+        'Database',
+        'Epic Database',
+      ]
+        .concat(offerData.tags.map((tag) => tag.name))
+        .join(', '),
     },
     {
       name: 'author',
@@ -220,27 +254,63 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
         name: offerData.title,
         applicationCategory: 'Game',
         description: offerData.description,
-        softwareVersion: undefined,
         operatingSystem: supportedPlatforms(data.items).join(', '),
         datePublished: offerData.releaseDate,
         dateModified: offerData.lastModifiedDate,
+        mainEntityOfPage: offerData.offerType === 'BASE_GAME' ? true : undefined,
         publisher: {
           '@type': 'Organization',
-          name: offerData.seller.name,
+          name: offerData.publisherDisplayName ?? offerData.seller.name,
         },
-        // offers: {
-        //   '@type': 'Offer',
-        //   price: (offerData.price?.totalPrice.discountPrice || 0) / 100,
-        //   priceCurrency: offerData.price?.currency,
-        //   priceValidUntil: undefined,
-        //   availability: 'https://schema.org/InStock',
-        //   url: `https://store.epicgames.com/product/${
-        //     offerData.productSlug ?? offerData.url ?? offerData.urlSlug
-        //   }`,
-        // },
-        sameAs: `https://store.epicgames.com/product/${
-          offerData.productSlug || offerData.url || offerData.urlSlug
-        }`,
+        copyrightHolder: {
+          '@type': 'Organization',
+          name: offerData.publisherDisplayName ?? offerData.seller.name,
+        },
+        creator: {
+          '@type': 'Organization',
+          name:
+            offerData.developerDisplayName ??
+            offerData.publisherDisplayName ??
+            offerData.seller.name,
+        },
+        offers: [
+          price && {
+            '@type': 'Offer',
+            category: 'VideoGame',
+            itemCondition: 'https://schema.org/NewCondition',
+            availability: offerData.prePurchase
+              ? 'https://schema.org/PreOrder'
+              : 'https://schema.org/OnlineOnly',
+            url: offerData.productSlug
+              ? `https://store.epicgames.com/product/${offerData.productSlug}`
+              : `https://egdata.app/offers/${offerData.id}`,
+            offeredBy: {
+              '@type': 'Organization',
+              name: offerData.seller.name,
+            },
+            seller: {
+              '@type': 'Organization',
+              name: offerData.seller.name,
+            },
+            author: {
+              '@type': 'Organization',
+              name:
+                offerData.developerDisplayName ??
+                offerData.publisherDisplayName ??
+                offerData.seller.name,
+            },
+            priceSpecification: {
+              '@type': 'PriceSpecification',
+              price: price.totalPrice.discountPrice / 100,
+              priceCurrency: price.totalPrice.currencyCode ?? 'USD',
+              valueAddedTaxIncluded: price.totalPrice.vat > 0,
+              validFrom: new Date(price.date).toISOString(),
+            },
+          },
+        ],
+        sameAs: offerData.productSlug
+          ? `https://store.epicgames.com/product/${offerData.productSlug}`
+          : undefined,
         image:
           getImage(offerData.keyImages, ['OfferImageWide', 'DieselGameBoxWide', 'TakeoverWide'])
             ?.url || 'https://via.placeholder.com/1920x1080',
