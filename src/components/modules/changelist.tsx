@@ -85,7 +85,7 @@ export function ChangelistModule() {
   }
 
   return (
-    <section id="changelist" className="w-3/4 h-full pb-10">
+    <section id="changelist" className="w-full lg:w-3/4 h-full pb-10">
       <h2 className="text-2xl font-bold">Changelist</h2>
       <Table>
         <TableHeader>
