@@ -27,15 +27,15 @@ export interface Game {
   effectiveDate: string;
   creationDate: string;
   keyImages: KeyImage[];
-  productSlug?: string;
+  productSlug: string | null;
   urlSlug: string;
   url: unknown;
   tags: string[];
   releaseDate: string;
-  pcReleaseDate?: string;
-  prePurchase?: boolean;
-  developerDisplayName?: string;
-  publisherDisplayName?: string;
+  pcReleaseDate: string | null;
+  prePurchase: boolean | null;
+  developerDisplayName: string | null;
+  publisherDisplayName: string | null;
   seller: string;
 }
 
@@ -58,8 +58,8 @@ interface FeaturedGame {
   releaseDate: string;
   pcReleaseDate?: string;
   prePurchase?: boolean;
-  developerDisplayName?: string;
-  publisherDisplayName?: string;
+  developerDisplayName: string | null;
+  publisherDisplayName: string | null;
   seller: {
     id: string;
     name: string;
@@ -253,7 +253,14 @@ function LastModifiedGames() {
   );
 }
 
-function GameCard({ game }: { game: SingleOffer }) {
+function GameCard({
+  game,
+}: {
+  game: Pick<
+    Game,
+    'id' | 'keyImages' | 'title' | 'seller' | 'developerDisplayName' | 'publisherDisplayName'
+  >;
+}) {
   return (
     <CarouselItem key={game.id} className="basis-1/1 lg:basis-1/4">
       <Link to={`/offers/${game.id}`} className="w-96 relative select-none" prefetch="viewport">
@@ -265,16 +272,16 @@ function GameCard({ game }: { game: SingleOffer }) {
             height={500}
             className="w-full h-96 object-cover hover:scale-105 transition-transform duration-300"
           />
-          <CardContent className="p-6 space-y-4">
-            <div className="space-y-2">
-              <h3 className="text-xl font-bold">{game.title}</h3>
-              <p className="text-gray-500 dark:text-gray-400 text-sm">
-                <GameSeller
-                  developerDisplayName={game.developerDisplayName as string}
-                  publisherDisplayName={game.publisherDisplayName as string}
-                  seller={game.seller.name}
-                />
-              </p>
+          <CardContent className="p-4 flex-grow flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-semibold max-w-xs truncate">{game.title}</h3>
+            </div>
+            <div className="mt-2 flex items-end justify-between gap-2 h-full max-w-xs truncate">
+              <GameSeller
+                developerDisplayName={game.developerDisplayName as string}
+                publisherDisplayName={game.publisherDisplayName as string}
+                seller={typeof game.seller === 'string' ? game.seller : (game.seller as any).name}
+              />
             </div>
           </CardContent>
         </Card>

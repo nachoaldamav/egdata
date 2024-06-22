@@ -1,15 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { client } from '~/lib/client';
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '../ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { UpdateIcon } from '@radix-ui/react-icons';
 
 export interface Change {
