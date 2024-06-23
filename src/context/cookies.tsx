@@ -39,26 +39,19 @@ export const CookiesProvider = ({ children }: { children: ReactNode }) => {
       const script = document.createElement('script');
       script.src = 'https://www.googletagmanager.com/gtag/js?id=G-HB0VNVBEDQ';
       script.async = true;
-      document.head.appendChild(script);
+      document.body.appendChild(script);
 
-      script.onload = () => {
-        // @ts-ignore
+      const gtagScript = document.createElement('script');
+      gtagScript.innerHTML = `
         window.dataLayer = window.dataLayer || [];
         function gtag() {
-          // @ts-ignore
-          // biome-ignore lint/style/noArguments: This is a Google Analytics function
           window.dataLayer.push(arguments);
         }
-        // @ts-ignore
         gtag('js', new Date());
-        // @ts-ignore
         gtag('config', 'G-HB0VNVBEDQ');
-      };
-    } else if (!userCookiesState?.accepted && import.meta.env.PROD) {
-      console.log('Disabling Google Analytics');
-      // Disable Google Analytics
-      // @ts-ignore
-      window['ga-disable-G-HB0VNVBEDQ'] = true;
+      `;
+
+      document.body.appendChild(gtagScript);
     }
   }, [userCookiesState]);
 
