@@ -17,6 +17,7 @@ import { useEffect, useState } from 'react';
 import { Skeleton } from '~/components/ui/skeleton';
 import { SalesModule } from '~/components/modules/sales';
 import { ChangelistModule } from '~/components/modules/changelist';
+import { FeaturedModule } from '~/components/modules/featured';
 
 export interface Game {
   id: string;
@@ -77,12 +78,12 @@ export const meta: MetaFunction = () => {
 };
 
 export const loader = async () => {
-  const [latestGames, featuredGame, eventsData] = await Promise.allSettled([
+  const [latestGames, featuredGames, eventsData] = await Promise.allSettled([
     client.get<Game[]>('/latest-games').catch((error) => {
       console.error('Failed to fetch latest games', error);
       return { data: [] as Game[] };
     }),
-    client.get<FeaturedGame>('/featured').catch((error) => {
+    client.get<SingleOffer[]>('/featured').catch((error) => {
       console.error('Failed to fetch featured game', error);
       return { data: null };
     }),
@@ -93,7 +94,7 @@ export const loader = async () => {
   ]);
 
   const games = latestGames.status === 'fulfilled' ? latestGames.value.data : [];
-  const featured = featuredGame.status === 'fulfilled' ? featuredGame.value.data : null;
+  const featured = featuredGames.status === 'fulfilled' ? featuredGames.value.data : null;
   const events = eventsData.status === 'fulfilled' ? eventsData.value.data : [];
 
   return { games, featured, events };
@@ -103,13 +104,7 @@ export default function Index() {
   const { games, featured, events } = useLoaderData<typeof loader>();
   return (
     <main className="flex flex-col items-center justify-start h-full space-y-4 p-4">
-      {featured && <FeaturedGame game={featured} />}
-      {!featured && (
-        <section className="w-full h-full">
-          <h4 className="text-xl font-bold text-left">Featured Game</h4>
-          <Skeleton className="w-full h-[450px]" />
-        </section>
-      )}
+      <FeaturedModule offers={featured} />
       <section className="w-full" id="latest-games">
         <h4 className="text-xl font-bold text-left">Latest Games</h4>
         <Carousel className="mt-2 h-full p-4">

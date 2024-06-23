@@ -74,6 +74,9 @@ importers:
       echarts:
         specifier: ^5.5.0
         version: 5.5.0
+      embla-carousel-autoplay:
+        specifier: ^8.1.5
+        version: 8.1.5(embla-carousel@8.1.3)
       embla-carousel-react:
         specifier: ^8.1.3
         version: 8.1.3(react@18.3.1)
@@ -2301,6 +2304,11 @@ packages:
 
   electron-to-chromium@1.4.790:
     resolution: {integrity: sha512-eVGeQxpaBYbomDBa/Mehrs28MdvCXfJmEFzaMFsv8jH/MJDLIylJN81eTJ5kvx7B7p18OiPK0BkC06lydEy63A==}
+
+  embla-carousel-autoplay@8.1.5:
+    resolution: {integrity: sha512-9pHIezRqiO9yism7wRFwmM1j/W9c9hBNX4hq3F4aTPbK84M0M57ryG8QUwhbsTGJbDoBBVTm//YEd0T6i/5YgA==}
+    peerDependencies:
+      embla-carousel: 8.1.5
 
   embla-carousel-react@8.1.3:
     resolution: {integrity: sha512-YrezDPgxPDKa+OKMhSrwuPEU2OgF5147vFW473EWT3bx9DETV3W/RyWTxq0/2pf3M4VXkjqFNbS/W1xM8lTaVg==}
@@ -6771,6 +6779,10 @@ snapshots:
   ee-first@1.1.1: {}
 
   electron-to-chromium@1.4.790: {}
+
+  embla-carousel-autoplay@8.1.5(embla-carousel@8.1.3):
+    dependencies:
+      embla-carousel: 8.1.3
 
   embla-carousel-react@8.1.3(react@18.3.1):
     dependencies:
