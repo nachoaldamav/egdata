@@ -5,8 +5,8 @@ import stylesheet from '~/tailwind.css?url';
 import Navbar from '~/components/app/navbar';
 import { SearchProvider } from '~/context/global-search';
 import { CountryProvider } from '~/context/country';
+import { CookiesProvider } from '~/context/cookies';
 import '../tailwind.css';
-import { useEffect } from 'react';
 // import '../fonts.css';
 
 export const links: LinksFunction = () => [
@@ -30,27 +30,6 @@ export const links: LinksFunction = () => [
 const queryClient = new QueryClient();
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
-    if (import.meta.env.PROD) {
-      // @ts-expect-error
-      (window as Window & typeof globalThis)._mtm =
-        // @ts-expect-error
-        (window as Window & typeof globalThis)._mtm || [];
-      // @ts-expect-error
-      (window as Window & typeof globalThis)._mtm.push({
-        'mtm.startTime': new Date().getTime(),
-        event: 'mtm.Start',
-      });
-      const d = document;
-      const g = d.createElement('script');
-      const s = d.getElementsByTagName('script')[0];
-      g.async = true;
-      g.src = 'https://cdn.matomo.cloud/egdataapp.matomo.cloud/container_JybYRFgs.js';
-      s.parentNode?.insertBefore(g, s);
-    }
-  }, []);
-  // @ts-check
-
   return (
     <html lang="en" className="dark">
       <head>
@@ -64,7 +43,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <SearchProvider>
             <CountryProvider>
               <Navbar />
-              {children}
+              <CookiesProvider>{children}</CookiesProvider>
               <ScrollRestoration />
               <Scripts />
               <footer className="flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400 text-xs gap-1">

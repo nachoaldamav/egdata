@@ -1,29 +1,34 @@
 import { Link } from '@remix-run/react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardTitle, CardDescription } from '../ui/card';
+import { useCookiesContext } from '~/hooks/use-app-cookies';
 
 export function CookieBanner() {
+  const { acceptCookies, declineCookies } = useCookiesContext();
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-center p-4 md:p-6 bg-background/80 backdrop-blur-sm">
+    <div className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
       <Card className="w-full max-w-lg">
-        <CardContent className="flex flex-col items-center gap-4 md:flex-row md:items-start">
+        <CardContent className="flex flex-col items-center gap-4 md:flex-row pt-4">
           <CookieIcon className="h-12 w-12 text-muted-foreground md:mr-4" />
           <div className="flex-1 space-y-2">
             <CardTitle className="text-lg font-semibold">Cookie Notice</CardTitle>
             <CardDescription className="text-muted-foreground">
-              This website uses cookies to enhance your browsing experience. By continuing to use
-              this site, you agree to our{' '}
-              <Link to="#" className="underline underline-offset-2">
-                cookie policy
+              This website uses cookies to enhance your browsing experience. By accepting cookies,
+              you accept our{' '}
+              <Link to="/privacy" className="underline">
+                Privacy Policy
               </Link>
               .
             </CardDescription>
           </div>
-          <div className="flex flex-col items-center gap-2 md:flex-row">
-            <Button variant="outline" size="sm">
+          <div className="flex flex-col items-center gap-2">
+            <Button size="sm" onClick={acceptCookies}>
+              Accept
+            </Button>
+            <Button variant="outline" size="sm" onClick={declineCookies}>
               Decline
             </Button>
-            <Button size="sm">Accept</Button>
           </div>
         </CardContent>
       </Card>
