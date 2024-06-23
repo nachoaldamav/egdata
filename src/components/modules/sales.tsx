@@ -124,7 +124,7 @@ export function SalesModule({
 function GameCard({ game }: { game: SingleOffer }) {
   const fmt = Intl.NumberFormat(undefined, {
     style: 'currency',
-    currency: game.price?.currency || 'USD',
+    currency: game.price?.totalPrice.currencyCode || 'USD',
   });
 
   return (
