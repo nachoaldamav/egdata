@@ -64,7 +64,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   const country = getCountryCode(url, cookie.parse(request.headers.get('Cookie') || ''));
 
   const start = Date.now();
-  const [offer, items, price] = await Promise.all([
+  const [offerData, itemsData, priceData] = await Promise.allSettled([
     client
       .get<SingleOffer>(`/offers/${params.id}`)
       .then((response) => {
@@ -93,6 +93,10 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   ]);
 
   const subPath = request.url.split(`/${params.id}/`)[1] as string | undefined;
+
+  const offer = offerData.status === 'fulfilled' ? offerData.value : null;
+  const items = itemsData.status === 'fulfilled' ? itemsData.value : null;
+  const price = priceData.status === 'fulfilled' ? priceData.value : null;
 
   return {
     offer: offer as SingleOffer,
