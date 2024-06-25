@@ -5,8 +5,10 @@ import Navbar from '~/components/app/navbar';
 import { SearchProvider } from '~/context/global-search';
 import { CountryProvider } from '~/context/country';
 import { CookiesProvider } from '~/context/cookies';
+import stylesheet from '../tailwind.css?url';
 
 export const links: LinksFunction = () => [
+  { rel: 'stylesheet', href: stylesheet },
   { rel: 'preconnect', href: 'https://cdn1.epicgames.com/' },
   { rel: 'preconnect', href: 'https://api.egdata.app/' },
   { rel: 'preconnect', href: 'https://fonts.googleapis.com/' },

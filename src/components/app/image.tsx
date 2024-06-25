@@ -70,7 +70,7 @@ export const Image: React.FC<ImageProps> = ({
         <source srcSet={srcSet} sizes={sizes} />
         {/* biome-ignore lint/a11y/useAltText: <explanation> */}
         <img
-          src={url}
+          src={buildImageUrl(src as string, width, quality)}
           alt={alt || url}
           width={width}
           height={height}

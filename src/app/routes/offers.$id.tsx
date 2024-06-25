@@ -375,20 +375,22 @@ export default function Index() {
                 <TableRow>
                   <TableCell className="font-medium">Namespace</TableCell>
                   <TableCell className={'text-left font-mono border-l-gray-300/10 border-l'}>
-                    {internalNamespaces.includes(offerData.namespace) ? (
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger className="underline decoration-dotted underline-offset-4">
-                            {offerData.namespace}
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Epic Games internal namespace</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    ) : (
-                      offerData.namespace
-                    )}
+                    <Link to={`/sandboxes/${offerData.namespace}/offers`}>
+                      {internalNamespaces.includes(offerData.namespace) ? (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger className="underline decoration-dotted underline-offset-4">
+                              {offerData.namespace}
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Epic Games internal namespace</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ) : (
+                        offerData.namespace
+                      )}
+                    </Link>
                   </TableCell>
                 </TableRow>
 
