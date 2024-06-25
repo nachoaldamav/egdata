@@ -1,17 +1,12 @@
 import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
 import type { LinksFunction } from '@remix-run/node';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import stylesheet from '~/tailwind.css?url';
 import Navbar from '~/components/app/navbar';
 import { SearchProvider } from '~/context/global-search';
 import { CountryProvider } from '~/context/country';
 import { CookiesProvider } from '~/context/cookies';
-import '../tailwind.css';
-// import '../fonts.css';
 
 export const links: LinksFunction = () => [
-  { rel: 'preload', href: stylesheet, as: 'style' },
-  { rel: 'stylesheet', href: stylesheet },
   { rel: 'preconnect', href: 'https://cdn1.epicgames.com/' },
   { rel: 'preconnect', href: 'https://api.egdata.app/' },
   { rel: 'preconnect', href: 'https://fonts.googleapis.com/' },
