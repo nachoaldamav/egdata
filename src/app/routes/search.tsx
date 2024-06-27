@@ -17,7 +17,16 @@ import {
   SelectItem,
 } from '~/components/ui/select';
 import { GameCard, GameCardSkeleton } from '~/components/app/offer-card';
-import { SingleOffer } from '~/types/single-offer';
+import type { SingleOffer } from '~/types/single-offer';
+import {
+  Pagination,
+  PaginationButton,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationNextButton,
+  PaginationPreviousButton,
+} from '~/components/ui/pagination';
 
 export async function loader() {
   const [tagsData] = await Promise.allSettled([client.get<FullTag[]>('/search/tags')]);
@@ -190,8 +199,9 @@ function SearchResults({
   setTagsCount: React.Dispatch<React.SetStateAction<TagCount[]>>;
   sortBy: SortBy;
 }) {
+  const [page, setPage] = useState(1);
   const { isPending, error, data } = useQuery({
-    queryKey: ['search', query, selectedTags, sortBy],
+    queryKey: ['search', query, selectedTags, sortBy, page],
     queryFn: () =>
       client
         .post<{
@@ -199,14 +209,11 @@ function SearchResults({
           page: number;
           limit: number;
           total: number;
-          /**
-           * The query hash to calculate the tags count
-           */
           query: string;
         }>('/offers', {
           sortBy: sortBy,
           limit: 32,
-          page: 1,
+          page: page,
           title: query === '' ? undefined : query,
           tags: selectedTags.length === 0 ? undefined : selectedTags,
         })
@@ -246,10 +253,98 @@ function SearchResults({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {data.elements.map((offer) => (
-        <GameCard key={offer.id} game={offer} />
-      ))}
-    </div>
+    <section className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {data.elements.map((offer) => (
+          <GameCard key={offer.id} game={offer} />
+        ))}
+      </div>
+      <SearchPagination page={data.page} setPage={setPage} total={data.total} limit={data.limit} />
+    </section>
+  );
+}
+
+function SearchPagination({
+  page,
+  setPage,
+  total,
+  limit,
+}: {
+  page: number;
+  setPage: React.Dispatch<React.SetStateAction<number>>;
+  total: number;
+  limit: number;
+}) {
+  const totalPages = Math.ceil(total / limit);
+
+  const pagesToShow = 3;
+  const startPage = Math.max(1, page - Math.floor(pagesToShow / 2));
+  const endPage = Math.min(totalPages, startPage + pagesToShow - 1);
+
+  return (
+    <Pagination>
+      <PaginationContent>
+        <PaginationItem>
+          <PaginationPreviousButton
+            onClick={() => {
+              if (page > 1) {
+                setPage(page - 1);
+              }
+            }}
+            disabled={page === 1}
+          />
+        </PaginationItem>
+        {startPage > 1 && (
+          <PaginationItem>
+            <PaginationButton onClick={() => setPage(1)} disabled={page === 1}>
+              1
+            </PaginationButton>
+          </PaginationItem>
+        )}
+
+        {startPage > 2 && (
+          <PaginationItem>
+            <PaginationEllipsis />
+          </PaginationItem>
+        )}
+
+        {Array.from({ length: endPage - startPage + 1 }).map((_, i) => {
+          const pageNumber = startPage + i;
+
+          return (
+            <PaginationItem key={pageNumber}>
+              <PaginationButton onClick={() => setPage(pageNumber)} disabled={pageNumber === page}>
+                {pageNumber}
+              </PaginationButton>
+            </PaginationItem>
+          );
+        })}
+
+        {endPage < totalPages - 1 && (
+          <PaginationItem>
+            <PaginationEllipsis />
+          </PaginationItem>
+        )}
+
+        {endPage < totalPages && (
+          <PaginationItem>
+            <PaginationButton onClick={() => setPage(totalPages)} disabled={page === totalPages}>
+              {totalPages}
+            </PaginationButton>
+          </PaginationItem>
+        )}
+
+        <PaginationItem>
+          <PaginationNextButton
+            onClick={() => {
+              if (page < totalPages) {
+                setPage(page + 1);
+              }
+            }}
+            disabled={page === totalPages}
+          />
+        </PaginationItem>
+      </PaginationContent>
+    </Pagination>
   );
 }
