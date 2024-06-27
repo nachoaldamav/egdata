@@ -40,42 +40,11 @@ export interface Game {
   seller: string;
 }
 
-interface FeaturedGame {
-  id: string;
-  namespace: string;
-  title: string;
-  description: string;
-  lastModifiedDate: string;
-  effectiveDate: string;
-  creationDate: string;
-  keyImages: KeyImage[];
-  productSlug: string | null;
-  urlSlug: string | null;
-  url: string | null;
-  tags: {
-    id: string;
-    name: string;
-  }[];
-  releaseDate: string;
-  pcReleaseDate?: string;
-  prePurchase?: boolean;
-  developerDisplayName: string | null;
-  publisherDisplayName: string | null;
-  seller: {
-    id: string;
-    name: string;
-  };
-}
-
 export interface KeyImage {
   type: string;
   url: string;
   md5: string;
 }
-
-export const meta: MetaFunction = () => {
-  return [{ title: 'EGData' }, { name: 'description', content: 'Epic Games database' }];
-};
 
 export const loader = async () => {
   const [latestGames, featuredGames, eventsData] = await Promise.allSettled([
