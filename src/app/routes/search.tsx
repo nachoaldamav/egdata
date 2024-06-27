@@ -1,4 +1,5 @@
 import { useLoaderData } from '@remix-run/react';
+import type { MetaFunction } from '@remix-run/node';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '~/components/ui/collapsible';
 import { Input } from '~/components/ui/input';
 import { client } from '~/lib/client';
@@ -38,6 +39,16 @@ export async function loader() {
     tags,
   };
 }
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: 'Search - egdata.app' },
+    {
+      name: 'description',
+      content: 'Search for games on egdata.app',
+    },
+  ];
+};
 
 const tagTypes: { name: string; type: 'single' | 'multiple'; label: string }[] = [
   { name: 'event', type: 'single', label: 'Events' },
