@@ -58,6 +58,11 @@
   }
 }
 
+body {
+  position: relative;
+  min-height: 100vh;
+}
+
 /* Add this to your CSS file or inside a <style> tag in your component */
 
 .cover-section {
