@@ -1,5 +1,5 @@
 import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
-import type { LinksFunction } from '@remix-run/node';
+import type { LinksFunction, MetaFunction } from '@remix-run/node';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Navbar from '~/components/app/navbar';
 import { SearchProvider } from '~/context/global-search';
@@ -23,6 +23,22 @@ export const links: LinksFunction = () => [
     href: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap',
   },
 ];
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: 'egdata.app' },
+    {
+      name: 'description',
+      content:
+        'Epic Games database with all the information you need about the games, items, and events.',
+    },
+    {
+      name: 'keywords',
+      content:
+        'epic games, fortnite, database, api, epic games api, egdata, epic games store, egstore, epic online services, eos',
+    },
+  ];
+};
 
 const queryClient = new QueryClient();
 
