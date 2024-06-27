@@ -27,6 +27,7 @@ import {
   PaginationNextButton,
   PaginationPreviousButton,
 } from '~/components/ui/pagination';
+import { Checkbox } from '~/components/ui/checkbox';
 
 export async function loader() {
   const [tagsData] = await Promise.allSettled([client.get<FullTag[]>('/search/tags')]);
@@ -75,6 +76,7 @@ export default function SearchPage() {
   const [tagsCount, setTagsCount] = useState<TagCount[]>([]);
   const [query, setQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<SortBy>('creationDate');
+  const [isCodeRedemptionOnly, setIsCodeRedemptionOnly] = useState<boolean | undefined>(undefined);
 
   function handleSelect(tag: string) {
     setSelectedTags((prev) => {
@@ -134,6 +136,21 @@ export default function SearchPage() {
             </Collapsible>
           );
         })}
+        <div className="items-center flex space-x-2">
+          <Checkbox
+            checked={isCodeRedemptionOnly}
+            onCheckedChange={(checked: boolean) => setIsCodeRedemptionOnly(checked)}
+            id="isCodeRedemptionOnly"
+          />
+          <div className="grid gap-1.5 leading-none">
+            <label
+              htmlFor="isCodeRedemptionOnly"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Code Redemption Only
+            </label>
+          </div>
+        </div>
       </aside>
       <main id="results" className="flex flex-col flex-1 gap-4 px-4">
         <header className="flex flex-row justify-between items-center gap-4">
@@ -157,6 +174,7 @@ export default function SearchPage() {
           selectedTags={selectedTags}
           setTagsCount={setTagsCount}
           sortBy={sortBy}
+          isCodeRedemptionOnly={isCodeRedemptionOnly}
         />
       </main>
     </div>
@@ -193,15 +211,17 @@ function SearchResults({
   selectedTags,
   setTagsCount,
   sortBy,
+  isCodeRedemptionOnly,
 }: {
   query: string;
   selectedTags: string[];
   setTagsCount: React.Dispatch<React.SetStateAction<TagCount[]>>;
   sortBy: SortBy;
+  isCodeRedemptionOnly?: boolean;
 }) {
   const [page, setPage] = useState(1);
   const { isPending, error, data } = useQuery({
-    queryKey: ['search', query, selectedTags, sortBy, page],
+    queryKey: ['search', query, selectedTags, sortBy, page, isCodeRedemptionOnly],
     queryFn: () =>
       client
         .post<{
@@ -216,6 +236,7 @@ function SearchResults({
           page: page,
           title: query === '' ? undefined : query,
           tags: selectedTags.length === 0 ? undefined : selectedTags,
+          isCodeRedemptionOnly,
         })
         .then((res) => res.data),
   });
