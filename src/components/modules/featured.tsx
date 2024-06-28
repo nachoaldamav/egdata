@@ -81,7 +81,7 @@ export function FeaturedModule({
                 </header>
                 <footer className="w-full">
                   <div className="flex items-end justify-end gap-5">
-                    {new Date(offer.releaseDate) < new Date() && <OfferPrice id={offer.id} />}
+                    <OfferPrice id={offer.id} releaseDate={new Date(offer.releaseDate)} />
                     <Button asChild>
                       <Link to={`/offers/${offer.id}`}>Check offer</Link>
                     </Button>
@@ -165,7 +165,7 @@ function ProgressIndicator({
   );
 }
 
-function OfferPrice({ id }: { id: string }) {
+function OfferPrice({ id, releaseDate }: { id: string; releaseDate: Date }) {
   const { country } = useCountry();
   const { data } = useQuery<Price>({
     queryKey: ['offer-price', id],
@@ -186,11 +186,12 @@ function OfferPrice({ id }: { id: string }) {
     currency: data.totalPrice.currencyCode,
   });
 
+  // Show the price if the game has a price greater than 0, or if it's free and has been released
   return (
     <span className="inline-flex items-start gap-1">
       <span className="text-2xl font-bold">
-        {isDiscountedFree || isFree
-          ? 'Free'
+        {isDiscountedFree || (isFree && releaseDate < new Date())
+          ? releaseDate < new Date() && 'Free'
           : formatter.format(data.totalPrice.discountPrice / 100)}
       </span>
       {data.totalPrice.discountPrice !== data.totalPrice.originalPrice && (
