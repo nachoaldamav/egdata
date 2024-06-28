@@ -1,5 +1,5 @@
-import { useLoaderData } from '@remix-run/react';
-import type { MetaFunction } from '@remix-run/node';
+import { useLoaderData, useSearchParams } from '@remix-run/react';
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '~/components/ui/collapsible';
 import { Input } from '~/components/ui/input';
 import { client } from '~/lib/client';
@@ -7,9 +7,10 @@ import type { FullTag } from '~/types/tags';
 import { Button } from '~/components/ui/button';
 import { cn } from '~/lib/utils';
 import { CheckIcon, ChevronDownIcon } from '@radix-ui/react-icons';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { ScrollArea } from '~/components/ui/scroll-area';
 import { useQuery } from '@tanstack/react-query';
+import lodash from 'lodash';
 import {
   Select,
   SelectTrigger,
@@ -30,13 +31,24 @@ import {
 } from '~/components/ui/pagination';
 import { Checkbox } from '~/components/ui/checkbox';
 
-export async function loader() {
-  const [tagsData] = await Promise.allSettled([client.get<FullTag[]>('/search/tags')]);
+export async function loader({ request }: LoaderFunctionArgs) {
+  const url = new URL(request.url);
+
+  const hash = url.searchParams.get('hash');
+
+  const [tagsData, hashData] = await Promise.allSettled([
+    client.get<FullTag[]>('/search/tags'),
+    client.get<{
+      [key: string]: unknown;
+    }>(`/search/${hash}`),
+  ]);
 
   const tags = tagsData.status === 'fulfilled' ? tagsData.value.data : [];
+  const query = hashData.status === 'fulfilled' ? hashData.value.data : null;
 
   return {
     tags,
+    hash: query,
   };
 }
 
@@ -82,7 +94,7 @@ const sortByDisplay: Record<SortBy, string> = {
 };
 
 export default function SearchPage() {
-  const { tags } = useLoaderData<typeof loader>();
+  const { tags, hash } = useLoaderData<typeof loader>();
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [tagsCount, setTagsCount] = useState<TagCount[]>([]);
   const [query, setQuery] = useState<string>('');
@@ -99,6 +111,33 @@ export default function SearchPage() {
     });
   }
 
+  const handleQueryChange = useCallback(
+    lodash.debounce((value: string) => {
+      setQuery(value);
+    }, 300),
+    [],
+  );
+
+  useEffect(() => {
+    if (hash) {
+      if (hash.title) {
+        setQuery(hash.title as string);
+      }
+
+      if (hash.tags) {
+        setSelectedTags(hash.tags as string[]);
+      }
+
+      if (hash.sortBy) {
+        setSortBy(hash.sortBy as SortBy);
+      }
+
+      if (hash.isCodeRedemptionOnly) {
+        setIsCodeRedemptionOnly(hash.isCodeRedemptionOnly as boolean);
+      }
+    }
+  }, [hash]);
+
   return (
     <div className="flex flex-row flex-1 min-h-[85vh] min-w-screen">
       <aside id="form" className="flex flex-col gap-2 p-4">
@@ -107,8 +146,7 @@ export default function SearchPage() {
           type="search"
           placeholder="Search for games"
           className="mb-4"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => handleQueryChange(e.target.value)}
         />
         {tagTypes.map((tagType) => {
           const tagTypeTags = tags
@@ -230,6 +268,7 @@ function SearchResults({
   sortBy: SortBy;
   isCodeRedemptionOnly?: boolean;
 }) {
+  const [, setSearchParams] = useSearchParams();
   const [page, setPage] = useState(1);
   const { isPending, error, data } = useQuery({
     queryKey: ['search', query, selectedTags, sortBy, page, isCodeRedemptionOnly],
@@ -253,14 +292,21 @@ function SearchResults({
   });
 
   useEffect(() => {
-    if (data?.query)
+    if (data?.query) {
       client
         .get<{
           tagCounts: TagCount[];
         }>(`/search/${data.query}/count`)
         .then((res) => setTagsCount(res.data.tagCounts || []))
         .catch(console.error);
-  }, [data, setTagsCount]);
+
+      setSearchParams({ hash: data.query });
+
+      return () => {
+        window.history.replaceState({}, '', window.location.pathname);
+      };
+    }
+  }, [data, setTagsCount, setSearchParams]);
 
   if (isPending) {
     return (
