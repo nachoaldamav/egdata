@@ -26,7 +26,7 @@ export function OpenEgs({
       className="bg-gray-900 text-white dark:hover:text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
     >
       <Link
-        to={`https://store.epicgames.com/p/${offer.productSlug ?? data?.mappings.find((m) => m.pageType === 'productHome')?.pageSlug ?? data?.mappings[0].pageSlug}`}
+        to={`https://store.epicgames.com/p/${offer.productSlug ?? data?.mappings.find((m) => m.pageType === 'productHome')?.pageSlug ?? data?.mappings[0].pageSlug}?utm_source=egdata.app`}
         rel="noopener noreferrer"
         referrerPolicy="no-referrer"
         target="_blank"
