@@ -95,11 +95,13 @@ const sortByDisplay: Record<SortBy, string> = {
 
 export default function SearchPage() {
   const { tags, hash } = useLoaderData<typeof loader>();
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>((hash?.tags as string[]) ?? []);
   const [tagsCount, setTagsCount] = useState<TagCount[]>([]);
-  const [query, setQuery] = useState<string>('');
-  const [sortBy, setSortBy] = useState<SortBy>('creationDate');
-  const [isCodeRedemptionOnly, setIsCodeRedemptionOnly] = useState<boolean | undefined>(undefined);
+  const [query, setQuery] = useState<string>((hash?.title as string) ?? '');
+  const [sortBy, setSortBy] = useState<SortBy>((hash?.sortBy as SortBy) ?? 'creationDate');
+  const [isCodeRedemptionOnly, setIsCodeRedemptionOnly] = useState<boolean | undefined>(
+    (hash?.isCodeRedemptionOnly as boolean) ?? undefined,
+  );
 
   function handleSelect(tag: string) {
     setSelectedTags((prev) => {
@@ -140,8 +142,22 @@ export default function SearchPage() {
 
   return (
     <div className="flex flex-row flex-1 min-h-[85vh] min-w-screen">
-      <aside id="form" className="flex flex-col gap-2 p-4">
-        <h2>Search</h2>
+      <aside id="form" className="flex flex-col gap-1 p-4">
+        <div className="flex flex-row justify-between items-center gap-1">
+          <h2>Search</h2>
+          <Button
+            variant="link"
+            className="py-1"
+            onClick={() => {
+              setQuery('');
+              setSelectedTags([]);
+              setSortBy('creationDate');
+              setIsCodeRedemptionOnly(undefined);
+            }}
+          >
+            Clear
+          </Button>
+        </div>
         <Input
           type="search"
           placeholder="Search for games"
