@@ -81,7 +81,7 @@ export function FeaturedModule({
                 </header>
                 <footer className="w-full">
                   <div className="flex items-end justify-end gap-5">
-                    <OfferPrice id={offer.id} />
+                    {new Date(offer.releaseDate) < new Date() && <OfferPrice id={offer.id} />}
                     <Button asChild>
                       <Link to={`/offers/${offer.id}`}>Check offer</Link>
                     </Button>
