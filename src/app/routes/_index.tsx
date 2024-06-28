@@ -46,6 +46,22 @@ export interface KeyImage {
   md5: string;
 }
 
+export const meta: MetaFunction = () => {
+  return [
+    { title: 'egdata.app' },
+    {
+      name: 'description',
+      content:
+        'Epic Games database with all the information you need about the games, items, and events.',
+    },
+    {
+      name: 'keywords',
+      content:
+        'epic games, fortnite, database, api, epic games api, egdata, epic games store, egstore, epic online services, eos',
+    },
+  ];
+};
+
 export const loader = async () => {
   const [latestGames, featuredGames, eventsData] = await Promise.allSettled([
     client.get<Game[]>('/latest-games').catch((error) => {

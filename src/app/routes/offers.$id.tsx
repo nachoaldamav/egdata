@@ -40,6 +40,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { RegionalPricing } from '~/components/app/regional-pricing';
 import type { Price } from '~/types/price';
 import getCountryCode from '~/lib/get-country-code';
+import { OpenEgs } from '~/components/app/open-egs';
+import { OpenEgl } from '~/components/app/open-egl';
 
 function supportedPlatforms(items: SingleItem[]): string[] {
   try {
@@ -472,38 +474,8 @@ export default function Index() {
         </div>
         <div className="flex justify-start items-start flex-col gap-4">
           <div className="inline-flex items-center gap-2 justify-end w-full h-8">
-            {offerData.productSlug && (
-              <Button
-                asChild
-                className="bg-gray-900 text-white dark:hover:text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
-              >
-                <Link
-                  to={`https://store.epicgames.com/p/${offerData.productSlug}?utm_source=egdata.app`}
-                  rel="noopener noreferrer"
-                  referrerPolicy="no-referrer"
-                  target="_blank"
-                >
-                  <div className="flex items-center justify-center gap-2">
-                    <EGSIcon className="h-6 w-6" />
-                    <span className="font-semibold">Store</span>
-                  </div>
-                </Link>
-              </Button>
-            )}
-            {offerData.productSlug && (
-              <Button
-                variant="outline"
-                className="bg-gray-900 text-white dark:hover:text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
-                onClick={() =>
-                  open(`com.epicgames.launcher://store/product/${offerData.productSlug}`)
-                }
-              >
-                <div className="flex items-center justify-center gap-2">
-                  <EpicGamesIcon className="h-6 w-6" />
-                  <span className="font-semibold">Open</span>
-                </div>
-              </Button>
-            )}
+            <OpenEgs offer={offerData} />
+            <OpenEgl offer={offerData} />
             <OpenLauncher id={offerData.id} />
           </div>
           <div className="relative w-full h-auto">
