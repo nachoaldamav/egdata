@@ -30,27 +30,7 @@ import {
   PaginationPreviousButton,
 } from '~/components/ui/pagination';
 import { Checkbox } from '~/components/ui/checkbox';
-
-export async function loader({ request }: LoaderFunctionArgs) {
-  const url = new URL(request.url);
-
-  const hash = url.searchParams.get('hash');
-
-  const [tagsData, hashData] = await Promise.allSettled([
-    client.get<FullTag[]>('/search/tags'),
-    client.get<{
-      [key: string]: unknown;
-    }>(`/search/${hash}`),
-  ]);
-
-  const tags = tagsData.status === 'fulfilled' ? tagsData.value.data : [];
-  const query = hashData.status === 'fulfilled' ? hashData.value.data : null;
-
-  return {
-    tags,
-    hash: query,
-  };
-}
+import { offersDictionary } from '~/lib/offers-dictionary';
 
 export const meta: MetaFunction = () => {
   return [
@@ -93,10 +73,48 @@ const sortByDisplay: Record<SortBy, string> = {
   pcReleaseDate: 'PC Release Date',
 };
 
+export async function loader({ request }: LoaderFunctionArgs) {
+  const url = new URL(request.url);
+
+  const hash = url.searchParams.get('hash');
+
+  const [tagsData, hashData, typesData] = await Promise.allSettled([
+    client.get<FullTag[]>('/search/tags'),
+    client.get<{
+      [key: string]: unknown;
+    }>(`/search/${hash}`),
+    client.get<
+      {
+        _id: string;
+        count: number;
+      }[]
+    >('/search/offer-types'),
+  ]);
+
+  const tags = tagsData.status === 'fulfilled' ? tagsData.value.data : [];
+  const query = hashData.status === 'fulfilled' ? hashData.value.data : null;
+  const offerTypes = typesData.status === 'fulfilled' ? typesData.value.data : [];
+
+  return {
+    tags,
+    hash: query,
+    offerTypes,
+  };
+}
+
 export default function SearchPage() {
-  const { tags, hash } = useLoaderData<typeof loader>();
+  const { tags, hash, offerTypes } = useLoaderData<typeof loader>();
   const [selectedTags, setSelectedTags] = useState<string[]>((hash?.tags as string[]) ?? []);
+  const [selectedOfferType, setSelectedOfferType] = useState<string | undefined>(
+    hash?.offerType as string,
+  );
   const [tagsCount, setTagsCount] = useState<TagCount[]>([]);
+  const [offerTypeCount, setOfferTypeCount] = useState<
+    {
+      _id: string;
+      count: number;
+    }[]
+  >([]);
   const [query, setQuery] = useState<string>((hash?.title as string) ?? '');
   const [sortBy, setSortBy] = useState<SortBy>((hash?.sortBy as SortBy) ?? 'creationDate');
   const [isCodeRedemptionOnly, setIsCodeRedemptionOnly] = useState<boolean | undefined>(
@@ -137,6 +155,10 @@ export default function SearchPage() {
       if (hash.isCodeRedemptionOnly) {
         setIsCodeRedemptionOnly(hash.isCodeRedemptionOnly as boolean);
       }
+
+      if (hash.offerType) {
+        setSelectedOfferType(hash.offerType as string);
+      }
     }
   }, [hash]);
 
@@ -153,6 +175,7 @@ export default function SearchPage() {
               setSelectedTags([]);
               setSortBy('creationDate');
               setIsCodeRedemptionOnly(undefined);
+              setSelectedOfferType(undefined);
             }}
           >
             Clear
@@ -164,6 +187,44 @@ export default function SearchPage() {
           className="mb-4"
           onChange={(e) => handleQueryChange(e.target.value)}
         />
+        <Collapsible>
+          <CollapsibleTrigger className="flex justify-between items-center gap-2 py-2 px-4 text-sm font-bold rounded-lg bg-white/10 w-full">
+            <span>Offer Type</span>
+            <ChevronDownIcon className="h-4 w-4" />
+          </CollapsibleTrigger>
+          <ScrollArea className="flex flex-col gap-2 w-full max-h-[500px]">
+            <CollapsibleContent className="flex flex-col gap-2 w-[250px] mt-2">
+              {offerTypes
+                .filter((type) => offersDictionary[type._id] !== undefined)
+                .filter((type) => {
+                  // If there is a tag count, we need to filter the tags with 0 count
+                  if (offerTypeCount.length > 0) {
+                    return offerTypeCount.find((t) => t._id === type._id) !== undefined;
+                  }
+
+                  return true;
+                })
+                .map((type) => (
+                  <TagSelect
+                    key={type._id}
+                    isSelected={selectedOfferType === type._id}
+                    handleSelect={() => setSelectedOfferType(type._id)}
+                    tag={{
+                      id: type._id,
+                      name: offersDictionary[type._id] ?? type._id,
+                      aliases: [],
+                      groupName: 'OFFER_TYPE',
+                      status: 'ACTIVE',
+                    }}
+                    count={offerTypeCount.find((t) => t._id === type._id)}
+                  />
+                ))}
+              {offerTypes.length === 0 && (
+                <span className="text-gray-400 px-4">No offer types found</span>
+              )}
+            </CollapsibleContent>
+          </ScrollArea>
+        </Collapsible>
         {tagTypes.map((tagType) => {
           const tagTypeTags = tags
             .filter((tag) => tag.groupName === tagType.name)
@@ -237,7 +298,9 @@ export default function SearchPage() {
         <SearchResults
           query={query}
           selectedTags={selectedTags}
+          selectedOfferType={selectedOfferType}
           setTagsCount={setTagsCount}
+          setOfferTypesCount={setOfferTypeCount}
           sortBy={sortBy}
           isCodeRedemptionOnly={isCodeRedemptionOnly}
         />
@@ -275,19 +338,38 @@ function SearchResults({
   query,
   selectedTags,
   setTagsCount,
+  selectedOfferType,
+  setOfferTypesCount,
   sortBy,
   isCodeRedemptionOnly,
 }: {
   query: string;
   selectedTags: string[];
   setTagsCount: React.Dispatch<React.SetStateAction<TagCount[]>>;
+  selectedOfferType: string | undefined;
+  setOfferTypesCount: React.Dispatch<
+    React.SetStateAction<
+      {
+        _id: string;
+        count: number;
+      }[]
+    >
+  >;
   sortBy: SortBy;
   isCodeRedemptionOnly?: boolean;
 }) {
   const [, setSearchParams] = useSearchParams();
   const [page, setPage] = useState(1);
   const { isPending, error, data } = useQuery({
-    queryKey: ['search', query, selectedTags, sortBy, page, isCodeRedemptionOnly],
+    queryKey: [
+      'search',
+      query,
+      selectedTags,
+      sortBy,
+      isCodeRedemptionOnly,
+      selectedOfferType,
+      page,
+    ],
     queryFn: () =>
       client
         .post<{
@@ -303,6 +385,7 @@ function SearchResults({
           title: query === '' ? undefined : query,
           tags: selectedTags.length === 0 ? undefined : selectedTags,
           isCodeRedemptionOnly,
+          offerType: selectedOfferType,
         })
         .then((res) => res.data),
   });
@@ -312,8 +395,15 @@ function SearchResults({
       client
         .get<{
           tagCounts: TagCount[];
+          offerTypeCounts: {
+            _id: string;
+            count: number;
+          }[];
         }>(`/search/${data.query}/count`)
-        .then((res) => setTagsCount(res.data.tagCounts || []))
+        .then((res) => {
+          setTagsCount(res.data.tagCounts || []);
+          setOfferTypesCount(res.data.offerTypeCounts || []);
+        })
         .catch(console.error);
 
       setSearchParams({ hash: data.query });
@@ -322,7 +412,7 @@ function SearchResults({
         window.history.replaceState({}, '', window.location.pathname);
       };
     }
-  }, [data, setTagsCount, setSearchParams]);
+  }, [data, setTagsCount, setOfferTypesCount, setSearchParams]);
 
   if (isPending) {
     return (

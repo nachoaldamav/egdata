@@ -7,7 +7,7 @@ export const offersDictionary: {
   BASE_GAME: 'Base game',
   VIRTUAL_CURRENCY: 'Virtual currency',
   DLC: 'DLC',
-  Bundle: 'Bundle',
+  Bundle: 'Bundle (legacy)',
   DIGITAL_EXTRA: 'Digital extra',
   OTHERS: 'Others',
   EDITION: 'Edition',
