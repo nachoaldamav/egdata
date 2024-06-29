@@ -16,7 +16,7 @@ export function OpenEgs({
     queryFn: () => client.get<OfferMapping>(`offers/${offer.id}/mappings`).then((res) => res.data),
   });
 
-  if (isLoading || error) {
+  if ((isLoading || error) && !offer.productSlug) {
     return null;
   }
 
