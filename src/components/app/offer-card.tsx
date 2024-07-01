@@ -8,7 +8,7 @@ import type { SingleOffer } from '~/types/single-offer';
 export function GameCard({ game }: { game: SingleOffer }) {
   const fmt = Intl.NumberFormat(undefined, {
     style: 'currency',
-    currency: game.price?.currency || 'USD',
+    currency: game.price.totalPaymentPrice.paymentCurrencyCode || 'USD',
   });
 
   return (
