@@ -2,11 +2,46 @@ import { useState, useEffect, type ReactNode } from 'react';
 import * as Portal from '@radix-ui/react-portal';
 import { CookieBanner } from '~/components/app/cookie-banner';
 import { CookiesContext } from './cookies-context';
+import { useLocation } from '@remix-run/react';
 
 export interface CookiesContextProps {
   cookiesAccepted: boolean;
   acceptCookies: () => void;
   declineCookies: () => void;
+}
+
+function getTempUserId() {
+  let tempUserId = sessionStorage.getItem('EGDATA_APP_TEMP_USER_ID');
+  if (!tempUserId) {
+    tempUserId = Math.random().toString(36).slice(2);
+    sessionStorage.setItem('EGDATA_APP_TEMP_USER_ID', tempUserId);
+  }
+
+  return tempUserId;
+}
+
+function getSession(): {
+  id: string;
+  startedAt: number;
+  lastActiveAt: number;
+} {
+  const session = sessionStorage.getItem('EGDATA_APP_SESSION');
+  if (session) {
+    // Update last active time
+    const parsedSession = JSON.parse(session);
+    parsedSession.lastActiveAt = Date.now();
+    sessionStorage.setItem('EGDATA_APP_SESSION', JSON.stringify(parsedSession));
+    return parsedSession;
+  }
+
+  const newSession = {
+    id: Math.random().toString(36).slice(2),
+    startedAt: Date.now(),
+    lastActiveAt: Date.now(),
+  };
+
+  sessionStorage.setItem('EGDATA_APP_SESSION', JSON.stringify(newSession));
+  return newSession;
 }
 
 export const CookiesProvider = ({ children }: { children: ReactNode }) => {
@@ -15,6 +50,7 @@ export const CookiesProvider = ({ children }: { children: ReactNode }) => {
     closed: boolean;
   } | null>(null);
   const [windowLoaded, setWindowLoaded] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     setWindowLoaded(true);
@@ -29,6 +65,12 @@ export const CookiesProvider = ({ children }: { children: ReactNode }) => {
       if (storedState) {
         setUserCookiesState(JSON.parse(storedState));
       }
+    }
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register(
+        import.meta.env.MODE === 'production' ? '/service-worker.js' : '/dev-sw.js?dev-sw',
+      );
     }
   }, []);
 
@@ -54,6 +96,31 @@ export const CookiesProvider = ({ children }: { children: ReactNode }) => {
       document.body.appendChild(gtagScript);
     }
   }, [userCookiesState]);
+
+  useEffect(() => {
+    // If the user has not accepted cookies, track through service worker
+    if (userCookiesState && !userCookiesState.accepted) {
+      const userId = getTempUserId();
+      const session = getSession();
+
+      const trackData = {
+        event: 'page_view_anonymous',
+        location: window.location.href, // Use full URL for page_location
+        params: {
+          page_title: document.title, // Optionally include the page title
+          page_path: location.pathname,
+          page_search: location.search,
+        },
+        userId,
+        session,
+      };
+
+      navigator.serviceWorker.controller?.postMessage({
+        type: 'track',
+        payload: trackData,
+      });
+    }
+  }, [location, userCookiesState]);
 
   const acceptCookies = () => {
     const state = { accepted: true, closed: true };

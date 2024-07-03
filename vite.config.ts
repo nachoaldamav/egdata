@@ -1,6 +1,8 @@
 import { vitePlugin as remix } from '@remix-run/dev';
 import { defineConfig } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import { RemixVitePWA } from '@vite-pwa/remix';
+const { RemixVitePWAPlugin, RemixPWAPreset } = RemixVitePWA();
 
 export default defineConfig({
   plugins: [
@@ -11,8 +13,22 @@ export default defineConfig({
         v3_throwAbortReason: true,
       },
       appDirectory: 'src/app',
+      presets: [RemixPWAPreset()],
     }),
     tsconfigPaths(),
+    RemixVitePWAPlugin({
+      srcDir: 'src',
+      filename: 'service-worker.ts',
+      strategies: 'injectManifest',
+      injectRegister: false,
+      manifest: false,
+      injectManifest: {
+        injectionPoint: undefined,
+      },
+      devOptions: {
+        enabled: true,
+      },
+    }),
   ],
   build: {
     sourcemap: true,
