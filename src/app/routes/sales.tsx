@@ -157,7 +157,7 @@ export default function Index() {
 function GameCard({ game }: { game: SingleOfferWithPrice }) {
   const fmt = Intl.NumberFormat(undefined, {
     style: 'currency',
-    currency: game.price.totalPrice.currencyCode,
+    currency: game.price.currencyCode || 'USD',
   });
 
   return (
@@ -181,10 +181,10 @@ function GameCard({ game }: { game: SingleOfferWithPrice }) {
             <span className="text-sm text-gray-600 dark:text-gray-400">{game.seller.name}</span>
             <div className="flex items-center gap-2">
               <span className="text-gray-500 line-through dark:text-gray-400">
-                {fmt.format(game.price.totalPrice.originalPrice / 100)}
+                {fmt.format(game.price.originalPrice / 100)}
               </span>
               <span className="text-primary font-semibold">
-                {fmt.format(game.price.totalPrice.discountPrice / 100)}
+                {fmt.format(game.price.discountPrice / 100)}
               </span>
             </div>
           </div>

@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
-import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons';
+import { useEffect, useState } from 'react';
 import type { SingleOffer } from '~/types/single-offer';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -178,12 +177,12 @@ function OfferPrice({ id, releaseDate }: { id: string; releaseDate: Date }) {
     return null;
   }
 
-  const isDiscountedFree = data.totalPrice.discountPrice === 0;
-  const isFree = data.totalPrice.originalPrice === 0;
+  const isDiscountedFree = data.price.discountPrice === 0;
+  const isFree = data.price.originalPrice === 0;
 
   const formatter = new Intl.NumberFormat(undefined, {
     style: 'currency',
-    currency: data.totalPrice.currencyCode,
+    currency: data.price.currencyCode,
   });
 
   // Show the price if the game has a price greater than 0, or if it's free and has been released
@@ -192,11 +191,11 @@ function OfferPrice({ id, releaseDate }: { id: string; releaseDate: Date }) {
       <span className="text-2xl font-bold">
         {isDiscountedFree || (isFree && releaseDate < new Date())
           ? releaseDate < new Date() && 'Free'
-          : formatter.format(data.totalPrice.discountPrice / 100)}
+          : formatter.format(data.price.discountPrice / 100)}
       </span>
-      {data.totalPrice.discountPrice !== data.totalPrice.originalPrice && (
+      {data.price.discountPrice !== data.price.originalPrice && (
         <span className="text-sm text-gray-500 line-through">
-          {formatter.format(data.totalPrice.originalPrice / 100)}
+          {formatter.format(data.price.originalPrice / 100)}
         </span>
       )}
     </span>

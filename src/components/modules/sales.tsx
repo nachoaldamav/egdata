@@ -14,6 +14,7 @@ import { Skeleton } from '~/components/ui/skeleton';
 import { Image } from '~/components/app/image';
 import { useCountry } from '~/hooks/use-country';
 import { ArrowLeftIcon, ArrowRightIcon } from '@radix-ui/react-icons';
+import type { Price } from '~/types/price';
 
 export interface SingleOffer {
   id: string;
@@ -35,36 +36,6 @@ export interface KeyImage {
   type: string;
   url: string;
   md5: string;
-}
-
-export interface Price {
-  totalPrice: TotalPrice;
-  totalPaymentPrice: TotalPaymentPrice;
-  _id: string;
-  offerId: string;
-  currency: string;
-  country: string;
-  symbol: string;
-  __v: number;
-}
-
-export interface TotalPrice {
-  basePayoutCurrencyCode: string;
-  basePayoutPrice: number;
-  convenienceFee: number;
-  currencyCode: string;
-  discount: number;
-  discountPrice: number;
-  originalPrice: number;
-  vat: number;
-  voucherDiscount: number;
-}
-
-export interface TotalPaymentPrice {
-  paymentCurrencyAmount: number;
-  paymentCurrencyCode: string;
-  paymentCurrencyExchangeRate: number;
-  paymentCurrencySymbol: string;
 }
 
 export function SalesModule({
@@ -124,7 +95,7 @@ export function SalesModule({
 function GameCard({ game }: { game: SingleOffer }) {
   const fmt = Intl.NumberFormat(undefined, {
     style: 'currency',
-    currency: game.price?.totalPrice.currencyCode || 'USD',
+    currency: game.price?.price.currencyCode || 'USD',
   });
 
   return (
@@ -150,13 +121,13 @@ function GameCard({ game }: { game: SingleOffer }) {
               <span className="text-sm text-gray-600 dark:text-gray-400">{game.seller.name}</span>
               {game.price && (
                 <div className="flex items-center gap-2">
-                  {game.price.totalPrice.discount > 0 && (
+                  {game.price.price.discount > 0 && (
                     <span className="text-gray-500 line-through dark:text-gray-400">
-                      {fmt.format(game.price.totalPrice.originalPrice / 100)}
+                      {fmt.format(game.price.price.originalPrice / 100)}
                     </span>
                   )}
                   <span className="text-primary font-semibold">
-                    {fmt.format(game.price.totalPrice.discountPrice / 100)}
+                    {fmt.format(game.price.price.discountPrice / 100)}
                   </span>
                 </div>
               )}

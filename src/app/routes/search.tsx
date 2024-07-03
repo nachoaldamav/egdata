@@ -1,5 +1,6 @@
 import { useLoaderData, useSearchParams } from '@remix-run/react';
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
+import cookie from 'cookie';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '~/components/ui/collapsible';
 import { Input } from '~/components/ui/input';
 import { client } from '~/lib/client';
@@ -31,6 +32,8 @@ import {
 } from '~/components/ui/pagination';
 import { Checkbox } from '~/components/ui/checkbox';
 import { offersDictionary } from '~/lib/offers-dictionary';
+import getCountryCode from '~/lib/get-country-code';
+import { useCountry } from '~/hooks/use-country';
 
 export const meta: MetaFunction = () => {
   return [
@@ -75,14 +78,25 @@ const sortByDisplay: Record<SortBy, string> = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
+  const country = getCountryCode(url, cookie.parse(request.headers.get('Cookie') || ''));
 
-  const hash = url.searchParams.get('hash');
+  let hash = url.searchParams.get('hash');
+
+  if (!hash) {
+    // Try to get the hash from the request.headers.referer
+    const referer = request.headers.get('referer');
+
+    if (referer) {
+      const refererUrl = new URL(referer);
+      hash = refererUrl.searchParams.get('hash');
+    }
+  }
 
   const [tagsData, hashData, typesData] = await Promise.allSettled([
     client.get<FullTag[]>('/search/tags'),
     client.get<{
       [key: string]: unknown;
-    }>(`/search/${hash}`),
+    }>(`/search/${hash}?country=${country}`),
     client.get<
       {
         _id: string;
@@ -99,6 +113,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     tags,
     hash: query,
     offerTypes,
+    country,
   };
 }
 
@@ -120,6 +135,7 @@ export default function SearchPage() {
   const [isCodeRedemptionOnly, setIsCodeRedemptionOnly] = useState<boolean | undefined>(
     (hash?.isCodeRedemptionOnly as boolean) ?? undefined,
   );
+  const [isSale, setIsSale] = useState<boolean | undefined>(hash?.onSale as boolean);
 
   function handleSelect(tag: string) {
     setSelectedTags((prev) => {
@@ -158,6 +174,10 @@ export default function SearchPage() {
 
       if (hash.offerType) {
         setSelectedOfferType(hash.offerType as string);
+      }
+
+      if (hash.isSale) {
+        setIsSale(hash.isSale as boolean);
       }
     }
   }, [hash]);
@@ -277,6 +297,21 @@ export default function SearchPage() {
             </label>
           </div>
         </div>
+        <div className="items-center flex space-x-2">
+          <Checkbox
+            checked={isSale}
+            onCheckedChange={(checked: boolean) => setIsSale(checked)}
+            id="isSale"
+          />
+          <div className="grid gap-1.5 leading-none">
+            <label
+              htmlFor="isSale"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Sale
+            </label>
+          </div>
+        </div>
       </aside>
       <main id="results" className="flex flex-col flex-1 gap-4 px-4">
         <header className="flex flex-row justify-between items-center gap-4">
@@ -303,6 +338,7 @@ export default function SearchPage() {
           setOfferTypesCount={setOfferTypeCount}
           sortBy={sortBy}
           isCodeRedemptionOnly={isCodeRedemptionOnly}
+          isSale={isSale}
         />
       </main>
     </div>
@@ -342,6 +378,7 @@ function SearchResults({
   setOfferTypesCount,
   sortBy,
   isCodeRedemptionOnly,
+  isSale,
 }: {
   query: string;
   selectedTags: string[];
@@ -357,9 +394,12 @@ function SearchResults({
   >;
   sortBy: SortBy;
   isCodeRedemptionOnly?: boolean;
+  isSale?: boolean;
 }) {
+  const { country } = useCountry();
   const [, setSearchParams] = useSearchParams();
   const [page, setPage] = useState(1);
+  const [count, setCount] = useState(0);
   const { isPending, error, data } = useQuery({
     queryKey: [
       'search',
@@ -368,6 +408,8 @@ function SearchResults({
       sortBy,
       isCodeRedemptionOnly,
       selectedOfferType,
+      isSale,
+      country,
       page,
     ],
     queryFn: () =>
@@ -378,16 +420,30 @@ function SearchResults({
           limit: number;
           total: number;
           query: string;
-        }>('/offers', {
-          sortBy: sortBy,
-          limit: 32,
-          page: page,
-          title: query === '' ? undefined : query,
-          tags: selectedTags.length === 0 ? undefined : selectedTags,
-          isCodeRedemptionOnly,
-          offerType: selectedOfferType,
-        })
+        }>(
+          '/search',
+          {
+            sortBy: sortBy,
+            limit: 32,
+            page: page,
+            title: query === '' ? undefined : query,
+            tags: selectedTags.length === 0 ? undefined : selectedTags,
+            isCodeRedemptionOnly,
+            offerType: selectedOfferType,
+            onSale: isSale,
+          },
+          {
+            params: {
+              country,
+            },
+          },
+        )
         .then((res) => res.data),
+  });
+
+  console.log({
+    page,
+    count,
   });
 
   useEffect(() => {
@@ -399,25 +455,29 @@ function SearchResults({
             _id: string;
             count: number;
           }[];
-        }>(`/search/${data.query}/count`)
+          total: number;
+        }>(`/search/${data.query}/count?country=${country}`)
         .then((res) => {
           setTagsCount(res.data.tagCounts || []);
           setOfferTypesCount(res.data.offerTypeCounts || []);
+          setCount(res.data.total || 0);
         })
         .catch(console.error);
-
-      setSearchParams({ hash: data.query });
-
-      return () => {
-        window.history.replaceState({}, '', window.location.pathname);
-      };
     }
-  }, [data, setTagsCount, setOfferTypesCount, setSearchParams]);
+  }, [data, setTagsCount, setOfferTypesCount, country]);
+
+  useEffect(() => {
+    if (data?.query) {
+      console.log('setting search params', data.query);
+      setSearchParams({ hash: data.query });
+    }
+  }, [data, setSearchParams]);
 
   if (isPending) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {Array.from({ length: 34 }).map((_, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: This is a skeleton loader
           <GameCardSkeleton key={i} />
         ))}
       </div>
@@ -443,7 +503,7 @@ function SearchResults({
           <GameCard key={offer.id} game={offer} />
         ))}
       </div>
-      <SearchPagination page={data.page} setPage={setPage} total={data.total} limit={data.limit} />
+      <SearchPagination page={page} setPage={setPage} total={count} limit={data.limit} />
     </section>
   );
 }
@@ -464,6 +524,11 @@ function SearchPagination({
   const pagesToShow = 3;
   const startPage = Math.max(1, page - Math.floor(pagesToShow / 2));
   const endPage = Math.min(totalPages, startPage + pagesToShow - 1);
+
+  // If there is only one page, don't show the pagination
+  if (totalPages <= 1) {
+    return null;
+  }
 
   return (
     <Pagination>
@@ -521,9 +586,8 @@ function SearchPagination({
         <PaginationItem>
           <PaginationNextButton
             onClick={() => {
-              if (page < totalPages) {
-                setPage(page + 1);
-              }
+              console.log('next');
+              setPage(page + 1);
             }}
             disabled={page === totalPages}
           />

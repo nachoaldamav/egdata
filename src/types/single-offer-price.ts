@@ -1,3 +1,5 @@
+import type { SinglePrice } from './price';
+
 export interface SingleOfferWithPrice {
   _id: string;
   id: string;
@@ -27,7 +29,7 @@ export interface SingleOfferWithPrice {
   countriesBlacklist: string[] | null;
   countriesWhitelist: string[] | null;
   refundType: string;
-  price: Price;
+  price: SinglePrice;
 }
 
 export interface KeyImage {
@@ -56,34 +58,4 @@ export interface CustomAttribute {
   key: string;
   value: string;
   _id: string;
-}
-
-export interface Price {
-  _id: string;
-  totalPrice: LastPrice;
-  totalPaymentPrice: LastPaymentPrice;
-  metadata: {
-    id: string;
-    country: string;
-    region: string;
-  };
-}
-
-export interface LastPrice {
-  basePayoutCurrencyCode: string;
-  basePayoutPrice: number;
-  convenienceFee: number;
-  currencyCode: string;
-  discount: number;
-  discountPrice: number;
-  originalPrice: number;
-  vat: number;
-  voucherDiscount: number;
-}
-
-export interface LastPaymentPrice {
-  paymentCurrencyAmount: number;
-  paymentCurrencyCode: string;
-  paymentCurrencyExchangeRate: number;
-  paymentCurrencySymbol: string;
 }

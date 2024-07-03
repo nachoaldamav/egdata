@@ -65,7 +65,6 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const country = getCountryCode(url, cookie.parse(request.headers.get('Cookie') || ''));
 
-  const start = Date.now();
   const [offerData, itemsData, priceData] = await Promise.allSettled([
     client
       .get<SingleOffer>(`/offers/${params.id}`)
@@ -78,17 +77,11 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
             title: 'Error',
             description: 'Offer not found',
           }) as SingleOffer,
-      )
-      .finally(() => {
-        console.log(`[loader] Offer fetch time: ${Date.now() - start}ms`);
-      }),
+      ),
     client
       .get<Array<SingleItem>>(`/items-from-offer/${params.id}`)
       .then((response) => response.data)
-      .catch(() => [] as SingleItem[])
-      .finally(() => {
-        console.log(`[loader] Items fetch time: ${Date.now() - start}ms`);
-      }),
+      .catch(() => [] as SingleItem[]),
     client
       .get<Price>(`/offers/${params.id}/price?country=${country || 'US'}`)
       .then((response) => response.data),
@@ -302,10 +295,9 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
             },
             priceSpecification: {
               '@type': 'PriceSpecification',
-              price: price.totalPrice.discountPrice / 100,
-              priceCurrency: price.totalPrice.currencyCode ?? 'USD',
-              valueAddedTaxIncluded: price.totalPrice.vat > 0,
-              validFrom: new Date(price.date).toISOString(),
+              price: price.price.discountPrice / 100,
+              priceCurrency: price.price.currencyCode ?? 'USD',
+              validFrom: new Date(price.updatedAt).toISOString(),
             },
           },
         ],

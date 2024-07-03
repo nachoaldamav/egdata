@@ -98,12 +98,12 @@ export const meta: MetaFunction<typeof loader> = ({ params, data }) => {
         offers: {
           '@type': 'AggregateOffer',
           availability: 'https://schema.org/InStock',
-          priceCurrency: data.promotion.elements[0].price?.currency ?? 'USD',
+          priceCurrency: data.promotion.elements[0].price?.price.currencyCode ?? 'USD',
           lowPrice: Math.min(
-            ...data.promotion.elements.map((game) => game.price?.totalPrice.originalPrice ?? 0),
+            ...data.promotion.elements.map((game) => game.price?.price.originalPrice ?? 0),
           ),
           highPrice: Math.max(
-            ...data.promotion.elements.map((game) => game.price?.totalPrice.originalPrice ?? 0),
+            ...data.promotion.elements.map((game) => game.price?.price.originalPrice ?? 0),
           ),
           offerCount: count,
           offers: data.promotion.elements.map((game) => ({

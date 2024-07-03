@@ -137,61 +137,6 @@ function GameSeller({
   );
 }
 
-function FeaturedGame({ game }: { game: FeaturedGame }) {
-  return (
-    <section id="featured-game" className="shadow-md rounded px-3 pt-6 pb-8 mb-4 w-full">
-      <h2 className="text-xl font-bold mb-4">Featured Game</h2>
-      <div className="flex flex-col lg:flex-row gap-10">
-        <div className="flex flex-col lg:flex-row lg:w-2/3 relative">
-          <div className="absolute inset-0 z-10 pointer-events-none">
-            <div className="flex flex-row gap-2 absolute top-4 left-4">
-              {game.tags
-                .filter((tag) => tag !== null)
-                .slice(0, 3)
-                .map((tag) => (
-                  <span
-                    key={tag.id}
-                    className="bg-gray-800 bg-opacity-50 text-white px-2 py-1 rounded-md backdrop-blur text-xs lg:text-sm"
-                  >
-                    {tag.name}
-                  </span>
-                ))}
-            </div>
-          </div>
-          <Image
-            src={
-              getImage(game.keyImages, ['OfferImageWide', 'DieselStoreFrontWide', 'featuredMedia'])
-                ?.url
-            }
-            alt={game.title}
-            width={1920}
-            height={1080}
-            className="w-full h-[450px] object-cover rounded-xl"
-          />
-        </div>
-        <div className="flex flex-col lg:w-1/3 justify-between gap-3">
-          <div className="flex flex-col gap-2">
-            <div className="inline-block">
-              <h3 className="text-2xl font-bold">{game.title}</h3>
-              <span className="text-sm text-gray-500">{game.seller.name || ''}</span>
-            </div>
-            <p className="text-sm">{game.description}</p>
-          </div>
-          <div className="flex flex-col gap-2 font-extrabold">
-            <Link
-              to={`/offers/${game.id}`}
-              prefetch="intent"
-              className="hover:bg-transparent border border-gray-800 bg-gray-800 inline-block px-4 py-2 rounded-md text-center transition-all duration-300 ease-in-out text-white"
-            >
-              View Game
-            </Link>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function LastModifiedGames() {
   const [loading, setLoading] = useState(true);
   const [games, setGames] = useState<SingleOffer[]>([]);
@@ -256,7 +201,7 @@ function GameCard({
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-semibold max-w-xs truncate">{game.title}</h3>
             </div>
-            <div className="mt-2 flex items-end justify-between gap-2 h-full max-w-xs truncate">
+            <div className="mt-2 flex items-end justify-between gap-2 h-full max-w-xs truncate text-sm text-gray-600 dark:text-gray-400">
               <GameSeller
                 developerDisplayName={game.developerDisplayName as string}
                 publisherDisplayName={game.publisherDisplayName as string}

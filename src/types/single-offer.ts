@@ -1,3 +1,5 @@
+import type { Price } from './price';
+
 export interface SingleOffer {
   _id: string;
   id: string;
@@ -55,33 +57,4 @@ export interface Item {
 export interface CustomAttribute {
   key: string;
   value: string;
-}
-
-export interface Price {
-  _id: string;
-  offerId: string;
-  currency: string;
-  country: string;
-  symbol: string;
-  totalPrice: TotalPrice;
-  totalPaymentPrice: TotalPaymentPrice;
-}
-
-export interface TotalPrice {
-  basePayoutCurrencyCode: string;
-  basePayoutPrice: number;
-  convenienceFee: number;
-  currencyCode: string;
-  discount: number;
-  discountPrice: number;
-  originalPrice: number;
-  vat: number;
-  voucherDiscount: number;
-}
-
-export interface TotalPaymentPrice {
-  paymentCurrencyAmount: number;
-  paymentCurrencyCode: string;
-  paymentCurrencyExchangeRate: number;
-  paymentCurrencySymbol: string;
 }

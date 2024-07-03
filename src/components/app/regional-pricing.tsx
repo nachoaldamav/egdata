@@ -44,45 +44,45 @@ export function RegionalPricing({ id }: { id: string }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {Object.keys(priceHistory).map((key) => {
-            const regionPricing = priceHistory[key];
-            const lastPrice = regionPricing.sort(
-              (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-            )[0];
-            const maxPrice = regionPricing.reduce(
-              (acc, price) =>
-                price.totalPrice.discountPrice > acc ? price.totalPrice.discountPrice : acc,
-              0,
-            );
-            const minPrice = regionPricing.reduce(
-              (acc, price) =>
-                price.totalPrice.discountPrice < acc ? price.totalPrice.discountPrice : acc,
-              maxPrice,
-            );
+          {Object.keys(priceHistory)
+            .sort()
+            .map((key) => {
+              const regionPricing = priceHistory[key];
+              const lastPrice = regionPricing.sort(
+                (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+              )[0];
+              const maxPrice = regionPricing.reduce(
+                (acc, price) => (price.price.discountPrice > acc ? price.price.discountPrice : acc),
+                0,
+              );
+              const minPrice = regionPricing.reduce(
+                (acc, price) => (price.price.discountPrice < acc ? price.price.discountPrice : acc),
+                maxPrice,
+              );
 
-            const currencyFormatter = new Intl.NumberFormat(undefined, {
-              style: 'currency',
-              currency: lastPrice.totalPaymentPrice.paymentCurrencyCode,
-            });
-            const usdFormatter = new Intl.NumberFormat(undefined, {
-              style: 'currency',
-              currency: 'USD',
-            });
+              const currencyFormatter = new Intl.NumberFormat(undefined, {
+                style: 'currency',
+                currency: lastPrice.price.currencyCode,
+              });
+              const usdFormatter = new Intl.NumberFormat(undefined, {
+                style: 'currency',
+                currency: 'USD',
+              });
 
-            return (
-              <TableRow key={key}>
-                <TableCell>{key}</TableCell>
-                <TableCell>
-                  {currencyFormatter.format(lastPrice.totalPrice.discountPrice / 100)}
-                </TableCell>
-                <TableCell>{currencyFormatter.format(maxPrice / 100)}</TableCell>
-                <TableCell>{currencyFormatter.format(minPrice / 100)}</TableCell>
-                <TableCell>
-                  {usdFormatter.format(lastPrice.totalPrice.basePayoutPrice / 100)}
-                </TableCell>
-              </TableRow>
-            );
-          })}
+              return (
+                <TableRow key={key}>
+                  <TableCell>{key}</TableCell>
+                  <TableCell>
+                    {currencyFormatter.format(lastPrice.price.discountPrice / 100)}
+                  </TableCell>
+                  <TableCell>{currencyFormatter.format(maxPrice / 100)}</TableCell>
+                  <TableCell>{currencyFormatter.format(minPrice / 100)}</TableCell>
+                  <TableCell>
+                    {usdFormatter.format(lastPrice.price.basePayoutPrice / 100)}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
         </TableBody>
       </Table>
     </div>
