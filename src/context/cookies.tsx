@@ -98,16 +98,15 @@ export const CookiesProvider = ({ children }: { children: ReactNode }) => {
   }, [userCookiesState]);
 
   useEffect(() => {
-    // If the user has not accepted cookies, track through service worker
     if (userCookiesState && !userCookiesState.accepted) {
       const userId = getTempUserId();
       const session = getSession();
 
       const trackData = {
         event: 'page_view_anonymous',
-        location: window.location.href, // Use full URL for page_location
+        location: window.location.href,
         params: {
-          page_title: document.title, // Optionally include the page title
+          page_title: document.title,
           page_path: location.pathname,
           page_search: location.search,
         },

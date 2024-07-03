@@ -1,11 +1,20 @@
+import type { MetaFunction } from '@remix-run/node';
 import { Link } from '@remix-run/react';
+
+export const meta: MetaFunction = () => {
+  return [
+    {
+      title: 'Privacy Policy - egdata.app',
+    },
+  ];
+};
 
 export default function Privacy() {
   return (
     <div className="max-w-3xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-4">Privacy Policy for EGData App</h1>
       <p className="mb-4">
-        <strong>Effective Date:</strong> June 23, 2024
+        <strong>Effective Date:</strong> July 3, 2024
       </p>
 
       <h2 className="text-2xl font-semibold mb-2">1. Introduction</h2>
@@ -22,7 +31,8 @@ export default function Privacy() {
       <p className="mb-4">
         The first time you visit our Site, you will be asked to consent to our use of cookies in
         accordance with the terms of this Privacy Policy. If the user does not consent to the use of
-        cookies, the Site won't send any data to Google Analytics.
+        cookies, the Site won't allow Google Analytics to collect any data directly. Instead, the
+        Site will collect anonymized data that cannot be used to identify the user.
       </p>
 
       <h2 className="text-2xl font-semibold mb-2">2. Information We Collect</h2>
@@ -108,6 +118,31 @@ export default function Privacy() {
         <a href="mailto:privacy@egdata.app" className="text-blue-500">
           privacy@egdata.app
         </a>
+      </p>
+
+      <p className="mb-4">
+        <h6
+          className="text-sm text-gray-500"
+          style={{ textAlign: 'center', marginTop: '2rem', marginBottom: '2rem' }}
+        >
+          <ol className="list-decimal list-inside">
+            <li>
+              <strong>Anonymized Data:</strong> When the user does not consent to the use of
+              cookies, the Site will generate a random temporary ID for the user. This ID is used to
+              track the user's session and is not stored for more than a browser session.
+              <br />
+              The functionality of this logic is implemented in the following file:{' '}
+              <Link
+                to="https://github.com/nachoaldamav/egdata/blob/main/src/context/cookies.tsx"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500"
+              >
+                src/context/cookies.tsx
+              </Link>
+            </li>
+          </ol>
+        </h6>
       </p>
     </div>
   );
