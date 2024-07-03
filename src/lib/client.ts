@@ -1,6 +1,6 @@
 import Axios from 'axios';
 
-const url = 'http://localhost:4000';
+const url = 'https://api.egdata.app';
 
 const client = Axios.create({
   baseURL: import.meta.env.SSR ? process.env.SERVER_API_ENDPOINT ?? url : url,
