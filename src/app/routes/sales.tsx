@@ -34,14 +34,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     return redirect('/sales?country=US', 302);
   }
 
-  const [latestGames] = await Promise.all([
-    client.get<{
-      elements: SingleOfferWithPrice[];
-      page: number;
-      total: number;
-      limit: number;
-    }>(`/sales?limit=28&country=${country}&page=${page}`),
-  ]);
+  const latestGames = await client.get<{
+    elements: SingleOfferWithPrice[];
+    page: number;
+    total: number;
+    limit: number;
+  }>(`/sales?limit=28&country=${country}&page=${page}`);
 
   const games = latestGames.data.elements || ([] as SingleOffer[]);
 

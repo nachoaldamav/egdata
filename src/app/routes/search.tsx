@@ -147,6 +147,16 @@ export default function SearchPage() {
     });
   }
 
+  function handleSelectOfferType(offerType: string) {
+    setSelectedOfferType((prev) => {
+      if (prev === offerType) {
+        return undefined;
+      }
+
+      return offerType;
+    });
+  }
+
   const handleQueryChange = useCallback(
     lodash.debounce((value: string) => {
       setQuery(value);
@@ -176,8 +186,8 @@ export default function SearchPage() {
         setSelectedOfferType(hash.offerType as string);
       }
 
-      if (hash.isSale) {
-        setIsSale(hash.isSale as boolean);
+      if (hash.onSale) {
+        setIsSale(hash.onSale as boolean);
       }
     }
   }, [hash]);
@@ -196,6 +206,7 @@ export default function SearchPage() {
               setSortBy('creationDate');
               setIsCodeRedemptionOnly(undefined);
               setSelectedOfferType(undefined);
+              setIsSale(undefined);
             }}
           >
             Clear
@@ -224,11 +235,17 @@ export default function SearchPage() {
 
                   return true;
                 })
+                .sort((a, b) => {
+                  const aName = offersDictionary[a._id] ?? a._id;
+                  const bName = offersDictionary[b._id] ?? b._id;
+
+                  return aName.localeCompare(bName);
+                })
                 .map((type) => (
                   <TagSelect
                     key={type._id}
                     isSelected={selectedOfferType === type._id}
-                    handleSelect={() => setSelectedOfferType(type._id)}
+                    handleSelect={handleSelectOfferType}
                     tag={{
                       id: type._id,
                       name: offersDictionary[type._id] ?? type._id,
@@ -469,6 +486,7 @@ function SearchResults({
   }, [data, setSearchParams]);
 
   // Set page to 1 when any filter changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: We don't need to add all the dependencies
   useEffect(() => {
     setPage(1);
   }, [query, selectedTags, selectedOfferType, sortBy, isCodeRedemptionOnly, isSale]);
