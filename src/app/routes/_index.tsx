@@ -18,6 +18,7 @@ import { Skeleton } from '~/components/ui/skeleton';
 import { SalesModule } from '~/components/modules/sales';
 import { ChangelistModule } from '~/components/modules/changelist';
 import { FeaturedModule } from '~/components/modules/featured';
+import { UpcomingOffers } from '~/components/modules/upcoming';
 
 export interface Game {
   id: string;
@@ -91,7 +92,7 @@ export default function Index() {
     <main className="flex flex-col items-center justify-start h-full space-y-4 p-4">
       <FeaturedModule offers={featured} />
       <section className="w-full" id="latest-games">
-        <h4 className="text-xl font-bold text-left">Latest Games</h4>
+        <h4 className="text-xl font-bold text-left">Latest Offers</h4>
         <Carousel className="mt-2 h-full p-4">
           <CarouselPrevious />
           <CarouselContent>
@@ -103,8 +104,12 @@ export default function Index() {
         </Carousel>
       </section>
       <LastModifiedGames />
+      <UpcomingOffers />
+      {/* 1st sale */}
+      <SalesModule event={events[0].name} eventId={events[0].id} />
       <ChangelistModule />
-      {events.map((event) => (
+      {/* rest of the sales */}
+      {events.slice(1).map((event) => (
         <SalesModule key={event.id} event={event.name} eventId={event.id} />
       ))}
     </main>
