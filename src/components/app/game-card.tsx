@@ -8,6 +8,7 @@ import { HeartIcon, CalendarIcon } from '@radix-ui/react-icons';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { ThumbsdownIcon, ThumbsupIcon } from '@primer/octicons-react';
+import { cn } from '~/lib/utils';
 
 export function GameCard({
   game,
@@ -127,7 +128,14 @@ export function OfferListItem({
                   {priceFmtd.format(game.price.price.originalPrice / 100)}
                 </span>
               )}
-              <span className="text-lg font-bold text-green-400">
+              <span
+                className={cn(
+                  'text-lg font-bold',
+                  game.price.price.originalPrice !== game.price.price.discountPrice
+                    ? 'text-green-400'
+                    : 'text-white',
+                )}
+              >
                 {priceFmtd.format(game.price.price.discountPrice / 100)}
               </span>
             </div>
