@@ -29,6 +29,7 @@ export function GameCard({ offer }: { offer: SingleOffer }) {
                 'DieselStoreFrontTall',
               ])?.url
             }
+            quality="medium"
             alt={offer.title}
             width={400}
             height={500}

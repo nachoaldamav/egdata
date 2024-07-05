@@ -91,6 +91,7 @@ export function UpcomingOffers() {
                       'Featured',
                     ])?.url
                   }
+                  quality="low"
                   alt={offer.title}
                   width={300}
                   height={150}

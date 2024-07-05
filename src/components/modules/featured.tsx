@@ -60,6 +60,7 @@ export function FeaturedModule({
                       'OfferImageWide',
                     ])?.url
                   }
+                  quality="original"
                   alt={offer.title}
                   width={1920}
                   height={1080}

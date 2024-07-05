@@ -480,6 +480,7 @@ export default function Index() {
                 ])?.url
               }
               alt={offerData.title}
+              quality="original"
               width={1920}
               height={1080}
               className="rounded-xl shadow-lg"
