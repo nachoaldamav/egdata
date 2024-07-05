@@ -441,11 +441,6 @@ function SearchResults({
         .then((res) => res.data),
   });
 
-  console.log({
-    page,
-    count,
-  });
-
   useEffect(() => {
     if (data?.query) {
       client
@@ -472,6 +467,11 @@ function SearchResults({
       setSearchParams({ hash: data.query });
     }
   }, [data, setSearchParams]);
+
+  // Set page to 1 when any filter changes
+  useEffect(() => {
+    setPage(1);
+  }, [query, selectedTags, selectedOfferType, sortBy, isCodeRedemptionOnly, isSale]);
 
   if (isPending) {
     return (
