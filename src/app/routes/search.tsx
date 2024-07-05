@@ -301,7 +301,7 @@ export default function SearchPage() {
         })}
         <div className="items-center flex space-x-2">
           <Checkbox
-            checked={isCodeRedemptionOnly}
+            checked={isCodeRedemptionOnly ?? false}
             onCheckedChange={(checked: boolean) => setIsCodeRedemptionOnly(checked)}
             id="isCodeRedemptionOnly"
           />
@@ -316,7 +316,7 @@ export default function SearchPage() {
         </div>
         <div className="items-center flex space-x-2">
           <Checkbox
-            checked={isSale}
+            checked={isSale ?? false}
             onCheckedChange={(checked: boolean) => setIsSale(checked)}
             id="isSale"
           />
