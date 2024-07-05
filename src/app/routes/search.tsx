@@ -1,15 +1,12 @@
 import { useLoaderData, useSearchParams } from '@remix-run/react';
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import cookie from 'cookie';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '~/components/ui/collapsible';
 import { Input } from '~/components/ui/input';
 import { client } from '~/lib/client';
 import type { FullTag } from '~/types/tags';
 import { Button } from '~/components/ui/button';
 import { cn } from '~/lib/utils';
-import { CheckIcon, ChevronDownIcon } from '@radix-ui/react-icons';
 import { useEffect, useState, useCallback } from 'react';
-import { ScrollArea } from '~/components/ui/scroll-area';
 import { useQuery } from '@tanstack/react-query';
 import lodash from 'lodash';
 import {
@@ -19,6 +16,12 @@ import {
   SelectContent,
   SelectItem,
 } from '~/components/ui/select';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '~/components/ui/accordion';
 import { GameCard, GameCardSkeleton } from '~/components/app/offer-card';
 import type { SingleOffer } from '~/types/single-offer';
 import {
@@ -34,6 +37,9 @@ import { Checkbox } from '~/components/ui/checkbox';
 import { offersDictionary } from '~/lib/offers-dictionary';
 import getCountryCode from '~/lib/get-country-code';
 import { useCountry } from '~/hooks/use-country';
+import { XIcon } from '@primer/octicons-react';
+import { GridIcon, ListBulletIcon } from '@radix-ui/react-icons';
+import { OfferListItem } from '~/components/app/game-card';
 
 export const meta: MetaFunction = () => {
   return [
@@ -136,6 +142,7 @@ export default function SearchPage() {
     (hash?.isCodeRedemptionOnly as boolean) ?? undefined,
   );
   const [isSale, setIsSale] = useState<boolean | undefined>(hash?.onSale as boolean);
+  const [viewType, setViewType] = useState<'grid' | 'list'>('grid' as 'grid' | 'list');
 
   function handleSelect(tag: string) {
     setSelectedTags((prev) => {
@@ -193,8 +200,8 @@ export default function SearchPage() {
   }, [hash]);
 
   return (
-    <div className="flex flex-row flex-1 min-h-[85vh] min-w-screen">
-      <aside id="form" className="flex flex-col gap-1 p-4">
+    <div className="flex flex-row flex-1 min-h-[85vh] min-w-screen gap-2">
+      <aside id="form" className="flex flex-col gap-1 p-4 max-w-[300px]">
         <div className="flex flex-row justify-between items-center gap-1">
           <h2>Search</h2>
           <Button
@@ -218,13 +225,36 @@ export default function SearchPage() {
           className="mb-4"
           onChange={(e) => handleQueryChange(e.target.value)}
         />
-        <Collapsible>
-          <CollapsibleTrigger className="flex justify-between items-center gap-2 py-2 px-4 text-sm font-bold rounded-lg bg-white/10 w-full">
-            <span>Offer Type</span>
-            <ChevronDownIcon className="h-4 w-4" />
-          </CollapsibleTrigger>
-          <ScrollArea className="flex flex-col gap-2 w-full max-h-[500px]">
-            <CollapsibleContent className="flex flex-col gap-2 w-[250px] mt-2">
+        <div id="selected_filters" className="flex flex-row flex-wrap gap-2">
+          {selectedTags.map((tag) => {
+            const tagData = tags.find((t) => t.id === tag);
+
+            return (
+              <QuickPill
+                key={tag}
+                label={tagData?.name ?? tag}
+                onRemove={() => setSelectedTags((prev) => prev.filter((t) => t !== tag))}
+              />
+            );
+          })}
+          {selectedOfferType && (
+            <QuickPill
+              label={offersDictionary[selectedOfferType] ?? selectedOfferType}
+              onRemove={() => setSelectedOfferType(undefined)}
+            />
+          )}
+          {isCodeRedemptionOnly && (
+            <QuickPill
+              label="Code Redemption Only"
+              onRemove={() => setIsCodeRedemptionOnly(undefined)}
+            />
+          )}
+          {isSale && <QuickPill label="Sale" onRemove={() => setIsSale(false)} />}
+        </div>
+        <Accordion type="single" collapsible className="w-[250px] gap-2">
+          <AccordionItem value="offerType">
+            <AccordionTrigger>Offer Type</AccordionTrigger>
+            <AccordionContent className="flex flex-col gap-2 w-[250px] mt-2">
               {offerTypes
                 .filter((type) => offersDictionary[type._id] !== undefined)
                 .filter((type) => {
@@ -259,29 +289,24 @@ export default function SearchPage() {
               {offerTypes.length === 0 && (
                 <span className="text-gray-400 px-4">No offer types found</span>
               )}
-            </CollapsibleContent>
-          </ScrollArea>
-        </Collapsible>
-        {tagTypes.map((tagType) => {
-          const tagTypeTags = tags
-            .filter((tag) => tag.groupName === tagType.name)
-            .filter((tag) => {
-              // If there is a tag count, we need to filter the tags with 0 count
-              if (tagsCount.length > 0) {
-                return tagsCount.find((t) => t._id === tag.id) !== undefined;
-              }
+            </AccordionContent>
+          </AccordionItem>
+          {tagTypes.map((tagType) => {
+            const tagTypeTags = tags
+              .filter((tag) => tag.groupName === tagType.name)
+              .filter((tag) => {
+                // If there is a tag count, we need to filter the tags with 0 count
+                if (tagsCount.length > 0) {
+                  return tagsCount.find((t) => t._id === tag.id) !== undefined;
+                }
 
-              return true;
-            });
+                return true;
+              });
 
-          return (
-            <Collapsible key={tagType.name}>
-              <CollapsibleTrigger className="flex justify-between items-center gap-2 py-2 px-4 text-sm font-bold rounded-lg bg-white/10 w-full">
-                <span>{tagType.label}</span>
-                <ChevronDownIcon className="h-4 w-4" />
-              </CollapsibleTrigger>
-              <ScrollArea className="flex flex-col gap-2 w-full max-h-[500px]">
-                <CollapsibleContent className="flex flex-col gap-2 w-[250px] mt-2">
+            return (
+              <AccordionItem key={tagType.name} value={tagType.name}>
+                <AccordionTrigger>{tagType.label}</AccordionTrigger>
+                <AccordionContent className="flex flex-col gap-2 w-[250px] mt-2">
                   {tagTypeTags.map((tag) => (
                     <TagSelect
                       key={tag.id}
@@ -294,12 +319,12 @@ export default function SearchPage() {
                   {tagTypeTags.length === 0 && (
                     <span className="text-gray-400 px-4">No tags found</span>
                   )}
-                </CollapsibleContent>
-              </ScrollArea>
-            </Collapsible>
-          );
-        })}
-        <div className="items-center flex space-x-2">
+                </AccordionContent>
+              </AccordionItem>
+            );
+          })}
+        </Accordion>
+        <div className="items-center flex space-x-2 mt-4">
           <Checkbox
             checked={isCodeRedemptionOnly ?? false}
             onCheckedChange={(checked: boolean) => setIsCodeRedemptionOnly(checked)}
@@ -333,19 +358,32 @@ export default function SearchPage() {
       <main id="results" className="flex flex-col flex-1 gap-4 px-4">
         <header className="flex flex-row justify-between items-center gap-4">
           <h2 className="flex-none text-2xl">Results</h2>
-          <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortBy)}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue className="text-sm">{sortByDisplay[sortBy]}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="releaseDate">Release Date</SelectItem>
-              <SelectItem value="lastModifiedDate">Last Modified Date</SelectItem>
-              <SelectItem value="effectiveDate">Effective Date</SelectItem>
-              <SelectItem value="creationDate">Creation Date</SelectItem>
-              <SelectItem value="viewableDate">Viewable Date</SelectItem>
-              <SelectItem value="pcReleaseDate">PC Release Date</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex flex-row gap-2">
+            <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortBy)}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue className="text-sm">{sortByDisplay[sortBy]}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="releaseDate">Release Date</SelectItem>
+                <SelectItem value="lastModifiedDate">Last Modified Date</SelectItem>
+                <SelectItem value="effectiveDate">Effective Date</SelectItem>
+                <SelectItem value="creationDate">Creation Date</SelectItem>
+                <SelectItem value="viewableDate">Viewable Date</SelectItem>
+                <SelectItem value="pcReleaseDate">PC Release Date</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button
+              variant="outline"
+              className="h-9 w-9 p-0"
+              onClick={() => setViewType((prev) => (prev === 'grid' ? 'list' : 'grid'))}
+            >
+              {viewType === 'grid' ? (
+                <ListBulletIcon className="h-5 w-5" aria-hidden="true" />
+              ) : (
+                <GridIcon className="h-5 w-5" aria-hidden="true" />
+              )}
+            </Button>
+          </div>
         </header>
         <SearchResults
           query={query}
@@ -356,6 +394,7 @@ export default function SearchPage() {
           sortBy={sortBy}
           isCodeRedemptionOnly={isCodeRedemptionOnly}
           isSale={isSale}
+          viewType={viewType}
         />
       </main>
     </div>
@@ -373,16 +412,16 @@ function TagSelect({
       variant="outline"
       onClick={() => handleSelect(tag.id)}
       className={cn(
-        'rounded-lg inline-flex justify-between items-center gap-2 px-4 py-2 text-sm',
+        'rounded-lg inline-flex justify-between items-center gap-2 px-4 py-2 text-sm w-[250px]',
         isSelected
           ? 'bg-white/5 text-white'
           : 'bg-transparent text-white hover:bg-white/5 transition-colors duration-200 ease-in-out hover:text-white',
       )}
     >
-      <span className="inline-flex gap-2 items-center justify-start">
-        {tag.name} {count && <span className="text-xs text-gray-400">({count.count})</span>}
-      </span>
-      {isSelected && <CheckIcon className="h-4 w-4" />}
+      <div className="inline-flex items-center justify-between w-full">
+        <span>{tag.name}</span>
+        {count && <span className="text-xs text-gray-400">{count.count}</span>}
+      </div>
     </Button>
   );
 }
@@ -396,6 +435,7 @@ function SearchResults({
   sortBy,
   isCodeRedemptionOnly,
   isSale,
+  viewType,
 }: {
   query: string;
   selectedTags: string[];
@@ -412,6 +452,7 @@ function SearchResults({
   sortBy: SortBy;
   isCodeRedemptionOnly?: boolean;
   isSale?: boolean;
+  viewType: 'grid' | 'list';
 }) {
   const { country } = useCountry();
   const [, setSearchParams] = useSearchParams();
@@ -502,7 +543,13 @@ function SearchResults({
 
   if (isPending && !data) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div
+        className={cn(
+          viewType === 'grid'
+            ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'
+            : 'flex flex-col gap-4',
+        )}
+      >
         {Array.from({ length: 34 }).map((_, i) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: This is a skeleton loader
           <GameCardSkeleton key={i} />
@@ -525,10 +572,20 @@ function SearchResults({
 
   return (
     <section className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {data.elements.map((offer) => (
-          <GameCard key={offer.id} offer={offer} />
-        ))}
+      <div
+        className={cn(
+          viewType === 'grid'
+            ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'
+            : 'flex flex-col gap-4',
+        )}
+      >
+        {data.elements.map((offer) => {
+          if (viewType === 'grid') {
+            return <GameCard key={offer.id} offer={offer} />;
+          }
+
+          return <OfferListItem key={offer.id} game={offer} />;
+        })}
       </div>
       <SearchPagination page={page} setPage={setPage} total={count} limit={data.limit} />
     </section>
@@ -621,5 +678,21 @@ function SearchPagination({
         </PaginationItem>
       </PaginationContent>
     </Pagination>
+  );
+}
+
+/**
+ * Pill component for quick access to remove filters
+ */
+function QuickPill({ label, onRemove }: { label: string; onRemove: () => void }) {
+  return (
+    <Button
+      variant="outline"
+      onClick={onRemove}
+      className="rounded-xl px-3 py-1 text-xs bg-white/5 text-white h-7"
+    >
+      <span>{label}</span>
+      <XIcon className="h-4 w-4" />
+    </Button>
   );
 }

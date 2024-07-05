@@ -4,6 +4,10 @@ import { Link } from '@remix-run/react';
 import { Card, CardContent } from '../ui/card';
 import { Image } from './image';
 import { getImage } from '~/lib/getImage';
+import { HeartIcon, CalendarIcon } from '@radix-ui/react-icons';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { ThumbsdownIcon, ThumbsupIcon } from '@primer/octicons-react';
 
 export function GameCard({
   game,
@@ -41,3 +45,126 @@ export function GameCard({
     </CarouselItem>
   );
 }
+
+/**
+ * List type offer item (for list view)
+ * @param param0
+ * @returns
+ */
+export function OfferListItem({
+  game,
+}: {
+  game: Pick<
+    SingleOffer,
+    | 'id'
+    | 'keyImages'
+    | 'title'
+    | 'seller'
+    | 'developerDisplayName'
+    | 'publisherDisplayName'
+    | 'tags'
+    | 'releaseDate'
+    | 'price'
+  >;
+}) {
+  const epicImage = getImage(game.keyImages, [
+    'DieselGameBoxWide',
+    'OfferImageWide',
+    'TakeoverWide',
+  ]).url as string | undefined;
+
+  const priceFmtd = new Intl.NumberFormat(undefined, {
+    style: 'currency',
+    currency: game.price.price.currencyCode || 'USD',
+  });
+
+  return (
+    <Link to={`/offers/${game.id}`} className="w-full" prefetch="viewport">
+      <Card className="flex flex-row w-full bg-[#1b1e2b] text-white p-1 rounded-lg h-44">
+        <div className="flex-shrink-0 w-72 h-full">
+          <img
+            src={
+              epicImage
+                ? `${epicImage}?h=500&resize=1&quality=medium`
+                : 'https://via.placeholder.com/300x150?text=No+Image'
+            }
+            alt={game.title}
+            className="w-full h-full object-cover rounded-lg"
+          />
+        </div>
+        <div className="flex flex-col flex-grow ml-2 p-2 w-full justify-between">
+          <div className="flex items-start justify-between">
+            <div className="flex flex-col">
+              <h2 className="text-xl font-bold max-w-full truncate">{game.title}</h2>
+              <div className="flex flex-wrap mt-1 space-x-2">
+                {game.tags.slice(0, 5)?.map((tag) => (
+                  <Badge key={tag.id} variant="secondary" className="cursor-default">
+                    {tag.name}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="inline-flex gap-2 items-center justify-start my-2">
+            <span className="text-sm text-muted-foreground inline-flex items-center">
+              {game.seller.name}
+            </span>
+          </div>
+          <div className="inline-flex gap-2 items-center justify-start my-2">
+            <span className="text-sm text-muted-foreground inline-flex items-center">
+              {new Date(game.releaseDate).toLocaleString('en-UK', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+              })}
+            </span>
+          </div>
+          {game.price && (
+            <div className="flex items-end justify-end space-x-4">
+              {game.price.appliedRules.length > 0 && <SaleModule game={game} />}
+              {game.price.price.originalPrice !== game.price.price.discountPrice && (
+                <span className="line-through text-muted-foreground">
+                  {priceFmtd.format(game.price.price.originalPrice / 100)}
+                </span>
+              )}
+              <span className="text-lg font-bold text-green-400">
+                {priceFmtd.format(game.price.price.discountPrice / 100)}
+              </span>
+            </div>
+          )}
+        </div>
+      </Card>
+    </Link>
+  );
+}
+
+/**
+ * Shows the 1st applied rule of the offer that the end date is not passed
+ */
+function SaleModule({ game }: { game: Pick<SingleOffer, 'price'> }) {
+  const sale = game.price.appliedRules.find((rule) => {
+    return new Date(rule.endDate) > new Date();
+  });
+
+  if (!sale) return null;
+
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center">
+        <span className="text-sm text-muted-foreground">
+          ends in {relativeFutureDate(new Date(sale.endDate))} days
+        </span>
+      </div>
+      <Badge variant="default" className="bg-green-500 text-black text-sm">
+        -{sale.discountSetting.discountPercentage}%
+      </Badge>
+    </div>
+  );
+}
+
+const relativeFutureDate = (date: Date) => {
+  const now = new Date();
+  const diff = date.getTime() - now.getTime();
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  return days;
+};
