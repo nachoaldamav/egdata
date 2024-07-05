@@ -78,7 +78,10 @@ export default function OfferChangelog() {
                   <ul className="list-inside">
                     {changelist.metadata.changes.map((change, i) => (
                       <li
-                        key={`${changelist}-${i}`}
+                        key={`${changelist}-${
+                          // biome-ignore lint/suspicious/noArrayIndexKey: The index is the inmutable ID of the change
+                          i
+                        }`}
                         className="flex flex-row gap-2 items-center justify-start my-1"
                       >
                         <span className="inline-flex items-center justify-center w-6 h-6 border rounded-md my-1">
