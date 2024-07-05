@@ -9,6 +9,7 @@ import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { ThumbsdownIcon, ThumbsupIcon } from '@primer/octicons-react';
 import { cn } from '~/lib/utils';
+import { offersDictionary } from '~/lib/offers-dictionary';
 
 export function GameCard({
   game,
@@ -66,6 +67,7 @@ export function OfferListItem({
     | 'tags'
     | 'releaseDate'
     | 'price'
+    | 'offerType'
   >;
 }) {
   const epicImage = getImage(game.keyImages, [
@@ -96,18 +98,16 @@ export function OfferListItem({
         <div className="flex flex-col flex-grow ml-2 p-2 w-full justify-between">
           <div className="flex items-start justify-between">
             <div className="flex flex-col">
-              <h2 className="text-xl font-bold truncate">{game.title}</h2>
+              <div className="flex items-center jusitfy-start space-x-2">
+                <h2 className="text-xl font-bold truncate">{game.title}</h2>
+                <span className="text-sm text-muted-foreground inline-flex items-center">-</span>
+                <span className="text-sm text-muted-foreground inline-flex items-center">
+                  {offersDictionary[game.offerType] || game.offerType}
+                </span>
+              </div>
               <div className="flex flex-wrap mt-1 space-x-2">
                 {game.tags.slice(0, 5)?.map((tag) => (
-                  <Badge
-                    key={tag.id}
-                    variant="secondary"
-                    className="cursor-default"
-                    onClick={(e) => {
-                      alert('Tag clicked');
-                      e.stopPropagation();
-                    }}
-                  >
+                  <Badge key={tag.id} variant="secondary">
                     {tag.name}
                   </Badge>
                 ))}
@@ -119,8 +119,9 @@ export function OfferListItem({
               {game.seller.name}
             </span>
           </div>
-          <div className="inline-flex gap-2 items-center justify-start my-2">
+          <div className="inline-flex gap-2 items-center justify-start">
             <span className="text-sm text-muted-foreground inline-flex items-center">
+              Release date:{' '}
               {new Date(game.releaseDate).toLocaleString('en-UK', {
                 month: 'long',
                 day: 'numeric',
