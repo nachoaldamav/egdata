@@ -5,6 +5,7 @@ import { Skeleton } from '~/components/ui/skeleton';
 import { client } from '~/lib/client';
 import { GitPullRequestClosedIcon, GitPullRequestIcon, PlusIcon } from '@primer/octicons-react';
 import { ArrowRightIcon } from '@radix-ui/react-icons';
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '~/components/ui/tooltip'; // Ensure you have these components
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const data = await client.get<Change[]>(`/offers/${params.id}/changelog`).then((res) => res.data);
@@ -51,65 +52,78 @@ export default function OfferChangelog() {
         <h2 className="text-2xl font-bold">Changelog</h2>
       </div>
       <div className="flex flex-col w-full gap-4">
-        {data
-          .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-          .map((changelist) => (
-            <article
-              key={changelist._id}
-              className="flex flex-col border border-gray-400 w-full rounded-xl"
-            >
-              <header className="p-2 bg-slate-900 rounded-t-xl inline-flex">
-                <h6 className="text-gray-300 font-semibold underline decoration-dotted underline-offset-4">
-                  {changelist._id.slice(0, 10)}
-                </h6>
-                <span className="text-gray-300 ml-auto font-semibold">
-                  {new Date(changelist.timestamp).toLocaleDateString('en-UK', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: 'numeric',
-                  })}
-                </span>
-              </header>
-              <div className="px-4 py-4 rounded-b-xl">
-                <ul className="list-inside">
-                  {changelist.metadata.changes.map((change, i) => (
-                    <li
-                      key={`${changelist}-${
-                        // biome-ignore lint/suspicious/noArrayIndexKey: The index is the ID for each change in the list
-                        i
-                      }`}
-                      className="flex flex-row gap-2 items-center justify-start my-1"
-                    >
-                      <span className="inline-flex items-center justify-center w-6 h-6 border rounded-md my-1">
-                        {icons[change.changeType]}
-                      </span>
-                      <i className="text-gray-300 font-mono">{change.field}:</i>
-                      <span className="text-red-500 line-through font-mono">
-                        {valueToText(change.oldValue, change.field) || 'N/A'}
-                      </span>
-                      <ArrowRightIcon className="text-gray-500" />
-                      <span className="text-green-400 font-mono">
-                        {valueToText(change.newValue, change.field)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </article>
-          ))}
+        <TooltipProvider>
+          {data
+            .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+            .map((changelist) => (
+              <article
+                key={changelist._id}
+                className="flex flex-col border border-gray-400 w-full rounded-xl"
+              >
+                <header className="p-2 bg-slate-900 rounded-t-xl inline-flex">
+                  <h6 className="text-gray-300 font-semibold underline decoration-dotted underline-offset-4">
+                    {changelist._id.slice(0, 10)}
+                  </h6>
+                  <span className="text-gray-300 ml-auto font-semibold">
+                    {new Date(changelist.timestamp).toLocaleDateString('en-UK', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: 'numeric',
+                    })}
+                  </span>
+                </header>
+                <div className="px-4 py-4 rounded-b-xl">
+                  <ul className="list-inside">
+                    {changelist.metadata.changes.map((change, i) => (
+                      <li
+                        key={`${changelist}-${i}`}
+                        className="flex flex-row gap-2 items-center justify-start my-1"
+                      >
+                        <span className="inline-flex items-center justify-center w-6 h-6 border rounded-md my-1">
+                          {icons[change.changeType]}
+                        </span>
+                        <i className="text-gray-300 font-mono">{change.field}:</i>
+                        <span className="text-red-500 line-through font-mono">
+                          {valueToComponent(change.oldValue, change.field) || 'N/A'}
+                        </span>
+                        <ArrowRightIcon className="text-gray-500" />
+                        <span className="text-green-400 font-mono">
+                          {valueToComponent(change.newValue, change.field)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </article>
+            ))}
+        </TooltipProvider>
       </div>
     </section>
   );
 }
 
-function valueToText(value: unknown, field: string) {
+function valueToComponent(value: unknown, field: string) {
   if (value === null) return 'N/A';
   if (typeof value === 'object') {
     if (field === 'keyImages') {
       const typedValue = value as { url: string; type: string; md5: string };
-      return typedValue.type;
+      return (
+        <Tooltip>
+          <TooltipTrigger className="relative group">
+            <span>{typedValue.md5}</span>
+          </TooltipTrigger>
+          <TooltipContent className="flex flex-col items-start justify-center">
+            <img
+              src={typedValue.url}
+              alt={typedValue.type}
+              className="w-60 h-auto border border-gray-300"
+            />
+            <span className="w-full text-center">{typedValue.type}</span>
+          </TooltipContent>
+        </Tooltip>
+      );
     }
     if (field === 'tags') {
       const typedValue = value as { id: string; name: string };
@@ -128,5 +142,33 @@ function valueToText(value: unknown, field: string) {
       hour: 'numeric',
       minute: 'numeric',
     });
+  if (field === 'description') {
+    const truncatedDescription =
+      (value as string).length > 50 ? `${(value as string).slice(0, 50)}...` : (value as string);
+    return (
+      <Tooltip>
+        <TooltipTrigger>
+          <span>{truncatedDescription}</span>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{value as string}</p>
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+  if (field === 'title') {
+    const truncatedTitle =
+      (value as string).length > 50 ? `${(value as string).slice(0, 50)}...` : (value as string);
+    return (
+      <Tooltip>
+        <TooltipTrigger>
+          <span>{truncatedTitle}</span>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{value as string}</p>
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
   return value?.toString() as string;
 }
