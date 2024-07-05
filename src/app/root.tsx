@@ -1,6 +1,7 @@
 import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
 import type { LinksFunction, MetaFunction } from '@remix-run/node';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import Navbar from '~/components/app/navbar';
 import { SearchProvider } from '~/context/global-search';
 import { CountryProvider } from '~/context/country';
@@ -83,6 +84,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     </span>
                   </div>
                 </footer>
+                <ReactQueryDevtools initialIsOpen={false} />
               </CountryProvider>
             </SearchProvider>
           </QueryClientProvider>

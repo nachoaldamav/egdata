@@ -420,14 +420,16 @@ function SearchResults({
   const { isPending, error, data } = useQuery({
     queryKey: [
       'search',
-      query,
-      selectedTags,
-      sortBy,
-      isCodeRedemptionOnly,
-      selectedOfferType,
-      isSale,
-      country,
-      page,
+      {
+        query,
+        selectedTags,
+        sortBy,
+        isCodeRedemptionOnly,
+        selectedOfferType,
+        isSale,
+        country,
+        page,
+      },
     ],
     queryFn: () =>
       client
@@ -456,6 +458,18 @@ function SearchResults({
           },
         )
         .then((res) => res.data),
+    placeholderData: (previous) => ({
+      elements: previous?.elements || [],
+      page: previous?.page || 1,
+      limit: previous?.limit || 32,
+      total: previous?.total || 0,
+      query: query,
+    }),
+  });
+
+  console.log({
+    data,
+    isPending,
   });
 
   useEffect(() => {
@@ -491,7 +505,7 @@ function SearchResults({
     setPage(1);
   }, [query, selectedTags, selectedOfferType, sortBy, isCodeRedemptionOnly, isSale]);
 
-  if (isPending) {
+  if (isPending && !data) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {Array.from({ length: 34 }).map((_, i) => (
