@@ -115,6 +115,10 @@ function valueToText(value: unknown, field: string) {
       const typedValue = value as { id: string; name: string };
       return typedValue.name;
     }
+    if (field === 'customAttributes') {
+      const typedValue = value as { key: string; value: string };
+      return typedValue.key;
+    }
   }
   if (field.includes('Date'))
     return new Date(value as string).toLocaleDateString('en-UK', {
@@ -124,5 +128,5 @@ function valueToText(value: unknown, field: string) {
       hour: 'numeric',
       minute: 'numeric',
     });
-  return value as string;
+  return value?.toString() as string;
 }
