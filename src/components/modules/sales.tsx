@@ -15,6 +15,7 @@ import { Image } from '~/components/app/image';
 import { useCountry } from '~/hooks/use-country';
 import { ArrowLeftIcon, ArrowRightIcon } from '@radix-ui/react-icons';
 import type { Price } from '~/types/price';
+import { GameCard } from '../app/offer-card';
 
 export interface SingleOffer {
   id: string;
@@ -82,59 +83,12 @@ export function SalesModule({
             ))}
           {games.map((game) => (
             <CarouselItem key={game.id} className="basis-1/1 lg:basis-1/4">
-              <GameCard game={game} />
+              <GameCard offer={game} />
             </CarouselItem>
           ))}
         </CarouselContent>
         <CarouselNext />
       </Carousel>
     </section>
-  );
-}
-
-function GameCard({ game }: { game: SingleOffer }) {
-  const fmt = Intl.NumberFormat(undefined, {
-    style: 'currency',
-    currency: game.price?.price.currencyCode || 'USD',
-  });
-
-  return (
-    <CarouselItem key={game.id} className="basis-1/1 lg:basis-1/4">
-      <Link
-        to={`/offers/${game.id}`}
-        className="h-auto w-96 relative select-none"
-        prefetch="viewport"
-      >
-        <Card className="w-72 lg:max-w-sm rounded-lg overflow-hidden shadow-lg">
-          <Image
-            src={getImage(game.keyImages, ['Thumbnail'])?.url}
-            alt={game.title}
-            width={400}
-            height={500}
-            className="w-full h-96 object-cover hover:scale-105 transition-transform duration-300"
-          />
-          <CardContent className="p-4 flex-grow flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xl font-semibold max-w-xs truncate">{game.title}</h3>
-            </div>
-            <div className="mt-2 flex items-end justify-between gap-2 h-full">
-              <span className="text-sm text-gray-600 dark:text-gray-400">{game.seller.name}</span>
-              {game.price && (
-                <div className="flex items-center gap-2">
-                  {game.price.price.discount > 0 && (
-                    <span className="text-gray-500 line-through dark:text-gray-400">
-                      {fmt.format(game.price.price.originalPrice / 100)}
-                    </span>
-                  )}
-                  <span className="text-primary font-semibold">
-                    {fmt.format(game.price.price.discountPrice / 100)}
-                  </span>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </Link>
-    </CarouselItem>
   );
 }

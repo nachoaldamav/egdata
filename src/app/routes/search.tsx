@@ -500,7 +500,7 @@ function SearchResults({
     <section className="flex flex-col gap-4">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {data.elements.map((offer) => (
-          <GameCard key={offer.id} game={offer} />
+          <GameCard key={offer.id} offer={offer} />
         ))}
       </div>
       <SearchPagination page={page} setPage={setPage} total={count} limit={data.limit} />
