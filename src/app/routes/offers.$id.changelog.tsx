@@ -89,11 +89,11 @@ export default function OfferChangelog() {
                         </span>
                         <i className="text-gray-300 font-mono">{change.field}:</i>
                         <span className="text-red-500 line-through font-mono">
-                          {valueToComponent(change.oldValue, change.field) || 'N/A'}
+                          {valueToComponent(change.oldValue, change.field, 'before') || 'N/A'}
                         </span>
                         <ArrowRightIcon className="text-gray-500" />
                         <span className="text-green-400 font-mono">
-                          {valueToComponent(change.newValue, change.field)}
+                          {valueToComponent(change.newValue, change.field, 'after')}
                         </span>
                       </li>
                     ))}
@@ -107,7 +107,7 @@ export default function OfferChangelog() {
   );
 }
 
-function valueToComponent(value: unknown, field: string) {
+function valueToComponent(value: unknown, field: string, type: 'before' | 'after') {
   if (value === null) return 'N/A';
   if (typeof value === 'object') {
     if (field === 'keyImages') {
@@ -115,11 +115,14 @@ function valueToComponent(value: unknown, field: string) {
       return (
         <Tooltip>
           <TooltipTrigger className="relative group">
-            <span>
+            <span className="underline decoration-dotted underline-offset-4">
               {typedValue.type} ({typedValue.md5.slice(0, 8)})
             </span>
           </TooltipTrigger>
-          <TooltipContent className="flex flex-col items-start justify-center">
+          <TooltipContent
+            className="flex flex-col items-start justify-center"
+            side={type === 'before' ? 'left' : 'right'}
+          >
             <img
               src={typedValue.url}
               alt={typedValue.type}
@@ -155,7 +158,7 @@ function valueToComponent(value: unknown, field: string) {
         <TooltipTrigger>
           <span>{truncatedDescription}</span>
         </TooltipTrigger>
-        <TooltipContent>
+        <TooltipContent className="max-w-[300px]">
           <p>{value as string}</p>
         </TooltipContent>
       </Tooltip>
@@ -169,7 +172,7 @@ function valueToComponent(value: unknown, field: string) {
         <TooltipTrigger>
           <span>{truncatedTitle}</span>
         </TooltipTrigger>
-        <TooltipContent>
+        <TooltipContent className="max-w-[300px]">
           <p>{value as string}</p>
         </TooltipContent>
       </Tooltip>
