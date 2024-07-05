@@ -112,7 +112,9 @@ function valueToComponent(value: unknown, field: string) {
       return (
         <Tooltip>
           <TooltipTrigger className="relative group">
-            <span>{typedValue.md5}</span>
+            <span>
+              {typedValue.type} ({typedValue.md5.slice(0, 8)})
+            </span>
           </TooltipTrigger>
           <TooltipContent className="flex flex-col items-start justify-center">
             <img
