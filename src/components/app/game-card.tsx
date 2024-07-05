@@ -72,7 +72,7 @@ export function OfferListItem({
     'DieselGameBoxWide',
     'OfferImageWide',
     'TakeoverWide',
-  ]).url as string | undefined;
+  ])?.url as string | undefined;
 
   const priceFmtd = new Intl.NumberFormat(undefined, {
     style: 'currency',
@@ -96,10 +96,18 @@ export function OfferListItem({
         <div className="flex flex-col flex-grow ml-2 p-2 w-full justify-between">
           <div className="flex items-start justify-between">
             <div className="flex flex-col">
-              <h2 className="text-xl font-bold max-w-full truncate">{game.title}</h2>
+              <h2 className="text-xl font-bold truncate">{game.title}</h2>
               <div className="flex flex-wrap mt-1 space-x-2">
                 {game.tags.slice(0, 5)?.map((tag) => (
-                  <Badge key={tag.id} variant="secondary" className="cursor-default">
+                  <Badge
+                    key={tag.id}
+                    variant="secondary"
+                    className="cursor-default"
+                    onClick={(e) => {
+                      alert('Tag clicked');
+                      e.stopPropagation();
+                    }}
+                  >
                     {tag.name}
                   </Badge>
                 ))}

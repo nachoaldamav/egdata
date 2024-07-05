@@ -200,7 +200,7 @@ export default function SearchPage() {
   }, [hash]);
 
   return (
-    <div className="flex flex-row flex-1 min-h-[85vh] min-w-screen gap-2">
+    <div className="flex flex-row min-h-[85vh] w-full max-w-full gap-2">
       <aside id="form" className="flex flex-col gap-1 p-4 max-w-[300px]">
         <div className="flex flex-row justify-between items-center gap-1">
           <h2>Search</h2>
@@ -355,7 +355,7 @@ export default function SearchPage() {
           </div>
         </div>
       </aside>
-      <main id="results" className="flex flex-col flex-1 gap-4 px-4">
+      <main id="results" className="flex flex-col gap-4 px-4 overflow-hidden flex-1">
         <header className="flex flex-row justify-between items-center gap-4">
           <h2 className="flex-none text-2xl">Results</h2>
           <div className="flex flex-row gap-2">
@@ -571,7 +571,7 @@ function SearchResults({
   }
 
   return (
-    <section className="flex flex-col gap-4">
+    <section className="flex flex-col gap-4 w-full overflow-hidden">
       <div
         className={cn(
           viewType === 'grid'
