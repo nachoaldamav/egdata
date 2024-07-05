@@ -467,11 +467,6 @@ function SearchResults({
     }),
   });
 
-  console.log({
-    data,
-    isPending,
-  });
-
   useEffect(() => {
     if (data?.query) {
       client
