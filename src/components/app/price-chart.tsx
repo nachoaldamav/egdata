@@ -35,6 +35,74 @@ interface PriceChartProps {
   priceData: Record<string, Price[]>;
 }
 
+/**
+ * Algorithm to find the approximate USD price for a region for a given date
+ * It uses the discount data from the region and the USD price data
+ * if the price in the region is discounted, it will find the closest USD discounted price
+ * if the price in the region is not discounted, it will find the closest USD price
+ * To check if the price is discount <price>.price.discount > 0
+ */
+function findApproximateUSDPrice(regionPrice: Price, usdPrices: Price[]): Price | null {
+  if (!regionPrice || !regionPrice.price || !usdPrices || usdPrices.length === 0) {
+    console.log('Invalid input data');
+    return null;
+  }
+
+  // 1st try to find the price from the exact *day*
+  const exactPrice = usdPrices.find(
+    (price) =>
+      new Date(price.updatedAt).toDateString() === new Date(regionPrice.updatedAt).toDateString(),
+  );
+
+  if (exactPrice) {
+    return exactPrice;
+  }
+
+  // Check if the region price is discounted
+  const isDiscounted = regionPrice.price.discount > 0;
+  let closestPrice: Price | null = null;
+  let minDifference = Number.POSITIVE_INFINITY;
+
+  for (const usdPrice of usdPrices) {
+    if (!usdPrice || !usdPrice.price) {
+      continue;
+    }
+
+    // Check if the USD price is discounted or not based on regionPrice
+    const usdIsDiscounted = usdPrice.price.discount > 0;
+    if (isDiscounted === usdIsDiscounted) {
+      // Calculate the difference between the region price and the USD price
+      const regionValue = isDiscounted
+        ? regionPrice.price.discountPrice
+        : regionPrice.price.originalPrice;
+      const usdValue = isDiscounted ? usdPrice.price.discountPrice : usdPrice.price.originalPrice;
+
+      if (Number.isNaN(regionValue) || Number.isNaN(usdValue)) {
+        console.log('NaN detected', { regionValue, usdValue, usdPrice });
+        continue;
+      }
+
+      const difference = Math.abs(regionValue - usdValue);
+
+      // Find the closest price
+      if (difference < minDifference) {
+        minDifference = difference;
+        closestPrice = usdPrice;
+      }
+    }
+  }
+
+  if (!closestPrice) {
+    console.log('No closest price found', { regionPrice, usdPrices });
+    // Just return the 1st future price relative to the region price
+    return usdPrices.sort(
+      (a, b) => new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime(),
+    )[0];
+  }
+
+  return closestPrice;
+}
+
 export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
   const [timeRange, setTimeRange] = React.useState('1y');
   const [compareUSD, setCompareUSD] = React.useState(false);
@@ -42,15 +110,24 @@ export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
   const usdPricing = priceData.US;
 
   const filteredData = regionPricing
+    // Only get 1 price per day, remove duplicates
+    .filter((item, index, self) => {
+      return (
+        index ===
+        self.findIndex(
+          (t) => new Date(t.updatedAt).toDateString() === new Date(item.updatedAt).toDateString(),
+        )
+      );
+    })
     .map((item, index) => {
       const date = new Date(item.updatedAt);
       const isComparison = compareUSD;
 
       if (isComparison) {
         return {
-          date: date.toISOString(),
+          date: date.toDateString(),
           price: item.price.basePayoutPrice / 100,
-          usd: usdPricing[index]?.price.discountPrice / 100,
+          usd: (findApproximateUSDPrice(item, usdPricing)?.price.discountPrice || 0) / 100,
         };
       }
 
@@ -74,6 +151,8 @@ export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
       now.setDate(now.getDate() - daysToSubtract);
       return date >= now;
     });
+
+  console.log(filteredData);
 
   return (
     <Card className="w-3/4 mx-auto" id="price-chart">
