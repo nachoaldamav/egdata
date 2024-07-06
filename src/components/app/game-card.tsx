@@ -4,10 +4,7 @@ import { Link } from '@remix-run/react';
 import { Card, CardContent } from '../ui/card';
 import { Image } from './image';
 import { getImage } from '~/lib/getImage';
-import { HeartIcon, CalendarIcon } from '@radix-ui/react-icons';
 import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
-import { ThumbsdownIcon, ThumbsupIcon } from '@primer/octicons-react';
 import { cn } from '~/lib/utils';
 import { offersDictionary } from '~/lib/offers-dictionary';
 

@@ -1,7 +1,6 @@
-import { useLoaderData, Link } from '@remix-run/react';
+import { useLoaderData } from '@remix-run/react';
 import { redirect } from '@remix-run/node';
 import cookie from 'cookie';
-import { Card, CardContent, CardHeader } from '~/components/ui/card';
 import {
   Pagination,
   PaginationContent,
@@ -12,16 +11,18 @@ import {
   PaginationPrevious,
 } from '~/components/ui/pagination';
 import { client } from '~/lib/client';
-import { getImage } from '~/lib/getImage';
-import { Image } from '~/components/app/image';
 import type { SingleOffer } from '~/types/single-offer';
 import type { LoaderFunctionArgs } from '@remix-run/node';
-import type { SingleOfferWithPrice } from '~/types/single-offer-price';
 import { useCountry } from '~/hooks/use-country';
 import { useEffect, useState } from 'react';
 import getPagingPage from '~/lib/get-paging-page';
 import getCountryCode from '~/lib/get-country-code';
 import { checkCountryCode } from '~/lib/check-country';
+import { GameCard } from '~/components/app/offer-card';
+import { ListBulletIcon, GridIcon } from '@radix-ui/react-icons';
+import { Button } from '~/components/ui/button';
+import { OfferListItem } from '~/components/app/game-card';
+import { cn } from '~/lib/utils';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
@@ -35,7 +36,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   }
 
   const latestGames = await client.get<{
-    elements: SingleOfferWithPrice[];
+    elements: SingleOffer[];
     page: number;
     total: number;
     limit: number;
@@ -57,6 +58,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export default function Index() {
   const { games, meta, country } = useLoaderData<typeof loader>();
   const [userSelectedCountry] = useState<string>(country);
+  const [viewType, setViewType] = useState<'grid' | 'list'>('grid');
   const { country: userCountry } = useCountry();
   const { page, total, limit } = meta;
   const totalPages = Math.ceil(total / limit);
@@ -123,14 +125,36 @@ export default function Index() {
 
   return (
     <main className="flex flex-col items-center justify-start h-full space-y-4 p-4">
-      <section className="flex flex-col gap-4">
-        <h4 className="text-2xl font-bold text-left">Current Sales</h4>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="flex flex-col gap-4 w-full">
+        <div className="flex flex-row items-center justify-between">
+          <h4 className="text-2xl font-bold text-left">Current Sales</h4>
+          <Button
+            variant="outline"
+            className="h-9 w-9 p-0"
+            onClick={() => setViewType((prev) => (prev === 'grid' ? 'list' : 'grid'))}
+          >
+            {viewType === 'grid' ? (
+              <ListBulletIcon className="h-5 w-5" aria-hidden="true" />
+            ) : (
+              <GridIcon className="h-5 w-5" aria-hidden="true" />
+            )}
+          </Button>
+        </div>
+        <div
+          className={cn(
+            'grid grid-cols-1 gap-4 w-full',
+            viewType === 'grid' ? 'sm:grid-cols-2 lg:grid-cols-4' : '',
+          )}
+        >
           {games
             .filter((game) => game.id)
-            .map((game) => (
-              <GameCard key={game.id} game={game} />
-            ))}
+            .map((game) =>
+              viewType === 'grid' ? (
+                <GameCard key={game.id} offer={game} />
+              ) : (
+                <OfferListItem key={game.id} game={game} />
+              ),
+            )}
         </div>
         <Pagination>
           <PaginationContent>
@@ -152,7 +176,7 @@ export default function Index() {
   );
 }
 
-function GameCard({ game }: { game: SingleOfferWithPrice }) {
+/* function GameCard({ game }: { game: SingleOfferWithPrice }) {
   const fmt = Intl.NumberFormat(undefined, {
     style: 'currency',
     currency: game.price.currencyCode || 'USD',
@@ -190,4 +214,4 @@ function GameCard({ game }: { game: SingleOfferWithPrice }) {
       </Card>
     </Link>
   );
-}
+} */
