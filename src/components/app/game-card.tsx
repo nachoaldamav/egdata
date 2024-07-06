@@ -170,7 +170,7 @@ function SaleModule({ game }: { game: Pick<SingleOffer, 'price'> }) {
         </span>
       </div>
       <Badge variant="default" className="bg-green-500 text-black text-sm">
-        -{sale.discountSetting.discountPercentage}%
+        -{100 - sale.discountSetting.discountPercentage}%
       </Badge>
     </div>
   );
