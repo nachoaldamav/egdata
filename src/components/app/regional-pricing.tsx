@@ -9,12 +9,46 @@ import {
   TableRow,
 } from '../ui/table';
 import { fetchOfferPrice } from '~/queries/offer-price';
+import { PriceChart } from './price-chart';
+import { useEffect, useState } from 'react';
+import { useCountry } from '~/hooks/use-country';
+import { client } from '~/lib/client';
+
+interface RegionData {
+  region: Region;
+}
+
+interface Region {
+  code: string;
+  currencyCode: string;
+  description: string;
+  countries: string[];
+}
 
 export function RegionalPricing({ id }: { id: string }) {
+  const { country } = useCountry();
+  const [selectedRegion, setSelectedRegion] = useState('EURO');
   const { data, error, isLoading, isError } = useQuery({
     queryKey: ['price-history', id],
     queryFn: () => fetchOfferPrice({ id }),
   });
+  const { data: regionData } = useQuery({
+    queryKey: ['region', country],
+    queryFn: () =>
+      client
+        .get<RegionData>('/region', {
+          params: {
+            country,
+          },
+        })
+        .then((response) => response.data),
+  });
+
+  useEffect(() => {
+    if (regionData) {
+      setSelectedRegion(regionData.region.code);
+    }
+  }, [regionData]);
 
   if (isLoading) {
     return <p>Loading...</p>;
@@ -30,9 +64,12 @@ export function RegionalPricing({ id }: { id: string }) {
     return null;
   }
 
+  console.log(selectedRegion);
+
   return (
-    <div className="w-full mx-auto">
-      <Table className="w-3/4 mx-auto">
+    <div className="w-full mx-auto mt-2">
+      <PriceChart selectedRegion={selectedRegion} priceData={data} />
+      <Table className="w-3/4 mx-auto mt-2">
         <TableCaption>Regional Pricing</TableCaption>
         <TableHeader>
           <TableRow>
@@ -40,7 +77,7 @@ export function RegionalPricing({ id }: { id: string }) {
             <TableHead>Price</TableHead>
             <TableHead>Max Price</TableHead>
             <TableHead>Min Price</TableHead>
-            <TableHead>USD</TableHead>
+            <TableHead className="text-right">USD</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -70,14 +107,14 @@ export function RegionalPricing({ id }: { id: string }) {
               });
 
               return (
-                <TableRow key={key}>
+                <TableRow key={key} onClick={() => setSelectedRegion(key)}>
                   <TableCell>{key}</TableCell>
                   <TableCell>
                     {currencyFormatter.format(lastPrice.price.discountPrice / 100)}
                   </TableCell>
                   <TableCell>{currencyFormatter.format(maxPrice / 100)}</TableCell>
                   <TableCell>{currencyFormatter.format(minPrice / 100)}</TableCell>
-                  <TableCell>
+                  <TableCell className="text-right">
                     {usdFormatter.format(lastPrice.price.basePayoutPrice / 100)}
                   </TableCell>
                 </TableRow>
