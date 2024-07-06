@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from '~/components/ui/select';
 import type { Price } from '~/types/price';
-import { Checkbox } from '../ui/checkbox';
+import { Checkbox } from '~/components/ui/checkbox';
 
 const chartConfig = {
   price: {
@@ -71,8 +71,6 @@ export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
         price: item.price.discountPrice / 100,
       };
     });
-
-  console.log(filteredData);
 
   return (
     <Card className="w-3/4 mx-auto">
@@ -152,7 +150,6 @@ export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
                       day: 'numeric',
                     });
                   }}
-                  // Show in the same line a dot with the color of the line and then the price formatted
                   formatter={(value, key) => {
                     const formatter = new Intl.NumberFormat(undefined, {
                       style: 'currency',
