@@ -152,8 +152,6 @@ export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
       return date >= now;
     });
 
-  console.log(filteredData);
-
   return (
     <Card className="w-3/4 mx-auto" id="price-chart">
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
