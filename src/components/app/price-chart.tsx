@@ -150,6 +150,8 @@ export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
                 const formatter = new Intl.NumberFormat(undefined, {
                   style: 'currency',
                   currency: compareUSD ? 'USD' : regionPricing[0].price.currencyCode,
+                  compactDisplay: 'short',
+                  maximumFractionDigits: 0,
                 });
 
                 return formatter.format(value);
