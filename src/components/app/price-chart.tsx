@@ -163,9 +163,14 @@ export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
                       <span className="inline-flex items-center justify-start gap-1">
                         <span
                           className="h-2 w-2 shrink-0 rounded-[2px]"
-                          style={{ backgroundColor: chartConfig[key].color }}
+                          style={{ backgroundColor: chartConfig[key as 'price' | 'usd'].color }}
                         />
-                        <span>{chartConfig[key].label === 'Region' ? selectedRegion : 'US'}:</span>
+                        <span>
+                          {chartConfig[key as 'price' | 'usd'].label === 'Region'
+                            ? selectedRegion
+                            : 'US'}
+                          :
+                        </span>
                         {formatter.format(value as number)}
                       </span>
                     );
