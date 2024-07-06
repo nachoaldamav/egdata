@@ -1,3 +1,4 @@
+import { QueryClient } from '@tanstack/react-query';
 import Axios from 'axios';
 
 const url = 'https://api.egdata.app';
@@ -10,4 +11,6 @@ const client = Axios.create({
   },
 });
 
-export { client };
+const queryClient = new QueryClient();
+
+export { client, queryClient };

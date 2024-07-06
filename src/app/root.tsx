@@ -1,12 +1,13 @@
 import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
 import type { LinksFunction, MetaFunction } from '@remix-run/node';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import Navbar from '~/components/app/navbar';
 import { SearchProvider } from '~/context/global-search';
 import { CountryProvider } from '~/context/country';
 import { CookiesProvider } from '~/context/cookies';
 import stylesheet from '../tailwind.css?url';
+import { queryClient } from '~/lib/client';
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet },
@@ -40,8 +41,6 @@ export const meta: MetaFunction = () => {
     },
   ];
 };
-
-const queryClient = new QueryClient();
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (

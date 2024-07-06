@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import {
   type ChartConfig,
@@ -36,28 +36,12 @@ interface PriceChartProps {
 }
 
 export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
-  const [timeRange, setTimeRange] = React.useState('3m');
+  const [timeRange, setTimeRange] = React.useState('1y');
   const [compareUSD, setCompareUSD] = React.useState(false);
   const regionPricing = priceData[selectedRegion];
   const usdPricing = priceData.US;
 
   const filteredData = regionPricing
-    .filter((item) => {
-      const date = new Date(item.updatedAt);
-      const now = new Date();
-      let daysToSubtract = 90;
-      if (timeRange === '3y') {
-        daysToSubtract = 1095; // 3 years
-      } else if (timeRange === '1y') {
-        daysToSubtract = 365; // 1 year
-      } else if (timeRange === '6m') {
-        daysToSubtract = 182; // 6 months
-      } else if (timeRange === '3m') {
-        daysToSubtract = 90; // 3 months
-      }
-      now.setDate(now.getDate() - daysToSubtract);
-      return date >= now;
-    })
     .map((item, index) => {
       const date = new Date(item.updatedAt);
       const isComparison = compareUSD;
@@ -66,7 +50,7 @@ export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
         return {
           date: date.toISOString(),
           price: item.price.basePayoutPrice / 100,
-          usd: usdPricing[index]?.price.basePayoutPrice / 100,
+          usd: usdPricing[index]?.price.discountPrice / 100,
         };
       }
 
@@ -75,18 +59,24 @@ export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
         price: item.price.discountPrice / 100,
       };
     })
-    .concat(
-      // Add 2024-01-01 to the end of the data to make the chart look better
-      {
-        date: new Date('2024-01-01').toISOString(),
-        price: regionPricing[0].price.originalPrice / 100,
-        usd: usdPricing[0].price.originalPrice / 100,
-      },
-    )
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .filter((item) => {
+      const date = new Date(item.date);
+
+      const now = new Date();
+      let daysToSubtract = 365;
+      if (timeRange === 'all') return true;
+      if (timeRange === '3y') {
+        daysToSubtract = 1095; // 3 years
+      } else if (timeRange === '1y') {
+        daysToSubtract = 365; // 1 year
+      }
+      now.setDate(now.getDate() - daysToSubtract);
+      return date >= now;
+    });
 
   return (
-    <Card className="w-3/4 mx-auto">
+    <Card className="w-3/4 mx-auto" id="price-chart">
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
         <div className="grid flex-1 gap-1 text-center sm:text-left">
           <CardTitle>Region Price chart</CardTitle>
@@ -97,33 +87,28 @@ export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
             id="compare"
             checked={compareUSD}
             onCheckedChange={(value) => setCompareUSD(Boolean(value))}
-            className="peer"
+            disabled={selectedRegion === 'US'}
           />
-          <div className="grid gap-1.5 leading-none">
-            <label
-              htmlFor="compare"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              Compare with USD
-            </label>
-          </div>
+          <label
+            htmlFor="compare"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            Compare with USD
+          </label>
         </div>
         <Select value={timeRange} onValueChange={setTimeRange}>
           <SelectTrigger className="w-[160px] rounded-lg sm:ml-auto" aria-label="Select a value">
             <SelectValue placeholder="Last 3 months" />
           </SelectTrigger>
           <SelectContent className="rounded-xl">
+            <SelectItem value="all" className="rounded-lg">
+              All
+            </SelectItem>
             <SelectItem value="3y" className="rounded-lg">
               Last 3 years
             </SelectItem>
             <SelectItem value="1y" className="rounded-lg">
               Last 1 year
-            </SelectItem>
-            <SelectItem value="6m" className="rounded-lg">
-              Last 6 months
-            </SelectItem>
-            <SelectItem value="3m" className="rounded-lg">
-              Last 3 months
             </SelectItem>
           </SelectContent>
         </Select>
@@ -153,7 +138,21 @@ export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
                 return date.toLocaleDateString('en-US', {
                   month: 'short',
                   day: 'numeric',
+                  year: 'numeric',
                 });
+              }}
+            />
+            <YAxis
+              axisLine={false}
+              tickLine={false}
+              tickMargin={8}
+              tickFormatter={(value) => {
+                const formatter = new Intl.NumberFormat(undefined, {
+                  style: 'currency',
+                  currency: compareUSD ? 'USD' : regionPricing[0].price.currencyCode,
+                });
+
+                return formatter.format(value);
               }}
             />
             <ChartTooltip
@@ -164,6 +163,7 @@ export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
                     return new Date(value).toLocaleDateString('en-US', {
                       month: 'short',
                       day: 'numeric',
+                      year: 'numeric',
                     });
                   }}
                   formatter={(value, key) => {

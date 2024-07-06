@@ -12,7 +12,7 @@ import { fetchOfferPrice } from '~/queries/offer-price';
 import { PriceChart } from './price-chart';
 import { useEffect, useState } from 'react';
 import { useCountry } from '~/hooks/use-country';
-import { client } from '~/lib/client';
+import { client, queryClient } from '~/lib/client';
 
 interface RegionData {
   region: Region;
@@ -29,11 +29,12 @@ export function RegionalPricing({ id }: { id: string }) {
   const { country } = useCountry();
   const [selectedRegion, setSelectedRegion] = useState('EURO');
   const { data, error, isLoading, isError } = useQuery({
-    queryKey: ['price-history', id],
+    queryKey: ['price-history', { id }],
     queryFn: () => fetchOfferPrice({ id }),
+    initialData: () => queryClient.getQueryData(['price-history', { id }]),
   });
   const { data: regionData } = useQuery({
-    queryKey: ['region', country],
+    queryKey: ['region', { country }],
     queryFn: () =>
       client
         .get<RegionData>('/region', {
@@ -64,7 +65,12 @@ export function RegionalPricing({ id }: { id: string }) {
     return null;
   }
 
-  console.log(selectedRegion);
+  const scrollToChart = () => {
+    const chart = document.getElementById('price-chart');
+    if (chart) {
+      chart.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <div className="w-full mx-auto mt-2">
@@ -107,7 +113,14 @@ export function RegionalPricing({ id }: { id: string }) {
               });
 
               return (
-                <TableRow key={key} onClick={() => setSelectedRegion(key)}>
+                <TableRow
+                  key={key}
+                  onClick={() => {
+                    setSelectedRegion(key);
+                    scrollToChart();
+                  }}
+                  className="cursor-pointer"
+                >
                   <TableCell>{key}</TableCell>
                   <TableCell>
                     {currencyFormatter.format(lastPrice.price.discountPrice / 100)}
