@@ -36,7 +36,7 @@ interface PriceChartProps {
 }
 
 export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
-  const [timeRange, setTimeRange] = React.useState('90d');
+  const [timeRange, setTimeRange] = React.useState('3m');
   const [compareUSD, setCompareUSD] = React.useState(false);
   const regionPricing = priceData[selectedRegion];
   const usdPricing = priceData.US;
@@ -46,10 +46,14 @@ export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
       const date = new Date(item.updatedAt);
       const now = new Date();
       let daysToSubtract = 90;
-      if (timeRange === '30d') {
-        daysToSubtract = 30;
-      } else if (timeRange === '7d') {
-        daysToSubtract = 7;
+      if (timeRange === '3y') {
+        daysToSubtract = 1095; // 3 years
+      } else if (timeRange === '1y') {
+        daysToSubtract = 365; // 1 year
+      } else if (timeRange === '6m') {
+        daysToSubtract = 182; // 6 months
+      } else if (timeRange === '3m') {
+        daysToSubtract = 90; // 3 months
       }
       now.setDate(now.getDate() - daysToSubtract);
       return date >= now;
@@ -62,7 +66,7 @@ export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
         return {
           date: date.toISOString(),
           price: item.price.basePayoutPrice / 100,
-          usd: usdPricing[index].price.basePayoutPrice / 100,
+          usd: usdPricing[index]?.price.basePayoutPrice / 100,
         };
       }
 
@@ -70,7 +74,16 @@ export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
         date: date.toISOString(),
         price: item.price.discountPrice / 100,
       };
-    });
+    })
+    .concat(
+      // Add 2024-01-01 to the end of the data to make the chart look better
+      {
+        date: new Date('2024-01-01').toISOString(),
+        price: regionPricing[0].price.originalPrice / 100,
+        usd: usdPricing[0].price.originalPrice / 100,
+      },
+    )
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   return (
     <Card className="w-3/4 mx-auto">
@@ -100,14 +113,17 @@ export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
             <SelectValue placeholder="Last 3 months" />
           </SelectTrigger>
           <SelectContent className="rounded-xl">
-            <SelectItem value="90d" className="rounded-lg">
+            <SelectItem value="3y" className="rounded-lg">
+              Last 3 years
+            </SelectItem>
+            <SelectItem value="1y" className="rounded-lg">
+              Last 1 year
+            </SelectItem>
+            <SelectItem value="6m" className="rounded-lg">
+              Last 6 months
+            </SelectItem>
+            <SelectItem value="3m" className="rounded-lg">
               Last 3 months
-            </SelectItem>
-            <SelectItem value="30d" className="rounded-lg">
-              Last 30 days
-            </SelectItem>
-            <SelectItem value="7d" className="rounded-lg">
-              Last 7 days
             </SelectItem>
           </SelectContent>
         </Select>
@@ -178,7 +194,7 @@ export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
             />
             <Area
               dataKey="price"
-              type="natural"
+              type="step"
               fill="url(#fillPrice)"
               stroke="var(--color-price)"
               stackId="a"
@@ -186,7 +202,7 @@ export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
             {compareUSD && (
               <Area
                 dataKey="usd"
-                type="natural"
+                type="step"
                 fill="url(#fillUSD)"
                 stroke="var(--color-usd)"
                 stackId="b"
