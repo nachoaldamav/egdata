@@ -106,7 +106,7 @@ function findApproximateUSDPrice(regionPrice: Price, usdPrices: Price[]): Price 
 export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
   const [timeRange, setTimeRange] = React.useState('1y');
   const [compareUSD, setCompareUSD] = React.useState(false);
-  const regionPricing = priceData[selectedRegion];
+  const regionPricing = priceData[selectedRegion] || [];
   const usdPricing = priceData.US;
 
   const filteredData = regionPricing
@@ -226,7 +226,7 @@ export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
               tickFormatter={(value) => {
                 const formatter = new Intl.NumberFormat(undefined, {
                   style: 'currency',
-                  currency: compareUSD ? 'USD' : regionPricing[0].price.currencyCode,
+                  currency: compareUSD ? 'USD' : regionPricing[0]?.price.currencyCode || 'USD',
                   compactDisplay: 'short',
                   maximumFractionDigits: 0,
                 });
