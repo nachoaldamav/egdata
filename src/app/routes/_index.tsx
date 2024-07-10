@@ -19,6 +19,7 @@ import { SalesModule } from '~/components/modules/sales';
 import { ChangelistModule } from '~/components/modules/changelist';
 import { FeaturedModule } from '~/components/modules/featured';
 import { UpcomingOffers } from '~/components/modules/upcoming';
+import { ArrowRightIcon } from '@radix-ui/react-icons';
 
 export interface Game {
   id: string;
@@ -83,7 +84,11 @@ export const loader = async () => {
   const featured = featuredGames.status === 'fulfilled' ? featuredGames.value.data : null;
   const events = eventsData.status === 'fulfilled' ? eventsData.value.data : [];
 
-  return { games, featured, events };
+  return {
+    games,
+    featured,
+    events,
+  };
 };
 
 export default function Index() {
@@ -161,7 +166,13 @@ function LastModifiedGames() {
 
   return (
     <section className="w-full" id="last-modified-offers">
-      <h4 className="text-xl font-bold text-left">Last Modified Offers</h4>
+      <Link
+        to="/search?hash=2e4d602536b02a6e8aeb7fde4e865606"
+        className="text-xl font-bold text-left inline-flex group items-center gap-2"
+      >
+        Last Modified Offers
+        <ArrowRightIcon className="w-6 h-6 inline-block group-hover:translate-x-1 transition-transform duration-300 ease-in-out" />
+      </Link>
       <Carousel className="mt-2 p-4">
         <CarouselPrevious />
         <CarouselContent className="items-center">
