@@ -3,6 +3,7 @@ import * as Portal from '@radix-ui/react-portal';
 import { CookieBanner } from '~/components/app/cookie-banner';
 import { CookiesContext } from './cookies-context';
 import { useLocation } from '@remix-run/react';
+import { registerSW } from 'virtual:pwa-register';
 
 export interface CookiesContextProps {
   cookiesAccepted: boolean;
@@ -68,9 +69,13 @@ export const CookiesProvider = ({ children }: { children: ReactNode }) => {
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register(
-        import.meta.env.MODE === 'production' ? '/service-worker.js' : '/dev-sw.js?dev-sw',
-      );
+      navigator.serviceWorker
+        .register(
+          import.meta.env.MODE === 'production' ? '/service-worker.js' : '/dev-sw.js?dev-sw',
+        )
+        .then((registration) => {
+          registration.update();
+        });
     }
   }, []);
 

@@ -139,7 +139,11 @@ function valueToComponent(value: unknown, field: string, type: 'before' | 'after
     }
     if (field === 'customAttributes') {
       const typedValue = value as { key: string; value: string };
-      return typedValue.key;
+      return (
+        <span>
+          {typedValue.key} ({typedValue.value})
+        </span>
+      );
     }
   }
   if (field.includes('Date'))

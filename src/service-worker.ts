@@ -28,20 +28,21 @@ self.addEventListener('message', async (event) => {
   }
 });
 
-self.addEventListener('fetch', (event) => {
+self.addEventListener('fetch', (event: FetchEvent) => {
   if (IMAGE_URL_PATTERN.test(event.request.url)) {
     event.respondWith(
       caches.match(event.request).then((response) => {
         const fetchPromise = fetch(event.request).then((networkResponse) => {
+          const responseClone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, networkResponse.clone());
+            cache.put(event.request, responseClone);
           });
           return networkResponse;
         });
 
         if (response) {
           const fetchTime = response.headers.get('sw-fetch-time');
-          if (fetchTime && Date.now() - fetchTime < MAX_AGE) {
+          if (fetchTime && Date.now() - new Date(fetchTime).getTime() < MAX_AGE) {
             fetchPromise.catch(() => {}); // Ignore fetch errors for revalidation
             return response;
           }
@@ -56,14 +57,17 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('activate', (event) => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
-    caches.keys().then((cacheNames) =>
-      Promise.all(
-        cacheNames.map((cacheName) => {
-          if (!cacheWhitelist.includes(cacheName)) {
-            return caches.delete(cacheName);
-          }
-        }),
-      ),
-    ),
+    caches
+      .keys()
+      .then((cacheNames) =>
+        Promise.all(
+          cacheNames.map((cacheName) => {
+            if (!cacheWhitelist.includes(cacheName)) {
+              return caches.delete(cacheName);
+            }
+          }),
+        ),
+      )
+      .then(() => self.clients.claim()), // Activate the new service worker immediately
   );
 });

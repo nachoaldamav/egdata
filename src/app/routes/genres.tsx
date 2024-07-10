@@ -82,7 +82,7 @@ function GenreCard({ genre }: { genre: Genre }) {
       {genre.offers.map((offer, index) => (
         <img
           key={offer.id}
-          src={`${offer.image.url}?w=160&resize=1&quality=high`}
+          src={`${offer.image.url}?w=240&resize=1&quality=high`}
           alt={offer.title}
           className={cn(
             'absolute w-40 h-56 object-cover rounded shadow-2xl',

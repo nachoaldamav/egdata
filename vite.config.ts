@@ -17,10 +17,11 @@ export default defineConfig({
     }),
     tsconfigPaths(),
     RemixVitePWAPlugin({
+      registerType: 'autoUpdate',
       srcDir: 'src',
       filename: 'service-worker.ts',
       strategies: 'injectManifest',
-      injectRegister: false,
+      injectRegister: 'auto',
       manifest: false,
       injectManifest: {
         injectionPoint: undefined,
