@@ -87,6 +87,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const country = getCountryCode(url, cookie.parse(request.headers.get('Cookie') || ''));
 
   let hash = url.searchParams.get('hash');
+  const initialTags = url.searchParams.get('tags');
 
   if (!hash) {
     // Try to get the hash from the request.headers.referer
@@ -120,12 +121,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     hash: query,
     offerTypes,
     country,
+    initialTags: initialTags ? initialTags.split(',') : [],
   };
 }
 
 export default function SearchPage() {
-  const { tags, hash, offerTypes } = useLoaderData<typeof loader>();
-  const [selectedTags, setSelectedTags] = useState<string[]>((hash?.tags as string[]) ?? []);
+  const { tags, hash, offerTypes, initialTags } = useLoaderData<typeof loader>();
+  const [selectedTags, setSelectedTags] = useState<string[]>(
+    (hash?.tags as string[]) ?? initialTags,
+  );
   const [selectedOfferType, setSelectedOfferType] = useState<string | undefined>(
     hash?.offerType as string,
   );

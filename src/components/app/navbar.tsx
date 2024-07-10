@@ -18,7 +18,7 @@ const routes = [
   },
   {
     name: 'Genres',
-    href: '#',
+    href: '/genres',
   },
   {
     name: 'Sales',
