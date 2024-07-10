@@ -73,7 +73,7 @@ export default function GenresPage() {
 function GenreCard({ genre }: { genre: Genre }) {
   return (
     <Link
-      to={`/search?tags=${genre.genre.id}`}
+      to={`/search?tags=${genre.genre.id}&sort_by=releaseDate`}
       className="genre-card relative w-72 h-[300px] text-white overflow-hidden rounded-lg shadow-lg m-4 bg-gray-900/40 hover:bg-gray-900/60 transition group"
     >
       <div className="title absolute bottom-2 w-full text-center font-semibold text-xl z-10">
