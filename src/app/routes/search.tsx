@@ -88,6 +88,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   let hash = url.searchParams.get('hash');
   const initialTags = url.searchParams.get('tags');
+  const sortBy = url.searchParams.get('sort_by');
 
   if (!hash) {
     // Try to get the hash from the request.headers.referer
@@ -113,8 +114,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
   ]);
 
   const tags = tagsData.status === 'fulfilled' ? tagsData.value.data : [];
-  const query = hashData.status === 'fulfilled' ? hashData.value.data : null;
+  let query = hashData.status === 'fulfilled' ? hashData.value.data : null;
   const offerTypes = typesData.status === 'fulfilled' ? typesData.value.data : [];
+
+  if (sortBy) {
+    if (!query) query = {};
+    query.sortBy = sortBy as SortBy;
+  }
 
   return {
     tags,

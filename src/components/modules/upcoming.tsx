@@ -58,7 +58,10 @@ export function UpcomingOffers() {
 
   return (
     <section id="upcoming-offers" className="mb-8 w-[70vw]">
-      <Link className="text-xl font-bold text-left inline-flex group items-center gap-2" to="#">
+      <Link
+        className="text-xl font-bold text-left inline-flex group items-center gap-2"
+        to="/search?sort_by=releaseDate"
+      >
         Upcoming Offers{' '}
         <ArrowRightIcon className="w-6 h-6 inline-block group-hover:translate-x-1 transition-transform duration-300 ease-in-out" />
       </Link>
@@ -68,7 +71,7 @@ export function UpcomingOffers() {
           <TableRow>
             <TableHead className="w-[100px]" />
             <TableHead>Title</TableHead>
-            <TableHead className="text-right w-[150px]">Price</TableHead>
+            <TableHead className="text-right w-[200px]">Price</TableHead>
             <TableHead className="text-right">Release Date</TableHead>
           </TableRow>
         </TableHeader>
@@ -99,7 +102,7 @@ export function UpcomingOffers() {
                 />
               </TableCell>
               <TableCell className="w-1/2">{offer.title}</TableCell>
-              <TableCell className="text-right w-[150px]">
+              <TableCell className="text-right w-[200px]">
                 <TablePrice price={offer.price} prePurchase={offer.prePurchase} />
               </TableCell>
               <TableCell className="text-right">

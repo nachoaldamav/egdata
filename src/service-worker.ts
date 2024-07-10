@@ -1,3 +1,11 @@
+const CACHE_NAME = 'epicgames-images-cache-v1';
+const IMAGE_URL_PATTERN = /^https:\/\/cdn1\.epicgames\.com\//;
+const MAX_AGE = 30 * 24 * 60 * 60 * 1000;
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(caches.open(CACHE_NAME));
+});
+
 // Listen for messages from clients
 self.addEventListener('message', async (event) => {
   console.log('Message received from client', event.data);
@@ -18,4 +26,44 @@ self.addEventListener('message', async (event) => {
 
     console.log('Event tracked');
   }
+});
+
+self.addEventListener('fetch', (event) => {
+  if (IMAGE_URL_PATTERN.test(event.request.url)) {
+    event.respondWith(
+      caches.match(event.request).then((response) => {
+        const fetchPromise = fetch(event.request).then((networkResponse) => {
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, networkResponse.clone());
+          });
+          return networkResponse;
+        });
+
+        if (response) {
+          const fetchTime = response.headers.get('sw-fetch-time');
+          if (fetchTime && Date.now() - fetchTime < MAX_AGE) {
+            fetchPromise.catch(() => {}); // Ignore fetch errors for revalidation
+            return response;
+          }
+        }
+
+        return fetchPromise;
+      }),
+    );
+  }
+});
+
+self.addEventListener('activate', (event) => {
+  const cacheWhitelist = [CACHE_NAME];
+  event.waitUntil(
+    caches.keys().then((cacheNames) =>
+      Promise.all(
+        cacheNames.map((cacheName) => {
+          if (!cacheWhitelist.includes(cacheName)) {
+            return caches.delete(cacheName);
+          }
+        }),
+      ),
+    ),
+  );
 });
