@@ -65,7 +65,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { userPreferences } = useLoaderData<typeof loader>();
+  const { userPreferences } = useLoaderData<typeof loader>() || {};
   return (
     <html lang="en" className="dark">
       <head>
