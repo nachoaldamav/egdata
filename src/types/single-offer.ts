@@ -18,7 +18,12 @@ export interface SingleOffer {
   url: string | null;
   tags: Tag[];
   items: Item[];
-  customAttributes: CustomAttribute[];
+  customAttributes: {
+    [key: string]: {
+      type: string;
+      value: string;
+    };
+  };
   categories: string[];
   developerDisplayName: string | null;
   publisherDisplayName: string | null;

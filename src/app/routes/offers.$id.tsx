@@ -523,7 +523,7 @@ export default function Index() {
             <Outlet />
           </TabsContent>
           <TabsContent value="metadata">
-            <h2 className="text-2xl font-bold">Metadata</h2>
+            <Outlet context={offerData} />
           </TabsContent>
           <TabsContent value="changelog">
             <Outlet />
