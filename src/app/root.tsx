@@ -61,7 +61,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     cookies.EGDATA_PREFERENCES ? JSON.parse(decode(cookies.EGDATA_PREFERENCES)) : undefined
   ) as Preferences;
 
-  return json({ userPreferences });
+  return { userPreferences };
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {

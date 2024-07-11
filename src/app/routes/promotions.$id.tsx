@@ -4,6 +4,7 @@ import { getImage } from '~/lib/getImage';
 import { Image } from '~/components/app/image';
 import type { SingleOffer } from '~/components/modules/sales';
 import { GameCard } from '~/components/app/offer-card';
+import { OfferListItem } from '~/components/app/game-card';
 import { type LoaderFunctionArgs, redirect } from '@remix-run/node';
 import getPagingPage from '~/lib/get-paging-page';
 import getCountryCode from '~/lib/get-country-code';
@@ -13,6 +14,8 @@ import { useState } from 'react';
 import { Button } from '~/components/ui/button';
 import { ReloadIcon } from '@radix-ui/react-icons';
 import { useCountry } from '~/hooks/use-country';
+import { usePreferences } from '~/hooks/use-preferences';
+import { cn } from '~/lib/utils';
 
 export const meta: MetaFunction<typeof loader> = ({ params, data }) => {
   if (!data || !data.promotion) {
@@ -157,6 +160,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 
 export default function Promotion() {
   const { country } = useCountry();
+  const { view } = usePreferences();
   const { cover, promotion: promotionInitialData, id } = useLoaderData<typeof loader>();
   const [promotion, setPromotion] = useState<{
     elements: SingleOffer[];
@@ -230,10 +234,19 @@ export default function Promotion() {
           />
         )}
       </div>
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
-        {promotion?.elements.map((game) => (
-          <GameCard key={game.id} offer={game} />
-        ))}
+      <section
+        className={cn(
+          'mt-8 grid',
+          view === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' : 'grid-cols-1 gap-3',
+        )}
+      >
+        {promotion.elements.map((game) => {
+          if (view === 'list') {
+            return <OfferListItem key={game.id} game={game} />;
+          }
+
+          return <GameCard offer={game} key={game.id} />;
+        })}
       </section>
       <div className="flex justify-center mt-8">
         <Button
