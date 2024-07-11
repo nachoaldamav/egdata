@@ -2,7 +2,7 @@ import { useLoaderData, type MetaFunction } from '@remix-run/react';
 import { client } from '~/lib/client';
 import { getImage } from '~/lib/getImage';
 import { Image } from '~/components/app/image';
-import type { SingleOffer } from '~/components/modules/sales';
+import type { SingleOffer } from '~/types/single-offer';
 import { GameCard } from '~/components/app/offer-card';
 import { OfferListItem } from '~/components/app/game-card';
 import { type LoaderFunctionArgs, redirect } from '@remix-run/node';
