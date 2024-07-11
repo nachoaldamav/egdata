@@ -79,6 +79,7 @@ function GenreCard({ genre }: { genre: Genre }) {
       <div className="title absolute bottom-2 w-full text-center font-semibold text-xl z-10">
         {genre.genre.name}
       </div>
+      <span className="absolute top-0 left-0 w-full h-full backdrop-blur-[1px] bg-black/10 z-[5] group-hover:opacity-0 transition duration-300 ease-in-out" />
       {genre.offers.map((offer, index) => (
         <img
           key={offer.id}
