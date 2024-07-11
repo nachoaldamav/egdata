@@ -20,6 +20,7 @@ import { ChangelistModule } from '~/components/modules/changelist';
 import { FeaturedModule } from '~/components/modules/featured';
 import { UpcomingOffers } from '~/components/modules/upcoming';
 import { ArrowRightIcon } from '@radix-ui/react-icons';
+import { StatsModule } from '~/components/modules/stats';
 
 export interface Game {
   id: string;
@@ -72,7 +73,7 @@ export const loader = async () => {
     }),
     client.get<SingleOffer[]>('/featured').catch((error) => {
       console.error('Failed to fetch featured game', error);
-      return { data: null };
+      return { data: [] };
     }),
     client.get<FullTag[]>('/promotions').catch((error) => {
       console.error('Failed to fetch events', error);
@@ -81,7 +82,7 @@ export const loader = async () => {
   ]);
 
   const games = latestGames.status === 'fulfilled' ? latestGames.value.data : [];
-  const featured = featuredGames.status === 'fulfilled' ? featuredGames.value.data : null;
+  const featured = featuredGames.status === 'fulfilled' ? featuredGames.value.data : [];
   const events = eventsData.status === 'fulfilled' ? eventsData.value.data : [];
 
   return {
@@ -108,6 +109,7 @@ export default function Index() {
           <CarouselNext />
         </Carousel>
       </section>
+      {/* <StatsModule /> */}
       <LastModifiedGames />
       <UpcomingOffers />
       {/* 1st sale */}

@@ -1,13 +1,25 @@
-import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
-import type { LinksFunction, MetaFunction } from '@remix-run/node';
+import {
+  json,
+  Link,
+  Links,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  useLoaderData,
+} from '@remix-run/react';
+import type { LinksFunction, LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import cookie from 'cookie';
 import Navbar from '~/components/app/navbar';
 import { SearchProvider } from '~/context/global-search';
 import { CountryProvider } from '~/context/country';
 import { CookiesProvider } from '~/context/cookies';
 import stylesheet from '../tailwind.css?url';
 import { queryClient } from '~/lib/client';
+import { type Preferences, PreferencesProvider } from '~/context/preferences';
+import { decode } from '~/lib/preferences-encoding';
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet },
@@ -42,7 +54,18 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+export async function loader({ request }: LoaderFunctionArgs) {
+  const cookieHeader = request.headers.get('Cookie');
+  const cookies = cookie.parse(cookieHeader || '');
+  const userPreferences = (
+    cookies.EGDATA_PREFERENCES ? JSON.parse(decode(cookies.EGDATA_PREFERENCES)) : undefined
+  ) as Preferences;
+
+  return json({ userPreferences });
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
+  const { userPreferences } = useLoaderData<typeof loader>();
   return (
     <html lang="en" className="dark">
       <head>
@@ -57,7 +80,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <SearchProvider>
               <CountryProvider>
                 <Navbar />
-                <CookiesProvider>{children}</CookiesProvider>
+                <CookiesProvider>
+                  <PreferencesProvider initialPreferences={userPreferences}>
+                    {children}
+                  </PreferencesProvider>
+                </CookiesProvider>
                 <ScrollRestoration />
                 <Scripts />
                 <footer className="flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400 text-xs gap-1">

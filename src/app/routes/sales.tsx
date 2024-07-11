@@ -23,6 +23,7 @@ import { ListBulletIcon, GridIcon } from '@radix-ui/react-icons';
 import { Button } from '~/components/ui/button';
 import { OfferListItem } from '~/components/app/game-card';
 import { cn } from '~/lib/utils';
+import { usePreferences } from '~/hooks/use-preferences';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
@@ -58,7 +59,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export default function Index() {
   const { games, meta, country } = useLoaderData<typeof loader>();
   const [userSelectedCountry] = useState<string>(country);
-  const [viewType, setViewType] = useState<'grid' | 'list'>('grid');
+  const { view, setView } = usePreferences();
   const { country: userCountry } = useCountry();
   const { page, total, limit } = meta;
   const totalPages = Math.ceil(total / limit);
@@ -131,9 +132,9 @@ export default function Index() {
           <Button
             variant="outline"
             className="h-9 w-9 p-0"
-            onClick={() => setViewType((prev) => (prev === 'grid' ? 'list' : 'grid'))}
+            onClick={() => setView(view === 'grid' ? 'list' : 'grid')}
           >
-            {viewType === 'grid' ? (
+            {view === 'grid' ? (
               <ListBulletIcon className="h-5 w-5" aria-hidden="true" />
             ) : (
               <GridIcon className="h-5 w-5" aria-hidden="true" />
@@ -143,13 +144,13 @@ export default function Index() {
         <div
           className={cn(
             'grid grid-cols-1 gap-4 w-full',
-            viewType === 'grid' ? 'sm:grid-cols-2 lg:grid-cols-4' : '',
+            view === 'grid' ? 'sm:grid-cols-2 lg:grid-cols-4' : '',
           )}
         >
           {games
             .filter((game) => game.id)
             .map((game) =>
-              viewType === 'grid' ? (
+              view === 'grid' ? (
                 <GameCard key={game.id} offer={game} />
               ) : (
                 <OfferListItem key={game.id} game={game} />

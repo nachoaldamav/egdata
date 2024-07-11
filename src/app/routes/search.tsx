@@ -40,6 +40,7 @@ import { useCountry } from '~/hooks/use-country';
 import { XIcon } from '@primer/octicons-react';
 import { GridIcon, ListBulletIcon } from '@radix-ui/react-icons';
 import { OfferListItem } from '~/components/app/game-card';
+import { usePreferences } from '~/hooks/use-preferences';
 
 export const meta: MetaFunction = () => {
   return [
@@ -133,6 +134,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function SearchPage() {
   const { tags, hash, offerTypes, initialTags } = useLoaderData<typeof loader>();
+  const { view, setView } = usePreferences();
   const [selectedTags, setSelectedTags] = useState<string[]>(
     (hash?.tags as string[]) ?? initialTags,
   );
@@ -152,7 +154,6 @@ export default function SearchPage() {
     (hash?.isCodeRedemptionOnly as boolean) ?? undefined,
   );
   const [isSale, setIsSale] = useState<boolean | undefined>(hash?.onSale as boolean);
-  const [viewType, setViewType] = useState<'grid' | 'list'>('grid' as 'grid' | 'list');
 
   function handleSelect(tag: string) {
     setSelectedTags((prev) => {
@@ -385,9 +386,9 @@ export default function SearchPage() {
             <Button
               variant="outline"
               className="h-9 w-9 p-0"
-              onClick={() => setViewType((prev) => (prev === 'grid' ? 'list' : 'grid'))}
+              onClick={() => setView(view === 'grid' ? 'list' : 'grid')}
             >
-              {viewType === 'grid' ? (
+              {view === 'grid' ? (
                 <ListBulletIcon className="h-5 w-5" aria-hidden="true" />
               ) : (
                 <GridIcon className="h-5 w-5" aria-hidden="true" />
@@ -404,7 +405,7 @@ export default function SearchPage() {
           sortBy={sortBy}
           isCodeRedemptionOnly={isCodeRedemptionOnly}
           isSale={isSale}
-          viewType={viewType}
+          viewType={view}
         />
       </main>
     </div>
