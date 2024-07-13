@@ -13,6 +13,8 @@ import { getImage } from '~/lib/getImage';
 import { getSeller } from '~/lib/get-seller';
 import type { SingleOffer } from '~/types/single-offer';
 import type { SingleItem } from '~/types/single-item';
+import type { Media } from '~/types/media';
+import type { Price } from '~/types/price';
 import {
   Table,
   TableBody,
@@ -22,23 +24,22 @@ import {
   TableRow,
 } from '~/components/ui/table';
 import { offersDictionary } from '~/lib/offers-dictionary';
-import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
-import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
-import { useEffect, useState } from 'react';
-import cookie from 'cookie';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 import { compareDates, timeAgo } from '~/lib/time-ago';
 import { internalNamespaces } from '~/lib/internal-namespaces';
 import { GameFeatures } from '~/components/app/features';
 import { cn } from '~/lib/utils';
-import buildImageUrl from '~/lib/build-image-url';
 import { OpenLauncher } from '~/components/app/open-launcher';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { RegionalPricing } from '~/components/app/regional-pricing';
-import type { Price } from '~/types/price';
 import getCountryCode from '~/lib/get-country-code';
 import { OpenEgs } from '~/components/app/open-egs';
 import { OpenEgl } from '~/components/app/open-egl';
+import { BaseGame } from '~/components/app/base-game';
+import { InternalBanner } from '~/components/app/internal-banner';
+import { useQuery } from '@tanstack/react-query';
+import cookie from 'cookie';
+import { useEffect, useRef, useState } from 'react';
 
 function supportedPlatforms(items: SingleItem[]): string[] {
   try {
@@ -467,23 +468,7 @@ export default function Index() {
             <OpenEgl offer={offerData} />
             <OpenLauncher id={offerData.id} />
           </div>
-          <div className="relative w-full h-auto">
-            <Image
-              src={
-                getImage(offerData.keyImages, [
-                  'OfferImageWide',
-                  'DieselGameBoxWide',
-                  'TakeoverWide',
-                ])?.url
-              }
-              alt={offerData.title}
-              quality="original"
-              width={1920}
-              height={1080}
-              className="rounded-xl shadow-lg"
-            />
-            <GameFeatures id={offerData.id} />
-          </div>
+          <OfferHero offer={offerData} />
           <p className="px-1">{offerData.description}</p>
         </div>
       </header>
@@ -589,107 +574,61 @@ const ReleaseDate: React.FC<{
   );
 };
 
-const InternalBanner: React.FC<{
-  title: string;
-  namespace: string;
-}> = ({ title, namespace }) => {
-  if (!internalNamespaces.includes(namespace)) {
-    return null;
-  }
-  const [results, setResults] = useState<{ id: string; title: string }[]>([]);
+function OfferHero({ offer }: { offer: SingleOffer }) {
+  const { data: media } = useQuery({
+    queryKey: ['media', offer.id],
+    queryFn: () => client.get<Media>(`/offers/${offer.id}/media`).then((response) => response.data),
+  });
+  const [isHovered, setIsHovered] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  const videoUrl = media?.videos[0]?.outputs
+    .filter((output) => output.width !== undefined)
+    .sort((a, b) => (b?.width ?? 0) - (a?.width ?? 0))[0]?.url;
 
   useEffect(() => {
-    client
-      .get<{
-        elements: Array<{
-          _id: string;
-          id: string;
-          namespace: string;
-          title: string;
-          keyImages: Array<{
-            type: string;
-            url: string;
-            md5: string;
-          }>;
-        }>;
-        total: number;
-      }>(`/autocomplete?query=${title}`)
-      .then((response) => {
-        setResults(
-          response.data.elements
-            .filter(({ namespace }) => !internalNamespaces.includes(namespace))
-            .sort((a, b) => a.title.localeCompare(b.title)),
-        );
-      });
-  }, [title]);
+    if (videoUrl && videoRef.current) {
+      videoRef.current.src = videoUrl;
+      videoRef.current.load();
+    }
+  }, [videoUrl]);
 
   return (
-    <Alert variant="destructive" className="mt-1">
-      <ExclamationTriangleIcon className="h-4 w-4" />
-      <AlertTitle className="font-bold">Epic Internal Offer</AlertTitle>
-      <AlertDescription>
-        This offer is an internal entry from Epic Games and may not be available to the general
-        public.
-      </AlertDescription>
-      {results.length > 0 && (
-        <Link to={`/offers/${results[0].id}`} className="underline">
-          Go to public offer
-        </Link>
-      )}
-    </Alert>
-  );
-};
-
-const BaseGame: React.FC<{ offer: SingleOffer }> = ({ offer }) => {
-  if (offer.offerType === 'BASE_GAME' || internalNamespaces.includes(offer.namespace)) {
-    return null;
-  }
-
-  const [game, setGame] = useState<SingleOffer | null>(null);
-
-  useEffect(() => {
-    client.get(`/base-game/${offer.namespace}`).then((response) => {
-      setGame(response.data);
-    });
-  }, [offer.namespace]);
-
-  if (!game) {
-    return null;
-  }
-
-  const imageUrl =
-    getImage(game.keyImages, ['DieselGameBox', 'DieselGameBoxWide', 'OfferImageWide'])?.url ||
-    'https://via.placeholder.com/1920x1080';
-
-  return (
-    <Link
-      className="flex items-center bg-gray-800 rounded-lg shadow-lg w-full h-16 relative mt-2 overflow-hidden group"
-      to={`/offers/${game.id}`}
-      prefetch="viewport"
+    <div
+      className="relative w-full h-auto"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      <span className="text-white font-bold absolute z-20 flex-col px-5 gap-1">
-        <h6 className="text-xs">Check the base game</h6>
-        <h4 className="text-lg font-bold">{game.title}</h4>
-      </span>
-      <span
+      {videoUrl && (
+        <video
+          className={cn(
+            'rounded-xl shadow-lg transition-opacity duration-700 absolute inset-0 ease-in-out',
+            isHovered ? 'opacity-100' : 'opacity-0',
+          )}
+          autoPlay
+          loop
+          muted
+          playsInline
+          controls={false}
+          width={'100%'}
+          height={'auto'}
+          src={videoUrl}
+        />
+      )}
+      <Image
+        src={
+          getImage(offer.keyImages, ['OfferImageWide', 'DieselGameBoxWide', 'TakeoverWide'])?.url
+        }
+        alt={offer.title}
+        quality="original"
+        width={1920}
+        height={1080}
         className={cn(
-          'absolute inset-0 z-[11]',
-          'from-gray-700/20 to-gray-700/20 backdrop-blur-sm',
-          'group-hover:backdrop-blur-none transition-all duration-700',
-          'bg-gradient-to-r group-hover:from-gray-700/30 group-hover:from-40% group-hover:to-transparent',
+          'rounded-xl shadow-lg transition-opacity duration-700 ease-in-out',
+          videoUrl && isHovered ? 'opacity-0' : 'opacity-100',
         )}
       />
-      <div className="absolute inset-0">
-        <img
-          style={{
-            objectFit: 'cover',
-          }}
-          src={buildImageUrl(imageUrl, 500)}
-          alt={game.title}
-          className="rounded-lg h-full w-full absolute object-cover z-10 opacity-40 group-hover:opacity-75 transition-opacity duration-500"
-          loading="lazy"
-        />
-      </div>
-    </Link>
+      <GameFeatures id={offer.id} />
+    </div>
   );
-};
+}
