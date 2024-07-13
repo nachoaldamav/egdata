@@ -113,14 +113,14 @@ export default function Index() {
       {/* <StatsModule /> */}
       <LastModifiedGames />
       <UpcomingOffers />
-      {/* 1st sale */}
       <SalesModule event={events[0].name} eventId={events[0].id} />
-      <ChangelistModule />
-      {/* rest of the sales */}
-      {events.slice(1).map((event) => (
-        <SalesModule key={event.id} event={event.name} eventId={event.id} />
-      ))}
+      <section className="w-full flex flex-row justify-between gap-10">
+        <StatsModule />
+        <ChangelistModule />
+      </section>
+      <SalesModule event={events[1].name} eventId={events[1].id} />
       <TopSection slug="top-wishlisted" title="Most Anticipated" side="right" />
+      <SalesModule event={events[2].name} eventId={events[2].id} />
     </main>
   );
 }

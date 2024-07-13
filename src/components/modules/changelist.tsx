@@ -3,6 +3,7 @@ import { client } from '~/lib/client';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { UpdateIcon } from '@radix-ui/react-icons';
 import { timeAgo } from '~/lib/time-ago';
+import { ScrollArea } from '../ui/scroll-area';
 
 export interface Change {
   timestamp: string;
@@ -77,34 +78,36 @@ export function ChangelistModule() {
   }
 
   return (
-    <section id="changelist" className="w-full lg:w-3/4 h-full pb-10">
+    <section id="changelist" className="w-full h-full pb-10">
       <h2 className="text-2xl font-bold">Changelist</h2>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead />
-            <TableHead>ID</TableHead>
-            <TableHead className="w-[100px]">Type</TableHead>
-            <TableHead>Title/ID</TableHead>
-            <TableHead className="text-right">Date</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {changes.map((change) => (
-            <TableRow key={change._id}>
-              <TableCell>
-                <span role="img" aria-label={getType(change.metadata.changes)}>
-                  {icons[getType(change.metadata.changes)]}
-                </span>
-              </TableCell>
-              <TableCell>{change.metadata.contextId.slice(0, 10)}</TableCell>
-              <TableCell>{change.metadata.contextType}</TableCell>
-              <TableCell>{change.metadata.context?.title || change.metadata.contextId}</TableCell>
-              <TableCell className="text-right">{timeAgo(new Date(change.timestamp))}</TableCell>
+      <ScrollArea className="w-full h-[400px]">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead />
+              <TableHead>ID</TableHead>
+              <TableHead className="w-[100px]">Type</TableHead>
+              <TableHead>Title/ID</TableHead>
+              <TableHead className="text-right">Date</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {changes.map((change) => (
+              <TableRow key={change._id}>
+                <TableCell>
+                  <span role="img" aria-label={getType(change.metadata.changes)}>
+                    {icons[getType(change.metadata.changes)]}
+                  </span>
+                </TableCell>
+                <TableCell>{change.metadata.contextId.slice(0, 10)}</TableCell>
+                <TableCell>{change.metadata.contextType}</TableCell>
+                <TableCell>{change.metadata.context?.title || change.metadata.contextId}</TableCell>
+                <TableCell className="text-right">{timeAgo(new Date(change.timestamp))}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </ScrollArea>
     </section>
   );
 }

@@ -57,7 +57,7 @@ export function UpcomingOffers() {
   }
 
   return (
-    <section id="upcoming-offers" className="mb-8 w-[70vw]">
+    <section id="upcoming-offers" className="mb-8 w-full">
       <Link
         className="text-xl font-bold text-left inline-flex group items-center gap-2"
         to="/search?sort_by=upcoming"
@@ -65,7 +65,7 @@ export function UpcomingOffers() {
         Upcoming Offers{' '}
         <ArrowRightIcon className="w-6 h-6 inline-block group-hover:translate-x-1 transition-transform duration-300 ease-in-out" />
       </Link>
-      <Table className="w-full">
+      <Table className="w-[73.5vw] mx-auto">
         <TableCaption>Upcoming Offers</TableCaption>
         <TableHeader>
           <TableRow>
