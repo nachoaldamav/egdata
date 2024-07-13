@@ -21,6 +21,7 @@ import { FeaturedModule } from '~/components/modules/featured';
 import { UpcomingOffers } from '~/components/modules/upcoming';
 import { ArrowRightIcon } from '@radix-ui/react-icons';
 import { StatsModule } from '~/components/modules/stats';
+import { TopSection } from '~/components/modules/top-section';
 
 export interface Game {
   id: string;
@@ -119,6 +120,7 @@ export default function Index() {
       {events.slice(1).map((event) => (
         <SalesModule key={event.id} event={event.name} eventId={event.id} />
       ))}
+      <TopSection slug="top-wishlisted" title="Most Anticipated" side="right" />
     </main>
   );
 }
