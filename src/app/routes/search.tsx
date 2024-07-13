@@ -72,7 +72,8 @@ type SortBy =
   | 'effectiveDate'
   | 'creationDate'
   | 'viewableDate'
-  | 'pcReleaseDate';
+  | 'pcReleaseDate'
+  | 'upcoming';
 
 const sortByDisplay: Record<SortBy, string> = {
   releaseDate: 'Release Date',
@@ -81,6 +82,7 @@ const sortByDisplay: Record<SortBy, string> = {
   creationDate: 'Creation Date',
   viewableDate: 'Viewable Date',
   pcReleaseDate: 'PC Release Date',
+  upcoming: 'Upcoming',
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
