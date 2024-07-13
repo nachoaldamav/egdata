@@ -236,8 +236,8 @@ export default function Promotion() {
       </div>
       <section
         className={cn(
-          'mt-8 grid',
-          view === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' : 'grid-cols-1 gap-3',
+          'mt-8 grid gap-4',
+          view === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' : 'grid-cols-1',
         )}
       >
         {promotion.elements.map((game) => {
