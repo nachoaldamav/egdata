@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { SingleOffer } from '~/types/single-offer';
+import type { Price } from '~/types/price';
+import type { Media } from '~/types/media';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import {
@@ -14,11 +16,14 @@ import { Image } from '../app/image';
 import { getImage } from '~/lib/getImage';
 import { Link } from '@remix-run/react';
 import { cn } from '~/lib/utils';
-import type { Price } from '~/types/price';
 import { useQuery } from '@tanstack/react-query';
 import { client } from '~/lib/client';
 import { useCountry } from '~/hooks/use-country';
-import { Media } from '~/types/media';
+import { TooltipProvider } from '@radix-ui/react-tooltip';
+import Autoplay from 'embla-carousel-autoplay';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+
+const SLIDE_DELAY = 5000; // 5 seconds
 
 export function FeaturedModule({
   offers,
@@ -28,6 +33,7 @@ export function FeaturedModule({
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
+  const [progress, setProgress] = useState<number[]>([]);
 
   useEffect(() => {
     if (!api) {
@@ -39,11 +45,30 @@ export function FeaturedModule({
 
     api.on('select', () => {
       setCurrent(api.selectedScrollSnap() + 1);
+      setProgress(new Array(api.scrollSnapList().length).fill(0));
     });
-  }, [api]);
+
+    const interval = setInterval(() => {
+      setProgress((prevProgress) => {
+        const newProgress = [...prevProgress];
+        newProgress[current - 1] += 100 / (SLIDE_DELAY / 100);
+        if (newProgress[current - 1] >= 100) {
+          api.scrollNext();
+          newProgress[current - 1] = 0;
+        }
+        return newProgress;
+      });
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [api, current]);
 
   return (
-    <Carousel className="text-white p-4 w-full" setApi={setApi}>
+    <Carousel
+      className="text-white p-4 w-full"
+      setApi={setApi}
+      plugins={[Autoplay({ delay: SLIDE_DELAY, stopOnMouseEnter: true, stopOnInteraction: false })]}
+    >
       <h2 className="text-xl font-bold mb-4">Featured</h2>
       <CarouselContent className="h-auto">
         {offers.map((offer) => (
@@ -120,7 +145,7 @@ export function FeaturedModule({
                 </header>
                 <footer className="w-full h-full flex flex-col justify-end">
                   <div className="flex items-end justify-end gap-5">
-                    <OfferPrice id={offer.id} />
+                    <OfferPrice id={offer.id} releaseDate={new Date(offer.releaseDate)} />
                     <Button asChild>
                       <Link to={`/offers/${offer.id}`}>Check offer</Link>
                     </Button>
@@ -134,7 +159,13 @@ export function FeaturedModule({
       <CarouselPrevious />
       <CarouselNext />
       <div className="flex space-x-2 mt-4 mx-auto w-full justify-center">
-        <ProgressIndicator current={current} total={count} api={api} offers={offers} />
+        <ProgressIndicator
+          current={current}
+          total={count}
+          api={api}
+          offers={offers}
+          progress={progress}
+        />
       </div>
     </Carousel>
   );
@@ -145,25 +176,50 @@ function ProgressIndicator({
   total,
   api,
   offers,
+  progress,
 }: {
   current: number;
   total: number;
   api: CarouselApi;
   offers: SingleOffer[];
+  progress: number[];
 }) {
   return (
     <div className="flex space-x-2 mt-4 mx-auto w-full justify-center">
-      {Array.from({ length: total }).map((_, i) => (
-        <span
-          key={`${offers[i].id}-progress`}
-          className={cn(
-            'block w-4 h-1 rounded-full cursor-pointer',
-            current === i + 1 ? 'bg-white' : 'bg-gray-500',
-          )}
-          onClick={() => api?.scrollTo(i)}
-          onKeyDown={() => api?.scrollTo(i)}
-        />
-      ))}
+      <TooltipProvider>
+        {Array.from({ length: total }).map((_, i) => (
+          <Tooltip key={`${offers[i].id}-progress`} delayDuration={0}>
+            <TooltipTrigger
+              className={cn('block w-4 h-1 rounded-full cursor-pointer relative', 'bg-gray-500')}
+              onClick={() => api?.scrollTo(i)}
+              onKeyDown={() => api?.scrollTo(i)}
+            >
+              <div
+                className="absolute top-0 left-0 h-full bg-white rounded-full"
+                style={{
+                  width: `${progress[i]}%`,
+                  transition: 'width 10ms linear',
+                }}
+              />
+            </TooltipTrigger>
+            <TooltipContent className="p-0" sideOffset={10}>
+              {current !== i + 1 && (
+                <img
+                  src={
+                    getImage(offers[i].keyImages, [
+                      'DieselStoreFrontWide',
+                      'Featured',
+                      'OfferImageWide',
+                    ])?.url
+                  }
+                  alt={offers[i].title}
+                  className="w-auto h-28 object-cover rounded-md"
+                />
+              )}
+            </TooltipContent>
+          </Tooltip>
+        ))}
+      </TooltipProvider>
     </div>
   );
 }
