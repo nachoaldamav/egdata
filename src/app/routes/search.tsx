@@ -383,6 +383,7 @@ export default function SearchPage() {
                 <SelectItem value="creationDate">Creation Date</SelectItem>
                 <SelectItem value="viewableDate">Viewable Date</SelectItem>
                 <SelectItem value="pcReleaseDate">PC Release Date</SelectItem>
+                <SelectItem value="upcoming">Upcoming</SelectItem>
               </SelectContent>
             </Select>
             <Button
