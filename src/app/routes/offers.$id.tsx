@@ -576,7 +576,7 @@ const ReleaseDate: React.FC<{
 
 function OfferHero({ offer }: { offer: SingleOffer }) {
   const { data: media } = useQuery({
-    queryKey: ['media', offer.id],
+    queryKey: ['media', { id: offer.id }],
     queryFn: () => client.get<Media>(`/offers/${offer.id}/media`).then((response) => response.data),
   });
   const [isHovered, setIsHovered] = useState(false);

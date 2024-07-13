@@ -18,6 +18,7 @@ import type { Price } from '~/types/price';
 import { useQuery } from '@tanstack/react-query';
 import { client } from '~/lib/client';
 import { useCountry } from '~/hooks/use-country';
+import { Media } from '~/types/media';
 
 export function FeaturedModule({
   offers,
@@ -69,6 +70,7 @@ export function FeaturedModule({
               </div>
               <article className="w-full md:w-1/3 p-4 flex flex-col justify-between items-start flex-1">
                 <header>
+                  <OfferLogo id={offer.id} />
                   <h3 className="text-2xl font-bold">{offer.title}</h3>
                   <p className="text-sm my-2">{offer.description}</p>
                   <div className="flex flex-wrap gap-2 my-2">
@@ -105,6 +107,7 @@ export function FeaturedModule({
                   className="object-cover"
                 />
                 <header>
+                  <OfferLogo id={offer.id} />
                   <h3 className="text-xl font-bold">{offer.title}</h3>
                   <p className="text-sm my-2">{offer.description}</p>
                   <div className="flex flex-wrap gap-2 my-2">
@@ -200,5 +203,27 @@ function OfferPrice({ id, releaseDate }: { id: string; releaseDate: Date }) {
         </span>
       )}
     </span>
+  );
+}
+
+function OfferLogo({ id }: { id: string }) {
+  const { data: media } = useQuery({
+    queryKey: ['media', { id }],
+    queryFn: () => client.get<Media>(`/offers/${id}/media`).then((response) => response.data),
+    retry: false,
+  });
+
+  if (!media || !media.logo) {
+    return null;
+  }
+
+  return (
+    <img
+      src={media.logo}
+      alt={id}
+      width="50%"
+      height="auto"
+      className="w-auto h-20 object-contain mb-4"
+    />
   );
 }
