@@ -34,6 +34,7 @@ export function FeaturedModule({
   const [current, setCurrent] = useState(0);
   const [count, setCount] = useState(0);
   const [progress, setProgress] = useState<number[]>([]);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     if (!api) {
@@ -42,26 +43,50 @@ export function FeaturedModule({
 
     setCount(api.scrollSnapList().length);
     setCurrent(api.selectedScrollSnap() + 1);
+    setProgress(Array.from({ length: offers.length }, () => 0));
 
     api.on('select', () => {
       setCurrent(api.selectedScrollSnap() + 1);
-      setProgress(new Array(api.scrollSnapList().length).fill(0));
+      setProgress(Array.from({ length: offers.length }, () => 0));
     });
 
+    const handleInteraction = () => {
+      setIsPaused(true);
+    };
+
+    const handleMouseEnter = () => {
+      setIsPaused(true);
+    };
+
+    const handleMouseLeave = () => {
+      setIsPaused(false);
+    };
+
+    api.on('pointerDown', handleInteraction);
+    api.containerNode().addEventListener('mouseenter', handleMouseEnter);
+    api.containerNode().addEventListener('mouseleave', handleMouseLeave);
+
     const interval = setInterval(() => {
-      setProgress((prevProgress) => {
-        const newProgress = [...prevProgress];
-        newProgress[current - 1] += 100 / (SLIDE_DELAY / 100);
-        if (newProgress[current - 1] >= 100) {
-          api.scrollNext();
-          newProgress[current - 1] = 0;
-        }
-        return newProgress;
-      });
+      if (!isPaused) {
+        setProgress((prevProgress) => {
+          const newProgress = [...prevProgress];
+          newProgress[current - 1] += 100 / (SLIDE_DELAY / 100);
+          if (newProgress[current - 1] >= 100) {
+            api.scrollNext();
+            newProgress[current - 1] = 0;
+          }
+          return newProgress;
+        });
+      }
     }, 100);
 
-    return () => clearInterval(interval);
-  }, [api, current]);
+    return () => {
+      clearInterval(interval);
+      api.off('pointerDown', handleInteraction);
+      api.containerNode().removeEventListener('mouseenter', handleMouseEnter);
+      api.containerNode().removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, [api, current, isPaused, offers]);
 
   return (
     <Carousel
@@ -198,7 +223,7 @@ function ProgressIndicator({
                 className="absolute top-0 left-0 h-full bg-white rounded-full"
                 style={{
                   width: `${progress[i]}%`,
-                  transition: 'width 10ms linear',
+                  transition: 'width 0.1s linear',
                 }}
               />
             </TooltipTrigger>
