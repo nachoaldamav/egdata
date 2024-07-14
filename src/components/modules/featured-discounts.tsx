@@ -94,14 +94,9 @@ export function FeaturedDiscounts() {
 
   return (
     <section id="featured-discounts">
-      <Link
-        className="text-xl font-bold text-left inline-flex group items-center gap-2"
-        to="/search?hash=eadf1463682bf433c968c629f883ebb8"
-        prefetch="viewport"
-      >
-        Featured Discounts{' '}
-        <ArrowRightIcon className="w-6 h-6 inline-block group-hover:translate-x-1 transition-transform duration-300 ease-in-out" />
-      </Link>
+      <h4 className="text-xl font-bold text-left inline-flex group items-center gap-2">
+        Featured Discounts
+      </h4>
       <Carousel
         className="mt-2 h-full p-4"
         setApi={setApi}
