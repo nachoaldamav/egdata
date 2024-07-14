@@ -65,7 +65,7 @@ export function UpcomingOffers() {
         Upcoming Offers{' '}
         <ArrowRightIcon className="w-6 h-6 inline-block group-hover:translate-x-1 transition-transform duration-300 ease-in-out" />
       </Link>
-      <Table className="w-[73.5vw] mx-auto">
+      <Table className="w-[73.5vw] mx-auto max-w-full">
         <TableCaption>Upcoming Offers</TableCaption>
         <TableHeader>
           <TableRow>
