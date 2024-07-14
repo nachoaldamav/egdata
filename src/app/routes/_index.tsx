@@ -118,7 +118,7 @@ export default function Index() {
           <CarouselNext />
         </Carousel>
       </section>
-      {/* <StatsModule /> */}
+      <FeaturedDiscounts />
       <LastModifiedGames />
       <UpcomingOffers />
       <SalesModule event={events[0].name} eventId={events[0].id} />
@@ -129,7 +129,6 @@ export default function Index() {
       <SalesModule event={events[1].name} eventId={events[1].id} />
       <TopSection slug="top-wishlisted" title="Most Anticipated" side="right" />
       <SalesModule event={events[2].name} eventId={events[2].id} />
-      <FeaturedDiscounts />
     </main>
   );
 }

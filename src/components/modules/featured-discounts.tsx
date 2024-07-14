@@ -3,6 +3,7 @@ import { client } from '~/lib/client';
 import type { SingleOffer } from '~/types/single-offer';
 import {
   Carousel,
+  type CarouselApi,
   CarouselContent,
   CarouselItem,
   CarouselNext,
@@ -10,14 +11,17 @@ import {
 } from '~/components/ui/carousel';
 import { Link } from '@remix-run/react';
 import { ArrowRightIcon } from '@radix-ui/react-icons';
-import { Button } from '../ui/button';
-import { TerminalIcon } from '@primer/octicons-react';
-import { Image } from '../app/image';
+import { Button } from '~/components/ui/button';
+import { Image } from '~/components/app/image';
 import { getImage } from '~/lib/getImage';
-import { Media } from '~/types/media';
-import { useState } from 'react';
+import type { Media } from '~/types/media';
+import { useEffect, useState } from 'react';
 import { FaApple, FaWindows } from 'react-icons/fa6';
+import Autoplay from 'embla-carousel-autoplay';
+import { TooltipProvider, TooltipTrigger, TooltipContent, Tooltip } from '~/components/ui/tooltip';
 import { cn } from '~/lib/utils';
+
+const SLIDE_DELAY = 7500;
 
 export function FeaturedDiscounts() {
   const { data: featuredDiscounts } = useQuery({
@@ -25,6 +29,64 @@ export function FeaturedDiscounts() {
     queryFn: () =>
       client.get<SingleOffer[]>('/offers/featured-discounts').then((response) => response.data),
   });
+
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+  const [count, setCount] = useState(0);
+  const [progress, setProgress] = useState<number[]>([]);
+  const [isPaused, setIsPaused] = useState(false);
+
+  useEffect(() => {
+    if (!api) {
+      return;
+    }
+
+    setCount(api.scrollSnapList().length);
+    setCurrent(api.selectedScrollSnap() + 1);
+    setProgress(Array.from({ length: (featuredDiscounts as SingleOffer[]).length }, () => 0));
+
+    api.on('select', () => {
+      setCurrent(api.selectedScrollSnap() + 1);
+      setProgress(Array.from({ length: (featuredDiscounts as SingleOffer[]).length }, () => 0));
+    });
+
+    const handleInteraction = () => {
+      setIsPaused(true);
+    };
+
+    const handleMouseEnter = () => {
+      setIsPaused(true);
+    };
+
+    const handleMouseLeave = () => {
+      setIsPaused(false);
+    };
+
+    api.on('pointerDown', handleInteraction);
+    api.containerNode().addEventListener('mouseenter', handleMouseEnter);
+    api.containerNode().addEventListener('mouseleave', handleMouseLeave);
+
+    const interval = setInterval(() => {
+      if (!isPaused) {
+        setProgress((prevProgress) => {
+          const newProgress = [...prevProgress];
+          newProgress[current - 1] += 100 / (SLIDE_DELAY / 100);
+          if (newProgress[current - 1] >= 100) {
+            api.scrollNext();
+            newProgress[current - 1] = 0;
+          }
+          return newProgress;
+        });
+      }
+    }, 100);
+
+    return () => {
+      clearInterval(interval);
+      api.off('pointerDown', handleInteraction);
+      api.containerNode().removeEventListener('mouseenter', handleMouseEnter);
+      api.containerNode().removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, [api, current, isPaused, featuredDiscounts]);
 
   if (!featuredDiscounts) {
     return null;
@@ -40,7 +102,13 @@ export function FeaturedDiscounts() {
         Featured Discounts{' '}
         <ArrowRightIcon className="w-6 h-6 inline-block group-hover:translate-x-1 transition-transform duration-300 ease-in-out" />
       </Link>
-      <Carousel className="mt-2 h-full p-4">
+      <Carousel
+        className="mt-2 h-full p-4"
+        setApi={setApi}
+        plugins={[
+          Autoplay({ delay: SLIDE_DELAY, stopOnMouseEnter: true, stopOnInteraction: false }),
+        ]}
+      >
         <CarouselPrevious />
         <CarouselContent>
           {featuredDiscounts.map((offer) => (
@@ -50,8 +118,70 @@ export function FeaturedDiscounts() {
           ))}
         </CarouselContent>
         <CarouselNext />
+        <div className="flex space-x-2 mt-4 mx-auto w-full justify-center">
+          <ProgressIndicator
+            current={current}
+            total={count}
+            api={api}
+            offers={featuredDiscounts}
+            progress={progress}
+          />
+        </div>
       </Carousel>
     </section>
+  );
+}
+
+function ProgressIndicator({
+  current,
+  total,
+  api,
+  offers,
+  progress,
+}: {
+  current: number;
+  total: number;
+  api: CarouselApi;
+  offers: SingleOffer[];
+  progress: number[];
+}) {
+  return (
+    <div className="flex space-x-2 mt-4 mx-auto w-full justify-center">
+      <TooltipProvider>
+        {Array.from({ length: total }).map((_, i) => (
+          <Tooltip key={`${offers[i].id}-progress`} delayDuration={0}>
+            <TooltipTrigger
+              className={cn('block w-4 h-1 rounded-full cursor-pointer relative', 'bg-gray-500')}
+              onClick={() => api?.scrollTo(i)}
+              onKeyDown={() => api?.scrollTo(i)}
+            >
+              <div
+                className="absolute top-0 left-0 h-full bg-white rounded-full"
+                style={{
+                  width: `${progress[i]}%`,
+                  transition: 'width 0.1s linear',
+                }}
+              />
+            </TooltipTrigger>
+            <TooltipContent className="p-0" sideOffset={10}>
+              {current !== i + 1 && (
+                <img
+                  src={
+                    getImage(offers[i].keyImages, [
+                      'DieselStoreFrontWide',
+                      'Featured',
+                      'OfferImageWide',
+                    ])?.url
+                  }
+                  alt={offers[i].title}
+                  className="w-auto h-28 object-cover rounded-md"
+                />
+              )}
+            </TooltipContent>
+          </Tooltip>
+        ))}
+      </TooltipProvider>
+    </div>
   );
 }
 

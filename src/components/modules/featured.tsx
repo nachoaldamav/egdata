@@ -19,9 +19,8 @@ import { cn } from '~/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { client } from '~/lib/client';
 import { useCountry } from '~/hooks/use-country';
-import { TooltipProvider } from '@radix-ui/react-tooltip';
 import Autoplay from 'embla-carousel-autoplay';
-import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '../ui/tooltip';
 
 const SLIDE_DELAY = 5000; // 5 seconds
 
