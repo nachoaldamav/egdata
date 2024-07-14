@@ -2,18 +2,32 @@ export function getSeller({
   developerDisplayName,
   publisherDisplayName,
   seller,
+  customAttributes,
 }: {
   developerDisplayName: string | undefined;
   publisherDisplayName: string | undefined;
   seller: string;
+  customAttributes?: {
+    [key: string]: {
+      type: string;
+      value: string;
+    };
+  };
 }) {
-  if (!developerDisplayName && !publisherDisplayName) {
+  console.log({
+    developerDisplayName,
+    publisherDisplayName,
+    seller,
+    customAttributes,
+  });
+  const developer = customAttributes?.developerName?.value ?? developerDisplayName;
+  if (!developer && !publisherDisplayName) {
     return seller;
   }
 
-  if (developerDisplayName === publisherDisplayName) {
-    return developerDisplayName;
+  if (developer === publisherDisplayName) {
+    return developer;
   }
 
-  return `${developerDisplayName} - ${publisherDisplayName}`;
+  return `${developer !== null ? `${developer} - ` : ''}${publisherDisplayName}`;
 }

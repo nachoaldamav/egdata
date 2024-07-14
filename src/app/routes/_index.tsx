@@ -22,6 +22,7 @@ import { UpcomingOffers } from '~/components/modules/upcoming';
 import { ArrowRightIcon } from '@radix-ui/react-icons';
 import { StatsModule } from '~/components/modules/stats';
 import { TopSection } from '~/components/modules/top-section';
+import { getSeller } from '~/lib/get-seller';
 
 export interface Game {
   id: string;
@@ -42,6 +43,12 @@ export interface Game {
   developerDisplayName: string | null;
   publisherDisplayName: string | null;
   seller: string;
+  customAttributes: {
+    [key: string]: {
+      type: string;
+      value: string;
+    };
+  };
 }
 
 export interface KeyImage {
@@ -203,7 +210,13 @@ function GameCard({
 }: {
   game: Pick<
     Game,
-    'id' | 'keyImages' | 'title' | 'seller' | 'developerDisplayName' | 'publisherDisplayName'
+    | 'id'
+    | 'keyImages'
+    | 'title'
+    | 'seller'
+    | 'developerDisplayName'
+    | 'publisherDisplayName'
+    | 'customAttributes'
   >;
 }) {
   return (
@@ -222,11 +235,19 @@ function GameCard({
               <h3 className="text-xl font-semibold max-w-xs truncate">{game.title}</h3>
             </div>
             <div className="mt-2 flex items-end justify-between gap-2 h-full max-w-xs truncate text-sm text-gray-600 dark:text-gray-400">
-              <GameSeller
+              {/* <GameSeller
                 developerDisplayName={game.developerDisplayName as string}
                 publisherDisplayName={game.publisherDisplayName as string}
                 seller={typeof game.seller === 'string' ? game.seller : (game.seller as any).name}
-              />
+              /> */}
+              <p>
+                {getSeller({
+                  developerDisplayName: game.developerDisplayName as string,
+                  publisherDisplayName: game.publisherDisplayName as string,
+                  seller: typeof game.seller === 'string' ? game.seller : (game.seller as any).name,
+                  customAttributes: game.customAttributes,
+                })}
+              </p>
             </div>
           </CardContent>
         </Card>

@@ -350,6 +350,7 @@ export default function Index() {
               developerDisplayName: offerData.developerDisplayName as string,
               publisherDisplayName: offerData.publisherDisplayName as string,
               seller: offerData.seller.name,
+              customAttributes: offerData.customAttributes,
             })}
           </h4>
 
@@ -401,7 +402,9 @@ export default function Index() {
                 <TableRow>
                   <TableCell className="font-medium">Developer</TableCell>
                   <TableCell className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l">
-                    {offerData.developerDisplayName ?? offerData.seller.name}
+                    {offerData.customAttributes?.developerName?.value ??
+                      offerData.developerDisplayName ??
+                      offerData.seller.name}
                     {offerData.publisherDisplayName !== offerData.developerDisplayName && (
                       <span className="opacity-50">({offerData.publisherDisplayName})</span>
                     )}
