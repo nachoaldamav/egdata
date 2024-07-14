@@ -23,6 +23,7 @@ import { ArrowRightIcon } from '@radix-ui/react-icons';
 import { StatsModule } from '~/components/modules/stats';
 import { TopSection } from '~/components/modules/top-section';
 import { getSeller } from '~/lib/get-seller';
+import { FeaturedDiscounts } from '~/components/modules/featured-discounts';
 
 export interface Game {
   id: string;
@@ -128,6 +129,7 @@ export default function Index() {
       <SalesModule event={events[1].name} eventId={events[1].id} />
       <TopSection slug="top-wishlisted" title="Most Anticipated" side="right" />
       <SalesModule event={events[2].name} eventId={events[2].id} />
+      <FeaturedDiscounts />
     </main>
   );
 }
