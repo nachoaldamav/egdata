@@ -14,12 +14,6 @@ export function getSeller({
     };
   };
 }) {
-  console.log({
-    developerDisplayName,
-    publisherDisplayName,
-    seller,
-    customAttributes,
-  });
   const developer = customAttributes?.developerName?.value ?? developerDisplayName;
   if (!developer && !publisherDisplayName) {
     return seller;
