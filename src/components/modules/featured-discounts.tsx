@@ -10,18 +10,18 @@ import {
   CarouselPrevious,
 } from '~/components/ui/carousel';
 import { Link } from '@remix-run/react';
-import { ArrowRightIcon } from '@radix-ui/react-icons';
 import { Button } from '~/components/ui/button';
 import { Image } from '~/components/app/image';
 import { getImage } from '~/lib/getImage';
 import type { Media } from '~/types/media';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FaApple, FaWindows } from 'react-icons/fa6';
 import Autoplay from 'embla-carousel-autoplay';
 import { TooltipProvider, TooltipTrigger, TooltipContent, Tooltip } from '~/components/ui/tooltip';
 import { cn } from '~/lib/utils';
+import { Badge } from '../ui/badge';
 
-const SLIDE_DELAY = 7500;
+const SLIDE_DELAY = 100_000;
 
 export function FeaturedDiscounts() {
   const { data: featuredDiscounts } = useQuery({
@@ -191,29 +191,69 @@ function FeaturedOffer({ offer }: { offer: SingleOffer }) {
     queryKey: ['media', { id: offer.id }],
     queryFn: () => client.get<Media>(`/offers/${offer.id}/media`).then((response) => response.data),
   });
+  const [isHovered, setIsHovered] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  const videoUrl = offerMedia?.videos[0]?.outputs
+    .filter((output) => output.width !== undefined)
+    .sort((a, b) => (b?.width ?? 0) - (a?.width ?? 0))[0]?.url;
+
+  useEffect(() => {
+    if (videoUrl && videoRef.current) {
+      videoRef.current.src = videoUrl;
+      videoRef.current.load();
+    }
+  }, [videoUrl]);
 
   return (
     <div className="w-full bg-background rounded-lg shadow-lg overflow-hidden group mx-auto select-none">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="md:col-span-1 relative">
-          <Image
-            src={
-              image ??
-              getImage(offer.keyImages, ['OfferImageWide', 'DieselStoreFrontWide', 'Featured'])?.url
-            }
-            alt={offer.title}
-            width={500}
-            height={435}
-            quality="original"
-            className="w-full h-auto object-cover rounded-lg"
-          />
+        <div className="flex flex-col gap-2">
+          <div
+            className="relative w-full h-full"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            {videoUrl && (
+              <video
+                className={cn(
+                  'rounded-xl shadow-lg transition-opacity duration-700 absolute inset-0 ease-in-out w-full h-full object-cover',
+                  isHovered ? 'opacity-100' : 'opacity-0',
+                )}
+                autoPlay
+                loop
+                muted
+                playsInline
+                controls={false}
+                width={'100%'}
+                height={'100%'}
+                src={videoUrl}
+              />
+            )}
+            <Image
+              src={
+                image ??
+                getImage(offer.keyImages, ['OfferImageWide', 'DieselStoreFrontWide', 'Featured'])
+                  ?.url
+              }
+              alt={offer.title}
+              width={500}
+              height={300}
+              quality="original"
+              className={cn(
+                'w-full h-auto object-cover rounded-lg transition-opacity duration-700 ease-in-out',
+                videoUrl && isHovered ? 'opacity-0' : 'opacity-100',
+              )}
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <h3 className="text-2xl font-bold">{offer.title}</h3>
+            <p className="text-muted-foreground text-sm mt-1">{offer.description}</p>
+          </div>
         </div>
         <div className="md:col-span-1 flex flex-col justify-between px-4">
           <div className="h-fit">
-            <h3 className="text-2xl font-bold">{offer.title}</h3>
-            <p className="text-muted-foreground text-sm mt-1">{offer.description}</p>
-
-            <div className="grid grid-cols-2 gap-2 mt-4">
+            <div className="grid grid-cols-2 gap-2">
               {offerMedia?.images.slice(0, 4).map((image) => (
                 <div
                   className="h-auto w-full rounded-lg inline-flex items-center justify-center opacity-50 cursor-pointer hover:opacity-100 transition-opacity"
@@ -233,6 +273,16 @@ function FeaturedOffer({ offer }: { offer: SingleOffer }) {
                 </div>
               ))}
             </div>
+          </div>
+          <div className="inline-flex items-center justify-start gap-2">
+            {offer.tags.slice(0, 4).map((tag) => (
+              <Badge key={tag.id}>{tag.name}</Badge>
+            ))}
+            {offer.tags.length > 4 && (
+              <Badge>
+                +{offer.tags.length - 4} <span className="sr-only">more</span>
+              </Badge>
+            )}
           </div>
           <div className="flex flex-col justify-end">
             <div className="flex items-center justify-between mt-4">
@@ -292,7 +342,7 @@ function SaleModule({ price }: { price: SingleOffer['price'] }) {
   return (
     <div className="flex items-center gap-2">
       <span className="text-sm text-muted-foreground inline-flex items-center">
-        Until{' '}
+        until{' '}
         {new Date(selectedRule.endDate).toLocaleDateString('en-UK', {
           year: undefined,
           month: 'long',
