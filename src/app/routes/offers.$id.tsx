@@ -596,6 +596,16 @@ function OfferHero({ offer }: { offer: SingleOffer }) {
     }
   }, [videoUrl]);
 
+  useEffect(() => {
+    if (videoRef.current) {
+      if (!isHovered) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+    }
+  }, [isHovered]);
+
   return (
     <div
       className="relative w-full h-auto"
@@ -616,6 +626,9 @@ function OfferHero({ offer }: { offer: SingleOffer }) {
           width={'100%'}
           height={'auto'}
           src={videoUrl}
+          ref={(element) => {
+            videoRef.current = element;
+          }}
         />
       )}
       <Image

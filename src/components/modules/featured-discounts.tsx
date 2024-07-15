@@ -205,6 +205,16 @@ function FeaturedOffer({ offer }: { offer: SingleOffer }) {
     }
   }, [videoUrl]);
 
+  useEffect(() => {
+    if (videoRef.current) {
+      if (!isHovered) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+    }
+  }, [isHovered]);
+
   return (
     <div className="w-full bg-background rounded-lg shadow-lg overflow-hidden group mx-auto select-none">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -228,6 +238,7 @@ function FeaturedOffer({ offer }: { offer: SingleOffer }) {
                 width={'100%'}
                 height={'100%'}
                 src={videoUrl}
+                ref={videoRef}
               />
             )}
             <Image
