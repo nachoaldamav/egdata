@@ -113,6 +113,11 @@ export const meta: MetaFunction<typeof loader> = ({ params, data }) => {
             '@type': 'Offer',
             url: `https://egdata.app/offers/${game.id}`,
           })),
+          startDate:
+            data.promotion.elements
+              .find((game) => game.price?.appliedRules.find((rule) => rule.startDate))
+              ?.price?.appliedRules.find((rule) => rule.startDate)?.startDate ??
+            new Date(Date.now() - 86400000).toISOString(),
         },
       },
     },
