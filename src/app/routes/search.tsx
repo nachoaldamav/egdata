@@ -162,7 +162,7 @@ export default function SearchPage() {
     }[]
   >([]);
   const [query, setQuery] = useState<string>((hash?.title as string) ?? '');
-  const [sortBy, setSortBy] = useState<SortBy>((hash?.sortBy as SortBy) ?? 'creationDate');
+  const [sortBy, setSortBy] = useState<SortBy>((hash?.sortBy as SortBy) ?? 'lastModifiedDate');
   const [isCodeRedemptionOnly, setIsCodeRedemptionOnly] = useState<boolean | undefined>(
     (hash?.isCodeRedemptionOnly as boolean) ?? undefined,
   );
