@@ -121,41 +121,16 @@ export default function Index() {
       <FeaturedDiscounts />
       <LastModifiedGames />
       <UpcomingOffers />
-      <SalesModule event={events[0].name} eventId={events[0].id} />
+      <SalesModule event="Summer Sale" eventId="16979" />
       <section className="w-full flex flex-row justify-between gap-10">
         <StatsModule />
         <ChangelistModule />
       </section>
-      <SalesModule event={events[1].name} eventId={events[1].id} />
+      <SalesModule event={events[0].name} eventId={events[0].id} />
       <TopSection slug="top-wishlisted" title="Most Anticipated" side="right" />
+      <SalesModule event={events[1].name} eventId={events[1].id} />
       <SalesModule event={events[2].name} eventId={events[2].id} />
     </main>
-  );
-}
-
-function GameSeller({
-  developerDisplayName,
-  publisherDisplayName,
-  seller,
-}: {
-  developerDisplayName: string | undefined;
-  publisherDisplayName: string | undefined;
-  seller: string;
-}) {
-  if (!developerDisplayName && !publisherDisplayName) {
-    return <p>{seller}</p>;
-  }
-
-  return (
-    <>
-      {developerDisplayName === publisherDisplayName ? (
-        <p>{developerDisplayName}</p>
-      ) : (
-        <p>
-          {developerDisplayName} - {publisherDisplayName}
-        </p>
-      )}
-    </>
   );
 }
 
@@ -236,11 +211,6 @@ function GameCard({
               <h3 className="text-xl font-semibold max-w-xs truncate">{game.title}</h3>
             </div>
             <div className="mt-2 flex items-end justify-between gap-2 h-full max-w-xs truncate text-sm text-gray-600 dark:text-gray-400">
-              {/* <GameSeller
-                developerDisplayName={game.developerDisplayName as string}
-                publisherDisplayName={game.publisherDisplayName as string}
-                seller={typeof game.seller === 'string' ? game.seller : (game.seller as any).name}
-              /> */}
               <p>
                 {getSeller({
                   developerDisplayName: game.developerDisplayName as string,

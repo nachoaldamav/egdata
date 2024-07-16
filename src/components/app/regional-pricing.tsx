@@ -12,7 +12,7 @@ import { fetchOfferPrice } from '~/queries/offer-price';
 import { PriceChart } from './price-chart';
 import { useEffect, useState } from 'react';
 import { useCountry } from '~/hooks/use-country';
-import { client, queryClient } from '~/lib/client';
+import { client, getQueryClient } from '~/lib/client';
 
 interface RegionData {
   region: Region;
@@ -26,6 +26,7 @@ interface Region {
 }
 
 export function RegionalPricing({ id }: { id: string }) {
+  const queryClient = getQueryClient();
   const { country } = useCountry();
   const [selectedRegion, setSelectedRegion] = useState('EURO');
   const { data, error, isLoading, isError } = useQuery({

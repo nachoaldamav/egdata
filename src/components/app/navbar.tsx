@@ -1,6 +1,6 @@
 import { Sheet, SheetTrigger, SheetContent, SheetHeader } from '~/components/ui/sheet';
 import { Button } from '~/components/ui/button';
-import { Link } from '@remix-run/react';
+import { Link, useNavigate } from '@remix-run/react';
 import {
   NavigationMenu,
   NavigationMenuList,
@@ -32,6 +32,7 @@ const routes = [
 
 export default function Navbar() {
   const { query, setQuery, setFocus, inputRef } = useSearch();
+  const navigate = useNavigate();
 
   return (
     <header className="flex h-20 w-full shrink-0 items-center px-4 md:px-6 gap-2">
@@ -88,6 +89,11 @@ export default function Navbar() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               ref={inputRef}
+              onSubmit={(e) => {
+                e.preventDefault();
+                setFocus(false);
+                navigate(`/search?q=${query}`, { replace: true });
+              }}
             />
           </div>
         </form>

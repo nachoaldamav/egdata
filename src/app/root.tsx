@@ -17,7 +17,7 @@ import { SearchProvider } from '~/context/global-search';
 import { CountryProvider } from '~/context/country';
 import { CookiesProvider } from '~/context/cookies';
 import stylesheet from '../tailwind.css?url';
-import { queryClient } from '~/lib/client';
+import { getQueryClient } from '~/lib/client';
 import { type Preferences, PreferencesProvider } from '~/context/preferences';
 import { decode } from '~/lib/preferences-encoding';
 
@@ -66,6 +66,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { userPreferences } = useLoaderData<typeof loader>() || {};
+  const queryClient = getQueryClient();
+
   return (
     <html lang="en" className="dark">
       <head>

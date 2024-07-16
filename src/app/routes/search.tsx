@@ -2,12 +2,12 @@ import { useLoaderData, useSearchParams } from '@remix-run/react';
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import cookie from 'cookie';
 import { Input } from '~/components/ui/input';
-import { client } from '~/lib/client';
+import { client, getQueryClient } from '~/lib/client';
 import type { FullTag } from '~/types/tags';
 import { Button } from '~/components/ui/button';
 import { cn } from '~/lib/utils';
 import { useEffect, useState, useCallback } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import lodash from 'lodash';
 import {
   Select,
@@ -92,6 +92,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   let hash = url.searchParams.get('hash');
   const initialTags = url.searchParams.get('tags');
   const sortBy = url.searchParams.get('sort_by');
+  const q = url.searchParams.get('q');
 
   if (!hash) {
     // Try to get the hash from the request.headers.referer
@@ -104,7 +105,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   const [tagsData, hashData, typesData] = await Promise.allSettled([
-    client.get<FullTag[]>('/search/tags'),
+    client.get<FullTag[]>('/search/tags?raw=true'),
     client.get<{
       [key: string]: unknown;
     }>(`/search/${hash}?country=${country}`),
@@ -124,6 +125,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     if (!query) query = {};
     query.sortBy = sortBy as SortBy;
   }
+  if (q) {
+    if (!query) query = {};
+    query.query = q;
+  }
 
   return {
     tags,
@@ -135,7 +140,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function SearchPage() {
-  const { tags, hash, offerTypes, initialTags } = useLoaderData<typeof loader>();
+  const { tags: initialTagList, hash, offerTypes, initialTags } = useLoaderData<typeof loader>();
+  const { data: tags } = useQuery({
+    queryKey: ['tags'],
+    queryFn: () => client.get<FullTag[]>('/search/tags').then((res) => res.data),
+    placeholderData: initialTagList || [],
+    refetchInterval: 1000 * 60,
+  });
   const { view, setView } = usePreferences();
   const [selectedTags, setSelectedTags] = useState<string[]>(
     (hash?.tags as string[]) ?? initialTags,
@@ -240,7 +251,7 @@ export default function SearchPage() {
         />
         <div id="selected_filters" className="flex flex-row flex-wrap gap-2">
           {selectedTags.map((tag) => {
-            const tagData = tags.find((t) => t.id === tag);
+            const tagData = tags?.find((t) => t.id === tag);
 
             return (
               <QuickPill
@@ -306,7 +317,7 @@ export default function SearchPage() {
           </AccordionItem>
           {tagTypes.map((tagType) => {
             const tagTypeTags = tags
-              .filter((tag) => tag.groupName === tagType.name)
+              ?.filter((tag) => tag.groupName === tagType.name)
               .filter((tag) => {
                 // If there is a tag count, we need to filter the tags with 0 count
                 if (tagsCount.length > 0) {
@@ -320,7 +331,7 @@ export default function SearchPage() {
               <AccordionItem key={tagType.name} value={tagType.name}>
                 <AccordionTrigger>{tagType.label}</AccordionTrigger>
                 <AccordionContent className="flex flex-col gap-2 w-[250px] mt-2">
-                  {tagTypeTags.map((tag) => (
+                  {tagTypeTags?.map((tag) => (
                     <TagSelect
                       key={tag.id}
                       isSelected={selectedTags.includes(tag.id)}
@@ -329,7 +340,7 @@ export default function SearchPage() {
                       count={tagsCount.find((t) => t._id === tag.id)}
                     />
                   ))}
-                  {tagTypeTags.length === 0 && (
+                  {tagTypeTags?.length === 0 && (
                     <span className="text-gray-400 px-4">No tags found</span>
                   )}
                 </AccordionContent>
@@ -468,6 +479,7 @@ function SearchResults({
   isSale?: boolean;
   viewType: 'grid' | 'list';
 }) {
+  const queryClient = getQueryClient();
   const { country } = useCountry();
   const [, setSearchParams] = useSearchParams();
   const [page, setPage] = useState(1);
@@ -513,34 +525,44 @@ function SearchResults({
           },
         )
         .then((res) => res.data),
-    placeholderData: (previous) => ({
-      elements: previous?.elements || [],
-      page: previous?.page || 1,
-      limit: previous?.limit || 32,
-      total: previous?.total || 0,
-      query: query,
-    }),
+    placeholderData: keepPreviousData,
   });
 
   useEffect(() => {
     if (data?.query) {
-      client
-        .get<{
-          tagCounts: TagCount[];
-          offerTypeCounts: {
-            _id: string;
-            count: number;
-          }[];
-          total: number;
-        }>(`/search/${data.query}/count?country=${country}`)
-        .then((res) => {
-          setTagsCount(res.data.tagCounts || []);
-          setOfferTypesCount(res.data.offerTypeCounts || []);
-          setCount(res.data.total || 0);
+      queryClient
+        .fetchQuery({
+          queryKey: [
+            'count',
+            {
+              hash: data.query,
+            },
+          ],
+          queryFn: () =>
+            client
+              .get<{
+                tagCounts: TagCount[];
+                offerTypeCounts: {
+                  _id: string;
+                  count: number;
+                }[];
+                total: number;
+              }>(`/search/${data.query}/count?country=${country}`)
+              .then((res) => res.data),
         })
-        .catch(console.error);
+        .then((res) => {
+          setTagsCount(res.tagCounts || []);
+          setOfferTypesCount(res.offerTypeCounts || []);
+          setCount(res.total || 0);
+        })
+        .catch((e) => {
+          console.error(e);
+          setTagsCount([]);
+          setOfferTypesCount([]);
+          setCount(0);
+        });
     }
-  }, [data, setTagsCount, setOfferTypesCount, country]);
+  }, [data, setTagsCount, setOfferTypesCount, country, queryClient]);
 
   useEffect(() => {
     if (data?.query) {
