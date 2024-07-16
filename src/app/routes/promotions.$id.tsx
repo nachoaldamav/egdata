@@ -98,6 +98,11 @@ export const meta: MetaFunction<typeof loader> = ({ params, data }) => {
           name: 'Epic Games',
           url: 'https://store.epicgames.com',
         },
+        startDate:
+          data.promotion.elements
+            .find((game) => game.price?.appliedRules.find((rule) => rule.startDate))
+            ?.price?.appliedRules.find((rule) => rule.startDate)?.startDate ??
+          new Date(Date.now() - 86400000).toISOString(),
         offers: {
           '@type': 'AggregateOffer',
           availability: 'https://schema.org/InStock',
@@ -113,11 +118,6 @@ export const meta: MetaFunction<typeof loader> = ({ params, data }) => {
             '@type': 'Offer',
             url: `https://egdata.app/offers/${game.id}`,
           })),
-          startDate:
-            data.promotion.elements
-              .find((game) => game.price?.appliedRules.find((rule) => rule.startDate))
-              ?.price?.appliedRules.find((rule) => rule.startDate)?.startDate ??
-            new Date(Date.now() - 86400000).toISOString(),
         },
       },
     },
