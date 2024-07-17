@@ -77,7 +77,16 @@ export default function Navbar() {
         </NavigationMenuList>
       </NavigationMenu>
       <div className="ml-auto flex items-center gap-4">
-        <form className="flex-1 ml-auto sm:flex-initial">
+        <form
+          className="flex-1 ml-auto sm:flex-initial"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setFocus(false);
+            navigate(`/search?q=${query}`, { replace: true });
+            // Clear the input field
+            setQuery('');
+          }}
+        >
           <div className="relative">
             <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
             <Input

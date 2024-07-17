@@ -136,11 +136,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
     offerTypes,
     country,
     initialTags: initialTags ? initialTags.split(',') : [],
+    initialQuery: q,
   };
 }
 
 export default function SearchPage() {
-  const { tags: initialTagList, hash, offerTypes, initialTags } = useLoaderData<typeof loader>();
+  const {
+    tags: initialTagList,
+    hash,
+    offerTypes,
+    initialTags,
+    initialQuery,
+  } = useLoaderData<typeof loader>();
   const { data: tags } = useQuery({
     queryKey: ['tags'],
     queryFn: () => client.get<FullTag[]>('/search/tags').then((res) => res.data),
@@ -161,12 +168,15 @@ export default function SearchPage() {
       count: number;
     }[]
   >([]);
-  const [query, setQuery] = useState<string>((hash?.title as string) ?? '');
+  const [query, setQuery] = useState<string>(initialQuery ?? (hash?.title as string) ?? '');
   const [sortBy, setSortBy] = useState<SortBy>((hash?.sortBy as SortBy) ?? 'lastModifiedDate');
   const [isCodeRedemptionOnly, setIsCodeRedemptionOnly] = useState<boolean | undefined>(
     (hash?.isCodeRedemptionOnly as boolean) ?? undefined,
   );
   const [isSale, setIsSale] = useState<boolean | undefined>(hash?.onSale as boolean);
+
+  // New state for the immediate input value
+  const [inputValue, setInputValue] = useState<string>(query);
 
   function handleSelect(tag: string) {
     setSelectedTags((prev) => {
@@ -196,9 +206,14 @@ export default function SearchPage() {
   );
 
   useEffect(() => {
+    handleQueryChange(inputValue);
+  }, [inputValue, handleQueryChange]);
+
+  useEffect(() => {
     if (hash) {
       if (hash.title) {
         setQuery(hash.title as string);
+        setInputValue(hash.title as string); // Ensure input value is also updated
       }
 
       if (hash.tags) {
@@ -238,6 +253,7 @@ export default function SearchPage() {
               setIsCodeRedemptionOnly(undefined);
               setSelectedOfferType(undefined);
               setIsSale(undefined);
+              setInputValue('');
             }}
           >
             Clear
@@ -247,7 +263,8 @@ export default function SearchPage() {
           type="search"
           placeholder="Search for games"
           className="mb-4"
-          onChange={(e) => handleQueryChange(e.target.value)}
+          onChange={(e) => setInputValue(e.target.value)}
+          value={inputValue}
         />
         <div id="selected_filters" className="flex flex-row flex-wrap gap-2">
           {selectedTags.map((tag) => {
