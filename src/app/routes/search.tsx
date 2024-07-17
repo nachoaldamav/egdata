@@ -209,35 +209,6 @@ export default function SearchPage() {
     handleQueryChange(inputValue);
   }, [inputValue, handleQueryChange]);
 
-  useEffect(() => {
-    if (hash) {
-      if (hash.title) {
-        setQuery(hash.title as string);
-        setInputValue(hash.title as string); // Ensure input value is also updated
-      }
-
-      if (hash.tags) {
-        setSelectedTags(hash.tags as string[]);
-      }
-
-      if (hash.sortBy) {
-        setSortBy(hash.sortBy as SortBy);
-      }
-
-      if (hash.isCodeRedemptionOnly) {
-        setIsCodeRedemptionOnly(hash.isCodeRedemptionOnly as boolean);
-      }
-
-      if (hash.offerType) {
-        setSelectedOfferType(hash.offerType as string);
-      }
-
-      if (hash.onSale) {
-        setIsSale(hash.onSale as boolean);
-      }
-    }
-  }, [hash]);
-
   return (
     <div className="flex flex-row min-h-[85vh] w-full max-w-full gap-2">
       <aside id="form" className="flex flex-col gap-1 p-4 max-w-[300px]">
