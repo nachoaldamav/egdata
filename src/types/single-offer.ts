@@ -34,6 +34,10 @@ export interface SingleOffer {
   countriesBlacklist: string[] | null;
   countriesWhitelist: string[] | null;
   refundType: string;
+  offerMappings: Array<{
+    pageSlug: string;
+    pageType: string;
+  }> | null;
   price: Price;
 }
 
