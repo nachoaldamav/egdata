@@ -5,6 +5,28 @@ import type { SingleOffer } from '~/types/single-offer';
 import { Button } from '../ui/button';
 import { Link } from '@remix-run/react';
 import { EGSIcon } from '../icons/egs';
+import { getSession, getTempUserId } from '~/lib/user-info';
+
+function trackEvent(offer: SingleOffer) {
+  const userId = getTempUserId();
+  const session = getSession();
+
+  const trackData = {
+    event: 'open-egs',
+    location: window.location.href,
+    params: {
+      offerId: offer.id,
+      offerNamespace: offer.namespace,
+    },
+    userId,
+    session,
+  };
+
+  navigator.serviceWorker.controller?.postMessage({
+    type: 'track',
+    payload: trackData,
+  });
+}
 
 export function OpenEgs({
   offer,
@@ -49,6 +71,7 @@ export function OpenEgs({
         rel="noopener noreferrer"
         referrerPolicy="no-referrer"
         target="_blank"
+        onClick={() => trackEvent(offer)}
       >
         <div className="flex items-center justify-center gap-2">
           <EGSIcon className="h-6 w-6" />

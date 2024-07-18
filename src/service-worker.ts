@@ -13,7 +13,7 @@ self.addEventListener('message', async (event) => {
 
   if (type === 'track') {
     console.log('Tracking event', payload);
-    await fetch('https://api.egdata.app/ping', {
+    await fetch('http://localhost:4000/ping', {
       method: 'POST',
       body: JSON.stringify(payload),
       headers: {

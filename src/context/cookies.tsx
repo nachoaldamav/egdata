@@ -4,45 +4,12 @@ import { CookieBanner } from '~/components/app/cookie-banner';
 import { CookiesContext } from './cookies-context';
 import { useLocation } from '@remix-run/react';
 import { registerSW } from 'virtual:pwa-register';
+import { getSession, getTempUserId } from '~/lib/user-info';
 
 export interface CookiesContextProps {
   cookiesAccepted: boolean;
   acceptCookies: () => void;
   declineCookies: () => void;
-}
-
-function getTempUserId() {
-  let tempUserId = sessionStorage.getItem('EGDATA_APP_TEMP_USER_ID');
-  if (!tempUserId) {
-    tempUserId = Math.random().toString(36).slice(2);
-    sessionStorage.setItem('EGDATA_APP_TEMP_USER_ID', tempUserId);
-  }
-
-  return tempUserId;
-}
-
-function getSession(): {
-  id: string;
-  startedAt: number;
-  lastActiveAt: number;
-} {
-  const session = sessionStorage.getItem('EGDATA_APP_SESSION');
-  if (session) {
-    // Update last active time
-    const parsedSession = JSON.parse(session);
-    parsedSession.lastActiveAt = Date.now();
-    sessionStorage.setItem('EGDATA_APP_SESSION', JSON.stringify(parsedSession));
-    return parsedSession;
-  }
-
-  const newSession = {
-    id: Math.random().toString(36).slice(2),
-    startedAt: Date.now(),
-    lastActiveAt: Date.now(),
-  };
-
-  sessionStorage.setItem('EGDATA_APP_SESSION', JSON.stringify(newSession));
-  return newSession;
 }
 
 export const CookiesProvider = ({ children }: { children: ReactNode }) => {
@@ -103,28 +70,26 @@ export const CookiesProvider = ({ children }: { children: ReactNode }) => {
   }, [userCookiesState]);
 
   useEffect(() => {
-    if (userCookiesState && !userCookiesState.accepted) {
-      const userId = getTempUserId();
-      const session = getSession();
+    const userId = getTempUserId();
+    const session = getSession();
 
-      const trackData = {
-        event: 'page_view_anonymous',
-        location: window.location.href,
-        params: {
-          page_title: document.title,
-          page_path: location.pathname,
-          page_search: location.search,
-        },
-        userId,
-        session,
-      };
+    const trackData = {
+      event: 'page_view_anonymous',
+      location: window.location.href,
+      params: {
+        page_title: document.title,
+        page_path: location.pathname,
+        page_search: location.search,
+      },
+      userId,
+      session,
+    };
 
-      navigator.serviceWorker.controller?.postMessage({
-        type: 'track',
-        payload: trackData,
-      });
-    }
-  }, [location, userCookiesState]);
+    navigator.serviceWorker.controller?.postMessage({
+      type: 'track',
+      payload: trackData,
+    });
+  }, [location]);
 
   const acceptCookies = () => {
     const state = { accepted: true, closed: true };
