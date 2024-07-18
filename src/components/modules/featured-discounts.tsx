@@ -27,7 +27,9 @@ export function FeaturedDiscounts() {
   const { data: featuredDiscounts } = useQuery({
     queryKey: ['featuredDiscounts'],
     queryFn: () =>
-      client.get<SingleOffer[]>('/offers/featured-discounts').then((response) => response.data),
+      client
+        .get<SingleOffer[]>('/offers/featured-discounts')
+        .then((response) => response.data.slice(0, 20)),
   });
 
   const [api, setApi] = useState<CarouselApi>();
