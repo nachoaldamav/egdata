@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, type FC, type ImgHTMLAttributes } from 'react';
 import { Skeleton } from '~/components/ui/skeleton';
 import buildImageUrl from '~/lib/build-image-url';
 import type { ImageQuality } from '~/lib/build-image-url';
@@ -9,9 +9,9 @@ export type ImageProps = {
   width: number;
   height: number;
   alt?: string;
-} & React.ImgHTMLAttributes<HTMLImageElement>;
+} & ImgHTMLAttributes<HTMLImageElement>;
 
-export const Image: React.FC<ImageProps> = ({
+export const Image: FC<ImageProps> = ({
   src,
   width,
   height,
@@ -25,31 +25,49 @@ export const Image: React.FC<ImageProps> = ({
   }
 
   const [loading, setLoading] = useState(true);
+  const [inView, setInView] = useState(false);
+  const imgRef = useRef<HTMLDivElement>(null);
   const aspectRatio = (height / width) * 100;
 
-  const generateSrcSet = (src: string, quality: ImageQuality, originalWidth: number) => {
-    const widths = [320, 480, 800, originalWidth > 1200 ? originalWidth : 1200];
-
-    // Ensure unique and sorted widths
-    const uniqueWidths = Array.from(new Set(widths)).sort((a, b) => a - b);
-
-    return uniqueWidths.map((w) => `${buildImageUrl(src, w, quality)} ${w}w`).join(', ');
-  };
-
-  const sizes = `(max-width: 320px) 280px, (max-width: 480px) 440px, (max-width: 800px) 800px, ${width}px`;
-
   const url = buildImageUrl(src as string, width, quality);
-  const srcSet = generateSrcSet(src as string, quality, width);
 
   useEffect(() => {
-    setLoading(true);
-    const img = new globalThis.Image();
-    img.src = url;
-    img.onload = () => setLoading(false);
-  }, [url]);
+    if (inView) {
+      setLoading(true);
+      const img = new globalThis.Image();
+      img.src = url;
+      img.onload = () => setLoading(false);
+    }
+  }, [inView, url]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      {
+        rootMargin: '0px',
+        threshold: 0.1,
+      },
+    );
+
+    if (imgRef.current) {
+      observer.observe(imgRef.current);
+    }
+
+    return () => {
+      if (imgRef.current) {
+        observer.unobserve(imgRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div
+      ref={imgRef}
       style={{
         position: 'relative',
         width: '100%',
@@ -57,39 +75,38 @@ export const Image: React.FC<ImageProps> = ({
         overflow: 'hidden',
       }}
     >
-      {loading && (
-        <Skeleton
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-          }}
-        />
+      <Skeleton
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          transition: 'opacity 0.5s ease',
+          opacity: loading ? 1 : 0,
+          zIndex: loading ? 1 : -1,
+        }}
+      />
+      {inView && (
+        <picture style={{ opacity: loading ? 0 : 1, transition: 'opacity 0.5s ease' }}>
+          <img
+            src={url}
+            width={width}
+            height={height}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
+            onLoad={() => setLoading(false)}
+            {...props}
+            alt={alt || url}
+          />
+        </picture>
       )}
-      <picture style={{ display: loading ? 'none' : 'block' }}>
-        <source srcSet={srcSet} sizes={sizes} />
-        {/* biome-ignore lint/a11y/useAltText: <explanation> */}
-        <img
-          src={buildImageUrl(src as string, width, quality)}
-          alt={alt || url}
-          width={width}
-          height={height}
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            display: loading ? 'none' : 'block',
-          }}
-          decoding="async"
-          onLoad={() => setLoading(false)}
-          {...props}
-        />
-      </picture>
     </div>
   );
 };
