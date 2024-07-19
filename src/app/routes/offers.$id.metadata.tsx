@@ -1,4 +1,5 @@
 import { useOutletContext } from '@remix-run/react';
+import { useState } from 'react';
 import {
   Table,
   TableHeader,
@@ -35,11 +36,13 @@ export default function ItemsSection() {
           ))}
           <TableRow>
             <TableCell>Countries Blacklist</TableCell>
-            <TableCell>{data.countriesBlacklist?.join(', ')}</TableCell>
+            <TableCell>
+              <Countries countries={data.countriesBlacklist} />
+            </TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Countries Whitelist</TableCell>
-            <TableCell>{data.countriesWhitelist?.join(', ')}</TableCell>
+            <TableCell>{countriesList(data.countriesWhitelist)}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Categories</TableCell>
@@ -57,4 +60,50 @@ export default function ItemsSection() {
       </Table>
     </>
   );
+}
+
+function Countries({ countries }: { countries: string[] | null }) {
+  const [active, setActive] = useState(false);
+
+  if (!countries) {
+    return null;
+  }
+  // If active, show the countries flags, otherwise show the list of countries
+  return (
+    <span
+      onClick={() => setActive(!active)}
+      onKeyDown={() => setActive(!active)}
+      className="cursor-pointer inline-flex items-center justify-start gap-2 flex-wrap"
+    >
+      {active
+        ? countries.map((country) => (
+            <img
+              key={country}
+              src={`https://flagcdn.com/16x12/${country.toLowerCase()}.webp`}
+              alt={country}
+              style={{ width: '16px', height: '12px' }}
+            />
+          ))
+        : countriesList(countries)}
+    </span>
+  );
+}
+
+/**
+ * Converts the countries codes to the names in english
+ * @param countries
+ * @returns
+ */
+function countriesList(countries: string[] | null) {
+  if (!countries) {
+    return null;
+  }
+
+  const regionNameFmt = new Intl.DisplayNames(['en'], { type: 'region' });
+
+  return countries
+    .map((country) => {
+      return regionNameFmt.of(country);
+    })
+    .join(', ');
 }

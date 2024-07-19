@@ -29,6 +29,7 @@ import { OfferCard } from '~/components/app/offer-card';
 import getCountryCode from '~/lib/get-country-code';
 import { useCountry } from '~/hooks/use-country';
 import { useQuery } from '@tanstack/react-query';
+import { UpcomingCalendar } from '~/components/modules/upcoming-calendar';
 
 export const meta: MetaFunction = () => {
   return [
@@ -109,6 +110,7 @@ export default function Index() {
       </section>
       <FeaturedDiscounts />
       <LastModifiedGames />
+      <UpcomingCalendar />
       <UpcomingOffers />
       <SalesModule event="Summer Sale" eventId="16979" />
       <section className="w-full flex flex-row justify-between gap-10">

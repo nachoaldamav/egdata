@@ -43,9 +43,9 @@ export function UpcomingOffers() {
   const { country } = useCountry();
   const navigate = useNavigate();
   const { data, isLoading } = useQuery({
-    queryKey: ['upcoming', { country }],
+    queryKey: ['upcoming', { country, page: 2 }],
     queryFn: () =>
-      client.get<Res>('/offers/upcoming', { params: { country } }).then((res) => res.data),
+      client.get<Res>('/offers/upcoming', { params: { country, page: 2 } }).then((res) => res.data),
   });
 
   if (isLoading) {
@@ -58,13 +58,6 @@ export function UpcomingOffers() {
 
   return (
     <section id="upcoming-offers" className="mb-8 w-full">
-      <Link
-        className="text-xl font-bold text-left inline-flex group items-center gap-2"
-        to="/search?sort_by=upcoming"
-      >
-        Upcoming Offers{' '}
-        <ArrowRightIcon className="w-6 h-6 inline-block group-hover:translate-x-1 transition-transform duration-300 ease-in-out" />
-      </Link>
       <Table className="w-[73.5vw] mx-auto max-w-full">
         <TableCaption>Upcoming Offers</TableCaption>
         <TableHeader>
