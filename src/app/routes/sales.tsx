@@ -18,7 +18,7 @@ import { useEffect, useState } from 'react';
 import getPagingPage from '~/lib/get-paging-page';
 import getCountryCode from '~/lib/get-country-code';
 import { checkCountryCode } from '~/lib/check-country';
-import { GameCard } from '~/components/app/offer-card';
+import { GameCard, OfferCard } from '~/components/app/offer-card';
 import { ListBulletIcon, GridIcon } from '@radix-ui/react-icons';
 import { Button } from '~/components/ui/button';
 import { OfferListItem } from '~/components/app/game-card';
@@ -151,7 +151,7 @@ export default function Index() {
             .filter((game) => game.id)
             .map((game) =>
               view === 'grid' ? (
-                <GameCard key={game.id} offer={game} />
+                <OfferCard key={game.id} offer={game} />
               ) : (
                 <OfferListItem key={game.id} game={game} />
               ),

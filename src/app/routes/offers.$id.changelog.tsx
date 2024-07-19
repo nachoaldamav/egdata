@@ -120,7 +120,7 @@ function valueToComponent(value: unknown, field: string, type: 'before' | 'after
             </span>
           </TooltipTrigger>
           <TooltipContent
-            className="flex flex-col items-start justify-center"
+            className="flex flex-col items-start justify-center bg-card rounded-lg p-4"
             side={type === 'before' ? 'left' : 'right'}
           >
             <img
@@ -128,7 +128,7 @@ function valueToComponent(value: unknown, field: string, type: 'before' | 'after
               alt={typedValue.type}
               className="w-60 h-auto border border-gray-300"
             />
-            <span className="w-full text-center">{typedValue.type}</span>
+            <span className="w-full text-center text-foreground">{typedValue.type}</span>
           </TooltipContent>
         </Tooltip>
       );
@@ -144,6 +144,14 @@ function valueToComponent(value: unknown, field: string, type: 'before' | 'after
           {typedValue.key} ({typedValue.value})
         </span>
       );
+    }
+    if (field === 'items') {
+      const typedValue = value as { id: string; namespace: string };
+      return typedValue.id;
+    }
+    if (field === 'offerMappings') {
+      const typedValue = value as { pageSlug: string; pageType: string };
+      return typedValue.pageSlug;
     }
   }
   if (field.includes('Date'))
@@ -182,5 +190,31 @@ function valueToComponent(value: unknown, field: string, type: 'before' | 'after
       </Tooltip>
     );
   }
+
+  if (field === 'downloadSizeBytes' || field === 'installedSizeBytes') {
+    return (
+      <Tooltip>
+        <TooltipTrigger>
+          <span className="underline decoration-dotted underline-offset-4">
+            {toSize(value as number)}
+          </span>
+        </TooltipTrigger>
+        <TooltipContent className="max-w-[300px]">
+          <p>{(value as number).toLocaleString()} bytes</p>
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
   return value?.toString() as string;
+}
+/**
+ * Converts the bytes to the appropriate size, Bytes, KB, MB, GB, TB...
+ * @param value
+ */
+function toSize(value: number) {
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  if (value === 0) return '0 Byte';
+  const i = Math.floor(Math.log(value) / Math.log(1024));
+  return `${Number.parseFloat((value / 1024 ** i).toFixed(2))} ${sizes[i]}`;
 }

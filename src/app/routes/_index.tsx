@@ -1,4 +1,4 @@
-import type { MetaFunction } from '@remix-run/node';
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import type { FullTag } from '~/types/tags';
 import { Link, useLoaderData } from '@remix-run/react';
 import { Image } from '~/components/app/image';
@@ -14,6 +14,7 @@ import {
 } from '~/components/ui/carousel';
 import type { SingleOffer } from '~/types/single-offer';
 import { useEffect, useState } from 'react';
+import cookie from 'cookie';
 import { Skeleton } from '~/components/ui/skeleton';
 import { SalesModule } from '~/components/modules/sales';
 import { ChangelistModule } from '~/components/modules/changelist';
@@ -24,6 +25,10 @@ import { StatsModule } from '~/components/modules/stats';
 import { TopSection } from '~/components/modules/top-section';
 import { getSeller } from '~/lib/get-seller';
 import { FeaturedDiscounts } from '~/components/modules/featured-discounts';
+import { OfferCard } from '~/components/app/offer-card';
+import getCountryCode from '~/lib/get-country-code';
+import { useCountry } from '~/hooks/use-country';
+import { useQuery } from '@tanstack/react-query';
 
 export interface Game {
   id: string;
@@ -74,16 +79,31 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export const loader = async () => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const url = new URL(request.url);
+  const country = getCountryCode(url, cookie.parse(request.headers.get('Cookie') || ''));
+
   const [latestGames, featuredGames, eventsData] = await Promise.allSettled([
-    client.get<Game[]>('/latest-games').catch((error) => {
-      console.error('Failed to fetch latest games', error);
-      return { data: [] as Game[] };
-    }),
-    client.get<SingleOffer[]>('/featured').catch((error) => {
-      console.error('Failed to fetch featured game', error);
-      return { data: [] };
-    }),
+    client
+      .get<Game[]>('/latest-games', {
+        params: {
+          country,
+        },
+      })
+      .catch((error) => {
+        console.error('Failed to fetch latest games', error);
+        return { data: [] as Game[] };
+      }),
+    client
+      .get<SingleOffer[]>('/featured', {
+        params: {
+          country,
+        },
+      })
+      .catch((error) => {
+        console.error('Failed to fetch featured game', error);
+        return { data: [] };
+      }),
     client.get<FullTag[]>('/promotions').catch((error) => {
       console.error('Failed to fetch events', error);
       return { data: [] as FullTag[] };
@@ -112,7 +132,9 @@ export default function Index() {
           <CarouselPrevious />
           <CarouselContent>
             {games.map((game) => (
-              <GameCard game={game} key={game.id} />
+              <CarouselItem key={game.id} className="basis-1/1 lg:basis-1/4">
+                <OfferCard offer={game} key={game.id} />
+              </CarouselItem>
             ))}
           </CarouselContent>
           <CarouselNext />
@@ -135,21 +157,18 @@ export default function Index() {
 }
 
 function LastModifiedGames() {
-  const [loading, setLoading] = useState(true);
-  const [games, setGames] = useState<SingleOffer[]>([]);
-
-  useEffect(() => {
-    client
-      .get<{
-        elements: SingleOffer[];
-      }>('/offers?limit=25')
-      .then((response) => {
-        setGames(response.data.elements);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, []);
+  const { country } = useCountry();
+  const { data: games, isLoading: loading } = useQuery({
+    queryKey: ['last-modified-offers'],
+    queryFn: () =>
+      client
+        .get<{ elements: SingleOffer[] }>('/offers?limit=25', {
+          params: {
+            country,
+          },
+        })
+        .then((res) => res.data.elements),
+  });
 
   return (
     <section className="w-full" id="last-modified-offers">
@@ -163,17 +182,20 @@ function LastModifiedGames() {
       <Carousel className="mt-2 p-4">
         <CarouselPrevious />
         <CarouselContent className="items-center">
-          {loading &&
-            games.length === 0 &&
+          {(loading || !games) &&
             [...Array(25)].map((_, index) => (
               // biome-ignore lint/suspicious/noArrayIndexKey: This is a skeleton loader
               <CarouselItem key={index} className="basis-1/4">
                 <Skeleton className="w-80 h-96" />
               </CarouselItem>
             ))}
-          {games.map((game) => (
-            <GameCard game={game} key={game.id} />
-          ))}
+          {!loading &&
+            games &&
+            games.map((game) => (
+              <CarouselItem key={game.id} className="basis-1/1 lg:basis-1/4">
+                <OfferCard offer={game} key={game.id} />
+              </CarouselItem>
+            ))}
         </CarouselContent>
         <CarouselNext />
       </Carousel>

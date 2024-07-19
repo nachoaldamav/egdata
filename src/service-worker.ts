@@ -29,7 +29,7 @@ self.addEventListener('message', async (event) => {
 });
 
 self.addEventListener('fetch', (event: FetchEvent) => {
-  if (IMAGE_URL_PATTERN.test(event.request.url)) {
+  /* if (IMAGE_URL_PATTERN.test(event.request.url)) {
     event.respondWith(
       caches.match(event.request).then((response) => {
         const fetchPromise = fetch(event.request).then((networkResponse) => {
@@ -51,7 +51,7 @@ self.addEventListener('fetch', (event: FetchEvent) => {
         return fetchPromise;
       }),
     );
-  }
+  } */
 });
 
 self.addEventListener('activate', (event) => {

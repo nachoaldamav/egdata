@@ -3,7 +3,7 @@ import { client } from '~/lib/client';
 import { getImage } from '~/lib/getImage';
 import { Image } from '~/components/app/image';
 import type { SingleOffer } from '~/types/single-offer';
-import { GameCard } from '~/components/app/offer-card';
+import { GameCard, OfferCard } from '~/components/app/offer-card';
 import { OfferListItem } from '~/components/app/game-card';
 import { type LoaderFunctionArgs, redirect } from '@remix-run/node';
 import getPagingPage from '~/lib/get-paging-page';
@@ -252,7 +252,7 @@ export default function Promotion() {
             return <OfferListItem key={game.id} game={game} />;
           }
 
-          return <GameCard offer={game} key={game.id} />;
+          return <OfferCard offer={game} key={game.id} />;
         })}
       </section>
       <div className="flex justify-center mt-8">

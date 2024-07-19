@@ -22,6 +22,8 @@ export const Image: FC<ImageProps> = ({
 }) => {
   if (!src && width && height) {
     src = `https://via.placeholder.com/${width}x${height}`;
+  } else if (!src) {
+    src = 'https://via.placeholder.com/400x500';
   }
 
   const [loading, setLoading] = useState(true);
@@ -49,7 +51,7 @@ export const Image: FC<ImageProps> = ({
         }
       },
       {
-        rootMargin: '0px',
+        rootMargin: '50px',
         threshold: 0.1,
       },
     );
@@ -90,7 +92,7 @@ export const Image: FC<ImageProps> = ({
       {inView && (
         <picture style={{ opacity: loading ? 0 : 1, transition: 'opacity 0.5s ease' }}>
           <img
-            src={url}
+            src={url ?? `https://via.placeholder.com/${width}x${height}`}
             width={width}
             height={height}
             style={{

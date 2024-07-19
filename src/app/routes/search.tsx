@@ -22,7 +22,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '~/components/ui/accordion';
-import { GameCard, GameCardSkeleton } from '~/components/app/offer-card';
+import { OfferCard as GameCard, GameCardSkeleton } from '~/components/app/offer-card';
 import type { SingleOffer } from '~/types/single-offer';
 import {
   Pagination,
@@ -41,6 +41,7 @@ import { XIcon } from '@primer/octicons-react';
 import { GridIcon, ListBulletIcon } from '@radix-ui/react-icons';
 import { OfferListItem } from '~/components/app/game-card';
 import { usePreferences } from '~/hooks/use-preferences';
+import { Label } from '~/components/ui/label';
 
 export const meta: MetaFunction = () => {
   return [
@@ -107,7 +108,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const [tagsData, hashData, typesData] = await Promise.allSettled([
     client.get<FullTag[]>('/search/tags?raw=true'),
     client.get<{
-      [key: string]: unknown;
+      [key: string]:
+        | unknown
+        | {
+            [key: string]: unknown;
+          };
     }>(`/search/${hash}?country=${country}`),
     client.get<
       {
@@ -174,6 +179,12 @@ export default function SearchPage() {
     (hash?.isCodeRedemptionOnly as boolean) ?? undefined,
   );
   const [isSale, setIsSale] = useState<boolean | undefined>(hash?.onSale as boolean);
+  const [maxPrice, setMaxPrice] = useState<number | undefined>(
+    hash?.price?.max as number | undefined,
+  );
+  const [minPrice, setMinPrice] = useState<number | undefined>(
+    hash?.price?.min as number | undefined,
+  );
 
   // New state for the immediate input value
   const [inputValue, setInputValue] = useState<string>(query);
@@ -225,6 +236,8 @@ export default function SearchPage() {
               setSelectedOfferType(undefined);
               setIsSale(undefined);
               setInputValue('');
+              setMaxPrice(undefined);
+              setMinPrice(undefined);
             }}
           >
             Clear
@@ -262,6 +275,31 @@ export default function SearchPage() {
             />
           )}
           {isSale && <QuickPill label="Sale" onRemove={() => setIsSale(false)} />}
+          {typeof minPrice === 'number' && (
+            <QuickPill label={`> $${minPrice / 100}`} onRemove={() => setMinPrice(undefined)} />
+          )}
+          {typeof maxPrice === 'number' && (
+            <QuickPill label={`< $${maxPrice / 100}`} onRemove={() => setMaxPrice(undefined)} />
+          )}
+        </div>
+        <div className="flex flex-col justify-between items-start gap-2 mt-4">
+          <Label>Price</Label>
+          <div className="flex flex-row gap-2">
+            <Input
+              type="number"
+              placeholder="Min"
+              className="w-[100px]"
+              onChange={(e) => setMinPrice(Number.parseInt(e.target.value) * 100)}
+              value={typeof minPrice === 'number' ? minPrice / 100 : undefined}
+            />
+            <Input
+              type="number"
+              placeholder="Max"
+              className="w-[100px]"
+              onChange={(e) => setMaxPrice(Number.parseInt(e.target.value) * 100)}
+              value={typeof maxPrice === 'number' ? maxPrice / 100 : undefined}
+            />
+          </div>
         </div>
         <Accordion type="single" collapsible className="w-[250px] gap-2">
           <AccordionItem value="offerType">
@@ -336,6 +374,7 @@ export default function SearchPage() {
             );
           })}
         </Accordion>
+
         <div className="items-center flex space-x-2 mt-4">
           <Checkbox
             checked={isCodeRedemptionOnly ?? false}
@@ -408,6 +447,7 @@ export default function SearchPage() {
           isCodeRedemptionOnly={isCodeRedemptionOnly}
           isSale={isSale}
           viewType={view}
+          price={{ min: minPrice, max: maxPrice }}
         />
       </main>
     </div>
@@ -449,6 +489,7 @@ function SearchResults({
   isCodeRedemptionOnly,
   isSale,
   viewType,
+  price,
 }: {
   query: string;
   selectedTags: string[];
@@ -466,6 +507,7 @@ function SearchResults({
   isCodeRedemptionOnly?: boolean;
   isSale?: boolean;
   viewType: 'grid' | 'list';
+  price?: { min?: number; max?: number };
 }) {
   const queryClient = getQueryClient();
   const { country } = useCountry();
@@ -484,6 +526,7 @@ function SearchResults({
         isSale,
         country,
         page,
+        price,
       },
     ],
     queryFn: () =>
@@ -505,6 +548,7 @@ function SearchResults({
             isCodeRedemptionOnly,
             offerType: selectedOfferType,
             onSale: isSale,
+            price: price,
           },
           {
             params: {
@@ -605,7 +649,7 @@ function SearchResults({
       >
         {data.elements.map((offer) => {
           if (viewType === 'grid') {
-            return <GameCard key={offer.id} offer={offer} />;
+            return <GameCard key={offer.id} offer={offer} size="md" />;
           }
 
           return <OfferListItem key={offer.id} game={offer} />;

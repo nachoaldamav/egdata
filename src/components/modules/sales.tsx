@@ -15,7 +15,7 @@ import { Image } from '~/components/app/image';
 import { useCountry } from '~/hooks/use-country';
 import { ArrowLeftIcon, ArrowRightIcon } from '@radix-ui/react-icons';
 import type { Price } from '~/types/price';
-import { GameCard } from '../app/offer-card';
+import { GameCard, OfferCard } from '../app/offer-card';
 
 export interface SingleOffer {
   id: string;
@@ -83,7 +83,7 @@ export function SalesModule({
             ))}
           {games.map((game) => (
             <CarouselItem key={game.id} className="basis-1/1 lg:basis-1/4">
-              <GameCard offer={game} />
+              <OfferCard offer={game} key={game.id} />
             </CarouselItem>
           ))}
         </CarouselContent>
