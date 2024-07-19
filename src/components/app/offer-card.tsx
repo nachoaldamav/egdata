@@ -204,9 +204,11 @@ export function OfferCard({
   const isPreOrder = offer.prePurchase;
   const isFree = offer.price?.price.discountPrice === 0;
 
-  const offerGenres = offer.tags
-    .filter((tag) => genres?.map((genre) => genre?.id).includes(tag?.id))
-    .map((tag) => tag.name);
+  const offerGenres = genres
+    ? offer.tags
+        .filter((tag) => genres?.map((genre) => genre?.id).includes(tag?.id))
+        .map((tag) => tag.name)
+    : [];
 
   useEffect(() => {
     if (offer.keyImages.length > 0) {

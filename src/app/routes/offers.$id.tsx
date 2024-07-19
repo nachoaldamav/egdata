@@ -40,6 +40,7 @@ import { InternalBanner } from '~/components/app/internal-banner';
 import { useQuery } from '@tanstack/react-query';
 import cookie from 'cookie';
 import { useEffect, useRef, useState } from 'react';
+import { SuggestedOffers } from '~/components/modules/suggested-offers';
 
 function supportedPlatforms(items: SingleItem[]): string[] {
   try {
@@ -518,6 +519,7 @@ export default function Index() {
           </TabsContent>
         </Tabs>
       </section>
+      <SuggestedOffers id={offerData.id} />
     </main>
   );
 }

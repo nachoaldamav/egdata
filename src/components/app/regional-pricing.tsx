@@ -13,6 +13,8 @@ import { PriceChart } from './price-chart';
 import { useEffect, useState } from 'react';
 import { useCountry } from '~/hooks/use-country';
 import { client, getQueryClient } from '~/lib/client';
+import { Skeleton } from '../ui/skeleton';
+import { useRegions } from '~/hooks/use-regions';
 
 interface RegionData {
   region: Region;
@@ -29,6 +31,7 @@ export function RegionalPricing({ id }: { id: string }) {
   const queryClient = getQueryClient();
   const { country } = useCountry();
   const [selectedRegion, setSelectedRegion] = useState('EURO');
+  const { regions } = useRegions();
   const { data, error, isLoading, isError } = useQuery({
     queryKey: ['price-history', { id }],
     queryFn: () => fetchOfferPrice({ id }),
@@ -53,7 +56,12 @@ export function RegionalPricing({ id }: { id: string }) {
   }, [regionData]);
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return (
+      <div className="w-full mx-auto mt-2 flex flex-col gap-2">
+        <Skeleton className="w-3/4 h-96 mx-auto" />
+        <Skeleton className="w-3/4 h-[50vh] mx-auto" />
+      </div>
+    );
   }
 
   if (isError) {
@@ -122,7 +130,7 @@ export function RegionalPricing({ id }: { id: string }) {
                   }}
                   className="cursor-pointer"
                 >
-                  <TableCell>{key}</TableCell>
+                  <TableCell>{regions[key].description}</TableCell>
                   <TableCell>
                     {currencyFormatter.format(lastPrice.price.discountPrice / 100)}
                   </TableCell>
