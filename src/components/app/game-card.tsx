@@ -80,7 +80,7 @@ export function OfferListItem({
 
   return (
     <Link to={`/offers/${game.id}`} className="w-full" prefetch="viewport">
-      <Card className="flex flex-row w-full bg-[#1b1e2b] text-white p-1 rounded-lg h-44">
+      <Card className="flex flex-row w-full bg-card text-white p-1 rounded-lg h-44">
         <div className="flex-shrink-0 w-72 h-full">
           <img
             src={
@@ -103,11 +103,14 @@ export function OfferListItem({
                 </span>
               </div>
               <div className="flex flex-wrap mt-1 space-x-2">
-                {game.tags.slice(0, 5)?.map((tag) => (
-                  <Badge key={tag.id} variant="secondary">
-                    {tag.name}
-                  </Badge>
-                ))}
+                {game.tags
+                  .filter((tag) => tag?.name)
+                  .slice(0, 5)
+                  ?.map((tag) => (
+                    <Badge key={tag?.id} variant="secondary">
+                      {tag?.name ?? 'N/A'}
+                    </Badge>
+                  ))}
               </div>
             </div>
           </div>
