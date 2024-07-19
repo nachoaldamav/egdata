@@ -42,7 +42,9 @@ export default function ItemsSection() {
           </TableRow>
           <TableRow>
             <TableCell>Countries Whitelist</TableCell>
-            <TableCell>{countriesList(data.countriesWhitelist)}</TableCell>
+            <TableCell>
+              <Countries countries={data.countriesWhitelist} />
+            </TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Categories</TableCell>
