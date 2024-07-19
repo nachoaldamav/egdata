@@ -30,39 +30,6 @@ import getCountryCode from '~/lib/get-country-code';
 import { useCountry } from '~/hooks/use-country';
 import { useQuery } from '@tanstack/react-query';
 
-export interface Game {
-  id: string;
-  namespace: string;
-  title: string;
-  description: string;
-  lastModifiedDate: string;
-  effectiveDate: string;
-  creationDate: string;
-  keyImages: KeyImage[];
-  productSlug: string | null;
-  urlSlug: string;
-  url: unknown;
-  tags: string[];
-  releaseDate: string;
-  pcReleaseDate: string | null;
-  prePurchase: boolean | null;
-  developerDisplayName: string | null;
-  publisherDisplayName: string | null;
-  seller: string;
-  customAttributes: {
-    [key: string]: {
-      type: string;
-      value: string;
-    };
-  };
-}
-
-export interface KeyImage {
-  type: string;
-  url: string;
-  md5: string;
-}
-
 export const meta: MetaFunction = () => {
   return [
     { title: 'egdata.app' },
@@ -85,14 +52,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const [latestGames, featuredGames, eventsData] = await Promise.allSettled([
     client
-      .get<Game[]>('/latest-games', {
+      .get<SingleOffer[]>('/latest-games', {
         params: {
           country,
         },
       })
       .catch((error) => {
         console.error('Failed to fetch latest games', error);
-        return { data: [] as Game[] };
+        return { data: [] as SingleOffer[] };
       }),
     client
       .get<SingleOffer[]>('/featured', {
@@ -132,8 +99,8 @@ export default function Index() {
           <CarouselPrevious />
           <CarouselContent>
             {games.map((game) => (
-              <CarouselItem key={game.id} className="basis-1/1 lg:basis-1/4">
-                <OfferCard offer={game} key={game.id} />
+              <CarouselItem key={game.id} className="basis-1/1 lg:basis-1/5">
+                <OfferCard offer={game} key={game.id} size="md" />
               </CarouselItem>
             ))}
           </CarouselContent>
@@ -185,66 +152,20 @@ function LastModifiedGames() {
           {(loading || !games) &&
             [...Array(25)].map((_, index) => (
               // biome-ignore lint/suspicious/noArrayIndexKey: This is a skeleton loader
-              <CarouselItem key={index} className="basis-1/4">
+              <CarouselItem key={index} className="basis-1/5">
                 <Skeleton className="w-80 h-96" />
               </CarouselItem>
             ))}
           {!loading &&
             games &&
             games.map((game) => (
-              <CarouselItem key={game.id} className="basis-1/1 lg:basis-1/4">
-                <OfferCard offer={game} key={game.id} />
+              <CarouselItem key={game.id} className="basis-1/1 lg:basis-1/5">
+                <OfferCard offer={game} key={game.id} size="md" />
               </CarouselItem>
             ))}
         </CarouselContent>
         <CarouselNext />
       </Carousel>
     </section>
-  );
-}
-
-function GameCard({
-  game,
-}: {
-  game: Pick<
-    Game,
-    | 'id'
-    | 'keyImages'
-    | 'title'
-    | 'seller'
-    | 'developerDisplayName'
-    | 'publisherDisplayName'
-    | 'customAttributes'
-  >;
-}) {
-  return (
-    <CarouselItem key={game.id} className="basis-1/1 lg:basis-1/4">
-      <Link to={`/offers/${game.id}`} className="w-96 relative select-none" prefetch="viewport">
-        <Card className="w-72 lg:max-w-sm rounded-lg overflow-hidden shadow-lg">
-          <Image
-            src={getImage(game.keyImages, ['Thumbnail'])?.url}
-            alt={game.title}
-            width={400}
-            height={500}
-            className="w-full h-96 object-cover hover:scale-105 transition-transform duration-300"
-          />
-          <CardContent className="p-4 flex-grow flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xl font-semibold max-w-xs truncate">{game.title}</h3>
-            </div>
-            <div className="mt-2 flex items-end justify-between gap-2 h-full max-w-xs truncate text-sm text-gray-600 dark:text-gray-400">
-              <p>
-                {getSeller({
-                  developerDisplayName: game.developerDisplayName as string,
-                  publisherDisplayName: game.publisherDisplayName as string,
-                  seller: typeof game.seller === 'string' ? game.seller : (game.seller as any).name,
-                  customAttributes: game.customAttributes,
-                })}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </Link>
-    </CarouselItem>
   );
 }

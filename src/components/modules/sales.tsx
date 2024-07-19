@@ -1,8 +1,6 @@
 import { Link } from '@remix-run/react';
 import { useEffect, useState } from 'react';
 import { client } from '~/lib/client';
-import { getImage } from '~/lib/getImage';
-import { Card, CardHeader, CardContent } from '~/components/ui/card';
 import {
   Carousel,
   CarouselPrevious,
@@ -11,33 +9,10 @@ import {
   CarouselNext,
 } from '~/components/ui/carousel';
 import { Skeleton } from '~/components/ui/skeleton';
-import { Image } from '~/components/app/image';
 import { useCountry } from '~/hooks/use-country';
-import { ArrowLeftIcon, ArrowRightIcon } from '@radix-ui/react-icons';
-import type { Price } from '~/types/price';
-import { GameCard, OfferCard } from '../app/offer-card';
-
-export interface SingleOffer {
-  id: string;
-  namespace: string;
-  title: string;
-  seller: Seller;
-  keyImages: KeyImage[];
-  developerDisplayName: string;
-  publisherDisplayName: string;
-  price: Price | null;
-}
-
-export interface Seller {
-  id: string;
-  name: string;
-}
-
-export interface KeyImage {
-  type: string;
-  url: string;
-  md5: string;
-}
+import { ArrowRightIcon } from '@radix-ui/react-icons';
+import { OfferCard } from '../app/offer-card';
+import type { SingleOffer } from '~/types/single-offer';
 
 export function SalesModule({
   eventId,
@@ -77,13 +52,13 @@ export function SalesModule({
             games.length === 0 &&
             [...Array(25)].map((_, index) => (
               // biome-ignore lint/suspicious/noArrayIndexKey: This is a skeleton loader
-              <CarouselItem key={index} className="basis-1/1 lg:basis-1/4">
+              <CarouselItem key={index} className="basis-1/1 lg:basis-1/5">
                 <Skeleton className="w-80 h-96" />
               </CarouselItem>
             ))}
           {games.map((game) => (
-            <CarouselItem key={game.id} className="basis-1/1 lg:basis-1/4">
-              <OfferCard offer={game} key={game.id} />
+            <CarouselItem key={game.id} className="basis-1/1 lg:basis-1/5">
+              <OfferCard offer={game} key={game.id} size="md" />
             </CarouselItem>
           ))}
         </CarouselContent>
