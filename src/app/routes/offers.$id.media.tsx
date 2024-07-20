@@ -128,7 +128,7 @@ export default function ItemsSection() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {media.videos.map((video) => (
                 <Suspense key={video._id} fallback={<div>Loading...</div>}>
-                  <Player video={video} offer={offer} />
+                  <Player video={video} offer={offer as SingleOffer} />
                 </Suspense>
               ))}
             </div>
@@ -146,17 +146,16 @@ export default function ItemsSection() {
 }
 
 function ImageModal({
-  image,
+  images,
   active,
   onClose,
 }: {
-  image: Media['images'] | undefined;
+  images: Media['images'];
   active: boolean | string;
   onClose: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
-  const images = image ? image : [];
   const activeIndex = images.findIndex((img) => img._id === active);
   const sortedImages = [...images.slice(activeIndex), ...images.slice(0, activeIndex)];
 
@@ -175,17 +174,19 @@ function ImageModal({
         }
       }}
     >
-      <Carousel className="w-full h-full" aria-label="Images">
-        <CarouselContent className="flex items-center justify-center w-full h-full">
-          {images.map((img) => (
-            <CarouselItem key={img._id}>
-              <img src={img.src} alt="" className="max-w-6xl max-h-full cursor-default" />
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <CarouselNext />
-        <CarouselPrevious />
-      </Carousel>
+      <section className="flex items-center justify-center w-full h-full max-w-6xl">
+        <Carousel aria-label="Images">
+          <CarouselContent>
+            {sortedImages.map((img) => (
+              <CarouselItem key={img._id}>
+                <img src={img.src} alt="" className="w-full h-auto cursor-default" />
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselNext />
+          <CarouselPrevious />
+        </Carousel>
+      </section>
     </div>
   );
 }
