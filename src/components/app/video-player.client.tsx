@@ -17,8 +17,8 @@ export function Player({ video, offer }: { video: Media['videos'][0]; offer: Sin
         ref={player}
         className="w-full bg-slate-900 text-white font-sans overflow-hidden rounded-md ring-media-focus data-[focus]:ring-4"
         title={offer.title}
-        src={manifests[0].url}
-        poster={images[0].url}
+        src={manifests[0]?.url}
+        poster={images[0]?.url}
         viewType="video"
         streamType="on-demand"
         playsInline

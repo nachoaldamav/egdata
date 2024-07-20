@@ -1,5 +1,5 @@
 import type { LinksFunction, LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
-import { type ClientLoaderFunctionArgs, useLoaderData } from '@remix-run/react';
+import { type ClientLoaderFunctionArgs, useLoaderData, useRouteError } from '@remix-run/react';
 import { client, getQueryClient } from '~/lib/client';
 import {
   Accordion,
@@ -49,12 +49,12 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
         name: `${offer?.title} - trailer`,
         description: offer?.description,
         uploadDate: offer?.creationDate,
-        thumbnailUrl: posters[0].url,
-        contentUrl: outputs[0].url,
-        embedUrl: outputs[0].url,
-        width: outputs[0].width,
-        height: outputs[0].height,
-        encodingFormat: outputs[0].contentType.split('/')[1],
+        thumbnailUrl: posters[0]?.url ?? offer?.keyImages[0]?.url ?? '',
+        contentUrl: outputs[0]?.url,
+        embedUrl: outputs[0]?.url,
+        width: outputs[0]?.width,
+        height: outputs[0]?.height,
+        encodingFormat: outputs[0]?.contentType?.split('/')[1],
         copyrightHolder: {
           '@type': 'Organization',
           name: `${offer?.seller.name}${offer?.publisherDisplayName ? ` - ${offer.publisherDisplayName}` : ''}`,
@@ -110,6 +110,20 @@ export function HydrateFallback() {
     <div className="flex flex-col items-start gap-2">
       <Skeleton className="w-full h-96 mx-auto" />
       <Skeleton className="w-full h-[50vh] mx-auto" />
+    </div>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  // When NODE_ENV=production:
+  // error.message = "Unexpected Server Error"
+  // error.stack = undefined
+
+  return (
+    <div className="text-center">
+      <h2 className="text-2xl font-bold">An error occurred</h2>
+      <p>{error.message}</p>
     </div>
   );
 }
