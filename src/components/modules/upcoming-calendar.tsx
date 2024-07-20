@@ -70,29 +70,31 @@ export function UpcomingCalendar() {
       <Carousel className="mt-2 h-full p-4 select-none">
         <CarouselContent className="gap-4 ml-0">
           {groupedOffersByDay &&
-            Object.entries(groupedOffersByDay).map(([date, offers]) => (
-              <div
-                className="flex flex-col w-fit border p-3 rounded-xl gap-2 bg-opacity-25"
-                key={date}
-              >
-                <h3 className="text-xl">{relativeDate(new Date(date))}</h3>
-                <div className="flex flex-row gap-4">
-                  {offers.map((offer) => (
-                    <div key={offer.id} className="min-w-60 relative">
-                      {
-                        /* If the difference between right now and the game release is 1 day or less, show the timer */
-                        new Date(offer.releaseDate).getTime() - Date.now() <
-                          1000 * 60 * 60 * 24 && (
-                          <FloatingCountdown date={new Date(offer.releaseDate)} />
-                        )
-                      }
+            Object.entries(groupedOffersByDay)
+              .filter(([date]) => new Date(date) >= new Date())
+              .map(([date, offers]) => (
+                <div
+                  className="flex flex-col w-fit border p-3 rounded-xl gap-2 bg-opacity-25"
+                  key={date}
+                >
+                  <h3 className="text-xl">{relativeDate(new Date(date))}</h3>
+                  <div className="flex flex-row gap-4">
+                    {offers.map((offer) => (
+                      <div key={offer.id} className="min-w-60 relative">
+                        {
+                          /* If the difference between right now and the game release is 1 day or less, show the timer */
+                          new Date(offer.releaseDate).getTime() - Date.now() <
+                            1000 * 60 * 60 * 24 && (
+                            <FloatingCountdown date={new Date(offer.releaseDate)} />
+                          )
+                        }
 
-                      <OfferCard offer={offer} size="sm" />
-                    </div>
-                  ))}
+                        <OfferCard offer={offer} size="sm" />
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
         </CarouselContent>
       </Carousel>
     </section>

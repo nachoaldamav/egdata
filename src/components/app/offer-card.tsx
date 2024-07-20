@@ -269,14 +269,28 @@ export function OfferCard({
                 </div>
               )}
               {!isReleased && isPreOrder && (
-                <span>{fmt.format(offer.price.price.discountPrice / 100)}</span>
+                <div className="flex items-center gap-2 text-right w-full justify-start">
+                  <span>{fmt.format(offer.price.price.discountPrice / 100)}</span>
+                  {offer.price.price.discount > 0 && (
+                    <span className="line-through text-sm">
+                      {fmt.format(offer.price.price.originalPrice / 100)}
+                    </span>
+                  )}
+                </div>
               )}
               {!isReleased && !isPreOrder && !offer.price && <span>Coming Soon</span>}
               {!isReleased &&
                 !isPreOrder &&
                 offer.price &&
                 offer.price.price.discountPrice !== 0 && (
-                  <span>{fmt.format(offer.price.price.discountPrice / 100)}</span>
+                  <div className="flex items-center gap-2 text-right w-full justify-start">
+                    <span>{fmt.format(offer.price.price.discountPrice / 100)}</span>
+                    {offer.price.price.discount > 0 && (
+                      <span className="line-through text-sm">
+                        {fmt.format(offer.price.price.originalPrice / 100)}
+                      </span>
+                    )}
+                  </div>
                 )}
               {!isReleased &&
                 !isPreOrder &&

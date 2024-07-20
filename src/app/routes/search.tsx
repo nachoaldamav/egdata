@@ -74,7 +74,9 @@ type SortBy =
   | 'creationDate'
   | 'viewableDate'
   | 'pcReleaseDate'
-  | 'upcoming';
+  | 'upcoming'
+  | 'priceAsc'
+  | 'priceDesc';
 
 const sortByDisplay: Record<SortBy, string> = {
   releaseDate: 'Release Date',
@@ -84,6 +86,8 @@ const sortByDisplay: Record<SortBy, string> = {
   viewableDate: 'Viewable Date',
   pcReleaseDate: 'PC Release Date',
   upcoming: 'Upcoming',
+  priceAsc: 'Price (Low to High)',
+  priceDesc: 'Price (High to Low)',
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -415,13 +419,11 @@ export default function SearchPage() {
                 <SelectValue className="text-sm">{sortByDisplay[sortBy]}</SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="releaseDate">Release Date</SelectItem>
-                <SelectItem value="lastModifiedDate">Last Modified Date</SelectItem>
-                <SelectItem value="effectiveDate">Effective Date</SelectItem>
-                <SelectItem value="creationDate">Creation Date</SelectItem>
-                <SelectItem value="viewableDate">Viewable Date</SelectItem>
-                <SelectItem value="pcReleaseDate">PC Release Date</SelectItem>
-                <SelectItem value="upcoming">Upcoming</SelectItem>
+                {Object.entries(sortByDisplay).map(([key, value]) => (
+                  <SelectItem key={key} value={key}>
+                    {value}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <Button

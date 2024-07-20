@@ -61,8 +61,8 @@ export default function OfferChangelog() {
                 className="flex flex-col border border-gray-400 w-full rounded-xl"
               >
                 <header className="p-2 bg-slate-900 rounded-t-xl inline-flex">
-                  <h6 className="text-gray-300 font-semibold underline decoration-dotted underline-offset-4">
-                    {changelist._id.slice(0, 10)}
+                  <h6 className="text-gray-300 font-semibold">
+                    {changelist._id.slice(0, 10)} - {changelist.metadata.contextType}
                   </h6>
                   <span className="text-gray-300 ml-auto font-semibold">
                     {new Date(changelist.timestamp).toLocaleDateString('en-UK', {
