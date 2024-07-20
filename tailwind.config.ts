@@ -145,7 +145,12 @@ const config = {
       backfaceVisibility: ['hidden'],
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [
+    require('tailwindcss-animate'),
+    require('@vidstack/react/tailwind.cjs')({
+      prefix: '',
+    }),
+  ],
 } satisfies Config;
 
 export default config;

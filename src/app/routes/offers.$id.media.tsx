@@ -1,4 +1,4 @@
-import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
+import type { LinksFunction, LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import { client } from '~/lib/client';
 import {
@@ -12,6 +12,22 @@ import { Suspense, useRef, useState } from 'react';
 import * as Portal from '@radix-ui/react-portal';
 import { Player } from '~/components/app/video-player.client';
 import type { SingleOffer } from '~/types/single-offer';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '~/components/ui/carousel';
+import defaultPlayerTheme from '@vidstack/react/player/styles/default/theme.css?url';
+import defaultAudioPlayer from '@vidstack/react/player/styles/default/layouts/audio.css?url';
+import defaultVideoPlayer from '@vidstack/react/player/styles/default/layouts/video.css?url';
+
+export const links: LinksFunction = () => [
+  { rel: 'stylesheet', href: defaultPlayerTheme },
+  { rel: 'stylesheet', href: defaultAudioPlayer },
+  { rel: 'stylesheet', href: defaultVideoPlayer },
+];
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   if (!data) return [];
@@ -45,16 +61,9 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
       };
     }) ?? [];
 
-  return [
-    {
-      tagName: 'link',
-      rel: 'stylesheet',
-      href: '/css/plyr.css',
-    },
-    ...videosJsonLd.map((video, index) => ({
-      'script:ld+json': video,
-    })),
-  ];
+  return videosJsonLd.map((video, index) => ({
+    'script:ld+json': video,
+  }));
 };
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -73,8 +82,8 @@ export async function loader({ params }: LoaderFunctionArgs) {
 }
 
 export default function ItemsSection() {
-  const { media } = useLoaderData<typeof loader>();
-  const [active, setActive] = useState<string | null>(null);
+  const { media, offer } = useLoaderData<typeof loader>();
+  const [active, setActive] = useState<boolean | string>(false);
 
   if (!media) {
     return (
@@ -116,10 +125,10 @@ export default function ItemsSection() {
         <AccordionItem value="videos">
           <AccordionTrigger className="text-xl">Videos</AccordionTrigger>
           <AccordionContent>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {media.videos.map((video) => (
                 <Suspense key={video._id} fallback={<div>Loading...</div>}>
-                  <Player video={video} />
+                  <Player video={video} offer={offer} />
                 </Suspense>
               ))}
             </div>
@@ -129,10 +138,7 @@ export default function ItemsSection() {
 
       <Portal.Root>
         {active && (
-          <ImageModal
-            image={media.images.find((image) => image._id === active)}
-            onClose={() => setActive(null)}
-          />
+          <ImageModal images={media.images} active={active} onClose={() => setActive(false)} />
         )}
       </Portal.Root>
     </div>
@@ -141,12 +147,18 @@ export default function ItemsSection() {
 
 function ImageModal({
   image,
+  active,
   onClose,
 }: {
-  image: Media['images'][0] | undefined;
+  image: Media['images'] | undefined;
+  active: boolean | string;
   onClose: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+
+  const images = image ? image : [];
+  const activeIndex = images.findIndex((img) => img._id === active);
+  const sortedImages = [...images.slice(activeIndex), ...images.slice(0, activeIndex)];
 
   return (
     <div
@@ -163,11 +175,17 @@ function ImageModal({
         }
       }}
     >
-      <img
-        src={image?.src ?? 'https://via.placeholder.com/1920x1080'}
-        alt=""
-        className="max-w-6xl max-h-full cursor-default"
-      />
+      <Carousel className="w-full h-full" aria-label="Images">
+        <CarouselContent className="flex items-center justify-center w-full h-full">
+          {images.map((img) => (
+            <CarouselItem key={img._id}>
+              <img src={img.src} alt="" className="max-w-6xl max-h-full cursor-default" />
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselNext />
+        <CarouselPrevious />
+      </Carousel>
     </div>
   );
 }

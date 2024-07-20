@@ -77,6 +77,9 @@ importers:
       '@tanstack/react-query-devtools':
         specifier: ^5.50.1
         version: 5.50.1(@tanstack/react-query@5.45.1(react@18.3.1))(react@18.3.1)
+      '@vidstack/react':
+        specifier: 1.11.30
+        version: 1.11.30(@types/react@18.3.3)(react@18.3.1)
       '@vite-pwa/remix':
         specifier: ^0.1.0
         version: 0.1.0(@remix-run/dev@2.9.2(@remix-run/react@2.9.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.4.5))(@remix-run/serve@2.9.2(typescript@5.4.5))(@types/node@20.14.2)(terser@5.31.1)(typescript@5.4.5)(vite@5.2.12(@types/node@20.14.2)(terser@5.31.1)))(vite-plugin-pwa@0.20.0(vite@5.2.12(@types/node@20.14.2)(terser@5.31.1))(workbox-build@7.1.1)(workbox-window@7.1.0))
@@ -119,6 +122,9 @@ importers:
       lucide-react:
         specifier: ^0.400.0
         version: 0.400.0(react@18.3.1)
+      media-icons:
+        specifier: ^1.1.5
+        version: 1.1.5
       plyr:
         specifier: 3.7.8
         version: 3.7.8
@@ -2470,6 +2476,13 @@ packages:
   '@vanilla-extract/private@1.0.5':
     resolution: {integrity: sha512-6YXeOEKYTA3UV+RC8DeAjFk+/okoNz/h88R+McnzA2zpaVqTR/Ep+vszkWYlGBcMNO7vEkqbq5nT/JMMvhi+tw==}
 
+  '@vidstack/react@1.11.30':
+    resolution: {integrity: sha512-Y9Xx4Y+bXRtlZKR+PfUGl6UX0rH6Lui5sHzdh0Jj4MZFCWv+hM9h5BaV2k97vLGEYpGDl/11imENCrHFWgR3HA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@types/react': ^18.0.0
+      react: ^18.0.0
+
   '@vite-pwa/remix@0.1.0':
     resolution: {integrity: sha512-jchHUXLCsHilN3M2cESIdgnMKKYYPBq2Bq3auTkxCbutsSiIQC9Q3/3LCGLzCe6Ol+O4fgtis9G8+ciV1n/1VQ==}
     peerDependencies:
@@ -4137,6 +4150,14 @@ packages:
 
   mdast-util-to-string@3.2.0:
     resolution: {integrity: sha512-V4Zn/ncyN1QNSqSBxTrMOLpjr+IKdHl2v3KVLoWmDPscP4r9GcCi71gjgvUV1SFSKh92AjAG4peFuBl2/YgCJg==}
+
+  media-captions@1.0.3:
+    resolution: {integrity: sha512-y2Qi5rqjwgH97zoko1vzu5Q6nnS0KzEQSvd4NOjnFym9JqnFb5VSsUg21RNb5cQ/nhCFJ0wz/XK+2uMwFCr6TQ==}
+    engines: {node: '>=16'}
+
+  media-icons@1.1.5:
+    resolution: {integrity: sha512-zu3CjKRs63ybLLWPomRRgTDyYiSrk2bRRgw97ZmN3FGXuo9qUUhBSfYwnjmvSdLG2JOJfAwzDz99bPATSY81DQ==}
+    engines: {node: '>=16'}
 
   media-query-parser@2.0.2:
     resolution: {integrity: sha512-1N4qp+jE0pL5Xv4uEcwVUhIkwdUO3S/9gML90nqKA7v7FcOS5vUtatfzok9S9U1EJU8dHWlcv95WLnKmmxZI9w==}
@@ -8207,6 +8228,13 @@ snapshots:
 
   '@vanilla-extract/private@1.0.5': {}
 
+  '@vidstack/react@1.11.30(@types/react@18.3.3)(react@18.3.1)':
+    dependencies:
+      '@floating-ui/dom': 1.6.5
+      '@types/react': 18.3.3
+      media-captions: 1.0.3
+      react: 18.3.1
+
   '@vite-pwa/remix@0.1.0(@remix-run/dev@2.9.2(@remix-run/react@2.9.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.4.5))(@remix-run/serve@2.9.2(typescript@5.4.5))(@types/node@20.14.2)(terser@5.31.1)(typescript@5.4.5)(vite@5.2.12(@types/node@20.14.2)(terser@5.31.1)))(vite-plugin-pwa@0.20.0(vite@5.2.12(@types/node@20.14.2)(terser@5.31.1))(workbox-build@7.1.1)(workbox-window@7.1.0))':
     dependencies:
       vite-plugin-pwa: 0.20.0(vite@5.2.12(@types/node@20.14.2)(terser@5.31.1))(workbox-build@7.1.1)(workbox-window@7.1.0)
@@ -10135,6 +10163,10 @@ snapshots:
   mdast-util-to-string@3.2.0:
     dependencies:
       '@types/mdast': 3.0.15
+
+  media-captions@1.0.3: {}
+
+  media-icons@1.1.5: {}
 
   media-query-parser@2.0.2:
     dependencies:
