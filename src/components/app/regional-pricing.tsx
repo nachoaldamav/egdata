@@ -34,7 +34,12 @@ export function RegionalPricing({ id }: { id: string }) {
   const { country } = useCountry();
   const [selectedRegion, setSelectedRegion] = useState('EURO');
   const { regions } = useRegions();
-  const { data, error, isLoading, isError } = useQuery({
+  const {
+    data: priceHistory,
+    error,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ['price-history', { id }],
     queryFn: () => fetchOfferPrice({ id }),
     initialData: () => queryClient.getQueryData(['price-history', { id }]),
@@ -71,8 +76,6 @@ export function RegionalPricing({ id }: { id: string }) {
     return <p>Error: {error.message}</p>;
   }
 
-  const priceHistory = data;
-
   if (!priceHistory) {
     return null;
   }
@@ -106,7 +109,7 @@ export function RegionalPricing({ id }: { id: string }) {
 
   return (
     <div className="w-full mx-auto mt-2">
-      <PriceChart selectedRegion={selectedRegion} priceData={data} />
+      <PriceChart selectedRegion={selectedRegion} priceData={priceHistory} />
       <Table className="w-3/4 mx-auto mt-2">
         <TableCaption>Regional Pricing</TableCaption>
         <TableHeader>
