@@ -496,6 +496,7 @@ export default function Index() {
             <TabsTrigger value="related">Related</TabsTrigger>
             <TabsTrigger value="metadata">Metadata</TabsTrigger>
             <TabsTrigger value="changelog">Changelog</TabsTrigger>
+            <TabsTrigger value="media">Media</TabsTrigger>
           </TabsList>
           <TabsContent value="price">
             <h2 className="text-2xl font-bold">Price</h2>
@@ -514,6 +515,9 @@ export default function Index() {
             <Outlet context={offerData} />
           </TabsContent>
           <TabsContent value="changelog">
+            <Outlet />
+          </TabsContent>
+          <TabsContent value="media">
             <Outlet />
           </TabsContent>
         </Tabs>
