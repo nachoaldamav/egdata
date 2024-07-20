@@ -8,7 +8,7 @@ import {
   type MetaFunction,
 } from '@remix-run/react';
 import { Image } from '~/components/app/image';
-import { client } from '~/lib/client';
+import { client, getQueryClient } from '~/lib/client';
 import { getImage } from '~/lib/getImage';
 import { getSeller } from '~/lib/get-seller';
 import type { SingleOffer } from '~/types/single-offer';
@@ -102,29 +102,30 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 }
 
 export async function clientLoader({ params, request }: LoaderFunctionArgs) {
+  const queryClient = getQueryClient();
   const url = new URL(request.url);
   const country = getCountryCode(url, cookie.parse(request.headers.get('Cookie') || ''));
 
   const [offerData, itemsData, priceData] = await Promise.allSettled([
-    client
-      .get<SingleOffer>(`/offers/${params.id}`)
-      .then((response) => {
-        return response.data;
-      })
-      .catch(
-        () =>
-          ({
-            title: 'Error',
-            description: 'Offer not found',
-          }) as SingleOffer,
-      ),
-    client
-      .get<Array<SingleItem>>(`/items-from-offer/${params.id}`)
-      .then((response) => response.data)
-      .catch(() => [] as SingleItem[]),
-    client
-      .get<Price>(`/offers/${params.id}/price?country=${country || 'US'}`)
-      .then((response) => response.data),
+    queryClient.fetchQuery({
+      queryKey: ['offer', { id: params.id }],
+      queryFn: () =>
+        client.get<SingleOffer>(`/offers/${params.id}`).then((response) => response.data),
+    }),
+    queryClient.fetchQuery({
+      queryKey: ['items', { id: params.id }],
+      queryFn: () =>
+        client
+          .get<Array<SingleItem>>(`/offers/${params.id}/items`)
+          .then((response) => response.data),
+    }),
+    queryClient.fetchQuery({
+      queryKey: ['price', { id: params.id, country }],
+      queryFn: () =>
+        client
+          .get<Price>(`/offers/${params.id}/price?country=${country || 'US'}`)
+          .then((response) => response.data),
+    }),
   ]);
 
   const offer = offerData.status === 'fulfilled' ? offerData.value : null;
