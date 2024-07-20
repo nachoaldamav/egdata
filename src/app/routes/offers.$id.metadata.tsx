@@ -56,7 +56,12 @@ export default function ItemsSection() {
           </TableRow>
           <TableRow>
             <TableCell>Tags</TableCell>
-            <TableCell>{data.tags.map((tag) => tag.name).join(', ')}</TableCell>
+            <TableCell>
+              {data.tags
+                .filter((tag) => tag !== null)
+                .map((tag) => tag.name)
+                .join(', ')}
+            </TableCell>
           </TableRow>
         </TableBody>
       </Table>
