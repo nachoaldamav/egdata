@@ -39,7 +39,7 @@ export function RegionalPricing({ id }: { id: string }) {
     queryFn: () => fetchOfferPrice({ id }),
     initialData: () => queryClient.getQueryData(['price-history', { id }]),
   });
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const { data: regionData } = useQuery({
     queryKey: ['region', { country }],
     queryFn: () =>
