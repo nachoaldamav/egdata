@@ -181,7 +181,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
         'Database',
         'Epic Database',
       ]
-        .concat(offerData.tags.map((tag) => tag.name))
+        .concat(offerData.tags.filter((tag) => tag !== null)?.map((tag) => tag?.name))
         .join(', '),
     },
     {

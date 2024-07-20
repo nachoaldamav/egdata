@@ -130,7 +130,7 @@ export function RegionalPricing({ id }: { id: string }) {
                   }}
                   className="cursor-pointer"
                 >
-                  <TableCell>{regions[key].description}</TableCell>
+                  <TableCell>{regions?.[key]?.description || key}</TableCell>
                   <TableCell>
                     {currencyFormatter.format(lastPrice.price.discountPrice / 100)}
                   </TableCell>
