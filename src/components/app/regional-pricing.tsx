@@ -15,6 +15,8 @@ import { useCountry } from '~/hooks/use-country';
 import { client, getQueryClient } from '~/lib/client';
 import { Skeleton } from '../ui/skeleton';
 import { useRegions } from '~/hooks/use-regions';
+import { ArrowUpIcon } from '@radix-ui/react-icons';
+import { cn } from '~/lib/utils';
 
 interface RegionData {
   region: Region;
@@ -37,6 +39,7 @@ export function RegionalPricing({ id }: { id: string }) {
     queryFn: () => fetchOfferPrice({ id }),
     initialData: () => queryClient.getQueryData(['price-history', { id }]),
   });
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const { data: regionData } = useQuery({
     queryKey: ['region', { country }],
     queryFn: () =>
@@ -81,6 +84,26 @@ export function RegionalPricing({ id }: { id: string }) {
     }
   };
 
+  const sortedRegions = Object.keys(priceHistory).sort((a, b) => {
+    const lastPriceA = priceHistory[a].sort(
+      (x, y) => new Date(y.updatedAt).getTime() - new Date(x.updatedAt).getTime(),
+    )[0].price.basePayoutPrice;
+    const lastPriceB = priceHistory[b].sort(
+      (x, y) => new Date(y.updatedAt).getTime() - new Date(x.updatedAt).getTime(),
+    )[0].price.basePayoutPrice;
+
+    return sortDirection === 'asc' ? lastPriceA - lastPriceB : lastPriceB - lastPriceA;
+  });
+
+  // Ensure the current region is always on top
+  if (selectedRegion) {
+    const index = sortedRegions.indexOf(selectedRegion);
+    if (index > -1) {
+      sortedRegions.splice(index, 1);
+      sortedRegions.unshift(selectedRegion);
+    }
+  }
+
   return (
     <div className="w-full mx-auto mt-2">
       <PriceChart selectedRegion={selectedRegion} priceData={data} />
@@ -92,56 +115,70 @@ export function RegionalPricing({ id }: { id: string }) {
             <TableHead>Price</TableHead>
             <TableHead>Max Price</TableHead>
             <TableHead>Min Price</TableHead>
-            <TableHead className="text-right">USD</TableHead>
+            <TableHead
+              className="text-right inline-flex gap-1 items-center justify-end w-full cursor-pointer"
+              onClick={() => {
+                setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+              }}
+            >
+              <span>USD</span>
+              <ArrowUpIcon
+                className={cn(
+                  'transform transition-transform size-5',
+                  sortDirection === 'asc' && 'rotate-180',
+                )}
+              />
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {Object.keys(priceHistory)
-            .sort()
-            .map((key) => {
-              const regionPricing = priceHistory[key];
-              const lastPrice = regionPricing.sort(
-                (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
-              )[0];
-              const maxPrice = regionPricing.reduce(
-                (acc, price) => (price.price.discountPrice > acc ? price.price.discountPrice : acc),
-                0,
-              );
-              const minPrice = regionPricing.reduce(
-                (acc, price) => (price.price.discountPrice < acc ? price.price.discountPrice : acc),
-                maxPrice,
-              );
+          {sortedRegions.map((key) => {
+            const regionPricing = priceHistory[key];
+            const lastPrice = regionPricing.sort(
+              (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+            )[0];
+            const maxPrice = regionPricing.reduce(
+              (acc, price) => (price.price.discountPrice > acc ? price.price.discountPrice : acc),
+              0,
+            );
+            const minPrice = regionPricing.reduce(
+              (acc, price) => (price.price.discountPrice < acc ? price.price.discountPrice : acc),
+              maxPrice,
+            );
 
-              const currencyFormatter = new Intl.NumberFormat(undefined, {
-                style: 'currency',
-                currency: lastPrice.price.currencyCode,
-              });
-              const usdFormatter = new Intl.NumberFormat(undefined, {
-                style: 'currency',
-                currency: 'USD',
-              });
+            const currencyFormatter = new Intl.NumberFormat(undefined, {
+              style: 'currency',
+              currency: lastPrice.price.currencyCode,
+            });
+            const usdFormatter = new Intl.NumberFormat(undefined, {
+              style: 'currency',
+              currency: 'USD',
+            });
 
-              return (
-                <TableRow
-                  key={key}
-                  onClick={() => {
-                    setSelectedRegion(key);
-                    scrollToChart();
-                  }}
-                  className="cursor-pointer"
-                >
-                  <TableCell>{regions?.[key]?.description || key}</TableCell>
-                  <TableCell>
-                    {currencyFormatter.format(lastPrice.price.discountPrice / 100)}
-                  </TableCell>
-                  <TableCell>{currencyFormatter.format(maxPrice / 100)}</TableCell>
-                  <TableCell>{currencyFormatter.format(minPrice / 100)}</TableCell>
-                  <TableCell className="text-right">
-                    {usdFormatter.format(lastPrice.price.basePayoutPrice / 100)}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+            return (
+              <TableRow
+                key={key}
+                onClick={() => {
+                  setSelectedRegion(key);
+                  scrollToChart();
+                }}
+                className={cn(
+                  'cursor-pointer',
+                  selectedRegion === key && 'bg-slate-800/25 text-white',
+                )}
+              >
+                <TableCell>{regions?.[key]?.description || key}</TableCell>
+                <TableCell>
+                  {currencyFormatter.format(lastPrice.price.discountPrice / 100)}
+                </TableCell>
+                <TableCell>{currencyFormatter.format(maxPrice / 100)}</TableCell>
+                <TableCell>{currencyFormatter.format(minPrice / 100)}</TableCell>
+                <TableCell className="text-right">
+                  {usdFormatter.format(lastPrice.price.basePayoutPrice / 100)}
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </div>
