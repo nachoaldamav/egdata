@@ -1,4 +1,4 @@
-import type { LoaderFunctionArgs } from '@remix-run/node';
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import { client } from '~/lib/client';
 import {
@@ -8,6 +8,19 @@ import {
   AccordionTrigger,
 } from '~/components/ui/accordion';
 import type { Media } from '~/types/media';
+import { Suspense, useRef, useState } from 'react';
+import * as Portal from '@radix-ui/react-portal';
+import { Player } from '~/components/app/video-player.client';
+
+export const meta: MetaFunction = () => {
+  return [
+    {
+      tagName: 'link',
+      rel: 'stylesheet',
+      href: '/css/plyr.css',
+    },
+  ];
+};
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const media = await client
@@ -25,6 +38,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
 export default function ItemsSection() {
   const { media } = useLoaderData<typeof loader>();
+  const [active, setActive] = useState<string | null>(null);
 
   if (!media) {
     return (
@@ -47,7 +61,18 @@ export default function ItemsSection() {
           <AccordionContent>
             <div className="grid grid-cols-2 gap-4">
               {media.images.map((image) => (
-                <img key={image._id} src={image.src} alt="" />
+                <img
+                  key={image._id}
+                  src={image.src}
+                  alt=""
+                  onClick={() => setActive(image._id)}
+                  className="cursor-pointer"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      setActive(image._id);
+                    }
+                  }}
+                />
               ))}
             </div>
           </AccordionContent>
@@ -57,16 +82,56 @@ export default function ItemsSection() {
           <AccordionContent>
             <div className="grid grid-cols-2 gap-4">
               {media.videos.map((video) => (
-                <video key={video._id} controls>
-                  {video.outputs.map((output) => (
-                    <source key={output._id} src={output.url} type={output.contentType} />
-                  ))}
-                </video>
+                <Suspense key={video._id} fallback={<div>Loading...</div>}>
+                  <Player video={video} />
+                </Suspense>
               ))}
             </div>
           </AccordionContent>
         </AccordionItem>
       </Accordion>
+
+      <Portal.Root>
+        {active && (
+          <ImageModal
+            image={media.images.find((image) => image._id === active)}
+            onClose={() => setActive(null)}
+          />
+        )}
+      </Portal.Root>
+    </div>
+  );
+}
+
+function ImageModal({
+  image,
+  onClose,
+}: {
+  image: Media['images'][0] | undefined;
+  onClose: () => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  return (
+    <div
+      ref={ref}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 backdrop-blur-sm cursor-pointer"
+      onClick={(e) => {
+        if (e.target === ref.current) {
+          onClose();
+        }
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') {
+          onClose();
+        }
+      }}
+    >
+      <img
+        src={image?.src ?? 'https://via.placeholder.com/1920x1080'}
+        alt=""
+        className="max-w-6xl max-h-full cursor-default"
+      />
     </div>
   );
 }
