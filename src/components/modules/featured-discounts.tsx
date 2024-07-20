@@ -20,6 +20,7 @@ import Autoplay from 'embla-carousel-autoplay';
 import { TooltipProvider, TooltipTrigger, TooltipContent, Tooltip } from '~/components/ui/tooltip';
 import { cn } from '~/lib/utils';
 import { Badge } from '../ui/badge';
+import { platformIcons } from '../app/platform-icons';
 
 const SLIDE_DELAY = 100_000;
 
@@ -181,11 +182,6 @@ function ProgressIndicator({
     </div>
   );
 }
-
-const platformIcons: Record<string, React.ReactNode> = {
-  '9547': <FaWindows className="w-5 h-5 text-muted-foreground" />,
-  '10719': <FaApple className="w-5 h-5 text-muted-foreground" />,
-};
 
 function FeaturedOffer({ offer }: { offer: SingleOffer }) {
   const [image, setImage] = useState<string | null>(null);

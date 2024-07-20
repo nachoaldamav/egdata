@@ -41,6 +41,7 @@ import { useQuery } from '@tanstack/react-query';
 import cookie from 'cookie';
 import { useEffect, useRef, useState } from 'react';
 import { SuggestedOffers } from '~/components/modules/suggested-offers';
+import { platformIcons } from '~/components/app/platform-icons';
 
 function supportedPlatforms(items: SingleItem[]): string[] {
   try {
@@ -414,9 +415,7 @@ export default function Index() {
                 <TableRow>
                   <TableCell className="font-medium">Supported Platforms</TableCell>
                   <TableCell className="text-left border-l-gray-300/10 border-l">
-                    {supportedPlatforms(items).length > 0
-                      ? supportedPlatforms(items).join(', ')
-                      : 'Unknown'}
+                    {offerData.tags.map((tag) => platformIcons[tag.id])}
                   </TableCell>
                 </TableRow>
                 <TableRow>
