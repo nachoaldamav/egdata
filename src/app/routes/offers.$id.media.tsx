@@ -1,6 +1,6 @@
 import type { LinksFunction, LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
-import { client } from '~/lib/client';
+import { type ClientLoaderFunctionArgs, useLoaderData } from '@remix-run/react';
+import { client, getQueryClient } from '~/lib/client';
 import {
   Accordion,
   AccordionContent,
@@ -22,6 +22,7 @@ import {
 import defaultPlayerTheme from '@vidstack/react/player/styles/default/theme.css?url';
 import defaultAudioPlayer from '@vidstack/react/player/styles/default/layouts/audio.css?url';
 import defaultVideoPlayer from '@vidstack/react/player/styles/default/layouts/video.css?url';
+import { Skeleton } from '~/components/ui/skeleton';
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: defaultPlayerTheme },
@@ -79,6 +80,38 @@ export async function loader({ params }: LoaderFunctionArgs) {
     media,
     offer,
   };
+}
+
+export async function clientLoader({ params }: ClientLoaderFunctionArgs) {
+  const queryClient = getQueryClient();
+
+  const [mediaData, offerData] = await Promise.allSettled([
+    queryClient.fetchQuery({
+      queryKey: ['media', { id: params.id }],
+      queryFn: () => client.get<Media>(`/offers/${params.id}/media`).then((res) => res.data),
+    }),
+    queryClient.fetchQuery({
+      queryKey: ['offer', { id: params.id }],
+      queryFn: () => client.get<SingleOffer>(`/offers/${params.id}`).then((res) => res.data),
+    }),
+  ]);
+
+  const media = mediaData.status === 'fulfilled' ? mediaData.value : null;
+  const offer = offerData.status === 'fulfilled' ? offerData.value : null;
+
+  return {
+    media,
+    offer,
+  };
+}
+
+export function HydrateFallback() {
+  return (
+    <div className="flex flex-col items-start gap-2">
+      <Skeleton className="w-full h-96 mx-auto" />
+      <Skeleton className="w-full h-[50vh] mx-auto" />
+    </div>
+  );
 }
 
 export default function ItemsSection() {
