@@ -414,7 +414,7 @@ export default function Index() {
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">Supported Platforms</TableCell>
-                  <TableCell className="text-left border-l-gray-300/10 border-l">
+                  <TableCell className="text-left border-l-gray-300/10 border-l inline-flex items-center gap-1">
                     {offerData.tags.map((tag) => platformIcons[tag.id])}
                   </TableCell>
                 </TableRow>
