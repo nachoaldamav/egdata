@@ -23,6 +23,7 @@ import defaultPlayerTheme from '@vidstack/react/player/styles/default/theme.css?
 import defaultAudioPlayer from '@vidstack/react/player/styles/default/layouts/audio.css?url';
 import defaultVideoPlayer from '@vidstack/react/player/styles/default/layouts/video.css?url';
 import { Skeleton } from '~/components/ui/skeleton';
+import { XIcon } from '@primer/octicons-react';
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: defaultPlayerTheme },
@@ -209,7 +210,7 @@ function ImageModal({
   return (
     <div
       ref={ref}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 backdrop-blur-sm cursor-pointer"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 backdrop-blur-sm"
       onClick={(e) => {
         if (e.target === ref.current) {
           onClose();
@@ -221,6 +222,19 @@ function ImageModal({
         }
       }}
     >
+      <span
+        className="absolute top-4 right-4 cursor-pointer"
+        onClick={onClose}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            onClose();
+          }
+        }}
+        role="button"
+        tabIndex={0}
+      >
+        <XIcon className="w-6 h-6 text-white" />
+      </span>
       <section className="flex items-center justify-center w-full h-full max-w-6xl">
         <Carousel aria-label="Images">
           <CarouselContent>
