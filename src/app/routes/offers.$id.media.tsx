@@ -140,7 +140,7 @@ export default function ItemsSection() {
     );
   }
 
-  if (!media || !media.images.length || !media.videos.length || !offer) {
+  if (!media || !offer) {
     return (
       <div className="text-center">
         <h2 className="text-2xl font-bold">No media found</h2>
