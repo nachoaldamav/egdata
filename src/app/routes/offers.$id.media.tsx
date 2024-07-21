@@ -182,6 +182,19 @@ export default function ItemsSection() {
             </div>
           </AccordionContent>
         </AccordionItem>
+        <AccordionItem value="covers">
+          <AccordionTrigger className="text-xl">Covers</AccordionTrigger>
+          <AccordionContent>
+            <div className="grid grid-cols-2 gap-4">
+              {offer?.keyImages.map((cover) => (
+                <div key={cover.md5} className="flex flex-col items-center gap-2">
+                  <img key={cover.md5} src={cover.url} alt="" />
+                  <span className="text-sm font-mono">{cover.type}</span>
+                </div>
+              ))}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
       </Accordion>
 
       <Portal.Root>
