@@ -477,10 +477,10 @@ export default function Index() {
         </div>
       </header>
 
-      <section id="offer-information" className="w-full">
+      <section id="offer-information" className="w-full min-h-[50vh]">
         <Tabs
           defaultValue={subPath ?? 'price'}
-          className="w-full min-h-96"
+          className="w-full"
           onValueChange={(value: string) => {
             if (value === 'price') {
               navigate(`/offers/${offerData.id}`);

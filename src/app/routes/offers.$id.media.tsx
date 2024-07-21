@@ -24,6 +24,7 @@ import defaultAudioPlayer from '@vidstack/react/player/styles/default/layouts/au
 import defaultVideoPlayer from '@vidstack/react/player/styles/default/layouts/video.css?url';
 import { Skeleton } from '~/components/ui/skeleton';
 import { XIcon } from '@primer/octicons-react';
+import { useQueries } from '@tanstack/react-query';
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: defaultPlayerTheme },
@@ -80,39 +81,16 @@ export async function loader({ params }: LoaderFunctionArgs) {
   return {
     media,
     offer,
+    id: params.id,
   };
 }
 
 export async function clientLoader({ params }: ClientLoaderFunctionArgs) {
-  const queryClient = getQueryClient();
-
-  const [mediaData, offerData] = await Promise.allSettled([
-    queryClient.fetchQuery({
-      queryKey: ['media', { id: params.id }],
-      queryFn: () => client.get<Media>(`/offers/${params.id}/media`).then((res) => res.data),
-    }),
-    queryClient.fetchQuery({
-      queryKey: ['offer', { id: params.id }],
-      queryFn: () => client.get<SingleOffer>(`/offers/${params.id}`).then((res) => res.data),
-    }),
-  ]);
-
-  const media = mediaData.status === 'fulfilled' ? mediaData.value : null;
-  const offer = offerData.status === 'fulfilled' ? offerData.value : null;
-
   return {
-    media,
-    offer,
+    media: null,
+    offer: null,
+    id: params.id,
   };
-}
-
-export function HydrateFallback() {
-  return (
-    <div className="flex flex-col items-start gap-2">
-      <Skeleton className="w-full h-96 mx-auto" />
-      <Skeleton className="w-full h-[50vh] mx-auto" />
-    </div>
-  );
 }
 
 export function ErrorBoundary() {
@@ -130,10 +108,39 @@ export function ErrorBoundary() {
 }
 
 export default function ItemsSection() {
-  const { media, offer } = useLoaderData<typeof loader>();
   const [active, setActive] = useState<boolean | string>(false);
+  const { media: initialDataMedia, offer: initialDataOffer, id } = useLoaderData<typeof loader>();
+  const [mediaQuery, offerQuery] = useQueries({
+    queries: [
+      {
+        queryKey: ['media', { id }],
+        queryFn: () => client.get<Media>(`/offers/${id}/media`).then((res) => res.data),
+        initialData: (initialDataMedia as Media) ?? undefined,
+      },
+      {
+        queryKey: ['offer', { id }],
+        queryFn: () => client.get<SingleOffer>(`/offers/${id}`).then((res) => res.data),
+        initialData: (initialDataOffer as SingleOffer) ?? undefined,
+      },
+    ],
+  });
+  const { data: media, isLoading: mediaLoading } = mediaQuery;
+  const { data: offer, isLoading: offerLoading } = offerQuery;
 
-  if (!media) {
+  if (mediaLoading || offerLoading) {
+    return (
+      <div className="flex flex-col gap-4 mt-6">
+        <h2 className="text-2xl font-bold">Media</h2>
+        <div className="grid grid-cols-2 gap-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Skeleton key={index} className="w-full h-72" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (!media || !media.images.length || !media.videos.length || !offer) {
     return (
       <div className="text-center">
         <h2 className="text-2xl font-bold">No media found</h2>

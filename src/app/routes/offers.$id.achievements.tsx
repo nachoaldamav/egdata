@@ -1,5 +1,7 @@
 import { CardStackIcon } from '@radix-ui/react-icons';
+import type { LoaderFunctionArgs } from '@remix-run/node';
 import { useLoaderData, type ClientLoaderFunctionArgs } from '@remix-run/react';
+import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Image } from '~/components/app/image';
 import { Button } from '~/components/ui/button';
@@ -12,37 +14,45 @@ import {
   CardFooter,
 } from '~/components/ui/card';
 import { Skeleton } from '~/components/ui/skeleton';
-import { client } from '~/lib/client';
+import { client, getQueryClient } from '~/lib/client';
 import { getRarity } from '~/lib/get-rarity';
 import { cn } from '~/lib/utils';
 import type { Achievement, AchievementsSets } from '~/queries/offer-achievements';
 
-export const clientLoader = async ({ params }: ClientLoaderFunctionArgs) => {
-  const data = await client
-    .get<AchievementsSets>(`/offers/${params.id}/achievements`)
-    .then((res) => res.data);
+export const loader = async ({ params }: LoaderFunctionArgs) => {
+  const queryClient = getQueryClient();
+  const data = await queryClient.fetchQuery<AchievementsSets>({
+    queryKey: ['achievements', { id: params.id }],
+    queryFn: () =>
+      client.get<AchievementsSets>(`/offers/${params.id}/achievements`).then((res) => res.data),
+  });
 
   return {
-    data,
+    id: params.id,
+    initialData: data,
   };
 };
 
-export function HydrateFallback() {
-  return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">Achievements</h1>
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 mt-4">
-        {Array.from({ length: 20 }).map((_, index) => (
-          // biome-ignore lint/suspicious/noArrayIndexKey: This is a fallback component
-          <SkeletonCard key={index} />
-        ))}
-      </div>
-    </div>
-  );
-}
+export const clientLoader = async ({ params }: ClientLoaderFunctionArgs) => {
+  return {
+    id: params.id,
+    initialData: null,
+  };
+};
 
 export default function OfferAchievements() {
-  const { data } = useLoaderData<typeof clientLoader>();
+  const { id, initialData } = useLoaderData<typeof clientLoader | typeof loader>();
+  const { data, isLoading } = useQuery({
+    queryKey: [
+      'achievements',
+      {
+        id,
+      },
+    ],
+    queryFn: () =>
+      client.get<AchievementsSets>(`/offers/${id}/achievements`).then((res) => res.data),
+    initialData: initialData ?? undefined,
+  });
 
   const [flipAll, setFlipAll] = useState(false);
   const [flippedStates, setFlippedStates] = useState<{ [key: string]: boolean }>({});
@@ -57,6 +67,29 @@ export default function OfferAchievements() {
       [achievementName]: !prev[achievementName],
     }));
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Achievements</h1>
+        </div>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 mt-4">
+          {Array.from({ length: 10 }).map((_, index) => (
+            <SkeletonCard key={index} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <p className="text-gray-500">No achievements found</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4">

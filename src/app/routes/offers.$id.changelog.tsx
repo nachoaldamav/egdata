@@ -1,40 +1,33 @@
 import type { LoaderFunctionArgs } from '@remix-run/node';
-import { type ClientLoaderFunctionArgs, Link, useLoaderData } from '@remix-run/react';
+import { type ClientLoaderFunctionArgs, useLoaderData } from '@remix-run/react';
 import type { Change } from '~/components/modules/changelist';
 import { Skeleton } from '~/components/ui/skeleton';
-import { client } from '~/lib/client';
+import { client, getQueryClient } from '~/lib/client';
 import { GitPullRequestClosedIcon, GitPullRequestIcon, PlusIcon } from '@primer/octicons-react';
 import { ArrowRightIcon } from '@radix-ui/react-icons';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '~/components/ui/tooltip'; // Ensure you have these components
+import { useQuery } from '@tanstack/react-query';
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
-  const data = await client.get<Change[]>(`/offers/${params.id}/changelog`).then((res) => res.data);
+  const queryClient = getQueryClient();
+
+  const data = await queryClient.fetchQuery({
+    queryKey: ['changelog', { id: params.id }],
+    queryFn: () => client.get<Change[]>(`/offers/${params.id}/changelog`).then((res) => res.data),
+  });
+
   return {
+    id: params.id,
     data,
   };
 };
 
 export const clientLoader = async ({ params }: ClientLoaderFunctionArgs) => {
-  const data = await client.get<Change[]>(`/offers/${params.id}/changelog`).then((res) => res.data);
-
   return {
-    data,
+    id: params.id,
+    data: null,
   };
 };
-
-export function HydrateFallback() {
-  return (
-    <div className="flex flex-col gap-4 mt-6">
-      <h2 className="text-2xl font-bold">Related Offers</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {Array.from({ length: 8 }).map((_, index) => (
-          // biome-ignore lint/suspicious/noArrayIndexKey: This is a fallback component
-          <Skeleton key={index} className="w-full h-72" />
-        ))}
-      </div>
-    </div>
-  );
-}
 
 const icons: {
   [key in Change['changeType']]: JSX.Element;
@@ -45,7 +38,35 @@ const icons: {
 };
 
 export default function OfferChangelog() {
-  const { data } = useLoaderData<typeof loader | typeof clientLoader>();
+  const { data: initialData, id } = useLoaderData<typeof loader | typeof clientLoader>();
+  const { data, isLoading } = useQuery({
+    queryKey: ['changelog', { id }],
+    queryFn: () => client.get<Change[]>(`/offers/${id}/changelog`).then((res) => res.data),
+    initialData: initialData ?? undefined,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-4 mt-6">
+        <h2 className="text-2xl font-bold">Changelog</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 8 }).map((_, index) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: This is a fallback component
+            <Skeleton key={index} className="w-full h-72" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <p className="text-2xl font-bold text-gray-300">No changelog available</p>
+      </div>
+    );
+  }
+
   return (
     <section className="flex flex-col gap-4 mt-6">
       <div className="inline-flex justify-between items-center">
@@ -208,6 +229,7 @@ function valueToComponent(value: unknown, field: string, type: 'before' | 'after
 
   return value?.toString() as string;
 }
+
 /**
  * Converts the bytes to the appropriate size, Bytes, KB, MB, GB, TB...
  * @param value
