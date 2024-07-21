@@ -15,7 +15,10 @@ export function getSeller({
   };
 }) {
   // Get developer name from customAttributes or fallback to developerDisplayName
-  const developer = customAttributes?.developerName?.value ?? developerDisplayName;
+  const developer =
+    (customAttributes?.developerName?.value === '{}'
+      ? undefined
+      : customAttributes?.developerName?.value) ?? developerDisplayName;
 
   // If both developer and publisher display names are missing, return the seller
   if (!developer && !publisherDisplayName) {

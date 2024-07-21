@@ -405,7 +405,9 @@ export default function Index() {
                 <TableRow>
                   <TableCell className="font-medium">Developer</TableCell>
                   <TableCell className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l">
-                    {offerData.customAttributes?.developerName?.value ??
+                    {(offerData.customAttributes?.developerName?.value === '{}'
+                      ? undefined
+                      : offerData.customAttributes?.developerName?.value) ??
                       offerData.developerDisplayName ??
                       offerData.seller.name}
                     {offerData.publisherDisplayName !== offerData.developerDisplayName && (

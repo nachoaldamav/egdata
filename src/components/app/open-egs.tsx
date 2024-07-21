@@ -1,6 +1,3 @@
-import { useQuery } from '@tanstack/react-query';
-import { client } from '~/lib/client';
-import type { OfferMapping } from '~/types/mapping';
 import type { SingleOffer } from '~/types/single-offer';
 import { Button } from '../ui/button';
 import { Link } from '@remix-run/react';
@@ -33,33 +30,14 @@ export function OpenEgs({
 }: {
   offer: SingleOffer;
 }) {
-  const { data, error, isLoading } = useQuery({
-    queryKey: ['open-egs', offer.id],
-    queryFn: () => client.get<OfferMapping>(`offers/${offer.id}/mappings`).then((res) => res.data),
-  });
+  const urlType: 'product' | 'url' = offer.offerType === 'BASE_GAME' ? 'product' : 'url';
+  const url =
+    offer.offerMappings?.[0]?.pageSlug ??
+    (urlType === 'product' ? offer.productSlug : offer.urlSlug);
 
-  const slugType: 'product' | 'url' = offer.offerType === 'BASE_GAME' ? 'product' : 'url';
-
-  if (
-    ((isLoading || error) && slugType === 'product' && !offer.productSlug) ||
-    (slugType === 'url' && !offer.urlSlug)
-  ) {
+  if (!url) {
     return null;
   }
-
-  const defaultUrl = () => {
-    if (offer.offerMappings) {
-      const pageSlug = offer.offerMappings.find((m) => m.pageType === 'productHome')?.pageSlug;
-      if (pageSlug) {
-        return pageSlug;
-      }
-      const firstPageSlug = offer.offerMappings[0]?.pageSlug;
-      if (firstPageSlug) {
-        return firstPageSlug;
-      }
-    }
-    return slugType === 'product' ? offer.productSlug : offer.urlSlug;
-  };
 
   return (
     <Button
@@ -67,7 +45,7 @@ export function OpenEgs({
       className="bg-gray-900 text-white dark:hover:text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
     >
       <Link
-        to={`https://store.epicgames.com/product/${defaultUrl() ?? data?.mappings.find((m) => m.pageType === 'productHome')?.pageSlug ?? data?.mappings[0].pageSlug}?utm_source=egdata.app`}
+        to={`https://store.epicgames.com/product/${url}?utm_source=egdata.app`}
         rel="noopener noreferrer"
         referrerPolicy="no-referrer"
         target="_blank"
