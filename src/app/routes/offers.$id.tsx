@@ -79,7 +79,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
           }) as SingleOffer,
       ),
     client
-      .get<Array<SingleItem>>(`/items-from-offer/${params.id}`)
+      .get<Array<SingleItem>>(`/offers/${params.id}/items`)
       .then((response) => response.data)
       .catch(() => [] as SingleItem[]),
     client
