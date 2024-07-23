@@ -58,6 +58,10 @@ export function UpcomingCalendar() {
     {} as Record<string, SingleOffer[]>,
   );
 
+  const now = new Date();
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
+
   return (
     <section id="upcoming-calendar" className="mb-8 w-full">
       <Link
@@ -71,7 +75,7 @@ export function UpcomingCalendar() {
         <CarouselContent className="gap-4 ml-0">
           {groupedOffersByDay &&
             Object.entries(groupedOffersByDay)
-              .filter(([date]) => new Date(date) >= new Date())
+              .filter(([date]) => new Date(date) >= startOfToday)
               .map(([date, offers]) => (
                 <div
                   className="flex flex-col w-fit border p-3 rounded-xl gap-2 bg-opacity-25"
@@ -103,8 +107,15 @@ export function UpcomingCalendar() {
 
 function relativeDate(date: Date) {
   const formatter = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
-  const diff = date.getTime() - Date.now();
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const now = new Date();
+
+  // Clear the time part for accurate comparison of just the date
+  const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const nowOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  const diff = dateOnly.getTime() - nowOnly.getTime();
+  const days = Math.round(diff / (1000 * 60 * 60 * 24));
+
   return formatter.format(days, 'day');
 }
 
