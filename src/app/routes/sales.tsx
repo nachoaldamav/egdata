@@ -41,7 +41,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     page: number;
     total: number;
     limit: number;
-  }>(`/sales?limit=28&country=${country}&page=${page}`);
+  }>(`/sales?limit=30&country=${country}&page=${page}`);
 
   const games = latestGames.data.elements || ([] as SingleOffer[]);
 
@@ -144,14 +144,14 @@ export default function Index() {
         <div
           className={cn(
             'grid grid-cols-1 gap-4 w-full',
-            view === 'grid' ? 'sm:grid-cols-2 lg:grid-cols-4' : '',
+            view === 'grid' ? 'sm:grid-cols-1 lg:grid-cols-5' : '',
           )}
         >
           {games
             .filter((game) => game.id)
             .map((game) =>
               view === 'grid' ? (
-                <OfferCard key={game.id} offer={game} />
+                <OfferCard key={game.id} offer={game} size="md" />
               ) : (
                 <OfferListItem key={game.id} game={game} />
               ),
@@ -176,43 +176,3 @@ export default function Index() {
     </main>
   );
 }
-
-/* function GameCard({ game }: { game: SingleOfferWithPrice }) {
-  const fmt = Intl.NumberFormat(undefined, {
-    style: 'currency',
-    currency: game.price.currencyCode || 'USD',
-  });
-
-  return (
-    <Link to={`/offers/${game.id}`} prefetch="viewport">
-      <Card className="rounded-xl shadow-lg h-full flex flex-col">
-        <CardHeader className="p-0 rounded-t-xl">
-          <Image
-            src={getImage(game.keyImages, ['OfferImageTall', 'Thumbnail'])?.url}
-            alt={game.title}
-            width={400}
-            height={500}
-            className="object-contain rounded-t-xl"
-            loading="lazy"
-          />
-        </CardHeader>
-        <CardContent className="p-4 flex-grow flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xl font-semibold max-w-xs truncate">{game.title}</h3>
-          </div>
-          <div className="mt-2 flex items-end justify-between gap-2 h-full">
-            <span className="text-sm text-gray-600 dark:text-gray-400">{game.seller.name}</span>
-            <div className="flex items-center gap-2">
-              <span className="text-gray-500 line-through dark:text-gray-400">
-                {fmt.format(game.price.originalPrice / 100)}
-              </span>
-              <span className="text-primary font-semibold">
-                {fmt.format(game.price.discountPrice / 100)}
-              </span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
-  );
-} */

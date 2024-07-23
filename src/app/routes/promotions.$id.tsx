@@ -244,7 +244,7 @@ export default function Promotion() {
       <section
         className={cn(
           'mt-8 grid gap-4',
-          view === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' : 'grid-cols-1',
+          view === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-5' : 'grid-cols-1',
         )}
       >
         {promotion.elements.map((game) => {
@@ -252,7 +252,7 @@ export default function Promotion() {
             return <OfferListItem key={game.id} game={game} />;
           }
 
-          return <OfferCard offer={game} key={game.id} />;
+          return <OfferCard offer={game} key={game.id} size="md" />;
         })}
       </section>
       <div className="flex justify-center mt-8">
