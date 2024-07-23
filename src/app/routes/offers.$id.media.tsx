@@ -70,9 +70,17 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 };
 
 export async function loader({ params }: LoaderFunctionArgs) {
+  const queryClient = getQueryClient();
+
   const [mediaData, offerData] = await Promise.allSettled([
-    client.get<Media>(`/offers/${params.id}/media`).then((res) => res.data),
-    client.get<SingleOffer>(`/offers/${params.id}`).then((res) => res.data),
+    queryClient.fetchQuery({
+      queryKey: ['media', { id: params.id }],
+      queryFn: () => client.get<Media>(`/offers/${params.id}/media`).then((res) => res.data),
+    }),
+    queryClient.fetchQuery({
+      queryKey: ['offer', { id: params.id }],
+      queryFn: () => client.get<SingleOffer>(`/offers/${params.id}`).then((res) => res.data),
+    }),
   ]);
 
   const media = mediaData.status === 'fulfilled' ? mediaData.value : null;
@@ -82,6 +90,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
     media,
     offer,
     id: params.id,
+    serverTimestamp: Date.now(),
   };
 }
 
@@ -90,6 +99,7 @@ export async function clientLoader({ params }: ClientLoaderFunctionArgs) {
     media: null,
     offer: null,
     id: params.id,
+    serverTimestamp: Date.now(),
   };
 }
 
@@ -108,26 +118,36 @@ export function ErrorBoundary() {
 }
 
 export default function ItemsSection() {
-  const [active, setActive] = useState<boolean | string>(false);
-  const { media: initialDataMedia, offer: initialDataOffer, id } = useLoaderData<typeof loader>();
+  const {
+    media: initialDataMedia,
+    offer: initialDataOffer,
+    id,
+    serverTimestamp,
+  } = useLoaderData<typeof loader | typeof clientLoader>();
   const [mediaQuery, offerQuery] = useQueries({
     queries: [
       {
         queryKey: ['media', { id }],
         queryFn: () => client.get<Media>(`/offers/${id}/media`).then((res) => res.data),
-        initialData: (initialDataMedia as Media) ?? undefined,
+        initialData: initialDataMedia ?? undefined,
+        staleTime: 1000,
+        initialDataUpdatedAt: serverTimestamp,
       },
       {
         queryKey: ['offer', { id }],
         queryFn: () => client.get<SingleOffer>(`/offers/${id}`).then((res) => res.data),
-        initialData: (initialDataOffer as SingleOffer) ?? undefined,
+        initialData: initialDataOffer ?? undefined,
+        staleTime: 1000,
+        initialDataUpdatedAt: serverTimestamp,
       },
     ],
   });
+  const [active, setActive] = useState<boolean | string>(false);
+
   const { data: media, isLoading: mediaLoading } = mediaQuery;
   const { data: offer, isLoading: offerLoading } = offerQuery;
 
-  if (mediaLoading || offerLoading) {
+  if ((mediaLoading && !media) || (offerLoading && !offer) || (!media && !offer)) {
     return (
       <div className="flex flex-col gap-4 mt-6">
         <h2 className="text-2xl font-bold">Media</h2>

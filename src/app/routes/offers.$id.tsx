@@ -3,6 +3,7 @@ import {
   Link,
   Outlet,
   useLoaderData,
+  useLocation,
   useNavigate,
   useNavigation,
   type MetaFunction,
@@ -323,14 +324,20 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 
 export default function Index() {
   const navigate = useNavigate();
-  const navigation = useNavigation();
+  const location = useLocation();
   const {
     offer: offerData,
     items,
     subPath: serverSubPath,
   } = useLoaderData<typeof loader | typeof clientLoader>();
 
-  const subPath = serverSubPath ?? navigation.location?.pathname.split(`/${offerData.id}/`)[1];
+  const subPath = serverSubPath ?? location.pathname.split(`/${offerData.id}/`)[1] ?? 'price';
+
+  useEffect(() => {
+    if (!subPath || subPath === '') {
+      navigate(`/offers/${offerData.id}/price`, { replace: true });
+    }
+  }, [subPath, offerData.id, navigate]);
 
   if (!offerData) {
     return <div>Offer not found</div>;
@@ -417,8 +424,14 @@ export default function Index() {
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">Supported Platforms</TableCell>
-                  <TableCell className="text-left border-l-gray-300/10 border-l inline-flex items-center gap-1">
-                    {offerData.tags.map((tag) => platformIcons[tag.id])}
+                  <TableCell className="text-left border-l-gray-300/10 border-l inline-flex items-center justify-start gap-1">
+                    {offerData.tags
+                      .filter((tag) => platformIcons[tag.id])
+                      .map((tag) => (
+                        <span key={tag.id} className="text-xs">
+                          {platformIcons[tag.id]}
+                        </span>
+                      ))}
                   </TableCell>
                 </TableRow>
                 <TableRow>
@@ -481,14 +494,14 @@ export default function Index() {
 
       <section id="offer-information" className="w-full min-h-[50vh]">
         <Tabs
-          defaultValue={subPath ?? 'price'}
+          defaultValue={subPath}
           className="w-full"
           onValueChange={(value: string) => {
             if (value === 'price') {
-              navigate(`/offers/${offerData.id}`);
-              return;
+              navigate(`/offers/${offerData.id}`, { replace: true });
+            } else {
+              navigate(`/offers/${offerData.id}/${value}`, { replace: true });
             }
-            navigate(`/offers/${offerData.id}/${value}`);
           }}
           key={`subsection-${offerData.id}`}
         >

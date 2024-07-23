@@ -3,7 +3,7 @@ export interface Media {
   images: Image[];
   namespace: string;
   videos: Video[];
-  logo: string | null | undefined;
+  logo: string | null;
 }
 
 export interface Image {
