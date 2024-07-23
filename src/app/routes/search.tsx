@@ -38,7 +38,7 @@ import { offersDictionary } from '~/lib/offers-dictionary';
 import getCountryCode from '~/lib/get-country-code';
 import { useCountry } from '~/hooks/use-country';
 import { XIcon } from '@primer/octicons-react';
-import { GridIcon, ListBulletIcon } from '@radix-ui/react-icons';
+import { ArrowDownIcon, GridIcon, ListBulletIcon } from '@radix-ui/react-icons';
 import { OfferListItem } from '~/components/app/game-card';
 import { usePreferences } from '~/hooks/use-preferences';
 import { Label } from '~/components/ui/label';
@@ -75,8 +75,7 @@ type SortBy =
   | 'viewableDate'
   | 'pcReleaseDate'
   | 'upcoming'
-  | 'priceAsc'
-  | 'priceDesc';
+  | 'price';
 
 const sortByDisplay: Record<SortBy, string> = {
   releaseDate: 'Release Date',
@@ -86,8 +85,7 @@ const sortByDisplay: Record<SortBy, string> = {
   viewableDate: 'Viewable Date',
   pcReleaseDate: 'PC Release Date',
   upcoming: 'Upcoming',
-  priceAsc: 'Price (Low to High)',
-  priceDesc: 'Price (High to Low)',
+  price: 'Price',
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -179,6 +177,7 @@ export default function SearchPage() {
   >([]);
   const [query, setQuery] = useState<string>(initialQuery ?? (hash?.title as string) ?? '');
   const [sortBy, setSortBy] = useState<SortBy>((hash?.sortBy as SortBy) ?? 'lastModifiedDate');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [isCodeRedemptionOnly, setIsCodeRedemptionOnly] = useState<boolean | undefined>(
     (hash?.isCodeRedemptionOnly as boolean) ?? undefined,
   );
@@ -242,6 +241,7 @@ export default function SearchPage() {
               setInputValue('');
               setMaxPrice(undefined);
               setMinPrice(undefined);
+              setSortDir('desc');
             }}
           >
             Clear
@@ -429,6 +429,19 @@ export default function SearchPage() {
             <Button
               variant="outline"
               className="h-9 w-9 p-0"
+              onClick={() => setSortDir(sortDir === 'asc' ? 'desc' : 'asc')}
+            >
+              <ArrowDownIcon
+                className={cn(
+                  'h-5 w-5 transform transition-transform',
+                  sortDir === 'asc' ? '-rotate-180' : 'rotate-0',
+                )}
+                aria-hidden="true"
+              />
+            </Button>
+            <Button
+              variant="outline"
+              className="h-9 w-9 p-0"
               onClick={() => setView(view === 'grid' ? 'list' : 'grid')}
             >
               {view === 'grid' ? (
@@ -446,6 +459,7 @@ export default function SearchPage() {
           setTagsCount={setTagsCount}
           setOfferTypesCount={setOfferTypeCount}
           sortBy={sortBy}
+          sortDir={sortDir}
           isCodeRedemptionOnly={isCodeRedemptionOnly}
           isSale={isSale}
           viewType={view}
@@ -488,6 +502,7 @@ function SearchResults({
   selectedOfferType,
   setOfferTypesCount,
   sortBy,
+  sortDir,
   isCodeRedemptionOnly,
   isSale,
   viewType,
@@ -506,6 +521,7 @@ function SearchResults({
     >
   >;
   sortBy: SortBy;
+  sortDir: 'asc' | 'desc';
   isCodeRedemptionOnly?: boolean;
   isSale?: boolean;
   viewType: 'grid' | 'list';
@@ -523,6 +539,7 @@ function SearchResults({
         query,
         selectedTags,
         sortBy,
+        sortDir,
         isCodeRedemptionOnly,
         selectedOfferType,
         isSale,
@@ -543,6 +560,7 @@ function SearchResults({
           '/search',
           {
             sortBy: sortBy,
+            sortDir: sortDir,
             limit: 32,
             page: page,
             title: query === '' ? undefined : query,
