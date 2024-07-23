@@ -218,7 +218,7 @@ export function OfferCard({
           'Thumbnail',
           'DieselGameBoxTall',
           'DieselStoreFrontTall',
-        ])?.url ?? 'https://via.placeholder.com/400x550',
+        ])?.url ?? '/placeholder.webp',
       ).then((result) => {
         setGradient(result);
       });
@@ -235,7 +235,7 @@ export function OfferCard({
               'Thumbnail',
               'DieselGameBoxTall',
               'DieselStoreFrontTall',
-            ])?.url
+            ])?.url ?? '/placeholder.webp'
           }
           alt="Game Cover"
           width={600}
