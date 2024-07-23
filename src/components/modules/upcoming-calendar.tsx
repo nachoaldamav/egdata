@@ -175,5 +175,10 @@ function formatTimeLeft(timeLeft: number) {
     formatted += `${seconds}`;
   }
 
+  // If the time has passed, show ""
+  if (timeLeft < 0) {
+    formatted = '';
+  }
+
   return formatted;
 }
