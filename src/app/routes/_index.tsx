@@ -30,6 +30,7 @@ import getCountryCode from '~/lib/get-country-code';
 import { useCountry } from '~/hooks/use-country';
 import { useQuery } from '@tanstack/react-query';
 import { UpcomingCalendar } from '~/components/modules/upcoming-calendar';
+import { GamesWithAchievements } from '~/components/modules/achievements-blade';
 
 export const meta: MetaFunction = () => {
   return [
@@ -119,6 +120,7 @@ export default function Index() {
       </section>
       <SalesModule event={events[0].name} eventId={events[0].id} />
       <TopSection slug="top-wishlisted" title="Most Anticipated" side="right" />
+      <GamesWithAchievements />
       <SalesModule event={events[1].name} eventId={events[1].id} />
       <SalesModule event={events[2].name} eventId={events[2].id} />
     </main>
