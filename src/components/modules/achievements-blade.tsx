@@ -70,7 +70,7 @@ export function GamesWithAchievements() {
     <section className="w-full flex flex-col gap-4">
       <Link
         to={'/search?tags=19847&sort_by=creationDate'}
-        className="text-2xl font-bold text-left inline-flex gap-2 group items-center justify-start"
+        className="text-xl font-bold text-left inline-flex gap-2 group items-center justify-start"
       >
         Games with Epic Achievements 🏆
         <ArrowRightIcon className="w-6 h-6 transform group-hover:translate-x-1 transition-transform" />
