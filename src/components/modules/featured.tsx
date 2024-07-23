@@ -21,6 +21,7 @@ import { client } from '~/lib/client';
 import { useCountry } from '~/hooks/use-country';
 import Autoplay from 'embla-carousel-autoplay';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '../ui/tooltip';
+import buildImageUrl from '~/lib/build-image-url';
 
 const SLIDE_DELAY = 5000; // 5 seconds
 
@@ -229,13 +230,15 @@ function ProgressIndicator({
             <TooltipContent className="p-0" sideOffset={10}>
               {current !== i + 1 && (
                 <img
-                  src={
+                  src={buildImageUrl(
                     getImage(offers[i].keyImages, [
                       'DieselStoreFrontWide',
                       'Featured',
                       'OfferImageWide',
-                    ])?.url
-                  }
+                    ])?.url,
+                    400,
+                    'medium',
+                  )}
                   alt={offers[i].title}
                   className="w-auto h-28 object-cover rounded-md"
                 />

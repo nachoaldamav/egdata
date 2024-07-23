@@ -21,6 +21,7 @@ import { TooltipProvider, TooltipTrigger, TooltipContent, Tooltip } from '~/comp
 import { cn } from '~/lib/utils';
 import { Badge } from '../ui/badge';
 import { platformIcons } from '../app/platform-icons';
+import buildImageUrl from '~/lib/build-image-url';
 
 const SLIDE_DELAY = 100_000;
 
@@ -161,16 +162,18 @@ function ProgressIndicator({
                 }}
               />
             </TooltipTrigger>
-            <TooltipContent className="p-0" sideOffset={10}>
+            <TooltipContent className="p-0 bg-card" sideOffset={10}>
               {current !== i + 1 && (
                 <img
-                  src={
+                  src={buildImageUrl(
                     getImage(offers[i].keyImages, [
                       'DieselStoreFrontWide',
                       'Featured',
                       'OfferImageWide',
-                    ])?.url
-                  }
+                    ])?.url,
+                    400,
+                    'medium',
+                  )}
                   alt={offers[i].title}
                   className="w-auto h-28 object-cover rounded-md"
                 />
