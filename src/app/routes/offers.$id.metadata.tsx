@@ -15,6 +15,11 @@ import type { SingleSandbox } from '~/types/single-sandbox';
 
 export default function ItemsSection() {
   const data = useOutletContext<SingleOffer>();
+
+  if (!data) {
+    return null;
+  }
+
   const { data: sandboxData } = useQuery({
     queryKey: [
       'sandbox',
@@ -25,10 +30,6 @@ export default function ItemsSection() {
     queryFn: () =>
       client.get<SingleSandbox>(`/sandboxes/${data.namespace}`).then((res) => res.data),
   });
-
-  if (!data) {
-    return null;
-  }
 
   return (
     <>
