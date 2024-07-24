@@ -94,7 +94,7 @@ function GiveawayCard({ offer }: { offer: GiveawayOffer }) {
   });
 
   return (
-    <Link to={`/offers/${offer.namespace}`}>
+    <Link to={`/offers/${offer.id}`}>
       <Card className="w-[300px] border-transparent">
         <CardHeader className="p-0 rounded-t-xl relative">
           <Image
