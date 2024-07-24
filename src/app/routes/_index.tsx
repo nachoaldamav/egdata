@@ -1,7 +1,8 @@
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
+import type { ClientLoaderFunctionArgs } from '@remix-run/react';
 import type { FullTag } from '~/types/tags';
 import { Link, useLoaderData } from '@remix-run/react';
-import { client } from '~/lib/client';
+import { client, getQueryClient } from '~/lib/client';
 import {
   Carousel,
   CarouselContent,
@@ -46,44 +47,62 @@ export const meta: MetaFunction = () => {
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const queryClient = getQueryClient();
   const url = new URL(request.url);
   const country = getCountryCode(url, cookie.parse(request.headers.get('Cookie') || ''));
 
   const [latestGames, featuredGames, eventsData, giveawaysData] = await Promise.allSettled([
-    client
-      .get<SingleOffer[]>('/latest-games', {
-        params: {
-          country,
-        },
-      })
-      .catch((error) => {
-        console.error('Failed to fetch latest games', error);
-        return { data: [] as SingleOffer[] };
-      }),
-    client
-      .get<SingleOffer[]>('/featured', {
-        params: {
-          country,
-        },
-      })
-      .catch((error) => {
-        console.error('Failed to fetch featured game', error);
-        return { data: [] };
-      }),
-    client.get<FullTag[]>('/promotions').catch((error) => {
-      console.error('Failed to fetch events', error);
-      return { data: [] as FullTag[] };
+    queryClient.fetchQuery({
+      queryKey: ['latest-games'],
+      queryFn: () =>
+        client
+          .get<SingleOffer[]>('/latest-games', {
+            params: {
+              country,
+            },
+          })
+          .catch((error) => {
+            console.error('Failed to fetch latest games', error);
+            return { data: [] as SingleOffer[] };
+          }),
     }),
-    client
-      .get<GiveawayOffer[]>('/free-games', {
-        params: {
-          country,
-        },
-      })
-      .then((res) => res.data)
-      .catch((error) => {
-        return [] as GiveawayOffer[];
-      }),
+    queryClient.fetchQuery({
+      queryKey: ['featured'],
+      queryFn: () =>
+        client
+          .get<SingleOffer[]>('/featured', {
+            params: {
+              country,
+            },
+          })
+          .catch((error) => {
+            console.error('Failed to fetch featured game', error);
+            return { data: [] };
+          }),
+    }),
+    queryClient.fetchQuery({
+      queryKey: ['promotions'],
+      queryFn: () =>
+        client.get<FullTag[]>('/promotions').catch((error) => {
+          console.error('Failed to fetch events', error);
+          return { data: [] as FullTag[] };
+        }),
+    }),
+    queryClient.fetchQuery({
+      queryKey: ['giveaways'],
+      queryFn: () =>
+        client
+          .get<GiveawayOffer[]>('/free-games', {
+            params: {
+              country,
+            },
+          })
+          .then((res) => res.data)
+          .catch((error) => {
+            console.error('Failed to fetch giveaways', error);
+            return [] as GiveawayOffer[];
+          }),
+    }),
   ]);
 
   const games = latestGames.status === 'fulfilled' ? latestGames.value.data : [];
@@ -99,8 +118,82 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   };
 };
 
+export const clientLoader = async ({ request }: ClientLoaderFunctionArgs) => {
+  const queryClient = getQueryClient();
+  const url = new URL(request.url);
+  const country = getCountryCode(url, cookie.parse(request.headers.get('Cookie') || ''));
+
+  const [latestGames, featuredGames, eventsData, giveawaysData] = await Promise.allSettled([
+    queryClient.fetchQuery({
+      queryKey: ['latest-games'],
+      queryFn: () =>
+        client
+          .get<SingleOffer[]>('/latest-games', {
+            params: {
+              country,
+            },
+          })
+          .catch((error) => {
+            console.error('Failed to fetch latest games', error);
+            return { data: [] as SingleOffer[] };
+          }),
+    }),
+    queryClient.fetchQuery({
+      queryKey: ['featured'],
+      queryFn: () =>
+        client
+          .get<SingleOffer[]>('/featured', {
+            params: {
+              country,
+            },
+          })
+          .catch((error) => {
+            console.error('Failed to fetch featured game', error);
+            return { data: [] };
+          }),
+    }),
+    queryClient.fetchQuery({
+      queryKey: ['promotions'],
+      queryFn: () =>
+        client.get<FullTag[]>('/promotions').catch((error) => {
+          console.error('Failed to fetch events', error);
+          return { data: [] as FullTag[] };
+        }),
+    }),
+    queryClient.fetchQuery({
+      queryKey: ['giveaways'],
+      queryFn: () =>
+        client
+          .get<GiveawayOffer[]>('/free-games', {
+            params: {
+              country,
+            },
+          })
+          .then((res) => res.data)
+          .catch((error) => {
+            console.error('Failed to fetch giveaways', error);
+            return [] as GiveawayOffer[];
+          }),
+    }),
+  ]);
+
+  const games = latestGames.status === 'fulfilled' ? latestGames.value.data : [];
+  const featured = featuredGames.status === 'fulfilled' ? featuredGames.value.data : [];
+  const events = eventsData.status === 'fulfilled' ? eventsData.value.data : [];
+  const giveaways = giveawaysData.status === 'fulfilled' ? giveawaysData.value : [];
+
+  return {
+    games,
+    featured,
+    events,
+    giveaways,
+  };
+};
+
+type LoaderData = ReturnType<typeof loader | typeof clientLoader>;
+
 export default function Index() {
-  const { games, featured, events, giveaways } = useLoaderData<typeof loader>();
+  const { games, featured, events, giveaways } = useLoaderData<LoaderData>();
   return (
     <main className="flex flex-col items-center justify-start h-full space-y-4 p-4">
       <FeaturedModule offers={featured} />
