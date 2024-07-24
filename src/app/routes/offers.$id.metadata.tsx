@@ -1,4 +1,5 @@
 import { useOutletContext } from '@remix-run/react';
+import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import {
   Table,
@@ -8,10 +9,22 @@ import {
   TableBody,
   TableCell,
 } from '~/components/ui/table';
+import { client } from '~/lib/client';
 import type { SingleOffer } from '~/types/single-offer';
+import type { SingleSandbox } from '~/types/single-sandbox';
 
 export default function ItemsSection() {
   const data = useOutletContext<SingleOffer>();
+  const { data: sandboxData } = useQuery({
+    queryKey: [
+      'sandbox',
+      {
+        id: data.namespace,
+      },
+    ],
+    queryFn: () =>
+      client.get<SingleSandbox>(`/sandboxes/${data.namespace}`).then((res) => res.data),
+  });
 
   if (!data) {
     return null;
@@ -61,6 +74,13 @@ export default function ItemsSection() {
                 .filter((tag) => tag !== null)
                 .map((tag) => tag.name)
                 .join(', ')}
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell>Age Ratings</TableCell>
+            <TableCell>
+              {/* @ts-ignore */}
+              <AgeRatings ageRatings={sandboxData?.ageGatings ?? {}} />
             </TableCell>
           </TableRow>
         </TableBody>
@@ -113,4 +133,23 @@ function countriesList(countries: string[] | null) {
       return regionNameFmt.of(country);
     })
     .join(', ');
+}
+
+function AgeRatings({ ageRatings }: { ageRatings: SingleSandbox['ageGatings'] }) {
+  return (
+    <div className="inline-flex flex-wrap gap-2">
+      {Object.entries(ageRatings).map(([key, rating]) => (
+        <div className="flex flex-col gap-1" key={key}>
+          <img
+            key={key}
+            src={rating.ratingImage}
+            alt={key}
+            title={`${rating.title} - ${rating.gameRating}`}
+            className="size-20 mx-auto"
+          />
+          <span className="text-xs text-center">{rating.ratingSystem}</span>
+        </div>
+      ))}
+    </div>
+  );
 }
