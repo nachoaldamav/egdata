@@ -25,6 +25,7 @@ import defaultVideoPlayer from '@vidstack/react/player/styles/default/layouts/vi
 import { Skeleton } from '~/components/ui/skeleton';
 import { XIcon } from '@primer/octicons-react';
 import { useQueries } from '@tanstack/react-query';
+import { Image } from '~/components/app/image';
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: defaultPlayerTheme },
@@ -181,17 +182,19 @@ export default function ItemsSection() {
           <AccordionContent>
             <div className="grid grid-cols-2 gap-4">
               {media.images.map((image) => (
-                <img
+                <Image
                   key={image._id}
                   src={image.src}
                   alt=""
                   onClick={() => setActive(image._id)}
-                  className="cursor-pointer"
+                  className="cursor-pointer rounded-xl"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       setActive(image._id);
                     }
                   }}
+                  width={700}
+                  height={400}
                 />
               ))}
             </div>
