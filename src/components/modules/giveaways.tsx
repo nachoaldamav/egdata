@@ -4,39 +4,19 @@ import type { SingleOffer } from '~/types/single-offer';
 import { Skeleton } from '../ui/skeleton';
 import { Image } from '../app/image';
 import { getImage } from '~/lib/getImage';
-import { OfferCard } from '../app/offer-card';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '~/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 import { useCountry } from '~/hooks/use-country';
 import { useEffect, useState } from 'react';
 import { InfoCircledIcon } from '@radix-ui/react-icons';
 import { Link } from '@remix-run/react';
+import type { GiveawayOffer } from '~/types/giveaways';
 
-interface GiveawayOffer extends SingleOffer {
-  giveaway: {
-    _id: string;
-    id: string;
-    namespace: string;
-    startDate: string;
-    endDate: string;
-    historical: {
-      _id: string;
-      id: string;
-      namespace: string;
-      startDate: string;
-      endDate: string;
-    }[];
-  };
-}
-
-export function GiveawaysCarousel() {
+export function GiveawaysCarousel({
+  initialData,
+}: {
+  initialData: GiveawayOffer[];
+}) {
   const { country } = useCountry();
   const { data, isLoading, isError } = useQuery({
     queryKey: ['giveaways'],
@@ -48,6 +28,7 @@ export function GiveawaysCarousel() {
           },
         })
         .then((res) => res.data),
+    initialData,
   });
 
   if (isLoading) {

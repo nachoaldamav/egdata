@@ -1,10 +1,7 @@
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import type { FullTag } from '~/types/tags';
 import { Link, useLoaderData } from '@remix-run/react';
-import { Image } from '~/components/app/image';
-import { Card, CardContent } from '~/components/ui/card';
 import { client } from '~/lib/client';
-import { getImage } from '~/lib/getImage';
 import {
   Carousel,
   CarouselContent,
@@ -13,7 +10,7 @@ import {
   CarouselPrevious,
 } from '~/components/ui/carousel';
 import type { SingleOffer } from '~/types/single-offer';
-import { useEffect, useState } from 'react';
+import type { GiveawayOffer } from '~/types/giveaways';
 import cookie from 'cookie';
 import { Skeleton } from '~/components/ui/skeleton';
 import { SalesModule } from '~/components/modules/sales';
@@ -23,7 +20,6 @@ import { UpcomingOffers } from '~/components/modules/upcoming';
 import { ArrowRightIcon } from '@radix-ui/react-icons';
 import { StatsModule } from '~/components/modules/stats';
 import { TopSection } from '~/components/modules/top-section';
-import { getSeller } from '~/lib/get-seller';
 import { FeaturedDiscounts } from '~/components/modules/featured-discounts';
 import { OfferCard } from '~/components/app/offer-card';
 import getCountryCode from '~/lib/get-country-code';
@@ -53,7 +49,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const country = getCountryCode(url, cookie.parse(request.headers.get('Cookie') || ''));
 
-  const [latestGames, featuredGames, eventsData] = await Promise.allSettled([
+  const [latestGames, featuredGames, eventsData, giveawaysData] = await Promise.allSettled([
     client
       .get<SingleOffer[]>('/latest-games', {
         params: {
@@ -78,26 +74,38 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       console.error('Failed to fetch events', error);
       return { data: [] as FullTag[] };
     }),
+    client
+      .get<GiveawayOffer[]>('/free-games', {
+        params: {
+          country,
+        },
+      })
+      .then((res) => res.data)
+      .catch((error) => {
+        return [] as GiveawayOffer[];
+      }),
   ]);
 
   const games = latestGames.status === 'fulfilled' ? latestGames.value.data : [];
   const featured = featuredGames.status === 'fulfilled' ? featuredGames.value.data : [];
   const events = eventsData.status === 'fulfilled' ? eventsData.value.data : [];
+  const giveaways = giveawaysData.status === 'fulfilled' ? giveawaysData.value : [];
 
   return {
     games,
     featured,
     events,
+    giveaways,
   };
 };
 
 export default function Index() {
-  const { games, featured, events } = useLoaderData<typeof loader>();
+  const { games, featured, events, giveaways } = useLoaderData<typeof loader>();
   return (
     <main className="flex flex-col items-center justify-start h-full space-y-4 p-4">
       <FeaturedModule offers={featured} />
-      <GiveawaysCarousel />
-      <section className="w-full" id="latest-games">
+      <GiveawaysCarousel initialData={giveaways} />
+      <section className="w-full pt-4" id="latest-games">
         <h4 className="text-xl font-bold text-left">Latest Offers</h4>
         <Carousel className="mt-2 h-full p-4">
           <CarouselPrevious />
