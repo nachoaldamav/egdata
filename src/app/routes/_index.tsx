@@ -31,6 +31,7 @@ import { useCountry } from '~/hooks/use-country';
 import { useQuery } from '@tanstack/react-query';
 import { UpcomingCalendar } from '~/components/modules/upcoming-calendar';
 import { GamesWithAchievements } from '~/components/modules/achievements-blade';
+import { GiveawaysCarousel } from '~/components/modules/giveaways';
 
 export const meta: MetaFunction = () => {
   return [
@@ -95,6 +96,7 @@ export default function Index() {
   return (
     <main className="flex flex-col items-center justify-start h-full space-y-4 p-4">
       <FeaturedModule offers={featured} />
+      <GiveawaysCarousel />
       <section className="w-full" id="latest-games">
         <h4 className="text-xl font-bold text-left">Latest Offers</h4>
         <Carousel className="mt-2 h-full p-4">

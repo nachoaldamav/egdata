@@ -192,7 +192,8 @@ const textSizes = {
 export function OfferCard({
   offer,
   size = 'xl',
-}: { offer: SingleOffer; size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' }) {
+  content,
+}: { offer: SingleOffer; size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'; content?: JSX.Element }) {
   const { genres } = useGenres();
   const [gradient, setGradient] = useState<string | null>(null);
   const fmt = Intl.NumberFormat(undefined, {
@@ -245,58 +246,67 @@ export function OfferCard({
         />
         <div className="relative p-4 bg-card h-44 shadow-xl">
           <div className="flex flex-col z-10 h-full">
-            <div className="flex items-start justify-between mb-2 z-10">
-              <h3 className={cn('text-xl font-bold', textSizes[size] ?? textSizes.xl)}>
-                {offer.title}
-              </h3>
-              {/* <div className="flex items-center gap-1 text-sm font-medium">
+            {!content && (
+              <>
+                <div className="flex items-start justify-between mb-2 z-10">
+                  <h3 className={cn('text-xl font-bold', textSizes[size] ?? textSizes.xl)}>
+                    {offer.title}
+                  </h3>
+                  {/* <div className="flex items-center gap-1 text-sm font-medium">
                 <StarIcon className="w-4 h-4 fill-primary" />
                 <span>4.8</span>
               </div> */}
-            </div>
-            <div className="text-sm text-muted-foreground mb-4 z-10">
-              {offerGenres.length > 0 ? offerGenres.join(', ') : offersDictionary[offer.offerType]}
-            </div>
-            <div className="text-lg font-bold text-primary inline-flex items-end gap-2 z-10 h-full">
-              {isReleased && offer.price && (
-                <div className="flex items-center gap-2 text-right w-full justify-start">
-                  <span>{isFree ? 'Free' : fmt.format(offer.price.price.discountPrice / 100)}</span>
-                  {offer.price.price.discount > 0 && (
-                    <span className="line-through text-sm">
-                      {fmt.format(offer.price.price.originalPrice / 100)}
-                    </span>
-                  )}
                 </div>
-              )}
-              {!isReleased && isPreOrder && (
-                <div className="flex items-center gap-2 text-right w-full justify-start">
-                  <span>{fmt.format(offer.price.price.discountPrice / 100)}</span>
-                  {offer.price.price.discount > 0 && (
-                    <span className="line-through text-sm">
-                      {fmt.format(offer.price.price.originalPrice / 100)}
-                    </span>
-                  )}
+                <div className="text-sm text-muted-foreground mb-4 z-10">
+                  {offerGenres.length > 0
+                    ? offerGenres.join(', ')
+                    : offersDictionary[offer.offerType]}
                 </div>
-              )}
-              {!isReleased && !isPreOrder && !offer.price && <span>Coming Soon</span>}
-              {!isReleased &&
-                !isPreOrder &&
-                offer.price &&
-                offer.price.price.discountPrice !== 0 && (
-                  <div className="flex items-center gap-2 text-right w-full justify-start">
-                    <span>{fmt.format(offer.price.price.discountPrice / 100)}</span>
-                    {offer.price.price.discount > 0 && (
-                      <span className="line-through text-sm">
-                        {fmt.format(offer.price.price.originalPrice / 100)}
+                <div className="text-lg font-bold text-primary inline-flex items-end gap-2 z-10 h-full">
+                  {isReleased && offer.price && (
+                    <div className="flex items-center gap-2 text-right w-full justify-start">
+                      <span>
+                        {isFree ? 'Free' : fmt.format(offer.price.price.discountPrice / 100)}
                       </span>
+                      {offer.price.price.discount > 0 && (
+                        <span className="line-through text-sm">
+                          {fmt.format(offer.price.price.originalPrice / 100)}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {!isReleased && isPreOrder && (
+                    <div className="flex items-center gap-2 text-right w-full justify-start">
+                      <span>{fmt.format(offer.price.price.discountPrice / 100)}</span>
+                      {offer.price.price.discount > 0 && (
+                        <span className="line-through text-sm">
+                          {fmt.format(offer.price.price.originalPrice / 100)}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {!isReleased && !isPreOrder && !offer.price && <span>Coming Soon</span>}
+                  {!isReleased &&
+                    !isPreOrder &&
+                    offer.price &&
+                    offer.price.price.discountPrice !== 0 && (
+                      <div className="flex items-center gap-2 text-right w-full justify-start">
+                        <span>{fmt.format(offer.price.price.discountPrice / 100)}</span>
+                        {offer.price.price.discount > 0 && (
+                          <span className="line-through text-sm">
+                            {fmt.format(offer.price.price.originalPrice / 100)}
+                          </span>
+                        )}
+                      </div>
                     )}
-                  </div>
-                )}
-              {!isReleased &&
-                !isPreOrder &&
-                offer.price &&
-                offer.price.price.discountPrice === 0 && <span>Coming Soon</span>}
-            </div>
+                  {!isReleased &&
+                    !isPreOrder &&
+                    offer.price &&
+                    offer.price.price.discountPrice === 0 && <span>Coming Soon</span>}
+                </div>
+              </>
+            )}
+            {content && content}
           </div>
           <div
             className="absolute top-0 left-0 opacity-[0.075] transition-opacity duration-1000 ease-in-out group-hover:opacity-[0.2]"
