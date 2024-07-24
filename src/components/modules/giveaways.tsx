@@ -17,6 +17,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/comp
 import { useCountry } from '~/hooks/use-country';
 import { useEffect, useState } from 'react';
 import { InfoCircledIcon } from '@radix-ui/react-icons';
+import { Link } from '@remix-run/react';
 
 interface GiveawayOffer extends SingleOffer {
   giveaway: {
@@ -93,74 +94,78 @@ function GiveawayCard({ offer }: { offer: GiveawayOffer }) {
   });
 
   return (
-    <Card className="w-[300px] border-transparent">
-      <CardHeader className="p-0 rounded-t-xl relative">
-        <Image
-          src={getImage(offer.keyImages, ['DieselGameBoxWide', 'OfferImageWide', 'Featured'])?.url}
-          alt={offer.title}
-          className="w-full h-[200px] object-cover rounded-t-xl"
-          width={400}
-          height={225}
-        />
-        {isUpcoming && (
-          <div className="absolute bottom-0 left-0 bg-blue-700 text-white text-sm p-1 w-full text-center">
-            starts in <Countdown targetDate={startDate} />
-          </div>
-        )}
-      </CardHeader>
-      <CardContent className="p-4">
-        <CardTitle className="text-lg font-medium">{offer.title}</CardTitle>
-      </CardContent>
-      <CardFooter className="px-4 pb-4 rounded-b-xl gap-2 justify-between items-baseline">
-        <div className="inline-flex items-center gap-2">
-          <span className="text-xl font-bold">
-            {isOnGoing ? 'Free' : priceFmtr.format(offer.price.price.originalPrice / 100)}
-          </span>
-          {isOnGoing && (
-            <span className="text-sm font-semibold inline-flex items-center gap-1 line-through">
-              {priceFmtr.format(offer.price.price.originalPrice / 100)}
-            </span>
+    <Link to={`/offers/${offer.namespace}`}>
+      <Card className="w-[300px] border-transparent">
+        <CardHeader className="p-0 rounded-t-xl relative">
+          <Image
+            src={
+              getImage(offer.keyImages, ['DieselGameBoxWide', 'OfferImageWide', 'Featured'])?.url
+            }
+            alt={offer.title}
+            className="w-full h-[200px] object-cover rounded-t-xl"
+            width={400}
+            height={225}
+          />
+          {isUpcoming && (
+            <div className="absolute bottom-0 left-0 bg-blue-700 text-white text-sm p-1 w-full text-center">
+              starts in <Countdown targetDate={startDate} />
+            </div>
           )}
-        </div>
-        <span className="text-sm font-semibold inline-flex items-center gap-1">
-          <TooltipProvider>
-            Repeated:{' '}
-            {offer.giveaway.historical.length > 1 ? (
-              <Tooltip>
-                <TooltipTrigger className="flex items-center gap-1">
-                  Yes
-                  <InfoCircledIcon className="w-4 h-4" />
-                </TooltipTrigger>
-                <TooltipContent className="flex flex-col gap-1">
-                  <i className="text-xs font-normal">
-                    This giveaway has been repeated {offer.giveaway.historical.length} times.
-                  </i>
-                  <div className="flex flex-col gap-1">
-                    {offer.giveaway.historical.map((historical) => (
-                      <span key={historical.id}>
-                        {new Date(historical.startDate).toLocaleDateString('en-UK', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                        })}{' '}
-                        -{' '}
-                        {new Date(historical.endDate).toLocaleDateString('en-UK', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                        })}
-                      </span>
-                    ))}
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            ) : (
-              'No'
+        </CardHeader>
+        <CardContent className="p-4">
+          <CardTitle className="text-lg font-medium">{offer.title}</CardTitle>
+        </CardContent>
+        <CardFooter className="px-4 pb-4 rounded-b-xl gap-2 justify-between items-baseline">
+          <div className="inline-flex items-center gap-2">
+            <span className="text-xl font-bold">
+              {isOnGoing ? 'Free' : priceFmtr.format(offer.price.price.originalPrice / 100)}
+            </span>
+            {isOnGoing && (
+              <span className="text-sm font-semibold inline-flex items-center gap-1 line-through">
+                {priceFmtr.format(offer.price.price.originalPrice / 100)}
+              </span>
             )}
-          </TooltipProvider>
-        </span>
-      </CardFooter>
-    </Card>
+          </div>
+          <span className="text-sm font-semibold inline-flex items-center gap-1">
+            <TooltipProvider>
+              Repeated:{' '}
+              {offer.giveaway.historical.length > 1 ? (
+                <Tooltip>
+                  <TooltipTrigger className="flex items-center gap-1">
+                    Yes
+                    <InfoCircledIcon className="w-4 h-4" />
+                  </TooltipTrigger>
+                  <TooltipContent className="flex flex-col gap-1">
+                    <i className="text-xs font-normal">
+                      This giveaway has been repeated {offer.giveaway.historical.length} times.
+                    </i>
+                    <div className="flex flex-col gap-1">
+                      {offer.giveaway.historical.map((historical) => (
+                        <span key={historical.id}>
+                          {new Date(historical.startDate).toLocaleDateString('en-UK', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                          })}{' '}
+                          -{' '}
+                          {new Date(historical.endDate).toLocaleDateString('en-UK', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                          })}
+                        </span>
+                      ))}
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                'No'
+              )}
+            </TooltipProvider>
+          </span>
+        </CardFooter>
+      </Card>
+    </Link>
   );
 }
 
