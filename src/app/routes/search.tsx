@@ -97,6 +97,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const sortBy = url.searchParams.get('sort_by');
   const q = url.searchParams.get('q');
   const offerType = url.searchParams.get('offer_type');
+  const page = url.searchParams.get('page');
 
   if (!hash) {
     // Try to get the hash from the request.headers.referer
@@ -149,6 +150,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     country,
     initialTags: initialTags ? initialTags.split(',') : [],
     initialQuery: q,
+    page: page ? Number.parseInt(page) : 1,
   };
 }
 
@@ -159,6 +161,7 @@ export default function SearchPage() {
     offerTypes,
     initialTags,
     initialQuery,
+    page: initialPage,
   } = useLoaderData<typeof loader>();
   const { data: tags } = useQuery({
     queryKey: ['tags'],
@@ -193,9 +196,9 @@ export default function SearchPage() {
   const [minPrice, setMinPrice] = useState<number | undefined>(
     hash?.price?.min as number | undefined,
   );
-
   // New state for the immediate input value
   const [inputValue, setInputValue] = useState<string>(query);
+  const [page, setPage] = useState(initialPage ?? 1);
 
   function handleSelect(tag: string) {
     setSelectedTags((prev) => {
@@ -469,6 +472,8 @@ export default function SearchPage() {
           isSale={isSale}
           viewType={view}
           price={{ min: minPrice, max: maxPrice }}
+          page={page}
+          setPage={setPage}
         />
       </main>
     </div>
@@ -512,6 +517,8 @@ function SearchResults({
   isSale,
   viewType,
   price,
+  page,
+  setPage,
 }: {
   query: string;
   selectedTags: string[];
@@ -531,11 +538,12 @@ function SearchResults({
   isSale?: boolean;
   viewType: 'grid' | 'list';
   price?: { min?: number; max?: number };
+  page: number;
+  setPage: React.Dispatch<React.SetStateAction<number>>;
 }) {
   const queryClient = getQueryClient();
   const { country } = useCountry();
   const [, setSearchParams] = useSearchParams();
-  const [page, setPage] = useState(1);
   const [count, setCount] = useState(0);
   const { isPending, error, data } = useQuery({
     queryKey: [

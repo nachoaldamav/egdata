@@ -137,9 +137,9 @@ function countriesList(countries: string[] | null) {
 
 function AgeRatings({ ageRatings }: { ageRatings: SingleSandbox['ageGatings'] }) {
   return (
-    <div className="inline-flex flex-wrap gap-2">
+    <div className="flex flex-col gap-2 items-start justify-start">
       {Object.entries(ageRatings).map(([key, rating]) => (
-        <div className="flex flex-col gap-1" key={key}>
+        <div className="flex flex-row gap-2" key={key}>
           <img
             key={key}
             src={rating.ratingImage}
@@ -147,7 +147,10 @@ function AgeRatings({ ageRatings }: { ageRatings: SingleSandbox['ageGatings'] })
             title={`${rating.title} - ${rating.gameRating}`}
             className="size-20 mx-auto"
           />
-          <span className="text-xs text-center">{rating.ratingSystem}</span>
+          <div className="flex flex-col gap-1 py-2">
+            <span className="text-xs text-left font-bold">{rating.ratingSystem}</span>
+            <span className="text-xs text-left">{rating.element}</span>
+          </div>
         </div>
       ))}
     </div>

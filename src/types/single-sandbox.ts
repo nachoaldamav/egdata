@@ -32,11 +32,12 @@ export interface RatingAgeGating {
 }
 
 export interface AgeGatings {
-  ACB: Acb;
+  /* ACB: Acb;
   CERO: Cero;
   PEGI: Pegi;
   GRAC: Grac;
-  ESRB: Esrb;
+  ESRB: Esrb; */
+  [key: string]: Acb | Cero | Pegi | Grac | Esrb;
 }
 
 export interface Acb {
