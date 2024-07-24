@@ -96,6 +96,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const initialTags = url.searchParams.get('tags');
   const sortBy = url.searchParams.get('sort_by');
   const q = url.searchParams.get('q');
+  const offerType = url.searchParams.get('offer_type');
 
   if (!hash) {
     // Try to get the hash from the request.headers.referer
@@ -135,6 +136,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (q) {
     if (!query) query = {};
     query.query = q;
+  }
+  if (offerType) {
+    if (!query) query = {};
+    query.offerType = offerType;
   }
 
   return {
