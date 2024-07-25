@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import { InfoCircledIcon } from '@radix-ui/react-icons';
 import { Link } from '@remix-run/react';
 import type { GiveawayOffer } from '~/types/giveaways';
+import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 
 export function GiveawaysCarousel({
   initialData,
@@ -51,11 +52,14 @@ export function GiveawaysCarousel({
       className="flex flex-col items-start justify-start w-full gap-4"
     >
       <h2 className="text-xl font-bold">Giveaways 🎁</h2>
-      <div className="flex flex-row items-center justify-evenly gap-6 w-full">
-        {data.map((offer) => (
-          <GiveawayCard key={offer.id} offer={offer} />
-        ))}
-      </div>
+      <ScrollArea className="w-full">
+        <div className="flex flex-row items-center justify-evenly gap-6 w-full">
+          {data.map((offer) => (
+            <GiveawayCard key={offer.id} offer={offer} />
+          ))}
+        </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
     </section>
   );
 }
