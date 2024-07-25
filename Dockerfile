@@ -3,6 +3,7 @@ FROM node:20.14.0-slim as base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
+RUN apt-get update && apt-get install -y curl
 COPY . /app
 WORKDIR /app
 
