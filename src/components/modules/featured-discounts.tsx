@@ -15,22 +15,25 @@ import { Image } from '~/components/app/image';
 import { getImage } from '~/lib/getImage';
 import type { Media } from '~/types/media';
 import { useEffect, useRef, useState } from 'react';
-import { FaApple, FaWindows } from 'react-icons/fa6';
 import Autoplay from 'embla-carousel-autoplay';
 import { TooltipProvider, TooltipTrigger, TooltipContent, Tooltip } from '~/components/ui/tooltip';
 import { cn } from '~/lib/utils';
 import { Badge } from '../ui/badge';
 import { platformIcons } from '../app/platform-icons';
 import buildImageUrl from '~/lib/build-image-url';
+import { useCountry } from '~/hooks/use-country';
 
 const SLIDE_DELAY = 100_000;
 
 export function FeaturedDiscounts() {
+  const { country } = useCountry();
   const { data: featuredDiscounts } = useQuery({
-    queryKey: ['featuredDiscounts'],
+    queryKey: ['featuredDiscounts', { country }],
     queryFn: () =>
       client
-        .get<SingleOffer[]>('/offers/featured-discounts')
+        .get<SingleOffer[]>('/offers/featured-discounts', {
+          params: { country },
+        })
         .then((response) => response.data.slice(0, 20)),
   });
 
