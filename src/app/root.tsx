@@ -21,22 +21,21 @@ import { type Preferences, PreferencesProvider } from '~/context/preferences';
 import { decode } from '~/lib/preferences-encoding';
 import getCountryCode from '~/lib/get-country-code';
 import '../tailwind.css';
+import '../fonts.css';
+import tailwindCss from '../tailwind.css?url';
+import fontCss from '../fonts.css?url';
 
 export const links: LinksFunction = () => [
-  // { rel: 'stylesheet', href: stylesheet },
   { rel: 'preconnect', href: 'https://cdn1.epicgames.com/' },
   { rel: 'preconnect', href: 'https://api.egdata.app/' },
   { rel: 'preconnect', href: 'https://fonts.googleapis.com/' },
   { rel: 'preconnect', href: 'https://fonts.gstatic.com/', crossOrigin: 'anonymous' },
-  // Load nunito sans and Montserrat from google fonts
-  {
-    rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap',
-  },
-  {
-    rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap',
-  },
+  ...(import.meta.env.DEV
+    ? [
+        { rel: 'stylesheet', href: tailwindCss, preload: 'true' },
+        { rel: 'stylesheet', href: fontCss, preload: 'true' },
+      ]
+    : []),
 ];
 
 export const meta: MetaFunction = () => {
