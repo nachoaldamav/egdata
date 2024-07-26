@@ -305,7 +305,7 @@ function FeaturedOffer({ offer }: { offer: SingleOffer }) {
               ))}
               {!offerMedia?.images.length &&
                 Array.from({ length: 4 }).map((_, index) => (
-                  <Skeleton key={index} className="w-full h-full" />
+                  <Skeleton key={`${offer.id}-image-${index}`} className="w-full h-full" />
                 ))}
             </div>
           </div>
