@@ -63,7 +63,10 @@ export const meta: MetaFunction = () => {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   try {
-    const cookieHeader = request.headers.get('Cookie');
+    let cookieHeader = request.headers.get('Cookie');
+    if (typeof cookieHeader !== 'string') {
+      cookieHeader = '';
+    }
     const cookies = cookie.parse(cookieHeader || '');
     const userPreferences = (
       cookies.EGDATA_PREFERENCES ? JSON.parse(decode(cookies.EGDATA_PREFERENCES)) : undefined
