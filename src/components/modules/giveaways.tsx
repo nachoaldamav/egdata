@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { client } from '~/lib/client';
-import type { SingleOffer } from '~/types/single-offer';
 import { Skeleton } from '../ui/skeleton';
 import { Image } from '../app/image';
 import { getImage } from '~/lib/getImage';

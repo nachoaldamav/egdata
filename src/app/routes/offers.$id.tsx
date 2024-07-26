@@ -377,14 +377,16 @@ export default function Index() {
               <TableBody>
                 <TableRow>
                   <TableCell className="font-medium">Namespace</TableCell>
-                  <TableCell className={'text-left font-mono border-l-gray-300/10 border-l'}>
+                  <TableCell
+                    className={
+                      'text-left font-mono border-l-gray-300/10 border-l underline decoration-dotted decoration-slate-600 underline-offset-4'
+                    }
+                  >
                     <Link to={`/sandboxes/${offerData.namespace}/offers`}>
                       {internalNamespaces.includes(offerData.namespace) ? (
                         <TooltipProvider>
                           <Tooltip>
-                            <TooltipTrigger className="underline decoration-dotted underline-offset-4">
-                              {offerData.namespace}
-                            </TooltipTrigger>
+                            <TooltipTrigger>{offerData.namespace}</TooltipTrigger>
                             <TooltipContent>
                               <p>Epic Games internal namespace</p>
                             </TooltipContent>
