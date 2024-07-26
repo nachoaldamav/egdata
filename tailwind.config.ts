@@ -26,11 +26,7 @@ const config = {
       'span-11': 'span 11 / span 11',
       'span-12': 'span 12 / span 12',
     },
-    fontFamily: {
-      sans: ['Nunito Sans', ...require('tailwindcss/defaultConfig').theme.fontFamily.sans],
-      mono: [...require('tailwindcss/defaultConfig').theme.fontFamily.mono],
-      montserrat: ['Montserrat', ...require('tailwindcss/defaultConfig').theme.fontFamily.sans],
-    },
+
     extend: {
       colors: {
         border: 'hsl(var(--border))',
@@ -123,6 +119,10 @@ const config = {
       },
       transitionProperty: {
         bg: 'background-color, transform',
+      },
+      fontFamily: {
+        sans: ['Nunito Sans', 'sans-serif'],
+        montserrat: ['Montserrat', 'sans-serif'],
       },
     },
   },
