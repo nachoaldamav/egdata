@@ -62,15 +62,23 @@ export const meta: MetaFunction = () => {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const cookieHeader = request.headers.get('Cookie');
-  const cookies = cookie.parse(cookieHeader || '');
-  const userPreferences = (
-    cookies.EGDATA_PREFERENCES ? JSON.parse(decode(cookies.EGDATA_PREFERENCES)) : undefined
-  ) as Preferences;
-  const url = new URL(request.url);
-  const country = getCountryCode(url, cookies);
+  try {
+    const cookieHeader = request.headers.get('Cookie');
+    const cookies = cookie.parse(cookieHeader || '');
+    const userPreferences = (
+      cookies.EGDATA_PREFERENCES ? JSON.parse(decode(cookies.EGDATA_PREFERENCES)) : undefined
+    ) as Preferences;
+    const url = new URL(request.url);
+    const country = getCountryCode(url, cookies);
 
-  return { userPreferences, country };
+    return { userPreferences, country };
+  } catch (error) {
+    console.error(error);
+    return {
+      userPreferences: {},
+      country: 'US',
+    };
+  }
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
