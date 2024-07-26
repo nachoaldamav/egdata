@@ -46,7 +46,10 @@ type preferencesCookie = {
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const queryClient = getQueryClient();
   const url = new URL(request.url);
-  const cookieHeader = request.headers.get('Cookie');
+  let cookieHeader = request.headers.get('Cookie');
+  if (typeof cookieHeader !== 'string') {
+    cookieHeader = '';
+  }
   const country = getCountryCode(url, cookie.parse(request.headers.get('Cookie') || ''));
   const userPrefsCookie = cookie.parse(cookieHeader as string).EGDATA_USER_PREFS as string;
   const userPrefs = JSON.parse(userPrefsCookie || '{}') as preferencesCookie;
