@@ -35,6 +35,7 @@ export default defineConfig({
       org: 'royale-radar',
       project: 'egdata-website',
       authToken: process.env.SENTRY_AUTH_TOKEN,
+      disable: true,
     }),
   ],
   build: {
