@@ -34,6 +34,7 @@ export default defineConfig({
     sentryVitePlugin({
       org: 'royale-radar',
       project: 'egdata-website',
+      authToken: process.env.SENTRY_AUTH_TOKEN,
     }),
   ],
   build: {

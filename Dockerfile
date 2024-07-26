@@ -3,7 +3,7 @@ FROM node:22-alpine3.19 AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
-RUN apk --no-cache add curl
+RUN apk --no-cache add curl git
 COPY . /app
 WORKDIR /app
 
