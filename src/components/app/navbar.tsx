@@ -52,11 +52,9 @@ export default function Navbar() {
           </SheetHeader>
           <NavigationMenu className="grid gap-2 py-6">
             {routes.map((route) => (
-              <Link key={route.name} to={route.href}>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  {route.name}
-                </NavigationMenuLink>
-              </Link>
+              <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild key={route.name}>
+                <Link to={route.href}>{route.name}</Link>
+              </NavigationMenuLink>
             ))}
           </NavigationMenu>
         </SheetContent>
@@ -68,11 +66,11 @@ export default function Navbar() {
       <NavigationMenu className="hidden lg:flex">
         <NavigationMenuList>
           {routes.map((route) => (
-            <Link key={route.name} to={route.href} prefetch="render">
-              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+            <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild key={route.name}>
+              <Link key={route.name} to={route.href} prefetch="render">
                 {route.name}
-              </NavigationMenuLink>
-            </Link>
+              </Link>
+            </NavigationMenuLink>
           ))}
         </NavigationMenuList>
       </NavigationMenu>
