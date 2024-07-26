@@ -11,14 +11,17 @@ export interface CountryState {
 
 interface CountryProviderProps {
   children: ReactNode;
+  defaultCountry: string;
 }
 
-function CountryProvider({ children }: CountryProviderProps) {
+function CountryProvider({ children, defaultCountry }: CountryProviderProps) {
   const location = useLocation();
   const url = new URL(`https://dummy${location.pathname}${location.search}`);
 
   const [cookies, setCookie] = useCookies(['EGDATA_COUNTRY']);
-  const [countryState, setCountryState] = useState<string>(getCountryCode(url, cookies));
+  const [countryState, setCountryState] = useState<string>(
+    defaultCountry ?? getCountryCode(url, cookies),
+  );
 
   const handleCountry = (selectedCountry: string) => {
     setCookie('EGDATA_COUNTRY', selectedCountry, {

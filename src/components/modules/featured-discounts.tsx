@@ -22,19 +22,22 @@ import { Badge } from '../ui/badge';
 import { platformIcons } from '../app/platform-icons';
 import buildImageUrl from '~/lib/build-image-url';
 import { useCountry } from '~/hooks/use-country';
+import { Skeleton } from '../ui/skeleton';
+import { getFeaturedDiscounts } from '~/queries/featured-discounts';
 
 const SLIDE_DELAY = 100_000;
 
 export function FeaturedDiscounts() {
   const { country } = useCountry();
-  const { data: featuredDiscounts } = useQuery({
+  const {
+    data: featuredDiscounts,
+    isLoading,
+    isFetching,
+  } = useQuery({
     queryKey: ['featuredDiscounts', { country }],
-    queryFn: () =>
-      client
-        .get<SingleOffer[]>('/offers/featured-discounts', {
-          params: { country },
-        })
-        .then((response) => response.data.slice(0, 20)),
+    queryFn: () => getFeaturedDiscounts({ country }),
+    refetchOnReconnect: false,
+    refetchOnMount: false,
   });
 
   const [api, setApi] = useState<CarouselApi>();
@@ -50,11 +53,13 @@ export function FeaturedDiscounts() {
 
     setCount(api.scrollSnapList().length);
     setCurrent(api.selectedScrollSnap() + 1);
-    setProgress(Array.from({ length: (featuredDiscounts as SingleOffer[]).length }, () => 0));
+    setProgress(Array.from({ length: (featuredDiscounts as SingleOffer[])?.length || 0 }, () => 0));
 
     api.on('select', () => {
       setCurrent(api.selectedScrollSnap() + 1);
-      setProgress(Array.from({ length: (featuredDiscounts as SingleOffer[]).length }, () => 0));
+      setProgress(
+        Array.from({ length: (featuredDiscounts as SingleOffer[])?.length || 0 }, () => 0),
+      );
     });
 
     const handleInteraction = () => {
@@ -95,6 +100,17 @@ export function FeaturedDiscounts() {
     };
   }, [api, current, isPaused, featuredDiscounts]);
 
+  if (isLoading && isFetching && !featuredDiscounts) {
+    return (
+      <section id="featured-discounts" className="w-full">
+        <h4 className="text-xl font-bold text-left inline-flex group items-center gap-2">
+          Featured Discounts
+        </h4>
+        <Skeleton className="w-full h-[550px] mt-2 p-4" />
+      </section>
+    );
+  }
+
   if (!featuredDiscounts) {
     return null;
   }
@@ -105,7 +121,7 @@ export function FeaturedDiscounts() {
         Featured Discounts
       </h4>
       <Carousel
-        className="mt-2 h-full p-4"
+        className="mt-2 p-4 h-[550px]"
         setApi={setApi}
         plugins={[
           Autoplay({ delay: SLIDE_DELAY, stopOnMouseEnter: true, stopOnInteraction: false }),
@@ -148,10 +164,10 @@ function ProgressIndicator({
   progress: number[];
 }) {
   return (
-    <div className="flex space-x-2 mt-4 mx-auto w-full justify-center">
+    <div className="flex space-x-2 mt-4 mx-auto w-full justify-center min-h-1">
       <TooltipProvider>
         {Array.from({ length: total }).map((_, i) => (
-          <Tooltip key={`${offers[i].id}-progress`} delayDuration={0}>
+          <Tooltip key={`${offers[i]._id}-progress`} delayDuration={0}>
             <TooltipTrigger
               className={cn('block w-4 h-1 rounded-full cursor-pointer relative', 'bg-gray-500')}
               onClick={() => api?.scrollTo(i)}
@@ -266,9 +282,9 @@ function FeaturedOffer({ offer }: { offer: SingleOffer }) {
             <p className="text-muted-foreground text-sm mt-1">{offer.description}</p>
           </div>
         </div>
-        <div className="md:col-span-1 flex flex-col justify-between px-4">
-          <div className="h-fit">
-            <div className="grid grid-cols-2 gap-2">
+        <div className="md:col-span-1 flex flex-col justify-between px-4 gap-1">
+          <div className="h-full">
+            <div className="grid grid-cols-2 gap-2 h-full">
               {offerMedia?.images.slice(0, 4).map((image) => (
                 <div
                   className="h-auto w-full rounded-lg inline-flex items-center justify-center opacity-50 cursor-pointer hover:opacity-100 transition-opacity"
@@ -287,6 +303,10 @@ function FeaturedOffer({ offer }: { offer: SingleOffer }) {
                   />
                 </div>
               ))}
+              {!offerMedia?.images.length &&
+                Array.from({ length: 4 }).map((_, index) => (
+                  <Skeleton key={index} className="w-full h-full" />
+                ))}
             </div>
           </div>
           <div className="inline-flex items-center justify-start gap-2">

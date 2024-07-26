@@ -21,6 +21,7 @@ import stylesheet from '../tailwind.css?url';
 import { getQueryClient } from '~/lib/client';
 import { type Preferences, PreferencesProvider } from '~/context/preferences';
 import { decode } from '~/lib/preferences-encoding';
+import getCountryCode from '~/lib/get-country-code';
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet },
@@ -66,12 +67,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const userPreferences = (
     cookies.EGDATA_PREFERENCES ? JSON.parse(decode(cookies.EGDATA_PREFERENCES)) : undefined
   ) as Preferences;
+  const url = new URL(request.url);
+  const country = getCountryCode(url, cookies);
 
-  return { userPreferences };
+  return { userPreferences, country };
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { userPreferences } = useLoaderData<typeof loader>() || {};
+  const { userPreferences, country } = useLoaderData<typeof loader>() || {};
   const queryClient = getQueryClient();
 
   return (
@@ -86,7 +89,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="container mx-auto">
           <QueryClientProvider client={queryClient}>
             <SearchProvider>
-              <CountryProvider>
+              <CountryProvider defaultCountry={country || 'US'}>
                 <Navbar />
                 <CookiesProvider>
                   <PreferencesProvider initialPreferences={userPreferences}>

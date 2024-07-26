@@ -1,34 +1,27 @@
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
-import type { ClientLoaderFunctionArgs } from '@remix-run/react';
 import type { FullTag } from '~/types/tags';
-import { Link, useLoaderData } from '@remix-run/react';
-import { client, getQueryClient } from '~/lib/client';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from '~/components/ui/carousel';
 import type { SingleOffer } from '~/types/single-offer';
 import type { GiveawayOffer } from '~/types/giveaways';
+import { useLoaderData } from '@remix-run/react';
+import { client, getQueryClient } from '~/lib/client';
 import cookie from 'cookie';
-import { Skeleton } from '~/components/ui/skeleton';
+import { useCookies } from 'react-cookie';
 import { SalesModule } from '~/components/modules/sales';
 import { ChangelistModule } from '~/components/modules/changelist';
 import { FeaturedModule } from '~/components/modules/featured';
 import { UpcomingOffers } from '~/components/modules/upcoming';
-import { ArrowRightIcon } from '@radix-ui/react-icons';
 import { StatsModule } from '~/components/modules/stats';
 import { TopSection } from '~/components/modules/top-section';
 import { FeaturedDiscounts } from '~/components/modules/featured-discounts';
-import { OfferCard } from '~/components/app/offer-card';
 import getCountryCode from '~/lib/get-country-code';
-import { useCountry } from '~/hooks/use-country';
-import { useQuery } from '@tanstack/react-query';
 import { UpcomingCalendar } from '~/components/modules/upcoming-calendar';
 import { GamesWithAchievements } from '~/components/modules/achievements-blade';
 import { GiveawaysCarousel } from '~/components/modules/giveaways';
+import { LatestOffers } from '~/components/modules/latest-offers';
+import { LastModifiedGames } from '~/components/modules/last-modified-offers';
+import { useState } from 'react';
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
+import { getFeaturedDiscounts } from '~/queries/featured-discounts';
 
 export const meta: MetaFunction = () => {
   return [
@@ -46,10 +39,17 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+type preferencesCookie = {
+  order: string[];
+};
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const queryClient = getQueryClient();
   const url = new URL(request.url);
+  const cookieHeader = request.headers.get('Cookie');
   const country = getCountryCode(url, cookie.parse(request.headers.get('Cookie') || ''));
+  const userPrefsCookie = cookie.parse(cookieHeader as string).EGDATA_USER_PREFS as string;
+  const userPrefs = JSON.parse(userPrefsCookie || '{}') as preferencesCookie;
 
   const [latestGames, featuredGames, eventsData, giveawaysData] = await Promise.allSettled([
     queryClient.fetchQuery({
@@ -61,6 +61,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
               country,
             },
           })
+          .then((res) => res.data)
           .catch((error) => {
             console.error('Failed to fetch latest games', error);
             return { data: [] as SingleOffer[] };
@@ -75,6 +76,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
               country,
             },
           })
+          .then((res) => res.data)
           .catch((error) => {
             console.error('Failed to fetch featured game', error);
             return { data: [] };
@@ -83,10 +85,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     queryClient.fetchQuery({
       queryKey: ['promotions'],
       queryFn: () =>
-        client.get<FullTag[]>('/promotions').catch((error) => {
-          console.error('Failed to fetch events', error);
-          return { data: [] as FullTag[] };
-        }),
+        client
+          .get<FullTag[]>('/promotions')
+          .then((res) => res.data)
+          .catch((error) => {
+            console.error('Failed to fetch events', error);
+            return { data: [] as FullTag[] };
+          }),
     }),
     queryClient.fetchQuery({
       queryKey: ['giveaways'],
@@ -103,176 +108,96 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
             return [] as GiveawayOffer[];
           }),
     }),
-  ]);
-
-  const games = latestGames.status === 'fulfilled' ? latestGames.value.data : [];
-  const featured = featuredGames.status === 'fulfilled' ? featuredGames.value.data : [];
-  const events = eventsData.status === 'fulfilled' ? eventsData.value.data : [];
-  const giveaways = giveawaysData.status === 'fulfilled' ? giveawaysData.value : [];
-
-  return {
-    games,
-    featured,
-    events,
-    giveaways,
-  };
-};
-
-export const clientLoader = async ({ request }: ClientLoaderFunctionArgs) => {
-  const queryClient = getQueryClient();
-  const url = new URL(request.url);
-  const country = getCountryCode(url, cookie.parse(request.headers.get('Cookie') || ''));
-
-  const [latestGames, featuredGames, eventsData, giveawaysData] = await Promise.allSettled([
-    queryClient.fetchQuery({
-      queryKey: ['latest-games'],
-      queryFn: () =>
-        client
-          .get<SingleOffer[]>('/latest-games', {
-            params: {
-              country,
-            },
-          })
-          .catch((error) => {
-            console.error('Failed to fetch latest games', error);
-            return { data: [] as SingleOffer[] };
-          }),
-    }),
-    queryClient.fetchQuery({
-      queryKey: ['featured'],
-      queryFn: () =>
-        client
-          .get<SingleOffer[]>('/featured', {
-            params: {
-              country,
-            },
-          })
-          .catch((error) => {
-            console.error('Failed to fetch featured game', error);
-            return { data: [] };
-          }),
-    }),
-    queryClient.fetchQuery({
-      queryKey: ['promotions'],
-      queryFn: () =>
-        client.get<FullTag[]>('/promotions').catch((error) => {
-          console.error('Failed to fetch events', error);
-          return { data: [] as FullTag[] };
-        }),
-    }),
-    queryClient.fetchQuery({
-      queryKey: ['giveaways'],
-      queryFn: () =>
-        client
-          .get<GiveawayOffer[]>('/free-games', {
-            params: {
-              country,
-            },
-          })
-          .then((res) => res.data)
-          .catch((error) => {
-            console.error('Failed to fetch giveaways', error);
-            return [] as GiveawayOffer[];
-          }),
+    queryClient.prefetchQuery({
+      queryKey: ['featuredDiscounts', { country }],
+      queryFn: () => getFeaturedDiscounts({ country }),
+      staleTime: 6000,
     }),
   ]);
 
-  const games = latestGames.status === 'fulfilled' ? latestGames.value.data : [];
-  const featured = featuredGames.status === 'fulfilled' ? featuredGames.value.data : [];
-  const events = eventsData.status === 'fulfilled' ? eventsData.value.data : [];
+  const games = latestGames.status === 'fulfilled' ? latestGames.value : [];
+  const featured = featuredGames.status === 'fulfilled' ? featuredGames.value : [];
+  const events = eventsData.status === 'fulfilled' ? eventsData.value : [];
   const giveaways = giveawaysData.status === 'fulfilled' ? giveawaysData.value : [];
 
+  const dehydratedState = dehydrate(queryClient);
+
   return {
-    games,
-    featured,
-    events,
-    giveaways,
+    games: games as SingleOffer[],
+    featured: featured as SingleOffer[],
+    events: events as FullTag[],
+    giveaways: giveaways as GiveawayOffer[],
+    userPrefs: userPrefs,
+    dehydratedState: dehydratedState,
   };
 };
 
-type LoaderData = ReturnType<typeof loader | typeof clientLoader>;
+type LoaderData = ReturnType<typeof loader>;
+
+const defaultOrder = [
+  'featured',
+  'giveaways',
+  'latest',
+  'featuredDiscounts',
+  'lastModified',
+  'upcomingCalendar',
+  'upcomingOffers',
+  'summerSale',
+  'statsCombined',
+  'topWishlisted',
+  'achievements',
+  'event1',
+  'event2',
+  'event3',
+];
 
 export default function Index() {
-  const { games, featured, events, giveaways } = useLoaderData<LoaderData>();
-  return (
-    <main className="flex flex-col items-center justify-start h-full space-y-4 p-4">
-      <FeaturedModule offers={featured} />
-      <GiveawaysCarousel initialData={giveaways} />
-      <section className="w-full pt-4" id="latest-games">
-        <h4 className="text-xl font-bold text-left">Latest Offers</h4>
-        <Carousel className="mt-2 h-full p-4">
-          <CarouselPrevious />
-          <CarouselContent>
-            {games.map((game) => (
-              <CarouselItem key={game.id} className="basis-1/1 lg:basis-1/5">
-                <OfferCard offer={game} key={game.id} size="md" />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselNext />
-        </Carousel>
-      </section>
-      <FeaturedDiscounts />
-      <LastModifiedGames />
-      <UpcomingCalendar />
-      <UpcomingOffers />
-      <SalesModule event="Summer Sale" eventId="16979" />
-      <section className="w-full flex flex-row justify-between gap-10">
-        <StatsModule />
-        <ChangelistModule />
-      </section>
-      <SalesModule event={events[0].name} eventId={events[0].id} />
-      <TopSection slug="top-wishlisted" title="Most Anticipated" side="right" />
-      <GamesWithAchievements />
-      <SalesModule event={events[1].name} eventId={events[1].id} />
-      <SalesModule event={events[2].name} eventId={events[2].id} />
-    </main>
-  );
-}
+  const [, setCookies] = useCookies(['EGDATA_USER_PREFS']);
+  const { games, featured, events, giveaways, userPrefs, dehydratedState } =
+    useLoaderData<LoaderData>();
+  const [order, setOrder] = useState(userPrefs.order || defaultOrder);
 
-function LastModifiedGames() {
-  const { country } = useCountry();
-  const { data: games, isLoading: loading } = useQuery({
-    queryKey: ['last-modified-offers'],
-    queryFn: () =>
-      client
-        .get<{ elements: SingleOffer[] }>('/offers?limit=25', {
-          params: {
-            country,
-          },
-        })
-        .then((res) => res.data.elements),
-  });
+  const sections = [
+    { key: 'featured', component: <FeaturedModule offers={featured} /> },
+    { key: 'giveaways', component: <GiveawaysCarousel initialData={giveaways} /> },
+    { key: 'latest', component: <LatestOffers offers={games} /> },
+    { key: 'featuredDiscounts', component: <FeaturedDiscounts /> },
+    { key: 'lastModified', component: <LastModifiedGames /> },
+    { key: 'upcomingCalendar', component: <UpcomingCalendar /> },
+    { key: 'upcomingOffers', component: <UpcomingOffers /> },
+    { key: 'summerSale', component: <SalesModule event="Summer Sale" eventId="16979" /> },
+    {
+      key: 'statsCombined',
+      component: (
+        <section className="w-full flex flex-row justify-between gap-10">
+          <StatsModule />
+          <ChangelistModule />
+        </section>
+      ),
+    },
+    {
+      key: 'topWishlisted',
+      component: <TopSection slug="top-wishlisted" title="Most Anticipated" side="right" />,
+    },
+    { key: 'achievements', component: <GamesWithAchievements /> },
+    { key: 'event1', component: <SalesModule event={events[0].name} eventId={events[0].id} /> },
+    { key: 'event2', component: <SalesModule event={events[1].name} eventId={events[1].id} /> },
+    { key: 'event3', component: <SalesModule event={events[2].name} eventId={events[2].id} /> },
+  ];
+
+  const orderedSections = order.map((key) => sections.find((section) => section.key === key));
+
+  const handleOrderChange = (newOrder: string[]) => {
+    setOrder(newOrder);
+    const newCookie = { order: newOrder };
+    setCookies('EGDATA_USER_PREFS', JSON.stringify(newCookie), { maxAge: 31_536_000 });
+  };
 
   return (
-    <section className="w-full" id="last-modified-offers">
-      <Link
-        to="/search?hash=2e4d602536b02a6e8aeb7fde4e865606"
-        className="text-xl font-bold text-left inline-flex group items-center gap-2"
-      >
-        Last Modified Offers
-        <ArrowRightIcon className="w-6 h-6 inline-block group-hover:translate-x-1 transition-transform duration-300 ease-in-out" />
-      </Link>
-      <Carousel className="mt-2 p-4">
-        <CarouselPrevious />
-        <CarouselContent className="items-center">
-          {(loading || !games) &&
-            [...Array(25)].map((_, index) => (
-              // biome-ignore lint/suspicious/noArrayIndexKey: This is a skeleton loader
-              <CarouselItem key={index} className="basis-1/5">
-                <Skeleton className="w-80 h-96" />
-              </CarouselItem>
-            ))}
-          {!loading &&
-            games &&
-            games.map((game) => (
-              <CarouselItem key={game.id} className="basis-1/1 lg:basis-1/5">
-                <OfferCard offer={game} key={game.id} size="md" />
-              </CarouselItem>
-            ))}
-        </CarouselContent>
-        <CarouselNext />
-      </Carousel>
-    </section>
+    <HydrationBoundary state={dehydratedState}>
+      <main className="flex flex-col items-center justify-start h-full space-y-4 p-4">
+        {orderedSections.map((section) => section?.component)}
+      </main>
+    </HydrationBoundary>
   );
 }
