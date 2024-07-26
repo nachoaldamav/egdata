@@ -31,6 +31,8 @@ export function OpenEgs({
   offer: SingleOffer;
 }) {
   const urlType: 'product' | 'url' = offer.offerType === 'BASE_GAME' ? 'product' : 'url';
+  const isBundle = offer.offerType === 'BUNDLE';
+  const namespace = isBundle ? 'bundles' : 'product';
   const url =
     offer.offerMappings?.[0]?.pageSlug ??
     (urlType === 'product' ? offer.productSlug : offer.urlSlug);
@@ -45,7 +47,7 @@ export function OpenEgs({
       className="bg-gray-900 text-white dark:hover:text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
     >
       <Link
-        to={`https://store.epicgames.com/product/${url}?utm_source=egdata.app`}
+        to={`https://store.epicgames.com/${namespace}/${url}?utm_source=egdata.app`}
         rel="noopener noreferrer"
         referrerPolicy="no-referrer"
         target="_blank"
