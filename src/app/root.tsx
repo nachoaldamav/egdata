@@ -12,6 +12,7 @@ import type { LinksFunction, LoaderFunctionArgs, MetaFunction } from '@remix-run
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import cookie from 'cookie';
+import { withSentry } from '@sentry/remix';
 import Navbar from '~/components/app/navbar';
 import { SearchProvider } from '~/context/global-search';
 import { CountryProvider } from '~/context/country';
@@ -127,6 +128,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
+function App() {
   return <Outlet />;
 }
+
+export default withSentry(App);

@@ -7,7 +7,7 @@
     "build": "remix vite:build",
     "dev": "remix vite:dev",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
-    "start": "remix-serve ./build/server/index.js",
+    "start": "NODE_OPTIONS='--import ./instrumentation.server.mjs' remix-serve ./build/server/index.js",
     "typecheck": "tsc"
   },
   "dependencies": {
@@ -32,6 +32,8 @@
     "@remix-run/node": "^2.9.2",
     "@remix-run/react": "^2.9.2",
     "@remix-run/serve": "^2.9.2",
+    "@sentry/remix": "^8.20.0",
+    "@sentry/vite-plugin": "^2.21.1",
     "@tanstack/react-query": "^5.45.1",
     "@tanstack/react-query-devtools": "^5.50.1",
     "@vidstack/react": "1.11.30",
