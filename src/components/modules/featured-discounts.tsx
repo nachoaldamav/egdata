@@ -6,8 +6,6 @@ import {
   type CarouselApi,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from '~/components/ui/carousel';
 import { Link } from '@remix-run/react';
 import { Button } from '~/components/ui/button';
@@ -24,6 +22,7 @@ import buildImageUrl from '~/lib/build-image-url';
 import { useCountry } from '~/hooks/use-country';
 import { Skeleton } from '../ui/skeleton';
 import { getFeaturedDiscounts } from '~/queries/featured-discounts';
+import { ArrowUpIcon } from '@radix-ui/react-icons';
 
 const SLIDE_DELAY = 100_000;
 
@@ -111,15 +110,43 @@ export function FeaturedDiscounts() {
     );
   }
 
+  const handleNextSlide = () => {
+    api?.scrollNext();
+  };
+
+  const handlePreviousSlide = () => {
+    api?.scrollPrev();
+  };
+
   if (!featuredDiscounts) {
     return null;
   }
 
   return (
     <section id="featured-discounts">
-      <h4 className="text-xl font-bold text-left inline-flex group items-center gap-2">
-        Featured Discounts
-      </h4>
+      <div className="flex justify-between items-center mb-4">
+        <h4 className="text-xl font-bold text-left inline-flex group items-center gap-2">
+          Featured Discounts
+        </h4>
+        <div className="flex gap-2">
+          <button
+            onClick={handlePreviousSlide}
+            className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-card text-muted-foreground hover:bg-gray-900 focus:outline-none focus:ring focus:ring-gray-300/50 disabled:opacity-50"
+            disabled={current === 1}
+            type="button"
+          >
+            <ArrowUpIcon className="w-5 h-5 transform -rotate-90" />
+          </button>
+          <button
+            onClick={handleNextSlide}
+            className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-card text-muted-foreground hover:bg-gray-900 focus:outline-none focus:ring focus:ring-gray-300/50 disabled:opacity-50"
+            disabled={current === count}
+            type="button"
+          >
+            <ArrowUpIcon className="w-5 h-5 transform rotate-90" />
+          </button>
+        </div>
+      </div>
       <Carousel
         className="mt-2 p-4 h-[550px]"
         setApi={setApi}
@@ -127,7 +154,6 @@ export function FeaturedDiscounts() {
           Autoplay({ delay: SLIDE_DELAY, stopOnMouseEnter: true, stopOnInteraction: false }),
         ]}
       >
-        <CarouselPrevious />
         <CarouselContent>
           {featuredDiscounts.map((offer) => (
             <CarouselItem key={offer.id}>
@@ -135,7 +161,6 @@ export function FeaturedDiscounts() {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselNext />
         <div className="flex space-x-2 mt-4 mx-auto w-full justify-center">
           <ProgressIndicator
             current={current}
