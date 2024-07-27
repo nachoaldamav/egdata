@@ -1,4 +1,4 @@
-import { ChevronRightIcon } from '@radix-ui/react-icons';
+import { ArrowRightIcon, ChevronRightIcon } from '@radix-ui/react-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Badge } from '~/components/ui/badge';
@@ -7,9 +7,11 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '~/component
 import { Input } from '~/components/ui/input';
 import { client } from '~/lib/client';
 import { cn } from '~/lib/utils';
+import type { SingleItem } from '~/types/single-item';
+import type { SingleOffer } from '~/types/single-offer';
 
 export interface Root {
-  hits: Hit[];
+  hits: (OfferHit | ItemHit | AssetHit | Hit)[];
   query: string;
   processingTimeMs: number;
   limit: number;
@@ -17,7 +19,7 @@ export interface Root {
   estimatedTotalHits: number;
 }
 
-interface Hit {
+interface DefaultHit {
   _id: string;
   timestamp: string;
   metadata: Metadata;
@@ -34,6 +36,28 @@ interface Change {
   field: string;
   newValue: unknown;
   oldValue: unknown;
+}
+
+interface OfferHit extends DefaultHit {
+  metadata: Metadata & { contextType: 'offer' };
+  document: SingleOffer;
+}
+
+interface ItemHit extends DefaultHit {
+  metadata: Metadata & { contextType: 'item' };
+  document: SingleItem;
+}
+
+interface AssetHit extends DefaultHit {
+  metadata: Metadata & { contextType: 'asset' };
+  document: SingleItem;
+}
+
+interface Hit {
+  _id: string;
+  timestamp: string;
+  metadata: Metadata;
+  document: null;
 }
 
 export default function ChangelogPage() {
@@ -78,8 +102,12 @@ export default function ChangelogPage() {
   );
 }
 
-function ChangelogItem({ hit, query }: { hit: Hit; query: string }) {
+function ChangelogItem({
+  hit,
+  query,
+}: { hit: OfferHit | ItemHit | AssetHit | Hit; query: string }) {
   const [open, setOpen] = useState(false);
+  const title = hit.document?.title || hit.metadata.contextId;
 
   return (
     <Collapsible>
@@ -92,7 +120,7 @@ function ChangelogItem({ hit, query }: { hit: Hit; query: string }) {
         <div className="flex items-start gap-4 w-full">
           <div className="flex-1 grid gap-2">
             <div className="flex items-center gap-2">
-              <h3 className="font-medium">{ValueToString(hit.metadata.contextId, query)}</h3>
+              <h3 className="font-medium">{ValueToString(title, query)}</h3>
               <Badge variant="secondary" className="text-xs">
                 {hit.metadata.contextType}
               </Badge>
@@ -133,19 +161,20 @@ function ChangelogItem({ hit, query }: { hit: Hit; query: string }) {
                     {change.changeType}
                   </Badge>
                 </div>
-                <div className="grid gap-2">
-                  <div>
-                    <span className="font-medium">Old value:</span>{' '}
+                <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 relative mt-2">
+                  <div className="pr-2 flex flex-col gap-1 items-center justify-center">
                     <span className="text-muted-foreground">
-                      {ValueToString(change.oldValue, query)}
+                      {ValueToString(change.oldValue, query, change.field)}
                     </span>
                   </div>
-                  <div>
-                    <span className="font-medium">New value:</span>{' '}
+                  <div className="pl-8 flex flex-col gap-1 items-center justify-center">
                     <span className="text-muted-foreground">
-                      {ValueToString(change.newValue, query)}
+                      {ValueToString(change.newValue, query, change.field)}
                     </span>
                   </div>
+                  <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    <ArrowRightIcon className="size-6 text-muted-foreground" />
+                  </span>
                 </div>
               </div>
             ))}
@@ -156,7 +185,7 @@ function ChangelogItem({ hit, query }: { hit: Hit; query: string }) {
   );
 }
 
-function ValueToString(value: unknown, query: string) {
+function ValueToString(value: unknown, query: string, field?: string) {
   const highlightText = (text: string, query: string) => {
     if (!query) return text;
     const parts = text.split(new RegExp(`(${query})`, 'gi'));
@@ -164,6 +193,40 @@ function ValueToString(value: unknown, query: string) {
       part.toLowerCase() === query.toLowerCase() ? <mark key={i}>{part}</mark> : part,
     );
   };
+
+  if (field === 'keyImages' && value !== null) {
+    const typedValue = value as { url: string; md5: string; type: string };
+    return (
+      <div className="flex items-center justify-center gap-2">
+        <img
+          src={typedValue.url}
+          alt={typedValue.md5}
+          className="w-1/2 h-auto object-cover rounded-lg"
+        />
+      </div>
+    );
+  }
+
+  if (field?.includes('Date') && typeof value === 'string') {
+    return new Date(value).toLocaleString('en-UK', {
+      weekday: undefined,
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+    });
+  }
+
+  if (field === 'tags' && value !== null) {
+    const typedValue = value as { id: string; name: string };
+    return <span className="font-medium">{typedValue.name}</span>;
+  }
+
+  if (typeof value === 'number') {
+    return value.toLocaleString();
+  }
 
   if (typeof value === 'string') {
     return <>{highlightText(value, query)}</>;
