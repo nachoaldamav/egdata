@@ -118,7 +118,7 @@ export function GamesWithAchievements() {
                         'DieselStoreFrontWide',
                         'Featured',
                         'OfferImageWide',
-                      ])?.url
+                      ])?.url ?? '/300x150-egdata-placeholder.png'
                     }
                     alt={game.title}
                     width={100}

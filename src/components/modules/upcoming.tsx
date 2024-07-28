@@ -85,7 +85,7 @@ export function UpcomingOffers() {
                       'DieselGameBoxWide',
                       'DieselStoreFrontWide',
                       'Featured',
-                    ])?.url
+                    ])?.url ?? '/300x150-egdata-placeholder.png'
                   }
                   quality="low"
                   alt={offer.title}
