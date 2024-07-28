@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs } from '@remix-run/node';
 import { Link, useLoaderData } from '@remix-run/react';
 import { Image } from '~/components/app/image';
-import { client } from '~/lib/client';
+import { client, getQueryClient } from '~/lib/client';
 import type { SingleOffer } from '~/types/single-offer';
 
 type SandboxOffer = Pick<
@@ -19,21 +19,41 @@ type SandboxOffer = Pick<
 >;
 
 export async function loader({ params }: LoaderFunctionArgs) {
+  const queryClient = getQueryClient();
   const [offersData] = await Promise.allSettled([
-    client.get<SandboxOffer[]>(`/sandboxes/${params.id}/offers`),
+    queryClient.fetchQuery({
+      queryKey: [
+        'offers',
+        {
+          sandbox: params.id,
+        },
+      ],
+      queryFn: () =>
+        client.get<SandboxOffer[]>(`/sandboxes/${params.id}/offers`).then((data) => data.data),
+    }),
   ]);
 
-  const offers = offersData.status === 'fulfilled' ? offersData.value.data : [];
+  const offers = offersData.status === 'fulfilled' ? offersData.value : [];
 
   return { offers, id: params.id };
 }
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
+  const queryClient = getQueryClient();
   const [offersData] = await Promise.allSettled([
-    client.get<SandboxOffer[]>(`/sandboxes/${params.id}/offers`),
+    queryClient.fetchQuery({
+      queryKey: [
+        'offers',
+        {
+          sandbox: params.id,
+        },
+      ],
+      queryFn: () =>
+        client.get<SandboxOffer[]>(`/sandboxes/${params.id}/offers`).then((data) => data.data),
+    }),
   ]);
 
-  const offers = offersData.status === 'fulfilled' ? offersData.value.data : [];
+  const offers = offersData.status === 'fulfilled' ? offersData.value : [];
 
   return { offers, id: params.id };
 }

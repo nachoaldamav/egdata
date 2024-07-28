@@ -10,27 +10,36 @@ import {
   TableBody,
   TableCell,
 } from '~/components/ui/table';
-import { client } from '~/lib/client';
+import { client, getQueryClient } from '~/lib/client';
 import type { Asset } from '~/types/asset';
 
-export async function loader({ params }: LoaderFunctionArgs) {
+const getAssets = async (id: string) => {
+  const queryClient = getQueryClient();
   const [assetsData] = await Promise.allSettled([
-    client.get<Asset[]>(`/sandboxes/${params.id}/assets`),
+    queryClient.fetchQuery({
+      queryKey: [
+        'assets',
+        {
+          sandbox: id,
+        },
+      ],
+      queryFn: () => client.get<Asset[]>(`/sandboxes/${id}/assets`).then((data) => data.data),
+    }),
   ]);
 
-  const assets = assetsData.status === 'fulfilled' ? assetsData.value.data : [];
+  return assetsData.status === 'fulfilled' ? assetsData.value : [];
+};
 
-  return { assets };
+export async function loader({ params }: LoaderFunctionArgs) {
+  const assets = await getAssets(params.id as string);
+
+  return { assets: assets || [] };
 }
 
 export async function clientLoader({ params }: ClientLoaderFunctionArgs) {
-  const [assetsData] = await Promise.allSettled([
-    client.get<Asset[]>(`/sandboxes/${params.id}/assets`),
-  ]);
+  const assets = await getAssets(params.id as string);
 
-  const assets = assetsData.status === 'fulfilled' ? assetsData.value.data : [];
-
-  return { assets };
+  return { assets: assets || [] };
 }
 
 export function HydrateFallback() {
