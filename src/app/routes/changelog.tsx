@@ -1,14 +1,25 @@
 import { ArrowRightIcon, ChevronRightIcon } from '@radix-ui/react-icons';
-import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { dehydrate, HydrationBoundary, keepPreviousData, useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '~/components/ui/collapsible';
 import { Input } from '~/components/ui/input';
-import { client } from '~/lib/client';
+import { client, getQueryClient } from '~/lib/client';
 import { cn } from '~/lib/utils';
 import type { SingleItem } from '~/types/single-item';
 import type { SingleOffer } from '~/types/single-offer';
+import {
+  Pagination,
+  PaginationButton,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationNextButton,
+  PaginationPreviousButton,
+} from '~/components/ui/pagination';
+import type { LoaderFunctionArgs } from '@remix-run/node';
+import { type ClientLoaderFunctionArgs, useLoaderData } from '@remix-run/react';
 
 export interface Root {
   hits: (OfferHit | ItemHit | AssetHit | Hit)[];
@@ -60,13 +71,18 @@ interface Hit {
   document: null;
 }
 
-export default function ChangelogPage() {
-  const [query, setQuery] = useState('');
-  const { data, isLoading, isError } = useQuery({
+export async function loader({ request }: LoaderFunctionArgs) {
+  const queryClient = getQueryClient();
+  const url = new URL(request.url);
+  const query = url.searchParams.get('query') || '';
+  const page = Number(url.searchParams.get('page')) || 1;
+
+  await queryClient.prefetchQuery({
     queryKey: [
       'changelogs',
       {
         query,
+        page,
       },
     ],
     queryFn: () =>
@@ -74,10 +90,114 @@ export default function ChangelogPage() {
         .get<Root>('/search/changelog', {
           params: {
             query,
+            page,
           },
         })
         .then((res) => res.data),
   });
+
+  return {
+    page,
+    query,
+    dehydratedState: dehydrate(queryClient),
+  };
+}
+
+export async function clientLoader({ request }: ClientLoaderFunctionArgs) {
+  const queryClient = getQueryClient();
+  const url = new URL(request.url);
+  const query = url.searchParams.get('query') || '';
+  const page = Number(url.searchParams.get('page')) || 1;
+
+  await queryClient.prefetchQuery({
+    queryKey: [
+      'changelogs',
+      {
+        query,
+        page,
+      },
+    ],
+    queryFn: () =>
+      client
+        .get<Root>('/search/changelog', {
+          params: {
+            query,
+            page,
+          },
+        })
+        .then((res) => res.data),
+  });
+
+  return {
+    page,
+    query,
+    dehydratedState: dehydrate(queryClient),
+  };
+}
+
+export default function Index() {
+  const { dehydratedState } = useLoaderData<typeof loader>();
+  return (
+    <HydrationBoundary state={dehydratedState}>
+      <ChangelogPage />
+    </HydrationBoundary>
+  );
+}
+
+const MAX_PAGES_DISPLAY = 5;
+
+export function ChangelogPage() {
+  const { page: initialPage, query: initialQuery } = useLoaderData<typeof loader>();
+  const [page, setPage] = useState(initialPage || 1);
+  const [query, setQuery] = useState(initialQuery || '');
+  const { data, isLoading, isError } = useQuery({
+    queryKey: [
+      'changelogs',
+      {
+        query,
+        page,
+      },
+    ],
+    queryFn: () =>
+      client
+        .get<Root>('/search/changelog', {
+          params: {
+            query,
+            page,
+          },
+        })
+        .then((res) => res.data),
+    refetchOnMount: false,
+    placeholderData: keepPreviousData,
+  });
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+
+    // Add query params to URL
+    const url = new URL(window.location.href);
+    url.searchParams.set('page', newPage.toString());
+    url.searchParams.set('query', query);
+    window.history.pushState({}, '', url.toString());
+  };
+
+  const handleQueryChange = (newQuery: string) => {
+    setQuery(newQuery);
+    setPage(1);
+
+    // Add query params to URL
+    const url = new URL(window.location.href);
+    url.searchParams.set('page', '1');
+    url.searchParams.set('query', newQuery);
+    window.history.pushState({}, '', url.toString());
+  };
+
+  const totalPages = Math.ceil((data?.estimatedTotalHits || 0) / (data?.limit || 1));
+
+  const startPage = Math.max(1, page - Math.floor(MAX_PAGES_DISPLAY / 2));
+  const endPage = Math.min(totalPages, startPage + MAX_PAGES_DISPLAY - 1);
+
+  const pageNumbers = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-6xl mx-auto px-4 py-8 sm:px-6">
@@ -87,7 +207,7 @@ export default function ChangelogPage() {
           placeholder="Search changelogs..."
           className="flex-1 bg-background"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => handleQueryChange(e.target.value)}
         />
         <Button>Search</Button>
       </div>
@@ -98,6 +218,41 @@ export default function ChangelogPage() {
           <ChangelogItem key={hit._id} hit={hit} query={query} />
         ))}
       </div>
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPreviousButton
+              onClick={() => {
+                handlePageChange(page - 1);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              disabled={page <= 1}
+            />
+          </PaginationItem>
+          {pageNumbers.map((pageNumber) => (
+            <PaginationItem key={pageNumber}>
+              <PaginationButton
+                onClick={() => {
+                  handlePageChange(pageNumber);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                disabled={page === pageNumber}
+              >
+                {pageNumber}
+              </PaginationButton>
+            </PaginationItem>
+          ))}
+          <PaginationItem>
+            <PaginationNextButton
+              onClick={() => {
+                handlePageChange(page + 1);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              disabled={page >= totalPages}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </div>
   );
 }

@@ -70,6 +70,7 @@ const PaginationButton = ({
       }),
       className,
     )}
+    variant={isActive ? 'outline' : 'ghost'}
     {...props}
   />
 );
