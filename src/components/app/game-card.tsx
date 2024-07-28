@@ -81,15 +81,17 @@ export function OfferListItem({
   return (
     <Link to={`/offers/${game.id}`} className="w-full" prefetch="viewport">
       <Card className="flex flex-row w-full bg-card text-white p-1 rounded-lg h-44">
-        <div className="flex-shrink-0 w-72 h-full">
-          <img
+        <div className="flex-shrink-0 w-72 h-full inline-flex items-center justify-center">
+          <Image
             src={
               epicImage
                 ? `${epicImage}?h=500&resize=1&quality=medium`
-                : 'https://via.placeholder.com/300x150?text=No+Image'
+                : '/300x150-egdata-placeholder.png'
             }
             alt={game.title}
             className="w-full h-full object-cover rounded-lg"
+            width={300}
+            height={170}
           />
         </div>
         <div className="flex flex-col flex-grow ml-2 p-2 w-full justify-between">
