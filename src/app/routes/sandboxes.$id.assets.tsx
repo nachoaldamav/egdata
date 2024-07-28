@@ -1,6 +1,7 @@
 import type { LoaderFunctionArgs } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import { type ClientLoaderFunctionArgs, useLoaderData } from '@remix-run/react';
 import { Card, CardContent, CardHeader } from '~/components/ui/card';
+import { Skeleton } from '~/components/ui/skeleton';
 import {
   Table,
   TableHeader,
@@ -20,6 +21,59 @@ export async function loader({ params }: LoaderFunctionArgs) {
   const assets = assetsData.status === 'fulfilled' ? assetsData.value.data : [];
 
   return { assets };
+}
+
+export async function clientLoader({ params }: ClientLoaderFunctionArgs) {
+  const [assetsData] = await Promise.allSettled([
+    client.get<Asset[]>(`/sandboxes/${params.id}/assets`),
+  ]);
+
+  const assets = assetsData.status === 'fulfilled' ? assetsData.value.data : [];
+
+  return { assets };
+}
+
+export function HydrateFallback() {
+  return (
+    <section className="flex-1 p-4">
+      <h1 className="text-2xl font-bold">Assets</h1>
+      <div className="grid grid-cols-2 gap-4 mt-4 mx-auto">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Card className="w-full max-w-lg" key={i}>
+            <CardHeader className="w-full">
+              <Skeleton className="w-1/2" />
+            </CardHeader>
+            <CardContent className="flex-1 flex flex-col gap-2">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[200px]">
+                      <Skeleton className="w-1/2" />
+                    </TableHead>
+                    <TableHead className="text-right">
+                      <Skeleton className="w-1/4" />
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell>
+                        <Skeleton className="w-1/2" />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Skeleton className="w-1/4" />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </section>
+  );
 }
 
 export default function Index() {
