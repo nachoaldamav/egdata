@@ -54,7 +54,7 @@ export default function Index() {
             <div className="flex items-center gap-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
               <div className="flex-shrink-0 w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-lg">
                 <Image
-                  src={offer.keyImages[0]?.url}
+                  src={offer.keyImages[0]?.url ?? '/64x64-egdata-placeholder.png'}
                   alt={offer.title}
                   width={64}
                   height={64}
