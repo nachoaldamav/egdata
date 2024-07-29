@@ -57,20 +57,20 @@ export function GameCard({ offer }: { offer: SingleOffer }) {
             <div className="inline-flex justify-end items-center flex-0">
               {isReleased && offer.price && (
                 <div className="flex items-center gap-2 text-right w-full justify-end">
-                  {offer.price.price.discount > 0 && (
+                  {offer.price?.price.discount > 0 && (
                     <span className="text-gray-500 line-through dark:text-gray-400">
-                      {fmt.format(offer.price.price.originalPrice / 100)}
+                      {fmt.format(offer.price?.price.originalPrice / 100)}
                     </span>
                   )}
                   <span className="text-primary font-semibold">
-                    {isFree ? 'Free' : fmt.format(offer.price.price.discountPrice / 100)}
+                    {isFree ? 'Free' : fmt.format(offer.price?.price.discountPrice / 100)}
                   </span>
                 </div>
               )}
               {!isReleased && isPreOrder && (
                 <div className="flex items-center gap-2 text-right w-full justify-end">
                   <span className="text-primary font-semibold">
-                    {fmt.format(offer.price.price.discountPrice / 100)}
+                    {fmt.format(offer.price?.price.discountPrice / 100)}
                   </span>
                 </div>
               )}
@@ -80,17 +80,17 @@ export function GameCard({ offer }: { offer: SingleOffer }) {
               {!isReleased &&
                 !isPreOrder &&
                 offer.price &&
-                offer.price.price.discountPrice !== 0 && (
+                offer.price?.price.discountPrice !== 0 && (
                   <div className="flex items-center gap-2 text-right w-full justify-end">
                     <span className="text-primary font-semibold">
-                      {fmt.format(offer.price.price.discountPrice / 100)}
+                      {fmt.format(offer.price?.price.discountPrice / 100)}
                     </span>
                   </div>
                 )}
               {!isReleased &&
                 !isPreOrder &&
                 offer.price &&
-                offer.price.price.discountPrice === 0 && (
+                offer.price?.price.discountPrice === 0 && (
                   <span className="text-primary font-semibold text-xs text-right">Coming Soon</span>
                 )}
             </div>
@@ -262,48 +262,50 @@ export function OfferCard({
                     ? offerGenres.join(', ')
                     : offersDictionary[offer.offerType]}
                 </div>
-                <div className="text-lg font-bold text-primary inline-flex items-end gap-2 z-10 h-full">
-                  {isReleased && offer.price && (
-                    <div className="flex items-center gap-2 text-right w-full justify-start">
-                      <span>
-                        {isFree ? 'Free' : fmt.format(offer.price.price.discountPrice / 100)}
-                      </span>
-                      {offer.price.price.discount > 0 && (
-                        <span className="line-through text-sm">
-                          {fmt.format(offer.price.price.originalPrice / 100)}
-                        </span>
-                      )}
-                    </div>
-                  )}
-                  {!isReleased && isPreOrder && (
-                    <div className="flex items-center gap-2 text-right w-full justify-start">
-                      <span>{fmt.format(offer.price.price.discountPrice / 100)}</span>
-                      {offer.price.price.discount > 0 && (
-                        <span className="line-through text-sm">
-                          {fmt.format(offer.price.price.originalPrice / 100)}
-                        </span>
-                      )}
-                    </div>
-                  )}
-                  {!isReleased && !isPreOrder && !offer.price && <span>Coming Soon</span>}
-                  {!isReleased &&
-                    !isPreOrder &&
-                    offer.price &&
-                    offer.price.price.discountPrice !== 0 && (
+                {offer.price && (
+                  <div className="text-lg font-bold text-primary inline-flex items-end gap-2 z-10 h-full">
+                    {isReleased && offer.price && (
                       <div className="flex items-center gap-2 text-right w-full justify-start">
-                        <span>{fmt.format(offer.price.price.discountPrice / 100)}</span>
-                        {offer.price.price.discount > 0 && (
+                        <span>
+                          {isFree ? 'Free' : fmt.format(offer.price?.price.discountPrice / 100)}
+                        </span>
+                        {offer.price?.price.discount > 0 && (
                           <span className="line-through text-sm">
-                            {fmt.format(offer.price.price.originalPrice / 100)}
+                            {fmt.format(offer.price?.price.originalPrice / 100)}
                           </span>
                         )}
                       </div>
                     )}
-                  {!isReleased &&
-                    !isPreOrder &&
-                    offer.price &&
-                    offer.price.price.discountPrice === 0 && <span>Coming Soon</span>}
-                </div>
+                    {!isReleased && isPreOrder && (
+                      <div className="flex items-center gap-2 text-right w-full justify-start">
+                        <span>{fmt.format(offer.price?.price.discountPrice / 100)}</span>
+                        {offer.price?.price.discount > 0 && (
+                          <span className="line-through text-sm">
+                            {fmt.format(offer.price?.price.originalPrice / 100)}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    {!isReleased && !isPreOrder && !offer.price && <span>Coming Soon</span>}
+                    {!isReleased &&
+                      !isPreOrder &&
+                      offer.price &&
+                      offer.price?.price.discountPrice !== 0 && (
+                        <div className="flex items-center gap-2 text-right w-full justify-start">
+                          <span>{fmt.format(offer.price?.price.discountPrice / 100)}</span>
+                          {offer.price?.price.discount > 0 && (
+                            <span className="line-through text-sm">
+                              {fmt.format(offer.price?.price.originalPrice / 100)}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    {!isReleased &&
+                      !isPreOrder &&
+                      offer.price &&
+                      offer.price?.price.discountPrice === 0 && <span>Coming Soon</span>}
+                  </div>
+                )}
               </>
             )}
             {content && content}
