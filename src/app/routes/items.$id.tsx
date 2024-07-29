@@ -171,7 +171,28 @@ function ItemsPage({ id }: { id: string }) {
           <p className="text-sm px-1">{data.description}</p>
         </div>
       </div>
-      <hr className="w-full my-8 border-t border-gray-300/25" style={{ height: '1px' }} />
+      <hr className="w-full border-t border-gray-300/10 my-4" />
+      <section className="w-full mt-4">
+        <h2 className="text-2xl font-bold">Metadata</h2>
+        <div className="rounded-xl border border-gray-300/10 mt-2">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[300px]">Key</TableHead>
+                <TableHead className="border-l-gray-300/10 border-l">Value</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {Object.entries(data.customAttributes).map(([key, value]) => (
+                <TableRow key={key}>
+                  <TableCell className="font-medium">{key}</TableCell>
+                  <TableCell className="border-l-gray-300/10 border-l">{value.value}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </section>
     </div>
   );
 }
