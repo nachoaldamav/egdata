@@ -18,117 +18,122 @@ import { usePreferences } from '~/hooks/use-preferences';
 import { cn } from '~/lib/utils';
 
 export const meta: MetaFunction<typeof loader> = ({ params, data }) => {
-  if (!data || !data.promotion) {
-    return [{ title: 'Promotion not found' }];
-  }
+  try {
+    if (!data || !data.promotion) {
+      return [{ title: 'Promotion not found' }];
+    }
 
-  const { title, count } = data.promotion;
+    const { title, count } = data.promotion;
 
-  const coverImage =
-    getImage(data.cover?.keyImages, [
-      'OfferImageWide',
-      'featuredMedia',
-      'DieselGameBoxWide',
-      'DieselStoreFrontWide',
-    ])?.url ?? 'https://via.placeholder.com/1920x1080?text=No+Cover+Image';
+    const coverImage =
+      getImage(data.cover?.keyImages || [], [
+        'OfferImageWide',
+        'featuredMedia',
+        'DieselGameBoxWide',
+        'DieselStoreFrontWide',
+      ])?.url ?? 'https://via.placeholder.com/1920x1080?text=No+Cover+Image';
 
-  return [
-    {
-      title: `${title} - egdata.app`,
-    },
-    {
-      name: 'description',
-      content: `Checkout ${count} available offers for ${title} on egdata.app.`,
-    },
-    {
-      name: 'og:title',
-      content: `${title} - egdata.app`,
-    },
-    {
-      name: 'og:description',
-      content: `Checkout ${count} available offers for ${title} on egdata.app.`,
-    },
-    {
-      name: 'twitter:title',
-      content: `${title} - egdata.app`,
-    },
-    {
-      name: 'twitter:description',
-      content: `Checkout ${count} available offers for ${title} on egdata.app.`,
-    },
-    {
-      name: 'og:image',
-      content: coverImage,
-    },
-    {
-      name: 'twitter:image',
-      content: coverImage,
-    },
-    {
-      name: 'twitter:card',
-      content: 'summary_large_image',
-    },
-    {
-      name: 'og:type',
-      content: 'website',
-    },
-    {
-      name: 'og:site_name',
-      content: 'egdata.app',
-    },
-    {
-      name: 'og:url',
-      content: `https://egdata.app/promotions/${params.id}`,
-    },
-    {
-      'script:ld+json': {
-        '@context': 'https://schema.org',
-        '@type': 'Event',
-        name: title,
-        description: `Checkout ${count} available offers for ${title} on egdata.app.`,
-        image: coverImage,
-        url: `https://egdata.app/promotions/${params.id}`,
-        location: {
-          url: `https://egdata.app/promotions/${params.id}`,
+    return [
+      {
+        title: `${title} - egdata.app`,
+      },
+      {
+        name: 'description',
+        content: `Checkout ${count} available offers for ${title} on egdata.app.`,
+      },
+      {
+        name: 'og:title',
+        content: `${title} - egdata.app`,
+      },
+      {
+        name: 'og:description',
+        content: `Checkout ${count} available offers for ${title} on egdata.app.`,
+      },
+      {
+        name: 'twitter:title',
+        content: `${title} - egdata.app`,
+      },
+      {
+        name: 'twitter:description',
+        content: `Checkout ${count} available offers for ${title} on egdata.app.`,
+      },
+      {
+        name: 'og:image',
+        content: coverImage,
+      },
+      {
+        name: 'twitter:image',
+        content: coverImage,
+      },
+      {
+        name: 'twitter:card',
+        content: 'summary_large_image',
+      },
+      {
+        name: 'og:type',
+        content: 'website',
+      },
+      {
+        name: 'og:site_name',
+        content: 'egdata.app',
+      },
+      {
+        name: 'og:url',
+        content: `https://egdata.app/promotions/${params.id}`,
+      },
+      {
+        'script:ld+json': {
+          '@context': 'https://schema.org',
+          '@type': 'Event',
           name: title,
+          description: `Checkout ${count} available offers for ${title} on egdata.app.`,
           image: coverImage,
-        },
-        organizer: {
-          '@type': 'Organization',
-          name: 'Epic Games',
-          url: 'https://store.epicgames.com',
-        },
-        startDate:
-          data.promotion.elements
-            .find((game) => game.price?.appliedRules.find((rule) => rule.startDate))
-            ?.price?.appliedRules.find((rule) => rule.startDate)?.startDate ??
-          new Date(Date.now() - 86400000).toISOString(),
-        offers: {
-          '@type': 'AggregateOffer',
-          availability: 'https://schema.org/InStock',
-          priceCurrency: data.promotion.elements[0].price?.price.currencyCode ?? 'USD',
-          lowPrice:
-            Math.min(
-              ...data.promotion.elements.map((game) => game.price?.price.originalPrice ?? 0),
-            ) / 100,
-          highPrice:
-            Math.max(
-              ...data.promotion.elements.map((game) => game.price?.price.originalPrice ?? 0),
-            ) / 100,
-          offerCount: count,
-          offers: data.promotion.elements.map((game) => ({
-            '@type': 'Offer',
-            url: `https://egdata.app/offers/${game.id}`,
-          })),
+          url: `https://egdata.app/promotions/${params.id}`,
+          location: {
+            url: `https://egdata.app/promotions/${params.id}`,
+            name: title,
+            image: coverImage,
+          },
+          organizer: {
+            '@type': 'Organization',
+            name: 'Epic Games',
+            url: 'https://store.epicgames.com',
+          },
+          startDate:
+            data.promotion.elements
+              .find((game) => game.price?.appliedRules.find((rule) => rule.startDate))
+              ?.price?.appliedRules.find((rule) => rule.startDate)?.startDate ??
+            new Date(Date.now() - 86400000).toISOString(),
+          offers: {
+            '@type': 'AggregateOffer',
+            availability: 'https://schema.org/InStock',
+            priceCurrency: data.promotion.elements[0]?.price?.price.currencyCode ?? 'USD',
+            lowPrice:
+              Math.min(
+                ...data.promotion.elements.map((game) => game.price?.price.originalPrice ?? 0),
+              ) / 100,
+            highPrice:
+              Math.max(
+                ...data.promotion.elements.map((game) => game.price?.price.originalPrice ?? 0),
+              ) / 100,
+            offerCount: count,
+            offers: data.promotion.elements.map((game) => ({
+              '@type': 'Offer',
+              url: `https://egdata.app/offers/${game.id}`,
+            })),
+          },
         },
       },
-    },
-    {
-      tagName: 'link',
-      rel: 'canonical',
-      href: `https://egdata.app/promotions/${params.id}`,
-    },
-  ];
+      {
+        tagName: 'link',
+        rel: 'canonical',
+        href: `https://egdata.app/promotions/${params.id}`,
+      },
+    ];
+  } catch (error) {
+    console.error('Failed to generate meta tags', error);
+    return [{ title: 'Promotion not found' }];
+  }
 };
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
