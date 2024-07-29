@@ -186,7 +186,9 @@ function ItemsPage({ id }: { id: string }) {
               {Object.entries(data.customAttributes).map(([key, value]) => (
                 <TableRow key={key}>
                   <TableCell className="font-medium">{key}</TableCell>
-                  <TableCell className="border-l-gray-300/10 border-l">{value.value}</TableCell>
+                  <TableCell className="border-l-gray-300/10 border-l font-mono">
+                    {value.value}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
