@@ -36,7 +36,7 @@ export function SalesModule({
   }, [eventId, country]);
 
   return (
-    <section className="w-full h-full" id={`promotion-${eventId}`}>
+    <section className="w-full h-full my-4" id={`promotion-${eventId}`}>
       <Link
         className="text-xl font-bold text-left inline-flex group items-center gap-2"
         to={`/promotions/${eventId}`}

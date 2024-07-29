@@ -63,7 +63,7 @@ export function UpcomingCalendar() {
   startOfToday.setHours(0, 0, 0, 0);
 
   return (
-    <section id="upcoming-calendar" className="mb-8 w-full">
+    <section id="upcoming-calendar" className="mb-2 w-full">
       <Link
         className="text-xl font-bold text-left inline-flex group items-center gap-2"
         to="/search?sort_by=upcoming"

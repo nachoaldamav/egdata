@@ -67,7 +67,7 @@ export function GamesWithAchievements() {
   }
 
   return (
-    <section className="w-full flex flex-col gap-4">
+    <section className="w-full flex flex-col gap-4 my-4">
       <Link
         to={'/search?tags=19847&sort_by=creationDate&offer_type=BASE_GAME'}
         className="text-xl font-bold text-left inline-flex gap-2 group items-center justify-start"

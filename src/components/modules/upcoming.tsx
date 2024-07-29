@@ -57,7 +57,7 @@ export function UpcomingOffers() {
   }
 
   return (
-    <section id="upcoming-offers" className="mb-8 w-full">
+    <section id="upcoming-offers" className="mb-8 w-full -mt-4">
       <Table className="w-[73.5vw] mx-auto max-w-full">
         <TableCaption>Upcoming Offers</TableCaption>
         <TableHeader>

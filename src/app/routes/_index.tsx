@@ -203,7 +203,7 @@ export default function Index() {
 
   return (
     <HydrationBoundary state={dehydratedState}>
-      <main className="flex flex-col items-center justify-start h-full space-y-4 p-4">
+      <main className="flex flex-col items-center justify-start h-full gap-5 p-4">
         {sections.map((section) => section?.component)}
       </main>
     </HydrationBoundary>
