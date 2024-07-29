@@ -1,4 +1,4 @@
-import { useOutletContext } from '@remix-run/react';
+import { Link, useOutletContext } from '@remix-run/react';
 import {
   Table,
   TableHeader,
@@ -39,7 +39,9 @@ export default function ItemsSection() {
         <TableBody>
           {items.map((item) => (
             <TableRow key={item.id}>
-              <TableCell className="font-mono">{item.id}</TableCell>
+              <TableCell className="font-mono underline">
+                <Link to={`/items/${item.id}`}>{item.id}</Link>
+              </TableCell>
               <TableCell className="text-left">{item.title}</TableCell>
               <TableCell className="text-left">{item.entitlementType}</TableCell>
               <TableCell className="text-left">{item.entitlementName}</TableCell>

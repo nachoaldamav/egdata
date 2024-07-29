@@ -20,6 +20,7 @@ import {
 import type { SingleItem } from '~/types/single-item';
 import { internalNamespaces } from '~/lib/internal-namespaces';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
+import { Badge } from '~/components/ui/badge';
 
 const getItem = async (id: string) => {
   return client.get<SingleItem>(`/items/${id}`).then((res) => res.data);
@@ -93,7 +94,10 @@ function ItemsPage({ id }: { id: string }) {
     <div className="flex flex-col items-center w-full min-h-[75vh]">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
         <div className="flex flex-col gap-4 w-full">
-          <h1 className="text-2xl font-bold">{data.title}</h1>
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-bold">{data.title}</h1>
+            <Badge>Item</Badge>
+          </div>
           <div className="rounded-xl border border-gray-300/10 mt-2">
             <Table>
               <TableHeader>
