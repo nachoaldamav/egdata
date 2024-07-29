@@ -149,6 +149,7 @@ const defaultOrder = [
   'statsCombined',
   'topWishlisted',
   'achievements',
+  'topSeller',
   'event1',
   'event2',
   'event3',
@@ -184,6 +185,10 @@ export default function Index() {
     },
     { key: 'achievements', component: <GamesWithAchievements /> },
     { key: 'event1', component: <SalesModule event={events[0].name} eventId={events[0].id} /> },
+    {
+      key: 'topSeller',
+      component: <TopSection slug="top-sellers" title="Top Seller" side="left" />,
+    },
     { key: 'event2', component: <SalesModule event={events[1].name} eventId={events[1].id} /> },
     { key: 'event3', component: <SalesModule event={events[2].name} eventId={events[2].id} /> },
   ];
@@ -199,7 +204,7 @@ export default function Index() {
   return (
     <HydrationBoundary state={dehydratedState}>
       <main className="flex flex-col items-center justify-start h-full space-y-4 p-4">
-        {orderedSections.map((section) => section?.component)}
+        {sections.map((section) => section?.component)}
       </main>
     </HydrationBoundary>
   );

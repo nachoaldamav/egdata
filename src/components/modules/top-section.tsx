@@ -6,6 +6,8 @@ import { Image } from '../app/image';
 import { getImage } from '~/lib/getImage';
 import { Link } from '@remix-run/react';
 import { cn } from '~/lib/utils';
+import { useGenres } from '~/hooks/use-genres';
+import { useCountry } from '~/hooks/use-country';
 
 type TopSection = {
   elements: SingleOffer[];
@@ -24,9 +26,25 @@ export function TopSection({
   title,
   side,
 }: { slug: string; title: string; side: 'left' | 'right' }) {
+  const { genres } = useGenres();
+  const { country } = useCountry();
   const { data, isLoading } = useQuery({
     queryKey: ['top-section', { slug }],
     queryFn: () => client.get<TopSection>(`/offers/${slug}`).then((res) => res.data),
+  });
+  const { data: price } = useQuery({
+    queryKey: [
+      'price',
+      {
+        id: data?.elements[0].id ?? null,
+      },
+    ],
+    queryFn: () =>
+      client
+        .get<SingleOffer['price']>(`/offers/${data?.elements[0].id}/price`, {
+          params: { country },
+        })
+        .then((res) => res.data),
   });
 
   if (isLoading) {
@@ -40,7 +58,7 @@ export function TopSection({
   const offer = data.elements[0];
 
   return (
-    <section className="w-full py-5">
+    <section className="w-full py-4 bg-card rounded-2xl" id={slug}>
       <div className="container px-4 mx-auto max-w-7xl">
         <div className="grid gap-12 md:grid-cols-2 md:gap-16 items-center">
           <div
@@ -55,9 +73,9 @@ export function TopSection({
                   ?.url
               }
               alt={offer.title}
-              width={650}
-              height={450}
-              className="object-cover w-full aspect-[4/3]"
+              width={1920}
+              height={1080}
+              className="object-cover w-full h-full"
             />
           </div>
           <div className="grid gap-6">
@@ -66,9 +84,9 @@ export function TopSection({
                 <GamepadIcon className="h-4 w-4" />
                 <span>{title}</span>
               </div>
-              <h2 className="text-4xl font-bold tracking-tight">{offer.title}</h2>
+              <h2 className="text-2xl font-bold tracking-tight">{offer.title}</h2>
             </div>
-            <p className="text-muted-foreground md:text-xl">{offer.description}</p>
+            <p className="text-muted-foreground md:text-sm">{offer.description}</p>
             <div className="grid gap-4">
               <div className="flex items-center gap-2">
                 <CalendarIcon className="h-5 w-5 text-muted-foreground" />
@@ -97,15 +115,43 @@ export function TopSection({
                 <span>
                   {offer.tags
                     .filter((tag) => !platforms[tag.id])
+                    .filter((tag) => genres?.find((genre) => genre.id === tag.id))
                     .map((tag) => tag.name)
-                    .slice(0, 7)
+                    .slice(0, 4)
                     .join(', ')}
                 </span>
               </div>
             </div>
-            <Button asChild size="lg" className="w-full md:w-auto">
-              <Link to={`/offers/${offer.id}`}>Check Offer</Link>
-            </Button>
+            <div
+              className={cn(
+                'flex flex-row gap-4 items-center w-full justify-end',
+                side === 'left' ? 'flex-row-reverse' : '',
+              )}
+            >
+              <div>
+                {price?.price?.discountPrice && (
+                  <div className="inline-flex items-center gap-2">
+                    <span className="text-2xl font-bold">
+                      {new Intl.NumberFormat(undefined, {
+                        style: 'currency',
+                        currency: price.price.currencyCode,
+                      }).format(price.price.discountPrice / 100)}
+                    </span>
+                    {price.price.discountPrice < price.price.originalPrice && (
+                      <span className="text-sm line-through text-muted-foreground">
+                        {new Intl.NumberFormat(undefined, {
+                          style: 'currency',
+                          currency: price.price.currencyCode,
+                        }).format(price.price.originalPrice / 100)}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+              <Button asChild size="lg" className="w-full md:w-auto">
+                <Link to={`/offers/${offer.id}`}>Check Offer</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
