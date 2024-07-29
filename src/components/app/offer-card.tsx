@@ -9,6 +9,7 @@ import { StarIcon } from '@radix-ui/react-icons';
 import { useEffect, useState } from 'react';
 import { useGenres } from '~/hooks/use-genres';
 import { cn } from '~/lib/utils';
+import { Badge } from '../ui/badge';
 
 export function GameCard({ offer }: { offer: SingleOffer }) {
   const fmt = Intl.NumberFormat(undefined, {
@@ -253,9 +254,10 @@ export function OfferCard({
                     {offer.title}
                   </h3>
                   {/* <div className="flex items-center gap-1 text-sm font-medium">
-                <StarIcon className="w-4 h-4 fill-primary" />
-                <span>4.8</span>
-              </div> */}
+                      <StarIcon className="w-4 h-4 fill-primary" />
+                      <span>4.8</span>
+                    </div> 
+                  */}
                 </div>
                 <div className="text-sm text-muted-foreground mb-4 z-10">
                   {offerGenres.length > 0
@@ -274,6 +276,16 @@ export function OfferCard({
                             {fmt.format(offer.price?.price.originalPrice / 100)}
                           </span>
                         )}
+                      </div>
+                    )}
+                    {offer.price.price.discount > 0 && (
+                      <div className="text-xs inline-flex items-center rounded-full bg-green-400 text-black px-2 py-1 font-semibold">
+                        {offer.price.price.discount &&
+                          `-${Math.round(
+                            ((offer.price.price.originalPrice - offer.price.price.discountPrice) /
+                              offer.price.price.originalPrice) *
+                              100,
+                          )}%`}
                       </div>
                     )}
                     {!isReleased && isPreOrder && (
