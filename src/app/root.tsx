@@ -120,7 +120,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body className="antialiased">
-        <div className="container mx-auto overflow-x-hidden">
+        <div className="md:container mx-auto overflow-x-hidden">
           <QueryClientProvider client={queryClient}>
             <SearchProvider>
               <CountryProvider defaultCountry={country || 'US'}>

@@ -344,7 +344,7 @@ function Promotion() {
           />
         )}
       </div>
-      <header className="flex flex-row justify-between items-center gap-4 mt-5">
+      <header className="flex flex-col md:flex-row justify-between items-center gap-4 mt-5">
         <div className="inline-flex items-center gap-2">
           <h2 className="text-2xl">Results</h2>
           <span className="text-sm text-gray-500">
@@ -373,7 +373,7 @@ function Promotion() {
             </svg>
           )}
         </div>
-        <div className="flex flex-row gap-2">
+        <div className="flex :flex-row gap-2">
           <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortBy)}>
             <SelectTrigger className="w-[180px]">
               <SelectValue className="text-sm">{sortByDisplay[sortBy]}</SelectValue>
@@ -415,7 +415,7 @@ function Promotion() {
       <div
         className={cn(
           'mt-8 grid gap-4',
-          view === 'grid' ? 'grid-cols-2 lg:grid-cols-3 xl:grid-cols-5' : 'grid-cols-1',
+          view === 'grid' ? 'grid-cols-1 lg:grid-cols-3 xl:grid-cols-5' : 'grid-cols-1',
         )}
       >
         {promotion.pages
