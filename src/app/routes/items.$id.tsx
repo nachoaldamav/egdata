@@ -91,8 +91,8 @@ function ItemsPage({ id }: { id: string }) {
 
   return (
     <div className="flex flex-col items-center w-full min-h-[75vh]">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        <div className="flex flex-col gap-4 w-full">
           <h1 className="text-2xl font-bold">{data.title}</h1>
           <div className="rounded-xl border border-gray-300/10 mt-2">
             <Table>
@@ -158,7 +158,7 @@ function ItemsPage({ id }: { id: string }) {
         </div>
         <div className="flex flex-col items-start justify-center gap-4">
           <Image
-            src={getImage(data.keyImages, ['DieselGameBoxWide'])?.url}
+            src={getImage(data.keyImages, ['DieselGameBoxWide'])?.url ?? '/placeholder.webp'}
             alt={data.title}
             width={1920}
             height={1080}
