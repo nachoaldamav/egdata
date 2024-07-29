@@ -22,6 +22,8 @@ import { LastModifiedGames } from '~/components/modules/last-modified-offers';
 import { useState } from 'react';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { getFeaturedDiscounts } from '~/queries/featured-discounts';
+import { getTopSection } from '~/queries/top-section';
+import { getLastModified } from '~/queries/last-modified';
 
 export const meta: MetaFunction = () => {
   return [
@@ -115,6 +117,18 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       queryKey: ['featuredDiscounts', { country }],
       queryFn: () => getFeaturedDiscounts({ country }),
       staleTime: 6000,
+    }),
+    queryClient.prefetchQuery({
+      queryKey: ['top-section', { slug: 'top-wishlisted' }],
+      queryFn: () => getTopSection('top-wishlisted'),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: ['top-section', { slug: 'top-sellers' }],
+      queryFn: () => getTopSection('top-sellers'),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: ['last-modified-offers', { country }],
+      queryFn: () => getLastModified(country),
     }),
   ]);
 

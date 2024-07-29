@@ -13,19 +13,13 @@ import {
   CarouselNext,
 } from '../ui/carousel';
 import { Skeleton } from '../ui/skeleton';
+import { getLastModified } from '~/queries/last-modified';
 
 export function LastModifiedGames() {
   const { country } = useCountry();
   const { data: games, isLoading: loading } = useQuery({
-    queryKey: ['last-modified-offers'],
-    queryFn: () =>
-      client
-        .get<{ elements: SingleOffer[] }>('/offers?limit=25', {
-          params: {
-            country,
-          },
-        })
-        .then((res) => res.data.elements),
+    queryKey: ['last-modified-offers', { country }],
+    queryFn: () => getLastModified(country),
   });
 
   return (

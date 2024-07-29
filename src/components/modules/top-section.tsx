@@ -8,13 +8,7 @@ import { Link } from '@remix-run/react';
 import { cn } from '~/lib/utils';
 import { useGenres } from '~/hooks/use-genres';
 import { useCountry } from '~/hooks/use-country';
-
-type TopSection = {
-  elements: SingleOffer[];
-  page: number;
-  limit: number;
-  total: number;
-};
+import { getTopSection } from '~/queries/top-section';
 
 const platforms: Record<string, string> = {
   '9547': 'Windows',
@@ -30,7 +24,7 @@ export function TopSection({
   const { country } = useCountry();
   const { data, isLoading } = useQuery({
     queryKey: ['top-section', { slug }],
-    queryFn: () => client.get<TopSection>(`/offers/${slug}`).then((res) => res.data),
+    queryFn: () => getTopSection(slug),
   });
   const { data: price } = useQuery({
     queryKey: [
