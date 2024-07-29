@@ -76,8 +76,8 @@ export default function Index() {
                 <Image
                   src={offer.keyImages[0]?.url ?? '/64x64-egdata-placeholder.png'}
                   alt={offer.title}
-                  width={64}
-                  height={64}
+                  width={150}
+                  height={150}
                   className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-lg"
                 />
               </div>
