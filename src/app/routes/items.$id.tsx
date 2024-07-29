@@ -21,6 +21,7 @@ import type { SingleItem } from '~/types/single-item';
 import { internalNamespaces } from '~/lib/internal-namespaces';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 import { Badge } from '~/components/ui/badge';
+import { Skeleton } from '~/components/ui/skeleton';
 
 const getItem = async (id: string) => {
   return client.get<SingleItem>(`/items/${id}`).then((res) => res.data);
@@ -82,7 +83,7 @@ function ItemsPage({ id }: { id: string }) {
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <ItemsPageSkeleton />;
   }
 
   if (!data) {
@@ -114,7 +115,7 @@ function ItemsPage({ id }: { id: string }) {
                       'text-left font-mono border-l-gray-300/10 border-l underline decoration-dotted decoration-slate-600 underline-offset-4'
                     }
                   >
-                    <Link to={`/sandboxes/${data.namespace}/offers`}>
+                    <Link to={`/sandboxes/${data.namespace}/items`}>
                       {internalNamespaces.includes(data.namespace) ? (
                         <TooltipProvider>
                           <Tooltip>
@@ -147,13 +148,26 @@ function ItemsPage({ id }: { id: string }) {
                 <TableRow>
                   <TableCell className="font-medium">Creation Date</TableCell>
                   <TableCell className="border-l-gray-300/10 border-l">
-                    {data.creationDate}
+                    {/* {data.creationDate} */}
+                    {new Date(data.creationDate).toLocaleString('en-UK', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: 'numeric',
+                    })}
                   </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">Last Modified</TableCell>
                   <TableCell className="border-l-gray-300/10 border-l">
-                    {data.lastModifiedDate}
+                    {new Date(data.lastModifiedDate).toLocaleString('en-UK', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: 'numeric',
+                    })}
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -194,6 +208,30 @@ function ItemsPage({ id }: { id: string }) {
             </TableBody>
           </Table>
         </div>
+      </section>
+    </div>
+  );
+}
+
+/**
+ * Skeleton loader for the items page (Skeleton does not have property 'width' or 'height')
+ */
+function ItemsPageSkeleton() {
+  return (
+    <div className="flex flex-col items-center w-full min-h-[75vh]">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+        <div className="flex flex-col gap-4 w-full">
+          <Skeleton style={{ width: '100%', height: '100%' }} />
+        </div>
+        <div className="flex flex-col items-start justify-center gap-4">
+          <Skeleton className="rounded-lg" style={{ width: '100%', height: '350px' }} />
+          <Skeleton style={{ width: '100%', height: '100px' }} />
+        </div>
+      </div>
+      <hr className="w-full border-t border-gray-300/10 my-4" />
+      <section className="w-full mt-4 gap-2 flex flex-col">
+        <h2 className="text-2xl font-bold">Metadata</h2>
+        <Skeleton style={{ width: '100%', height: '500px' }} />
       </section>
     </div>
   );
