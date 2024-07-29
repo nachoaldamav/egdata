@@ -656,7 +656,12 @@ function OfferHero({ offer }: { offer: SingleOffer }) {
       )}
       <Image
         src={
-          getImage(offer.keyImages, ['OfferImageWide', 'DieselGameBoxWide', 'TakeoverWide'])?.url
+          getImage(offer.keyImages, [
+            'DieselStoreFrontWide',
+            'OfferImageWide',
+            'DieselGameBoxWide',
+            'TakeoverWide',
+          ])?.url
         }
         alt={offer.title}
         quality="original"

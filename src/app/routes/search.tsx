@@ -715,6 +715,11 @@ function SearchPagination({
     return null;
   }
 
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <Pagination>
       <PaginationContent>
@@ -722,7 +727,7 @@ function SearchPagination({
           <PaginationPreviousButton
             onClick={() => {
               if (page > 1) {
-                setPage(page - 1);
+                handlePageChange(page - 1);
               }
             }}
             disabled={page === 1}
@@ -730,7 +735,7 @@ function SearchPagination({
         </PaginationItem>
         {startPage > 1 && (
           <PaginationItem>
-            <PaginationButton onClick={() => setPage(1)} disabled={page === 1}>
+            <PaginationButton onClick={() => handlePageChange(1)} disabled={page === 1}>
               1
             </PaginationButton>
           </PaginationItem>
@@ -747,7 +752,10 @@ function SearchPagination({
 
           return (
             <PaginationItem key={pageNumber}>
-              <PaginationButton onClick={() => setPage(pageNumber)} disabled={pageNumber === page}>
+              <PaginationButton
+                onClick={() => handlePageChange(pageNumber)}
+                disabled={pageNumber === page}
+              >
                 {pageNumber}
               </PaginationButton>
             </PaginationItem>
@@ -762,7 +770,10 @@ function SearchPagination({
 
         {endPage < totalPages && (
           <PaginationItem>
-            <PaginationButton onClick={() => setPage(totalPages)} disabled={page === totalPages}>
+            <PaginationButton
+              onClick={() => handlePageChange(totalPages)}
+              disabled={page === totalPages}
+            >
               {totalPages}
             </PaginationButton>
           </PaginationItem>
@@ -771,8 +782,7 @@ function SearchPagination({
         <PaginationItem>
           <PaginationNextButton
             onClick={() => {
-              console.log('next');
-              setPage(page + 1);
+              handlePageChange(page + 1);
             }}
             disabled={page === totalPages}
           />
