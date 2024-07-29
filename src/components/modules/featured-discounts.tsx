@@ -348,7 +348,13 @@ function FeaturedOffer({ offer }: { offer: SingleOffer }) {
             <div className="flex items-center justify-between mt-4">
               <div className="flex items-center gap-2">
                 <span className="text-muted-foreground text-sm inline-flex gap-1 items-center justify-start">
-                  {offer.tags.map((tag) => platformIcons[tag.id])}
+                  {offer.tags
+                    .filter((tag) => platformIcons[tag.id])
+                    .map((tag) => (
+                      <span key={tag.id} className="inline-flex items-center gap-1">
+                        {platformIcons[tag.id]}
+                      </span>
+                    ))}
                 </span>
               </div>
               <Price offer={offer} />
