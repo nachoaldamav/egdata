@@ -38,7 +38,7 @@ export interface SingleOffer {
     pageSlug: string;
     pageType: string;
   }> | null;
-  price: Price;
+  price: Price | null;
 }
 
 export interface KeyImage {
