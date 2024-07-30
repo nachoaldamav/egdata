@@ -53,9 +53,11 @@ export function GiveawaysCarousel({
       <h2 className="text-xl font-bold">Giveaways 🎁</h2>
       <ScrollArea className="w-full">
         <div className="flex flex-row items-center justify-evenly gap-6 w-full">
-          {data.map((offer) => (
-            <GiveawayCard key={offer.id} offer={offer} />
-          ))}
+          {data
+            .filter((offer) => offer.title)
+            .map((offer) => (
+              <GiveawayCard key={offer.id} offer={offer} />
+            ))}
         </div>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
@@ -74,7 +76,7 @@ function GiveawayCard({ offer }: { offer: GiveawayOffer }) {
 
   const priceFmtr = new Intl.NumberFormat(undefined, {
     style: 'currency',
-    currency: offer.price?.price.currencyCode,
+    currency: offer.price?.price.currencyCode || 'USD',
   });
 
   return (
@@ -83,7 +85,8 @@ function GiveawayCard({ offer }: { offer: GiveawayOffer }) {
         <CardHeader className="p-0 rounded-t-xl relative">
           <Image
             src={
-              getImage(offer.keyImages, ['DieselGameBoxWide', 'OfferImageWide', 'Featured'])?.url
+              getImage(offer?.keyImages || [], ['DieselGameBoxWide', 'OfferImageWide', 'Featured'])
+                ?.url
             }
             alt={offer.title}
             className="w-full h-[200px] object-cover rounded-t-xl"
@@ -117,7 +120,7 @@ function GiveawayCard({ offer }: { offer: GiveawayOffer }) {
           <span className="text-sm font-semibold inline-flex items-center gap-1">
             <TooltipProvider>
               Repeated:{' '}
-              {offer.giveaway.historical.length > 1 ? (
+              {offer.giveaway?.historical?.length > 1 ? (
                 <Tooltip>
                   <TooltipTrigger className="flex items-center gap-1">
                     Yes
@@ -125,10 +128,10 @@ function GiveawayCard({ offer }: { offer: GiveawayOffer }) {
                   </TooltipTrigger>
                   <TooltipContent className="flex flex-col gap-1">
                     <i className="text-xs font-normal">
-                      This giveaway has been repeated {offer.giveaway.historical.length} times.
+                      This giveaway has been repeated {offer.giveaway?.historical?.length} times.
                     </i>
                     <div className="flex flex-col gap-1">
-                      {offer.giveaway.historical.map((historical) => (
+                      {offer.giveaway?.historical?.map((historical) => (
                         <span key={historical.id}>
                           {new Date(historical.startDate).toLocaleDateString('en-UK', {
                             year: 'numeric',
