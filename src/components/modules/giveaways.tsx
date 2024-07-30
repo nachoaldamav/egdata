@@ -74,7 +74,7 @@ function GiveawayCard({ offer }: { offer: GiveawayOffer }) {
 
   const priceFmtr = new Intl.NumberFormat(undefined, {
     style: 'currency',
-    currency: offer.price.price.currencyCode,
+    currency: offer.price?.price.currencyCode,
   });
 
   return (
@@ -102,11 +102,11 @@ function GiveawayCard({ offer }: { offer: GiveawayOffer }) {
         <CardFooter className="px-4 pb-4 rounded-b-xl gap-2 justify-between items-baseline">
           <div className="inline-flex items-center gap-2">
             <span className="text-xl font-bold">
-              {isOnGoing ? 'Free' : priceFmtr.format(offer.price.price.originalPrice / 100)}
+              {isOnGoing ? 'Free' : priceFmtr.format(offer.price?.price.originalPrice / 100)}
             </span>
             {isOnGoing && (
               <span className="text-sm font-semibold inline-flex items-center gap-1 line-through">
-                {priceFmtr.format(offer.price.price.originalPrice / 100)}
+                {priceFmtr.format(offer.price?.price.originalPrice / 100)}
               </span>
             )}
           </div>
