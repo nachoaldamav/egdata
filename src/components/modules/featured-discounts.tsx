@@ -325,10 +325,10 @@ function FeaturedOffer({ offer }: { offer: SingleOffer }) {
                     key={image._id}
                     src={image.src}
                     alt={offer.title}
-                    width={150}
-                    height={75}
-                    quality="original"
-                    className="object-cover rounded-lg mx-auto"
+                    width={1080}
+                    height={560}
+                    quality="high"
+                    className="object-cover rounded-lg mx-auto h-full w-full"
                   />
                 </div>
               ))}
