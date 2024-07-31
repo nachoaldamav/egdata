@@ -203,7 +203,10 @@ export default function Index() {
       key: 'topSeller',
       component: <TopSection slug="top-sellers" title="Top Seller" side="left" />,
     },
-    { key: 'event2', component: <SalesModule event={events[1].name} eventId={events[1].id} /> },
+    {
+      key: 'event2',
+      component: <SalesModule event={'Borderlands Franchise Sale'} eventId={'38257'} />,
+    },
     { key: 'event3', component: <SalesModule event={events[2].name} eventId={events[2].id} /> },
   ];
 
