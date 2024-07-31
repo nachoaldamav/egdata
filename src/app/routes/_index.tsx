@@ -152,16 +152,16 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 type LoaderData = ReturnType<typeof loader>;
 
 const defaultOrder = [
-  'featured',
+  'featuredDiscounts',
+  // 'featured',
   'giveaways',
   'latest',
-  'featuredDiscounts',
-  'lastModified',
   'upcomingCalendar',
   'upcomingOffers',
+  'lastModified',
+  'topWishlisted',
   'summerSale',
   'statsCombined',
-  'topWishlisted',
   'achievements',
   'topSeller',
   'event1',
@@ -207,7 +207,9 @@ export default function Index() {
     { key: 'event3', component: <SalesModule event={events[2].name} eventId={events[2].id} /> },
   ];
 
-  const orderedSections = order.map((key) => sections.find((section) => section.key === key));
+  const orderedSections = defaultOrder.map((key) =>
+    sections.find((section) => section.key === key),
+  );
 
   const handleOrderChange = (newOrder: string[]) => {
     setOrder(newOrder);
@@ -218,7 +220,7 @@ export default function Index() {
   return (
     <HydrationBoundary state={dehydratedState}>
       <main className="flex flex-col items-center justify-start h-full gap-5 p-4">
-        {sections.map((section) => section?.component)}
+        {orderedSections.map((section) => section?.component)}
       </main>
     </HydrationBoundary>
   );

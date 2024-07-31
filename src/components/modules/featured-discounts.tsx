@@ -24,7 +24,7 @@ import { Skeleton } from '../ui/skeleton';
 import { getFeaturedDiscounts } from '~/queries/featured-discounts';
 import { ArrowUpIcon } from '@radix-ui/react-icons';
 
-const SLIDE_DELAY = 100_000;
+const SLIDE_DELAY = 10_000;
 
 export function FeaturedDiscounts() {
   const { country } = useCountry();
@@ -194,15 +194,19 @@ function ProgressIndicator({
         {Array.from({ length: total }).map((_, i) => (
           <Tooltip key={`${offers[i]._id}-progress`} delayDuration={0}>
             <TooltipTrigger
-              className={cn('block w-4 h-1 rounded-full cursor-pointer relative', 'bg-gray-500')}
+              className={cn(
+                'block w-5 h-[5px] rounded-full cursor-pointer relative',
+                'bg-gray-500',
+                current === i + 1 ? 'w-10' : 'hover:bg-gray-700 hover:w-8',
+                'transition-width duration-300 ease-in-out',
+              )}
               onClick={() => api?.scrollTo(i)}
               onKeyDown={() => api?.scrollTo(i)}
             >
               <div
-                className="absolute top-0 left-0 h-full bg-white rounded-full"
+                className="absolute top-0 left-0 h-full bg-white rounded-full transition-width duration-300 ease-in-out"
                 style={{
                   width: `${progress[i]}%`,
-                  transition: 'width 0.1s linear',
                 }}
               />
             </TooltipTrigger>
