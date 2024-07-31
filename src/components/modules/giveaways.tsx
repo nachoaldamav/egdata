@@ -3,7 +3,6 @@ import { client } from '~/lib/client';
 import { Skeleton } from '../ui/skeleton';
 import { Image } from '../app/image';
 import { getImage } from '~/lib/getImage';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '~/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 import { useCountry } from '~/hooks/use-country';
 import { useEffect, useState } from 'react';
@@ -52,7 +51,7 @@ export function GiveawaysCarousel({
     >
       <h2 className="text-xl font-bold">Giveaways 🎁</h2>
       <ScrollArea className="w-full">
-        <div className="flex flex-row items-center justify-evenly gap-6 w-full">
+        <div className="flex flex-row items-stretch justify-evenly gap-6 w-full">
           {data
             .filter((offer) => offer.title)
             .map((offer) => (
@@ -80,44 +79,45 @@ function GiveawayCard({ offer }: { offer: GiveawayOffer }) {
   });
 
   return (
-    <Link to={`/offers/${offer.id}`}>
-      <Card className="w-[300px] border-transparent h-[19rem]">
-        <CardHeader className="p-0 rounded-t-xl relative">
-          <Image
-            src={
-              getImage(offer?.keyImages || [], ['DieselGameBoxWide', 'OfferImageWide', 'Featured'])
-                ?.url
-            }
-            alt={offer.title}
-            className="w-full h-[200px] object-cover rounded-t-xl"
-            width={400}
-            height={225}
-          />
-          {isUpcoming && (
-            <div className="absolute bottom-0 left-0 bg-blue-700 text-white text-sm p-1 w-full text-center">
-              starts in <Countdown targetDate={startDate} />
-            </div>
-          )}
-        </CardHeader>
-        <CardContent className="p-4">
-          <CardTitle className="text-lg font-medium">{offer.title}</CardTitle>
-        </CardContent>
-        <CardFooter className="px-4 pb-4 rounded-b-xl gap-2 justify-between items-baseline">
-          <div className="inline-flex items-center gap-2">
+    <Link
+      to={`/offers/${offer.id}`}
+      className="flex flex-col rounded-lg shadow-md overflow-hidden w-[300px]"
+    >
+      <div className="relative flex-shrink-0">
+        <Image
+          src={
+            getImage(offer?.keyImages || [], ['DieselGameBoxWide', 'OfferImageWide', 'Featured'])
+              ?.url
+          }
+          alt={offer.title}
+          className="w-full h-[200px] object-cover"
+          width={400}
+          height={225}
+        />
+        {isUpcoming && (
+          <div className="absolute bottom-0 left-0 bg-blue-700 text-white text-sm p-1 w-full text-center">
+            starts in <Countdown targetDate={startDate} />
+          </div>
+        )}
+      </div>
+      <div className="flex flex-col flex-grow p-4 bg-card">
+        <h3 className="text-lg font-medium mb-2">{offer.title}</h3>
+        <div className="flex justify-between items-baseline mt-auto">
+          <div className="flex items-center gap-2">
             {offer.price && (
               <>
                 <span className="text-xl font-bold">
                   {isOnGoing ? 'Free' : priceFmtr.format(offer.price?.price.originalPrice / 100)}
                 </span>
                 {isOnGoing && (
-                  <span className="text-sm font-semibold inline-flex items-center gap-1 line-through">
+                  <span className="text-sm font-semibold line-through">
                     {priceFmtr.format(offer.price?.price.originalPrice / 100)}
                   </span>
                 )}
               </>
             )}
           </div>
-          <span className="text-sm font-semibold inline-flex items-center gap-1">
+          <span className="text-sm font-semibold flex items-center gap-1">
             <TooltipProvider>
               Repeated:{' '}
               {offer.giveaway?.historical?.length > 1 ? (
@@ -154,8 +154,8 @@ function GiveawayCard({ offer }: { offer: GiveawayOffer }) {
               )}
             </TooltipProvider>
           </span>
-        </CardFooter>
-      </Card>
+        </div>
+      </div>
     </Link>
   );
 }
