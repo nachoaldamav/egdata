@@ -347,6 +347,14 @@ export default function Index() {
     return <div>{offerData.description}</div>;
   }
 
+  const handleTabChange = (value: string) => {
+    if (value === 'price') {
+      navigate(`/offers/${offerData.id}`, { replace: true, preventScrollReset: true });
+    } else {
+      navigate(`/offers/${offerData.id}/${value}`, { replace: true, preventScrollReset: true });
+    }
+  };
+
   return (
     <main className="flex flex-col items-start justify-start w-full min-h-screen gap-4">
       <header className="grid col-span-1 gap-4 md:grid-cols-2 w-full">
@@ -499,13 +507,7 @@ export default function Index() {
         <Tabs
           defaultValue={subPath}
           className="w-full"
-          onValueChange={(value: string) => {
-            if (value === 'price') {
-              navigate(`/offers/${offerData.id}`, { replace: true });
-            } else {
-              navigate(`/offers/${offerData.id}/${value}`, { replace: true });
-            }
-          }}
+          onValueChange={handleTabChange}
           key={`subsection-${offerData.id}`}
         >
           <TabsList>
