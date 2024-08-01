@@ -428,6 +428,7 @@ export default function Index() {
                   <TableCell className="font-medium">Supported Platforms</TableCell>
                   <TableCell className="text-left border-l-gray-300/10 border-l inline-flex items-center justify-start gap-1">
                     {offerData.tags
+                      .filter((tag) => tag !== null)
                       .filter((tag) => platformIcons[tag.id])
                       .map((tag) => (
                         <span key={tag.id} className="text-xs">
