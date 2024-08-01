@@ -160,7 +160,7 @@ const defaultOrder = [
   'upcomingOffers',
   'lastModified',
   'topWishlisted',
-  'summerSale',
+  // 'summerSale',
   'statsCombined',
   'achievements',
   'topSeller',
