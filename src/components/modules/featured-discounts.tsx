@@ -322,7 +322,6 @@ function FeaturedOffer({ offer }: { offer: SingleOffer }) {
                   onKeyDown={() => setImage(image.src)}
                 >
                   <Image
-                    key={image._id}
                     src={image.src}
                     alt={offer.title}
                     width={1080}
