@@ -5,6 +5,7 @@ import { client } from '~/lib/client';
 import { defaultState, SearchContext } from './search-context';
 import { internalNamespaces } from '~/lib/internal-namespaces';
 import { Link } from '@remix-run/react';
+import { Input } from '~/components/ui/input';
 
 const { debounce } = lodash;
 
@@ -94,30 +95,61 @@ function SearchProvider({ children }: SearchProviderProps) {
       {children}
       <Portal>
         {inputRef.current && searchState.results.length > 0 && searchState.query !== '' && (
-          <div
-            className="absolute bg-gray-900 rounded-lg shadow-lg w-auto z-20"
-            style={{
-              top: inputRef.current.getBoundingClientRect().bottom + window.scrollY + 10,
-              left: inputRef.current.getBoundingClientRect().left + window.scrollX,
-              width: inputRef.current.offsetWidth,
-            }}
-          >
-            <div className="p-4 space-y-4 max-h-[400px] overflow-auto">
-              {searchState.results.map((result) => (
-                <Link
-                  key={result.id}
-                  className="flex items-center gap-4 border-b border-gray-800 py-2"
-                  to={`/offers/${result.id}`}
-                  onClick={() => setSearchState(defaultState)}
-                >
-                  <div className="inline-flex relative justify-start items-center gap-4">
-                    <h3 className="font-medium">{result.title}</h3>
-                    {internalNamespaces.includes(result.namespace) && (
-                      <span className="text-sm text-gray-400">Internal</span>
-                    )}
+          <div className="fixed top-0 right-0 z-10 w-full h-full bg-card/50 backdrop-blur-sm items-center justify-center flex">
+            <span
+              className="absolute top-0 left-0 w-full h-full cursor-pointer"
+              onClick={() =>
+                setSearchState((prevState) => ({
+                  ...prevState,
+                  focus: false,
+                  query: '',
+                  results: [],
+                }))
+              }
+            />
+
+            <div className="flex flex-col gap-4 p-4 w-full h-[75vh] xl:w-2/3 mx-auto bg-card rounded-xl z-10">
+              <div className="w-full inline-flex justify-center items-center">
+                <Input
+                  type="text"
+                  value={searchState.query}
+                  className="w-1/3 h-12 p-4 bg-card text-white"
+                  onClick={() => {
+                    inputRef.current?.focus();
+                  }}
+                  readOnly
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <section id="offers-results">
+                  <h5 className="text-xl font-bold text-center">Offers</h5>
+                  <div className="flex flex-col gap-2 mt-4">
+                    {searchState.results.map((result) => (
+                      <Link key={result.id} to={`/offers/${result.id}`}>
+                        <span className="text-sm font-bold text-center">{result.title}</span>
+                      </Link>
+                    ))}
                   </div>
-                </Link>
-              ))}
+                </section>
+                <section id="items-results">
+                  <h5 className="text-xl font-bold text-center">Items</h5>
+                  <div className="flex flex-col gap-2 mt-4">
+                    <span className="text-sm font-bold text-center">No items available</span>
+                  </div>
+                </section>
+                <section id="sellers-results">
+                  <h5 className="text-xl font-bold text-center">Sellers</h5>
+                  <div className="flex flex-col gap-2 mt-4">
+                    <span className="text-sm font-bold text-center">No sellers available</span>
+                  </div>
+                </section>
+                <section id="users-results">
+                  <h5 className="text-xl font-bold text-center">Users</h5>
+                  <div className="flex flex-col gap-2 mt-4">
+                    <span className="text-sm font-bold text-center">No users available</span>
+                  </div>
+                </section>
+              </div>
             </div>
           </div>
         )}
