@@ -147,10 +147,12 @@ function SellerPage({ id, country }: { id: string; country: string }) {
     return <SellerPageSkeleton />;
   }
 
+  const featuredCover = cover?.[randomCoverIndex] ?? cover?.[0] ?? data[0];
+
   return (
     <div className="min-h-[85vh]">
       <h1 className="text-4xl font-bold text-left">{data[0].seller.name}</h1>
-      {cover?.[randomCoverIndex] && (
+      {featuredCover && (
         <section className="w-full bg-card rounded-xl mt-10 relative group min-h-[500px]">
           <div className="grid gap-8 md:grid-cols-2 lg:gap-16 py-24 px-10 z-10 relative rounded-xl">
             <span className="hidden md:block" />
@@ -159,16 +161,16 @@ function SellerPage({ id, country }: { id: string; country: string }) {
                 Featured Game
               </div>
               <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-                {cover[randomCoverIndex]?.title}
+                {featuredCover.title}
               </h2>
-              <p className="text-gray-300 md:text-xl">{cover[randomCoverIndex].description}</p>
+              <p className="text-gray-300 md:text-xl">{featuredCover.description}</p>
             </div>
           </div>
           <div
             id="cover-bg-image"
             className="absolute top-0 left-0 w-full h-full bg-cover bg-center rounded-xl z-0"
             style={{
-              backgroundImage: `url(${getImage(cover[randomCoverIndex].keyImages, [
+              backgroundImage: `url(${getImage(featuredCover.keyImages, [
                 'DieselGameBoxWide',
                 'DieselStoreFrontWide',
                 'OfferImageWide',
