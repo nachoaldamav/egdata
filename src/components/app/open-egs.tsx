@@ -34,6 +34,7 @@ export function OpenEgs({
   const isBundle = offer.offerType === 'BUNDLE';
   const namespace = isBundle ? 'bundles' : 'product';
   const url =
+    offer.customAttributes?.['com.epicgames.app.productSlug'] ??
     offer.offerMappings?.[0]?.pageSlug ??
     (urlType === 'product' ? offer.productSlug : offer.urlSlug);
 
