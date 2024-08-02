@@ -31,7 +31,6 @@ export function OpenEgs({
 }: {
   offer: SingleOffer;
 }) {
-  Bugsnag.notify(new Error('Test error'));
   const urlType: 'product' | 'url' = offer.offerType === 'BASE_GAME' ? 'product' : 'url';
   const isBundle = offer.offerType === 'BUNDLE';
   const namespace = isBundle ? 'bundles' : 'product';
