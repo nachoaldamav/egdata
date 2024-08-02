@@ -12,11 +12,15 @@ import {
 import { shuffle } from '~/lib/shuffle';
 import { useCountry } from '~/hooks/use-country';
 
-export function SuggestedOffers({ id }: { id: string }) {
+export function SellerOffers({
+  id,
+  name,
+  currentOffer,
+}: { id: string; name: string; currentOffer: string }) {
   const { country } = useCountry();
   const { data } = useQuery({
     queryKey: [
-      'suggested-offers',
+      'seller-offers',
       {
         id,
         country,
@@ -24,9 +28,11 @@ export function SuggestedOffers({ id }: { id: string }) {
     ],
     queryFn: () =>
       client
-        .get<SingleOffer[]>(`/offers/${id}/suggestions`, {
+        .get<SingleOffer[]>(`/sellers/${id}`, {
           params: {
             country,
+            offerType: 'BASE_GAME',
+            limit: 15,
           },
         })
         .then((res) => shuffle(res.data)),
@@ -34,18 +40,20 @@ export function SuggestedOffers({ id }: { id: string }) {
   });
 
   return (
-    <section className="w-full h-full" id={`suggested-offers-${id}`}>
+    <section className="w-full h-full" id={`seller-offers-${id}`}>
       <h2 className="text-xl font-bold text-left inline-flex group items-center gap-2">
-        You may also like
+        More from {name}
       </h2>
       <Carousel className="mt-2 h-full p-4">
         <CarouselPrevious />
         <CarouselContent>
-          {data?.map((game) => (
-            <CarouselItem key={game.id} className="basis-1/1 lg:basis-1/5">
-              <OfferCard offer={game} size="md" />
-            </CarouselItem>
-          ))}
+          {data
+            ?.filter((offer) => offer.id !== currentOffer)
+            .map((game) => (
+              <CarouselItem key={game.id} className="basis-1/1 lg:basis-1/5">
+                <OfferCard offer={game} size="md" />
+              </CarouselItem>
+            ))}
         </CarouselContent>
         <CarouselNext />
       </Carousel>

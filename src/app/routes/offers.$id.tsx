@@ -43,6 +43,7 @@ import cookie from 'cookie';
 import { useEffect, useRef, useState } from 'react';
 import { SuggestedOffers } from '~/components/modules/suggested-offers';
 import { platformIcons } from '~/components/app/platform-icons';
+import { SellerOffers } from '~/components/modules/seller-offers';
 
 function supportedPlatforms(items: SingleItem[]): string[] {
   try {
@@ -548,6 +549,11 @@ export default function Index() {
           </TabsContent>
         </Tabs>
       </section>
+      <SellerOffers
+        id={offerData.seller.id}
+        name={offerData.seller.name}
+        currentOffer={offerData.id}
+      />
       <SuggestedOffers id={offerData.id} />
     </main>
   );
