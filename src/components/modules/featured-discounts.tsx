@@ -23,6 +23,7 @@ import { useCountry } from '~/hooks/use-country';
 import { Skeleton } from '../ui/skeleton';
 import { getFeaturedDiscounts } from '~/queries/featured-discounts';
 import { ArrowUpIcon } from '@radix-ui/react-icons';
+import type { Price as OfferPrice } from '~/types/price';
 
 const SLIDE_DELAY = 10_000;
 
@@ -377,25 +378,29 @@ function FeaturedOffer({ offer }: { offer: SingleOffer }) {
 function Price({ offer }: { offer: SingleOffer }) {
   const priceFmtd = new Intl.NumberFormat(undefined, {
     style: 'currency',
-    currency: offer.price.price.currencyCode || 'USD',
+    currency: offer.price?.price.currencyCode || 'USD',
   });
 
-  const isFree = offer.price.price.discountPrice === 0;
+  const isFree = offer.price?.price.discountPrice === 0;
+
+  if (!offer.price) {
+    return <span className="text-xl font-bold text-green-400">Coming Soon</span>;
+  }
 
   return (
     <div className="flex items-end justify-end space-x-4">
-      {offer.price.appliedRules.length > 0 && <SaleModule price={offer.price} />}
+      {offer.price?.appliedRules.length > 0 && <SaleModule price={offer.price} />}
       <div className="flex flex-col gap-0">
-        {offer.price.price.originalPrice !== offer.price.price.discountPrice && (
+        {offer.price?.price.originalPrice !== offer.price?.price.discountPrice && (
           <span className="line-through text-muted-foreground text-sm">
-            {priceFmtd.format(offer.price.price.originalPrice / 100)}
+            {priceFmtd.format(offer.price?.price.originalPrice / 100)}
           </span>
         )}
         {isFree ? (
           <span className="text-xl font-bold text-green-400">Free</span>
         ) : (
           <span className="text-xl font-bold text-green-400">
-            {priceFmtd.format(offer.price.price.discountPrice / 100)}
+            {priceFmtd.format(offer.price?.price.discountPrice / 100)}
           </span>
         )}
       </div>
@@ -403,7 +408,7 @@ function Price({ offer }: { offer: SingleOffer }) {
   );
 }
 
-function SaleModule({ price }: { price: SingleOffer['price'] }) {
+function SaleModule({ price }: { price: OfferPrice }) {
   const selectedRule = price.appliedRules.sort(
     (a, b) => new Date(a.endDate).getTime() - new Date(b.endDate).getTime(),
   )[0];
