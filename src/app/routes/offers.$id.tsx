@@ -416,7 +416,12 @@ export default function Index() {
                 <TableRow>
                   <TableCell className="font-medium">Seller</TableCell>
                   <TableCell className="text-left border-l-gray-300/10 border-l">
-                    {offerData.seller.name}
+                    <Link
+                      to={`/sellers/${offerData.seller.id}`}
+                      className="underline underline-offset-4"
+                    >
+                      {offerData.seller.name}
+                    </Link>
                   </TableCell>
                 </TableRow>
                 <TableRow>

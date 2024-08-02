@@ -101,7 +101,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   } catch (error) {
     console.error(error);
     return {
-      userPreferences: {},
+      userPreferences: {} as Preferences,
       country: 'US',
     };
   }
