@@ -3,6 +3,7 @@ import { Button } from '../ui/button';
 import { Link } from '@remix-run/react';
 import { EGSIcon } from '../icons/egs';
 import { getSession, getTempUserId } from '~/lib/user-info';
+import Bugsnag from '@bugsnag/js';
 
 function trackEvent(offer: SingleOffer) {
   const userId = getTempUserId();
@@ -30,11 +31,12 @@ export function OpenEgs({
 }: {
   offer: SingleOffer;
 }) {
+  Bugsnag.notify(new Error('Test error'));
   const urlType: 'product' | 'url' = offer.offerType === 'BASE_GAME' ? 'product' : 'url';
   const isBundle = offer.offerType === 'BUNDLE';
   const namespace = isBundle ? 'bundles' : 'product';
   const url =
-    offer.customAttributes?.['com.epicgames.app.productSlug'].value ??
+    offer.customAttributes?.['com.epicgames.app.productSlug']?.value ??
     offer.offerMappings?.[0]?.pageSlug ??
     (urlType === 'product' ? offer.productSlug : offer.urlSlug);
 

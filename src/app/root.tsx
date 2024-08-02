@@ -11,7 +11,6 @@ import type { LinksFunction, LoaderFunctionArgs, MetaFunction } from '@remix-run
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import cookie from 'cookie';
-import { withSentry } from '@sentry/remix';
 import Navbar from '~/components/app/navbar';
 import { SearchProvider } from '~/context/global-search';
 import { CountryProvider } from '~/context/country';
@@ -24,6 +23,15 @@ import '../tailwind.css';
 import '../fonts.css';
 import tailwindCss from '../tailwind.css?url';
 import fontCss from '../fonts.css?url';
+import Bugsnag from '@bugsnag/js';
+import BugsnagPluginReact from '@bugsnag/plugin-react';
+import BugsnagPerformance from '@bugsnag/browser-performance';
+
+Bugsnag.start({
+  apiKey: '5f4462bdefb8d9b6a281d664d667004e',
+  plugins: [new BugsnagPluginReact()],
+});
+BugsnagPerformance.start({ apiKey: '5f4462bdefb8d9b6a281d664d667004e' });
 
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://cdn1.epicgames.com/' },
@@ -169,4 +177,4 @@ function App() {
   return <Outlet />;
 }
 
-export default withSentry(App);
+export default App;
