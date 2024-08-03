@@ -130,8 +130,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body className="antialiased">
         <div className="md:container mx-auto overflow-x-hidden">
           <QueryClientProvider client={queryClient}>
-            <SearchProvider>
-              <CountryProvider defaultCountry={country || 'US'}>
+            <CountryProvider defaultCountry={country || 'US'}>
+              <SearchProvider>
                 <Navbar />
                 <CookiesProvider>
                   <PreferencesProvider initialPreferences={userPreferences}>
@@ -164,8 +164,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   </div>
                 </footer>
                 <ReactQueryDevtools initialIsOpen={false} />
-              </CountryProvider>
-            </SearchProvider>
+              </SearchProvider>
+            </CountryProvider>
           </QueryClientProvider>
         </div>
       </body>
