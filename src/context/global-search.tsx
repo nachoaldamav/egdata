@@ -17,6 +17,7 @@ import { Skeleton } from '~/components/ui/skeleton';
 import { Image } from '~/components/app/image';
 import { getImage } from '~/lib/getImage';
 import { platformIcons } from '~/components/app/platform-icons';
+import { ScrollArea } from '~/components/ui/scroll-area';
 
 const { debounce } = lodash;
 
@@ -298,160 +299,166 @@ function SearchPortal({ searchState, setSearchState, inputRef }: SearchPortalPro
         />
       </div>
       <div className="flex flex-col gap-4 p-4 w-full h-[80vh] xl:w-2/3 mx-auto bg-card rounded-xl z-10">
-        <div className="flex text-white h-full max-h-[79vh] overflow-y-auto">
-          <div className="md:w-2/3 p-4 w-full">
-            <h2 className="text-xl font-bold mb-4">Offers</h2>
-            <div className="space-y-4">
-              {offersLoading && (
-                <>
-                  <ResultItemSkeleton />
-                  <ResultItemSkeleton />
-                  <ResultItemSkeleton />
-                </>
-              )}
-              {offersError && <p>Error: {offersError.message}</p>}
-              {offersData && offersData.hits.length === 0 && searchState.query !== '' && (
-                <p>No offers available</p>
-              )}
-              {offersData && offersData.hits.length === 0 && searchState.query === '' && (
-                <p>Type something to search</p>
-              )}
-              {offersData &&
-                offersData.hits.length > 0 &&
-                offersData.hits.slice(0, displayOffers).map((offer) => (
-                  <Link
-                    className="flex items-center justify-between p-2 bg-slate-700/25 rounded"
-                    key={offer._id}
-                    to={`/offers/${offer.id}`}
-                    onClick={() => {
-                      setSearchState((prevState) => ({
-                        ...prevState,
-                        focus: false,
-                        query: '',
-                      }));
-                    }}
-                    onMouseEnter={() => setSelected({ type: 'offer', id: offer.id })}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <div className="w-12 h-12 rounded">
-                        <Image
-                          src={
-                            getImage(offer.keyImages, ['DieselGameBoxWide', 'DieselStoreFrontWide'])
-                              ?.url ?? '/placeholder.webp'
-                          }
-                          alt={offer.title}
-                          height={300}
-                          width={300}
-                          className="w-12 h-12 rounded object-cover"
-                        />
+        <div className="flex text-white h-full max-h-[79vh]">
+          <ScrollArea className="md:w-2/3 p-4 w-full max-h-[79vh] overflow-y-hidden">
+            <div>
+              <h2 className="text-xl font-bold mb-4">Offers</h2>
+              <div className="space-y-4">
+                {offersLoading && (
+                  <>
+                    <ResultItemSkeleton />
+                    <ResultItemSkeleton />
+                    <ResultItemSkeleton />
+                  </>
+                )}
+                {offersError && <p>Error: {offersError.message}</p>}
+                {offersData && offersData.hits.length === 0 && searchState.query !== '' && (
+                  <p>No offers available</p>
+                )}
+                {offersData && offersData.hits.length === 0 && searchState.query === '' && (
+                  <p>Type something to search</p>
+                )}
+                {offersData &&
+                  offersData.hits.length > 0 &&
+                  offersData.hits.slice(0, displayOffers).map((offer) => (
+                    <Link
+                      className="flex items-center justify-between p-2 bg-slate-700/25 rounded"
+                      key={offer._id}
+                      to={`/offers/${offer.id}`}
+                      onClick={() => {
+                        setSearchState((prevState) => ({
+                          ...prevState,
+                          focus: false,
+                          query: '',
+                        }));
+                      }}
+                      onMouseEnter={() => setSelected({ type: 'offer', id: offer.id })}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <div className="w-12 h-12 rounded">
+                          <Image
+                            src={
+                              getImage(offer.keyImages, [
+                                'DieselGameBoxWide',
+                                'DieselStoreFrontWide',
+                              ])?.url ?? '/placeholder.webp'
+                            }
+                            alt={offer.title}
+                            height={300}
+                            width={300}
+                            className="w-12 h-12 rounded object-cover"
+                          />
+                        </div>
+                        <span>{offer.title}</span>
                       </div>
-                      <span>{offer.title}</span>
-                    </div>
-                    <OfferPrice id={offer.id} country={country} />
-                  </Link>
-                ))}
-            </div>
-            <h2 className="text-xl font-bold mt-8 mb-4">Items</h2>
-            <div className="space-y-4">
-              {itemsLoading && (
-                <>
-                  <ResultItemSkeleton />
-                  <ResultItemSkeleton />
-                  <ResultItemSkeleton />
-                </>
-              )}
-              {itemsError && <p>Error: {itemsError.message}</p>}
-              {itemsData && itemsData.hits.length === 0 && searchState.query !== '' && (
-                <p>No items available</p>
-              )}
-              {itemsData && itemsData.hits.length === 0 && searchState.query === '' && (
-                <p>Type something to search</p>
-              )}
-              {itemsData &&
-                itemsData.hits.length > 0 &&
-                itemsData.hits.slice(0, displayItems).map((item) => (
-                  <Link
-                    className="flex items-center justify-between p-2 bg-slate-700/25 rounded"
-                    key={item._id}
-                    to={`/items/${item._id}`}
-                    onClick={() => {
-                      setSearchState((prevState) => ({
-                        ...prevState,
-                        focus: false,
-                        query: '',
-                      }));
-                    }}
-                    onMouseEnter={() => setSelected({ type: 'item', id: item._id })}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <div className="w-12 h-12 rounded">
-                        <Image
-                          src={
-                            getImage(item.keyImages, ['DieselGameBoxWide', 'DieselStoreFrontWide'])
-                              ?.url ?? '/placeholder.webp'
-                          }
-                          alt={item.title}
-                          height={300}
-                          width={300}
-                          quality="low"
-                          className="w-12 h-12 rounded object-cover"
-                        />
+                      <OfferPrice id={offer.id} country={country} />
+                    </Link>
+                  ))}
+              </div>
+              <h2 className="text-xl font-bold mt-8 mb-4">Items</h2>
+              <div className="space-y-4">
+                {itemsLoading && (
+                  <>
+                    <ResultItemSkeleton />
+                    <ResultItemSkeleton />
+                    <ResultItemSkeleton />
+                  </>
+                )}
+                {itemsError && <p>Error: {itemsError.message}</p>}
+                {itemsData && itemsData.hits.length === 0 && searchState.query !== '' && (
+                  <p>No items available</p>
+                )}
+                {itemsData && itemsData.hits.length === 0 && searchState.query === '' && (
+                  <p>Type something to search</p>
+                )}
+                {itemsData &&
+                  itemsData.hits.length > 0 &&
+                  itemsData.hits.slice(0, displayItems).map((item) => (
+                    <Link
+                      className="flex items-center justify-between p-2 bg-slate-700/25 rounded"
+                      key={item._id}
+                      to={`/items/${item._id}`}
+                      onClick={() => {
+                        setSearchState((prevState) => ({
+                          ...prevState,
+                          focus: false,
+                          query: '',
+                        }));
+                      }}
+                      onMouseEnter={() => setSelected({ type: 'item', id: item._id })}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <div className="w-12 h-12 rounded">
+                          <Image
+                            src={
+                              getImage(item.keyImages, [
+                                'DieselGameBoxWide',
+                                'DieselStoreFrontWide',
+                              ])?.url ?? '/placeholder.webp'
+                            }
+                            alt={item.title}
+                            height={300}
+                            width={300}
+                            quality="low"
+                            className="w-12 h-12 rounded object-cover"
+                          />
+                        </div>
+                        <span>{item.title}</span>
                       </div>
-                      <span>{item.title}</span>
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  ))}
+              </div>
+              <h2 className="text-xl font-bold mt-8 mb-4">Sellers</h2>
+              <div className="space-y-4">
+                {sellersLoading && (
+                  <>
+                    <ResultItemSkeleton />
+                    <ResultItemSkeleton />
+                    <ResultItemSkeleton />
+                  </>
+                )}
+                {sellersError && <p>Error: {sellersError.message}</p>}
+                {sellersData && sellersData.hits.length === 0 && searchState.query !== '' && (
+                  <p>No sellers available</p>
+                )}
+                {sellersData && sellersData.hits.length === 0 && searchState.query === '' && (
+                  <p>Type something to search</p>
+                )}
+                {sellersData &&
+                  sellersData.hits.length > 0 &&
+                  sellersData.hits.slice(0, displaySellers).map((seller) => (
+                    <Link
+                      className="flex items-center justify-between p-2 bg-slate-700/25 rounded"
+                      key={seller._id}
+                      to={`/sellers/${seller._id}`}
+                      onClick={() => {
+                        setSearchState((prevState) => ({
+                          ...prevState,
+                          focus: false,
+                          query: '',
+                        }));
+                      }}
+                      onMouseEnter={() => setSelected({ type: 'seller', id: seller._id })}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <img
+                          src={seller.logo?.url ?? '/placeholder.webp'}
+                          alt={seller.name}
+                          className="w-12 h-12 rounded"
+                          width="50"
+                          height="50"
+                          style={{ aspectRatio: '50/50', objectFit: 'cover' }}
+                        />
+                        <span>{seller.name}</span>
+                      </div>
+                      <span>{seller.igdb_id ? seller.igdb_id : 'N/A'}</span>
+                    </Link>
+                  ))}
+              </div>
             </div>
-            <h2 className="text-xl font-bold mt-8 mb-4">Sellers</h2>
-            <div className="space-y-4">
-              {sellersLoading && (
-                <>
-                  <ResultItemSkeleton />
-                  <ResultItemSkeleton />
-                  <ResultItemSkeleton />
-                </>
-              )}
-              {sellersError && <p>Error: {sellersError.message}</p>}
-              {sellersData && sellersData.hits.length === 0 && searchState.query !== '' && (
-                <p>No sellers available</p>
-              )}
-              {sellersData && sellersData.hits.length === 0 && searchState.query === '' && (
-                <p>Type something to search</p>
-              )}
-              {sellersData &&
-                sellersData.hits.length > 0 &&
-                sellersData.hits.slice(0, displaySellers).map((seller) => (
-                  <Link
-                    className="flex items-center justify-between p-2 bg-slate-700/25 rounded"
-                    key={seller._id}
-                    to={`/sellers/${seller._id}`}
-                    onClick={() => {
-                      setSearchState((prevState) => ({
-                        ...prevState,
-                        focus: false,
-                        query: '',
-                      }));
-                    }}
-                    onMouseEnter={() => setSelected({ type: 'seller', id: seller._id })}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <img
-                        src={seller.logo?.url ?? '/placeholder.webp'}
-                        alt={seller.name}
-                        className="w-12 h-12 rounded"
-                        width="50"
-                        height="50"
-                        style={{ aspectRatio: '50/50', objectFit: 'cover' }}
-                      />
-                      <span>{seller.name}</span>
-                    </div>
-                    <span>{seller.igdb_id ? seller.igdb_id : 'N/A'}</span>
-                  </Link>
-                ))}
-            </div>
-          </div>
+          </ScrollArea>
 
-          <div className="w-0 md:w-1/3 p-4 bg-slate-700/25 rounded-xl h-auto md:flex flex-col justify-start items-start hidden">
+          <ScrollArea className="w-0 md:w-1/3 p-4 bg-slate-700/25 rounded-xl h-auto md:flex flex-col justify-start items-start hidden sticky">
             <div className="w-full flex justify-between items-center">
               {selected && (
                 <FeaturedResult
@@ -468,7 +475,7 @@ function SearchPortal({ searchState, setSearchState, inputRef }: SearchPortalPro
               )}
               {!selected && <p className="text-lg font-bold">Hover a result to see more details</p>}
             </div>
-          </div>
+          </ScrollArea>
         </div>
       </div>
     </div>
