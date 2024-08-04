@@ -1,5 +1,9 @@
 import { type MetaFunction, redirect, type LoaderFunctionArgs } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import {
+  type ClientLoaderFunctionArgs,
+  useLoaderData,
+  redirect as clientRedirect,
+} from '@remix-run/react';
 import { dehydrate, HydrationBoundary, useQueries } from '@tanstack/react-query';
 import cookies from 'cookie';
 import { useMemo } from 'react';
@@ -23,8 +27,8 @@ export const meta: MetaFunction<typeof loader> = ({ params, data }) => {
     ];
   }
 
-  const coverData = data.dehydratedState.queries.find((q) => q.queryKey[0] === 'seller')?.state
-    .data as SingleOffer[];
+  const coverData = data.dehydratedState.queries.find((q) => q.queryKey[0] === 'seller:cover')
+    ?.state.data as SingleOffer[];
 
   if (!coverData || coverData.length === 0) {
     return [
@@ -94,6 +98,34 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
       queryKey: ['seller', { id, country }],
       queryFn: async () => getSeller(id, country),
     }),
+    queryClient.prefetchQuery({
+      queryKey: ['seller:cover', { id, country }],
+      queryFn: async () =>
+        client
+          .get<SingleOffer[]>(`/sellers/${id}/cover`, { params: { country } })
+          .then((res) => res.data),
+    }),
+  ]);
+
+  return {
+    id,
+    dehydratedState: dehydrate(queryClient),
+    country,
+  };
+}
+
+export async function clientLoader({ params, request }: ClientLoaderFunctionArgs) {
+  const url = new URL(request.url);
+  const queryClient = getQueryClient();
+  const country = getCountryCode(url, cookies.parse(request.headers.get('Cookie') || ''));
+
+  const { id } = params;
+
+  if (!id) {
+    return clientRedirect('/');
+  }
+
+  await Promise.allSettled([
     queryClient.prefetchQuery({
       queryKey: ['seller:cover', { id, country }],
       queryFn: async () =>
