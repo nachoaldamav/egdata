@@ -16,6 +16,7 @@ import { SinglePrice } from '~/types/price';
 import { Skeleton } from '~/components/ui/skeleton';
 import { Image } from '~/components/app/image';
 import { getImage } from '~/lib/getImage';
+import { platformIcons } from '~/components/app/platform-icons';
 
 const { debounce } = lodash;
 
@@ -319,7 +320,7 @@ function SearchPortal({ searchState, setSearchState, inputRef }: SearchPortalPro
                 offersData.hits.length > 0 &&
                 offersData.hits.slice(0, displayOffers).map((offer) => (
                   <Link
-                    className="flex items-center justify-between p-2 bg-gray-800 rounded"
+                    className="flex items-center justify-between p-2 bg-slate-700/25 rounded"
                     key={offer._id}
                     to={`/offers/${offer.id}`}
                     onClick={() => {
@@ -370,7 +371,7 @@ function SearchPortal({ searchState, setSearchState, inputRef }: SearchPortalPro
                 itemsData.hits.length > 0 &&
                 itemsData.hits.slice(0, displayItems).map((item) => (
                   <Link
-                    className="flex items-center justify-between p-2 bg-gray-800 rounded"
+                    className="flex items-center justify-between p-2 bg-slate-700/25 rounded"
                     key={item._id}
                     to={`/items/${item._id}`}
                     onClick={() => {
@@ -421,7 +422,7 @@ function SearchPortal({ searchState, setSearchState, inputRef }: SearchPortalPro
                 sellersData.hits.length > 0 &&
                 sellersData.hits.slice(0, displaySellers).map((seller) => (
                   <Link
-                    className="flex items-center justify-between p-2 bg-gray-800 rounded"
+                    className="flex items-center justify-between p-2 bg-slate-700/25 rounded"
                     key={seller._id}
                     to={`/sellers/${seller._id}`}
                     onClick={() => {
@@ -450,21 +451,23 @@ function SearchPortal({ searchState, setSearchState, inputRef }: SearchPortalPro
             </div>
           </div>
 
-          <div className="w-1/3 p-4 bg-slate-700 rounded-xl h-full flex flex-col justify-start items-start">
-            {selected && (
-              <FeaturedResult
-                id={selected.id}
-                type={selected.type}
-                data={
-                  selected.type === 'offer'
-                    ? offersData?.hits.find((offer) => offer.id === selected.id)
-                    : selected.type === 'item'
-                      ? itemsData?.hits.find((item) => item._id === selected.id)
-                      : sellersData?.hits.find((seller) => seller._id === selected.id)
-                }
-              />
-            )}
-            {!selected && <p className="text-lg font-bold">Hover a result to see more details</p>}
+          <div className="w-1/3 p-4 bg-slate-700/25 rounded-xl h-auto flex flex-col justify-start items-start">
+            <div className="w-full flex justify-between items-center">
+              {selected && (
+                <FeaturedResult
+                  id={selected.id}
+                  type={selected.type}
+                  data={
+                    selected.type === 'offer'
+                      ? offersData?.hits.find((offer) => offer.id === selected.id)
+                      : selected.type === 'item'
+                        ? itemsData?.hits.find((item) => item._id === selected.id)
+                        : sellersData?.hits.find((seller) => seller._id === selected.id)
+                  }
+                />
+              )}
+              {!selected && <p className="text-lg font-bold">Hover a result to see more details</p>}
+            </div>
           </div>
         </div>
       </div>
@@ -481,12 +484,16 @@ function FeaturedResult({
     return null;
   }
 
+  if (type === 'offer') {
+    return <FeaturedOffer id={id} data={data as SingleOffer} />;
+  }
+
   const imageToShow =
     getImage(data?.keyImages ?? [], ['Featured', 'DieselStoreFrontWide', 'OfferImageWide'])?.url ??
     '/placeholder.webp';
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 w-full">
       <Image
         src={imageToShow}
         alt="Game Screenshot"
@@ -496,28 +503,64 @@ function FeaturedResult({
         quality="high"
         key={imageToShow}
       />
-      <h6 className="text-lg font-bold">
-        {type === 'offer' || type === 'item' ? data.title : data.name}
+      <h6 className="text-lg font-bold inline-flex items-center gap-2">
+        {type === 'offer' || type === 'item' ? data.title : data.name}{' '}
+        <Badge variant="default">{type}</Badge>
       </h6>
-      <div className="flex flex-wrap gap-2 mb-4 blur-sm">
-        <Badge variant="default">Multiplayer</Badge>
-        <Badge variant="default">Battle Royale</Badge>
-        <Badge variant="default">Free to Play</Badge>
-        <Badge variant="default">Shooter</Badge>
+    </div>
+  );
+}
+
+function FeaturedOffer({ id, data }: { id: string; data: SingleOffer }) {
+  if (!data) {
+    return null;
+  }
+
+  const imageToShow =
+    getImage(data.keyImages, ['Featured', 'DieselStoreFrontWide', 'OfferImageWide'])?.url ??
+    '/placeholder.webp';
+
+  return (
+    <div className="flex flex-col gap-4 w-full">
+      <Image
+        src={imageToShow}
+        alt="Game Screenshot"
+        className="w-full rounded mb-4"
+        width={600}
+        height={400}
+        quality="high"
+        key={imageToShow}
+      />
+      <h6 className="text-lg font-bold">{data.title}</h6>
+      <div className="flex flex-wrap gap-2 mb-4">
+        {data.tags
+          .filter((tag) => tag !== null)
+          .slice(0, 4)
+          .map((tag) => (
+            <Badge variant="default" key={tag.id}>
+              {tag.name}
+            </Badge>
+          ))}
       </div>
-      <div className="space-y-2 blur-sm">
+      <div className="space-y-2">
         <p>
-          <span className="font-bold">Seller:</span> Epic Games
+          <span className="font-bold">Seller:</span> {data.seller.name}
         </p>
         <p>
-          <span className="font-bold">Developer:</span> Epic Games
+          <span className="font-bold">Developer:</span>{' '}
+          {data.developerDisplayName ?? data.seller.name}
         </p>
-        <p>
+        <p className="inline-flex items-center gap-2">
           <span className="font-bold">Supported Platforms:</span>{' '}
-          <ComputerIcon className="inline-block w-4 h-4" />
+          {data.tags.filter((tag) => platformIcons[tag.id]).map((tag) => platformIcons[tag.id])}
         </p>
         <p>
-          <span className="font-bold">Release Date:</span> 21 July 2017
+          <span className="font-bold">Release Date:</span>{' '}
+          {new Date(data.releaseDate).toLocaleDateString('en-UK', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}
         </p>
       </div>
     </div>
