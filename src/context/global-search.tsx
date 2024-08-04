@@ -291,15 +291,15 @@ function SearchPortal({ searchState, setSearchState, inputRef }: SearchPortalPro
         <Input
           type="text"
           value={searchState.query}
-          className="w-1/3 h-12 p-4 bg-card text-white"
+          className="md:w-1/3 h-12 p-4 bg-card text-white w-full"
           placeholder="Search..."
           onChange={(e) => setSearchState((prevState) => ({ ...prevState, query: e.target.value }))}
           ref={inputRef}
         />
       </div>
       <div className="flex flex-col gap-4 p-4 w-full h-[80vh] xl:w-2/3 mx-auto bg-card rounded-xl z-10">
-        <div className="flex text-white h-full">
-          <div className="w-2/3 p-4">
+        <div className="flex text-white h-full max-h-[79vh] overflow-y-auto">
+          <div className="md:w-2/3 p-4 w-full">
             <h2 className="text-xl font-bold mb-4">Offers</h2>
             <div className="space-y-4">
               {offersLoading && (
@@ -451,7 +451,7 @@ function SearchPortal({ searchState, setSearchState, inputRef }: SearchPortalPro
             </div>
           </div>
 
-          <div className="w-1/3 p-4 bg-slate-700/25 rounded-xl h-auto flex flex-col justify-start items-start">
+          <div className="w-0 md:w-1/3 p-4 bg-slate-700/25 rounded-xl h-auto md:flex flex-col justify-start items-start hidden">
             <div className="w-full flex justify-between items-center">
               {selected && (
                 <FeaturedResult
