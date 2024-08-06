@@ -18,6 +18,9 @@ import {
 } from '~/components/ui/select';
 import type { Price } from '~/types/price';
 import { Checkbox } from '~/components/ui/checkbox';
+import { client } from '~/lib/client';
+import { keepPreviousData, useQueries, useQuery } from '@tanstack/react-query';
+import { Skeleton } from '../ui/skeleton';
 
 const chartConfig = {
   price: {
@@ -32,7 +35,7 @@ const chartConfig = {
 
 interface PriceChartProps {
   selectedRegion: string;
-  priceData: Record<string, Price[]>;
+  id: string;
 }
 
 /**
@@ -103,11 +106,66 @@ function findApproximateUSDPrice(regionPrice: Price, usdPrices: Price[]): Price 
   return closestPrice;
 }
 
-export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
+const calculateSinceDate = (timeRange: 'all' | '3y' | '1y') => {
+  const now = new Date();
+  let daysToSubtract = 365;
+  if (timeRange === 'all') return now;
+  if (timeRange === '3y') {
+    daysToSubtract = 1095; // 3 years
+  } else if (timeRange === '1y') {
+    daysToSubtract = 365; // 1 year
+  }
+  now.setDate(now.getDate() - daysToSubtract);
+  return now;
+};
+
+export function PriceChart({ selectedRegion, id }: PriceChartProps) {
   const [timeRange, setTimeRange] = React.useState('1y');
   const [compareUSD, setCompareUSD] = React.useState(false);
-  const regionPricing = priceData[selectedRegion] || [];
-  const usdPricing = priceData.US;
+
+  const {
+    data: regionPricing,
+    isLoading: regionPricingLoading,
+    isFetching,
+  } = useQuery({
+    queryKey: ['price-history', { region: selectedRegion, id, timeRange }],
+    queryFn: () =>
+      client
+        .get<Price[]>(`/offers/${id}/price-history`, {
+          params: {
+            region: selectedRegion,
+            since:
+              timeRange === 'all'
+                ? undefined
+                : calculateSinceDate(timeRange as 'all' | '3y' | '1y').toISOString(),
+          },
+        })
+        .then((res) => res.data),
+    placeholderData: keepPreviousData,
+  });
+
+  const { data: usdPricing, isLoading: usdPricingLoading } = useQuery({
+    queryKey: ['price-history', { region: 'US', id, timeRange }],
+    queryFn: () =>
+      client
+        .get<Price[]>(`/offers/${id}/price-history`, {
+          params: {
+            region: 'US',
+            since:
+              timeRange === 'all'
+                ? undefined
+                : calculateSinceDate(timeRange as 'all' | '3y' | '1y').toISOString(),
+          },
+        })
+        .then((res) => res.data),
+    placeholderData: keepPreviousData,
+  });
+
+  console.log({ regionPricing, usdPricing });
+
+  if (regionPricingLoading || usdPricingLoading || !regionPricing || !usdPricing) {
+    return <Skeleton className="w-3/4 mx-auto h-[400px]" />;
+  }
 
   const filteredData = regionPricing
     // Only get 1 price per day, remove duplicates
@@ -190,7 +248,37 @@ export function PriceChart({ selectedRegion, priceData }: PriceChartProps) {
           </SelectContent>
         </Select>
       </CardHeader>
-      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6 relative">
+        {isFetching && (
+          <div className="absolute inset-0 bg-opacity-50 bg-gray-900 z-10 w-full h-full flex items-center justify-center">
+            <span className="flex flex-col items-center justify-center gap-2">
+              <div className="flex flex-col items-center justify-center gap-1">
+                <span className="text-sm font-medium">Loading...</span>
+                <span className="text-xs text-gray-400">Fetching latest data</span>
+              </div>
+              <svg
+                className="animate-spin -ml-1 mr-3 h-5 w-5"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+            </span>
+          </div>
+        )}
         <ChartContainer config={chartConfig} className="aspect-auto h-[250px] w-full">
           <AreaChart data={filteredData}>
             <defs>

@@ -17,6 +17,7 @@ import { Skeleton } from '../ui/skeleton';
 import { useRegions } from '~/hooks/use-regions';
 import { ArrowUpIcon } from '@radix-ui/react-icons';
 import { cn } from '~/lib/utils';
+import type { Price } from '~/types/price';
 
 interface RegionData {
   region: Region;
@@ -29,20 +30,32 @@ interface Region {
   countries: string[];
 }
 
+interface RegionalPrice {
+  [region: string]: {
+    currentPrice: Price;
+    maxPrice: number;
+    minPrice: number;
+  };
+}
+
+const getRegionalPricing = async ({ id }: { id: string }) => {
+  const response = await client.get<RegionalPrice>(`/offers/${id}/regional-price`);
+  return response.data;
+};
+
 export function RegionalPricing({ id }: { id: string }) {
   const queryClient = getQueryClient();
   const { country } = useCountry();
   const [selectedRegion, setSelectedRegion] = useState('EURO');
   const { regions } = useRegions();
   const {
-    data: priceHistory,
+    data: regionalPricing,
     error,
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ['price-history', { id }],
-    queryFn: () => fetchOfferPrice({ id }),
-    initialData: () => queryClient.getQueryData(['price-history', { id }]),
+    queryKey: ['regional-pricing', { id }],
+    queryFn: () => getRegionalPricing({ id }),
   });
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const { data: regionData } = useQuery({
@@ -76,7 +89,7 @@ export function RegionalPricing({ id }: { id: string }) {
     return <p>Error: {error.message}</p>;
   }
 
-  if (!priceHistory) {
+  if (!regionalPricing) {
     return null;
   }
 
@@ -87,13 +100,9 @@ export function RegionalPricing({ id }: { id: string }) {
     }
   };
 
-  const sortedRegions = Object.keys(priceHistory).sort((a, b) => {
-    const lastPriceA = priceHistory[a].sort(
-      (x, y) => new Date(y.updatedAt).getTime() - new Date(x.updatedAt).getTime(),
-    )[0].price.basePayoutPrice;
-    const lastPriceB = priceHistory[b].sort(
-      (x, y) => new Date(y.updatedAt).getTime() - new Date(x.updatedAt).getTime(),
-    )[0].price.basePayoutPrice;
+  const sortedRegions = Object.keys(regionalPricing).sort((a, b) => {
+    const lastPriceA = regionalPricing[a].currentPrice.price.basePayoutPrice;
+    const lastPriceB = regionalPricing[b].currentPrice.price.basePayoutPrice;
 
     return sortDirection === 'asc' ? lastPriceA - lastPriceB : lastPriceB - lastPriceA;
   });
@@ -109,7 +118,7 @@ export function RegionalPricing({ id }: { id: string }) {
 
   return (
     <div className="w-full mx-auto mt-2">
-      <PriceChart selectedRegion={selectedRegion} priceData={priceHistory} />
+      <PriceChart selectedRegion={selectedRegion} id={id} />
       <Table className="w-3/4 mx-auto mt-2">
         <TableCaption>Regional Pricing</TableCaption>
         <TableHeader>
@@ -136,18 +145,18 @@ export function RegionalPricing({ id }: { id: string }) {
         </TableHeader>
         <TableBody>
           {sortedRegions.map((key) => {
-            const regionPricing = priceHistory[key];
-            const lastPrice = regionPricing.sort(
-              (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
-            )[0];
-            const maxPrice = regionPricing.reduce(
-              (acc, price) => (price.price.discountPrice > acc ? price.price.discountPrice : acc),
-              0,
-            );
-            const minPrice = regionPricing.reduce(
-              (acc, price) => (price.price.discountPrice < acc ? price.price.discountPrice : acc),
+            const regionPricing = regionalPricing[key];
+            const {
+              currentPrice: lastPrice,
               maxPrice,
-            );
+              minPrice,
+            } = regionPricing || {
+              currentPrice: {
+                price: { currencyCode: 'USD', basePayoutPrice: 0, discountPrice: 0 },
+              },
+              maxPrice: 0,
+              minPrice: 0,
+            };
 
             const currencyFormatter = new Intl.NumberFormat(undefined, {
               style: 'currency',

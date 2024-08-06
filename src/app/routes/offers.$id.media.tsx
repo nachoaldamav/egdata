@@ -133,6 +133,7 @@ export default function ItemsSection() {
         initialData: initialDataMedia ?? undefined,
         staleTime: 1000,
         initialDataUpdatedAt: serverTimestamp,
+        retry: false,
       },
       {
         queryKey: ['offer', { id }],

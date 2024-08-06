@@ -52,6 +52,7 @@ export default function OfferAchievements() {
     queryFn: () =>
       client.get<AchievementsSets>(`/offers/${id}/achievements`).then((res) => res.data),
     initialData: initialData ?? undefined,
+    retry: false,
   });
 
   const [flipAll, setFlipAll] = useState(false);

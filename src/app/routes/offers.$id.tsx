@@ -38,12 +38,13 @@ import { OpenEgs } from '~/components/app/open-egs';
 import { OpenEgl } from '~/components/app/open-egl';
 import { BaseGame } from '~/components/app/base-game';
 import { InternalBanner } from '~/components/app/internal-banner';
-import { useQuery } from '@tanstack/react-query';
+import { dehydrate, HydrationBoundary, useQueries, useQuery } from '@tanstack/react-query';
 import cookie from 'cookie';
 import { useEffect, useRef, useState } from 'react';
 import { SuggestedOffers } from '~/components/modules/suggested-offers';
 import { platformIcons } from '~/components/app/platform-icons';
 import { SellerOffers } from '~/components/modules/seller-offers';
+import { useCountry } from '~/hooks/use-country';
 
 function supportedPlatforms(items: SingleItem[]): string[] {
   try {
@@ -64,64 +65,24 @@ function supportedPlatforms(items: SingleItem[]): string[] {
 }
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
-  const url = new URL(request.url);
-  const country = getCountryCode(url, cookie.parse(request.headers.get('Cookie') || ''));
-
-  const [offerData, itemsData, priceData] = await Promise.allSettled([
-    client
-      .get<SingleOffer>(`/offers/${params.id}`)
-      .then((response) => {
-        return response.data;
-      })
-      .catch(
-        () =>
-          ({
-            title: 'Error',
-            description: 'Offer not found',
-          }) as SingleOffer,
-      ),
-    client
-      .get<Array<SingleItem>>(`/offers/${params.id}/items`)
-      .then((response) => response.data)
-      .catch(() => [] as SingleItem[]),
-    client
-      .get<Price>(`/offers/${params.id}/price?country=${country || 'US'}`)
-      .then((response) => response.data),
-  ]);
-
-  const subPath = request.url.split(`/${params.id}/`)[1] as string | undefined;
-
-  const offer = offerData.status === 'fulfilled' ? offerData.value : null;
-  const items = itemsData.status === 'fulfilled' ? itemsData.value : null;
-  const price = priceData.status === 'fulfilled' ? priceData.value : null;
-
-  return {
-    offer: offer as SingleOffer,
-    items: (items ?? []) as SingleItem[],
-    subPath,
-    price: price as Price,
-  };
-}
-
-export async function clientLoader({ params, request }: LoaderFunctionArgs) {
   const queryClient = getQueryClient();
   const url = new URL(request.url);
   const country = getCountryCode(url, cookie.parse(request.headers.get('Cookie') || ''));
 
-  const [offerData, itemsData, priceData] = await Promise.allSettled([
-    queryClient.fetchQuery({
+  await Promise.allSettled([
+    queryClient.prefetchQuery({
       queryKey: ['offer', { id: params.id }],
       queryFn: () =>
         client.get<SingleOffer>(`/offers/${params.id}`).then((response) => response.data),
     }),
-    queryClient.fetchQuery({
+    queryClient.prefetchQuery({
       queryKey: ['items', { id: params.id }],
       queryFn: () =>
         client
           .get<Array<SingleItem>>(`/offers/${params.id}/items`)
           .then((response) => response.data),
     }),
-    queryClient.fetchQuery({
+    queryClient.prefetchQuery({
       queryKey: ['price', { id: params.id, country }],
       queryFn: () =>
         client
@@ -130,215 +91,262 @@ export async function clientLoader({ params, request }: LoaderFunctionArgs) {
     }),
   ]);
 
-  const offer = offerData.status === 'fulfilled' ? offerData.value : null;
-  const items = itemsData.status === 'fulfilled' ? itemsData.value : null;
-  const price = priceData.status === 'fulfilled' ? priceData.value : null;
-
   const subPath = request.url.split(`/${params.id}/`)[1] as string | undefined;
 
   return {
-    offer: offer as SingleOffer,
-    items: (items ?? []) as SingleItem[],
     subPath,
-    price,
+    id: params.id,
+    dehydratedState: dehydrate(queryClient),
   };
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  if (!data) {
+  try {
+    if (!data) {
+      return [
+        {
+          title: 'Offer not found',
+          description: 'Offer not found',
+        },
+      ];
+    }
+
+    const { dehydratedState } = data;
+
+    const offerData = dehydratedState.queries.find((query) => query.queryKey[0] === 'offer')?.state
+      .data as SingleOffer | undefined;
+    const price = dehydratedState.queries.find((query) => query.queryKey[0] === 'price')?.state
+      .data as Price | undefined;
+    const items = dehydratedState.queries.find((query) => query.queryKey[0] === 'items')?.state
+      .data as SingleItem[] | undefined;
+
+    if (!offerData || offerData.title === 'Error') {
+      return [
+        {
+          title: 'Offer not found',
+          description: 'Offer not found',
+        },
+      ];
+    }
+
     return [
       {
-        title: 'Offer not found',
-        description: 'Offer not found',
+        title: `${offerData.title} - egdata.app`,
       },
-    ];
-  }
-
-  const { offer: offerData, price } = data;
-
-  if (offerData.title === 'Error') {
-    return [
       {
-        title: 'Offer not found',
-        description: 'Offer not found',
+        name: 'description',
+        content: offerData.description,
       },
-    ];
-  }
-
-  return [
-    {
-      title: `${offerData.title} - egdata.app`,
-    },
-    {
-      name: 'description',
-      content: offerData.description,
-    },
-    {
-      name: 'keywords',
-      content: [
-        'Epic Games',
-        'Epic Games Store',
-        'Offer',
-        'Game',
-        'Epic Games DB',
-        'Epic DB',
-        'Database',
-        'Epic Database',
-      ]
-        .concat(offerData.tags.filter((tag) => tag !== null)?.map((tag) => tag?.name))
-        .join(', '),
-    },
-    {
-      name: 'author',
-      content: offerData.seller.name,
-    },
-    {
-      name: 'robots',
-      content: 'index, follow',
-    },
-    {
-      property: 'og:title',
-      content: `${offerData.title} - egdata.app`,
-    },
-    {
-      property: 'og:description',
-      content: offerData.description,
-    },
-    {
-      property: 'og:image',
-      content:
-        getImage(offerData.keyImages, ['OfferImageWide', 'DieselGameBoxWide', 'TakeoverWide'])
-          ?.url || 'https://via.placeholder.com/1920x1080',
-    },
-    {
-      property: 'og:url',
-      content: `https://egdata.app/offers/${offerData.id}`,
-    },
-    {
-      property: 'og:type',
-      content: 'website',
-    },
-    {
-      property: 'og:site_name',
-      content: 'egdata.app',
-    },
-    {
-      name: 'twitter:card',
-      content: 'summary_large_image',
-    },
-    {
-      name: 'twitter:site',
-      content: '@egdataapp',
-    },
-    {
-      name: 'twitter:title',
-      content: `${offerData.title} - egdata.app`,
-    },
-    {
-      name: 'twitter:description',
-      content: offerData.description,
-    },
-    {
-      name: 'twitter:image',
-      content:
-        getImage(offerData.keyImages, ['OfferImageWide', 'DieselGameBoxWide', 'TakeoverWide'])
-          ?.url || 'https://via.placeholder.com/1920x1080',
-    },
-    {
-      'script:ld+json': {
-        '@context': 'https://schema.org',
-        '@type': 'SoftwareApplication',
-        name: offerData.title,
-        applicationCategory: 'Game',
-        description: offerData.description,
-        operatingSystem: supportedPlatforms(data.items).join(', '),
-        datePublished: offerData.releaseDate,
-        dateModified: offerData.lastModifiedDate,
-        mainEntityOfPage: offerData.offerType === 'BASE_GAME' ? true : undefined,
-        publisher: {
-          '@type': 'Organization',
-          name: offerData.publisherDisplayName ?? offerData.seller.name,
-        },
-        copyrightHolder: {
-          '@type': 'Organization',
-          name: offerData.publisherDisplayName ?? offerData.seller.name,
-        },
-        creator: {
-          '@type': 'Organization',
-          name:
-            offerData.developerDisplayName ??
-            offerData.publisherDisplayName ??
-            offerData.seller.name,
-        },
-        offers: [
-          price && {
-            '@type': 'Offer',
-            category: 'VideoGame',
-            itemCondition: 'https://schema.org/NewCondition',
-            availability: offerData.prePurchase
-              ? 'https://schema.org/PreOrder'
-              : 'https://schema.org/OnlineOnly',
-            url: offerData.productSlug
-              ? `https://store.epicgames.com/product/${offerData.productSlug}`
-              : `https://egdata.app/offers/${offerData.id}`,
-            offeredBy: {
-              '@type': 'Organization',
-              name: offerData.seller.name,
-            },
-            seller: {
-              '@type': 'Organization',
-              name: offerData.seller.name,
-            },
-            author: {
-              '@type': 'Organization',
-              name:
-                offerData.developerDisplayName ??
-                offerData.publisherDisplayName ??
-                offerData.seller.name,
-            },
-            priceSpecification: {
-              '@type': 'PriceSpecification',
-              price: price.price.discountPrice / 100,
-              priceCurrency: price.price.currencyCode ?? 'USD',
-              validFrom: new Date(price.updatedAt).toISOString(),
-            },
-          },
-        ],
-        sameAs: offerData.productSlug
-          ? `https://store.epicgames.com/product/${offerData.productSlug}`
-          : undefined,
-        image:
+      {
+        name: 'keywords',
+        content: [
+          'Epic Games',
+          'Epic Games Store',
+          'Offer',
+          'Game',
+          'Epic Games DB',
+          'Epic DB',
+          'Database',
+          'Epic Database',
+        ]
+          .concat(offerData.tags.filter((tag) => tag !== null)?.map((tag) => tag?.name))
+          .join(', '),
+      },
+      {
+        name: 'author',
+        content: offerData.seller.name,
+      },
+      {
+        name: 'robots',
+        content: 'index, follow',
+      },
+      {
+        property: 'og:title',
+        content: `${offerData.title} - egdata.app`,
+      },
+      {
+        property: 'og:description',
+        content: offerData.description,
+      },
+      {
+        property: 'og:image',
+        content:
           getImage(offerData.keyImages, ['OfferImageWide', 'DieselGameBoxWide', 'TakeoverWide'])
             ?.url || 'https://via.placeholder.com/1920x1080',
       },
-    },
-    {
-      rel: 'canonical',
-      href: `https://egdata.app/offers/${offerData.id}`,
-    },
-    {
-      rel: 'prefetch',
-      href: `https://api.egdata.app/base-game/${offerData.namespace}`,
-    },
-  ];
+      {
+        property: 'og:url',
+        content: `https://egdata.app/offers/${offerData.id}`,
+      },
+      {
+        property: 'og:type',
+        content: 'website',
+      },
+      {
+        property: 'og:site_name',
+        content: 'egdata.app',
+      },
+      {
+        name: 'twitter:card',
+        content: 'summary_large_image',
+      },
+      {
+        name: 'twitter:site',
+        content: '@egdataapp',
+      },
+      {
+        name: 'twitter:title',
+        content: `${offerData.title} - egdata.app`,
+      },
+      {
+        name: 'twitter:description',
+        content: offerData.description,
+      },
+      {
+        name: 'twitter:image',
+        content:
+          getImage(offerData.keyImages, ['OfferImageWide', 'DieselGameBoxWide', 'TakeoverWide'])
+            ?.url || 'https://via.placeholder.com/1920x1080',
+      },
+      {
+        'script:ld+json': {
+          '@context': 'https://schema.org',
+          '@type': 'SoftwareApplication',
+          name: offerData.title,
+          applicationCategory: 'Game',
+          description: offerData.description,
+          operatingSystem: supportedPlatforms(items as SingleItem[]).join(', '),
+          datePublished: offerData.releaseDate,
+          dateModified: offerData.lastModifiedDate,
+          mainEntityOfPage: offerData.offerType === 'BASE_GAME' ? true : undefined,
+          publisher: {
+            '@type': 'Organization',
+            name: offerData.publisherDisplayName ?? offerData.seller.name,
+          },
+          copyrightHolder: {
+            '@type': 'Organization',
+            name: offerData.publisherDisplayName ?? offerData.seller.name,
+          },
+          creator: {
+            '@type': 'Organization',
+            name:
+              offerData.developerDisplayName ??
+              offerData.publisherDisplayName ??
+              offerData.seller.name,
+          },
+          offers: [
+            price && {
+              '@type': 'Offer',
+              category: 'VideoGame',
+              itemCondition: 'https://schema.org/NewCondition',
+              availability: offerData.prePurchase
+                ? 'https://schema.org/PreOrder'
+                : 'https://schema.org/OnlineOnly',
+              url: offerData.productSlug
+                ? `https://store.epicgames.com/product/${offerData.productSlug}`
+                : `https://egdata.app/offers/${offerData.id}`,
+              offeredBy: {
+                '@type': 'Organization',
+                name: offerData.seller.name,
+              },
+              seller: {
+                '@type': 'Organization',
+                name: offerData.seller.name,
+              },
+              author: {
+                '@type': 'Organization',
+                name:
+                  offerData.developerDisplayName ??
+                  offerData.publisherDisplayName ??
+                  offerData.seller.name,
+              },
+              priceSpecification: {
+                '@type': 'PriceSpecification',
+                price: price.price.discountPrice / 100,
+                priceCurrency: price.price.currencyCode ?? 'USD',
+                validFrom: new Date(price.updatedAt).toISOString(),
+              },
+            },
+          ],
+          sameAs: offerData.productSlug
+            ? `https://store.epicgames.com/product/${offerData.productSlug}`
+            : undefined,
+          image:
+            getImage(offerData.keyImages, ['OfferImageWide', 'DieselGameBoxWide', 'TakeoverWide'])
+              ?.url || 'https://via.placeholder.com/1920x1080',
+        },
+      },
+      {
+        rel: 'canonical',
+        href: `https://egdata.app/offers/${offerData.id}`,
+      },
+      {
+        rel: 'prefetch',
+        href: `https://api.egdata.app/base-game/${offerData.namespace}`,
+      },
+    ];
+  } catch (error) {
+    return [
+      {
+        title: 'Offer not found',
+        description: 'Offer not found',
+      },
+    ];
+  }
 };
 
 export default function Index() {
+  const { dehydratedState } = useLoaderData<typeof loader>();
+
+  return (
+    <HydrationBoundary state={dehydratedState}>
+      <OfferPage />
+    </HydrationBoundary>
+  );
+}
+
+function OfferPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const {
-    offer: offerData,
-    items,
-    subPath: serverSubPath,
-  } = useLoaderData<typeof loader | typeof clientLoader>();
+  const { country } = useCountry();
+  const { subPath: serverSubPath, id } = useLoaderData<typeof loader>();
+  const [offerQuery, itemsQuery] = useQueries({
+    queries: [
+      {
+        queryKey: ['offer', { id }],
+        queryFn: () => client.get<SingleOffer>(`/offers/${id}`).then((response) => response.data),
+      },
+      {
+        queryKey: ['items', { id }],
+        queryFn: () =>
+          client.get<Array<SingleItem>>(`/offers/${id}/items`).then((response) => response.data),
+      },
+      {
+        queryKey: ['price', { id, country }],
+        queryFn: () =>
+          client
+            .get<Price>(`/offers/${id}/price`, {
+              params: { country },
+            })
+            .then((response) => response.data),
+      },
+    ],
+  });
 
-  const subPath = serverSubPath ?? location.pathname.split(`/${offerData.id}/`)[1] ?? 'price';
+  const { data: offerData, isLoading: offerLoading } = offerQuery;
+  const { data: items } = itemsQuery;
+
+  const subPath = serverSubPath ?? location.pathname.split(`/${id}/`)[1] ?? 'price';
 
   useEffect(() => {
     if (!subPath || subPath === '') {
-      navigate(`/offers/${offerData.id}/price`, { replace: true });
+      navigate(`/offers/${id}/price`, { replace: true });
     }
-  }, [subPath, offerData.id, navigate]);
+  }, [subPath, id, navigate]);
+
+  if (offerLoading) {
+    return <div>Loading...</div>;
+  }
 
   if (!offerData) {
     return <div>Offer not found</div>;
@@ -618,11 +626,12 @@ function OfferHero({ offer }: { offer: SingleOffer }) {
   const { data: media } = useQuery({
     queryKey: ['media', { id: offer.id }],
     queryFn: () => client.get<Media>(`/offers/${offer.id}/media`).then((response) => response.data),
+    retry: false,
   });
   const [isHovered, setIsHovered] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  const videoUrl = media?.videos[0]?.outputs
+  const videoUrl = media?.videos?.[0]?.outputs
     .filter((output) => output.width !== undefined)
     .sort((a, b) => (b?.width ?? 0) - (a?.width ?? 0))[0]?.url;
 

@@ -11,8 +11,6 @@ const client = Axios.create({
   },
 });
 
-const queryClient = new QueryClient();
-
 let browserQueryClient: QueryClient | undefined = undefined;
 
 function makeQueryClient() {
