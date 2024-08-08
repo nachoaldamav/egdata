@@ -62,7 +62,7 @@ export default function Index() {
   const { view, setView } = usePreferences();
   const { country: userCountry } = useCountry();
   const { page, total, limit } = meta;
-  const totalPages = Math.ceil(total / limit);
+  const totalPages = Math.ceil(total / limit - 2);
 
   useEffect(() => {
     if (userSelectedCountry !== userCountry) {
