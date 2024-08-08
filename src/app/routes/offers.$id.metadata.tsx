@@ -141,13 +141,19 @@ function AgeRatings({ ageRatings }: { ageRatings: SingleSandbox['ageGatings'] })
     <div className="flex flex-col gap-2 items-start justify-start">
       {Object.entries(ageRatings).map(([key, rating]) => (
         <div className="flex flex-row gap-2" key={key}>
-          <img
-            key={key}
-            src={rating.ratingImage}
-            alt={key}
-            title={`${rating.title} - ${rating.gameRating}`}
-            className="size-20 mx-auto"
-          />
+          {rating.ratingImage && rating.ratingImage !== '' ? (
+            <img
+              key={key}
+              src={rating.ratingImage}
+              alt={key}
+              title={`${rating.title} - ${rating.gameRating}`}
+              className="size-20 mx-auto"
+            />
+          ) : (
+            <div className="size-20 mx-auto inline-flex items-center justify-center">
+              <span className="text-6xl font-extrabold">{rating.ageControl}</span>
+            </div>
+          )}
           <div className="flex flex-col gap-1 py-2">
             <span className="text-xs text-left font-bold">{rating.ratingSystem}</span>
             <span className="text-xs text-left">{rating.element}</span>
