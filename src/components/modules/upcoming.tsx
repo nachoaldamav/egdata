@@ -80,7 +80,7 @@ export function UpcomingOffers() {
               <TableCell>
                 <Image
                   src={
-                    getImage(offer.keyImages, [
+                    getImage(offer.keyImages ?? [], [
                       'OfferImageWide',
                       'DieselGameBoxWide',
                       'DieselStoreFrontWide',
