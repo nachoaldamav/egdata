@@ -162,7 +162,7 @@ export default function ItemsSection() {
     );
   }
 
-  if (!media || !offer) {
+  if (!offer) {
     return (
       <div className="text-center">
         <h2 className="text-2xl font-bold">No media found</h2>
@@ -181,36 +181,50 @@ export default function ItemsSection() {
         <AccordionItem value="images">
           <AccordionTrigger className="text-xl">Images</AccordionTrigger>
           <AccordionContent>
-            <div className="grid grid-cols-2 gap-4">
-              {media.images.map((image) => (
-                <Image
-                  key={image._id}
-                  src={image.src}
-                  alt=""
-                  onClick={() => setActive(image._id)}
-                  className="cursor-pointer rounded-xl"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      setActive(image._id);
-                    }
-                  }}
-                  width={700}
-                  height={400}
-                />
-              ))}
-            </div>
+            {!media?.images.length && (
+              <div className="text-center">
+                <h2 className="text-2xl font-bold">No images found</h2>
+              </div>
+            )}
+            {media?.images && media.images.length > 0 && (
+              <div className="grid grid-cols-2 gap-4">
+                {media.images.map((image) => (
+                  <Image
+                    key={image._id}
+                    src={image.src}
+                    alt=""
+                    onClick={() => setActive(image._id)}
+                    className="cursor-pointer rounded-xl"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        setActive(image._id);
+                      }
+                    }}
+                    width={700}
+                    height={400}
+                  />
+                ))}
+              </div>
+            )}
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="videos">
           <AccordionTrigger className="text-xl">Videos</AccordionTrigger>
           <AccordionContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {media.videos.map((video) => (
-                <Suspense key={video._id} fallback={<div>Loading...</div>}>
-                  <Player video={video} offer={offer as SingleOffer} />
-                </Suspense>
-              ))}
-            </div>
+            {!media?.videos.length && (
+              <div className="text-center">
+                <h2 className="text-2xl font-bold">No videos found</h2>
+              </div>
+            )}
+            {media?.videos.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {media.videos.map((video) => (
+                  <Suspense key={video._id} fallback={<div>Loading...</div>}>
+                    <Player video={video} offer={offer as SingleOffer} />
+                  </Suspense>
+                ))}
+              </div>
+            )}
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="covers">
@@ -230,7 +244,7 @@ export default function ItemsSection() {
 
       <Portal.Root>
         {active && (
-          <ImageModal images={media.images} active={active} onClose={() => setActive(false)} />
+          <ImageModal images={media?.images} active={active} onClose={() => setActive(false)} />
         )}
       </Portal.Root>
     </div>
