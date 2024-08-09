@@ -213,7 +213,7 @@ export function OfferCard({
     : [];
 
   useEffect(() => {
-    if (offer.keyImages.length > 0) {
+    if ((offer.keyImages ?? [])?.length > 0) {
       extractGradient(
         getImage(offer.keyImages, [
           'OfferImageTall',
