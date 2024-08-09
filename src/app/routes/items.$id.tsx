@@ -1,4 +1,4 @@
-import { type LoaderFunctionArgs, redirect } from '@remix-run/node';
+import { type LoaderFunctionArgs, type MetaFunction, redirect } from '@remix-run/node';
 import {
   type ClientLoaderFunctionArgs,
   useLoaderData,
@@ -22,6 +22,9 @@ import { internalNamespaces } from '~/lib/internal-namespaces';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 import { Badge } from '~/components/ui/badge';
 import { Skeleton } from '~/components/ui/skeleton';
+import { Card, CardContent, CardFooter } from '~/components/ui/card';
+import { PlayIcon } from '@radix-ui/react-icons';
+import type { KeyImage } from '~/types/single-offer';
 
 const getItem = async (id: string) => {
   return client.get<SingleItem>(`/items/${id}`).then((res) => res.data);
@@ -53,18 +56,108 @@ export async function loader({ params }: LoaderFunctionArgs) {
 
 export async function clientLoader({ params }: ClientLoaderFunctionArgs) {
   const { id } = params;
+  const queryClient = getQueryClient();
 
   if (!id) {
     return clientRedirect('/');
   }
 
+  await queryClient.prefetchQuery({
+    queryKey: [
+      'item',
+      {
+        id,
+      },
+    ],
+    queryFn: () => getItem(id),
+  });
+
   return {
     id: id,
-    dehydratedState: undefined,
+    dehydratedState: dehydrate(queryClient),
   };
 }
 
 type loader = typeof loader | typeof clientLoader;
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  if (!data) {
+    return [
+      {
+        title: 'Item not found',
+        description: 'Item not found',
+      },
+    ];
+  }
+
+  const item = data.dehydratedState.queries.find((query) => query.queryKey[0] === 'item');
+
+  if (!item) {
+    return [
+      {
+        title: 'Item not found',
+        description: 'Item not found',
+      },
+    ];
+  }
+
+  const itemData = item.state.data as SingleItem;
+
+  return [
+    {
+      title: `${itemData.title} - item`,
+      description: itemData.description,
+    },
+    {
+      name: 'description',
+      content: itemData.description,
+    },
+    {
+      property: 'og:title',
+      content: `${itemData.title} - item`,
+    },
+    {
+      property: 'og:description',
+      content: itemData.description,
+    },
+    {
+      property: 'og:image',
+      content: getImage(itemData.keyImages, ['DieselGameBoxWide'])?.url ?? '/placeholder.webp',
+    },
+    {
+      property: 'og:image:width',
+      content: '1920',
+    },
+    {
+      property: 'og:image:height',
+      content: '1080',
+    },
+    {
+      property: 'og:type',
+      content: 'website',
+    },
+    {
+      property: 'og:url',
+      content: `https://egdata.app/items/${itemData.id}`,
+    },
+    {
+      name: 'twitter:card',
+      content: 'summary_large_image',
+    },
+    {
+      name: 'twitter:title',
+      content: `${itemData.title} - item`,
+    },
+    {
+      name: 'twitter:description',
+      content: itemData.description,
+    },
+    {
+      name: 'twitter:image',
+      content: getImage(itemData.keyImages, ['DieselGameBoxWide'])?.url ?? '/placeholder.webp',
+    },
+  ];
+};
 
 export default function Index() {
   const { dehydratedState, id } = useLoaderData<loader>();
@@ -148,7 +241,6 @@ function ItemsPage({ id }: { id: string }) {
                 <TableRow>
                   <TableCell className="font-medium">Creation Date</TableCell>
                   <TableCell className="border-l-gray-300/10 border-l">
-                    {/* {data.creationDate} */}
                     {new Date(data.creationDate).toLocaleString('en-UK', {
                       year: 'numeric',
                       month: 'long',
@@ -209,6 +301,20 @@ function ItemsPage({ id }: { id: string }) {
           </Table>
         </div>
       </section>
+      {data.entitlementType === 'EXECUTABLE' && (
+        <section className="w-full mt-4 flex flex-col gap-2">
+          <h2 className="text-2xl font-bold">Covers</h2>
+          <div className="flex flex-col gap-4 w-full">
+            {data.keyImages.findIndex((image: KeyImage) => image.type === 'DieselGameBoxTall') !==
+              -1 && (
+              <VerticalLauncherCard
+                image={getImage(data.keyImages, ['DieselGameBoxTall'])?.url ?? '/placeholder.webp'}
+                title={data.title}
+              />
+            )}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
@@ -234,5 +340,42 @@ function ItemsPageSkeleton() {
         <Skeleton style={{ width: '100%', height: '500px' }} />
       </section>
     </div>
+  );
+}
+
+function VerticalLauncherCard({
+  image,
+  title,
+}: {
+  image: string;
+  title: string;
+}) {
+  return (
+    <Card className="w-[250px] bg-transparent border-0 text-card-foreground cursor-not-allowed group">
+      <CardContent className="p-0 relative">
+        <span className="absolute top-0 left-0 bg-transparent group-hover:bg-white/5 rounded-lg z-[999] w-full h-full transition-all duration-300 ease-in-out" />
+        <Image
+          src={image}
+          alt="Pacific Drive"
+          width={250}
+          height={350}
+          className="rounded-lg z-50"
+        />
+      </CardContent>
+      <CardFooter className="px-1 py-2">
+        <div className="space-y-1 w-full">
+          <div className="flex items-center justify-between w-full">
+            <h3 className="text-lg font-extrabold">{title}</h3>
+            <span className="inline-flex items-center justify-center font-extrabold rounded bg-transparent hover:bg-white/25 px-1 ease-in-out transition-all duration-300">
+              . . .
+            </span>
+          </div>
+          <span className="p-0 text-gray-400 group-hover:text-white inline-flex items-center justify-center gap-0 transition-all duration-300 ease-in-out">
+            <PlayIcon className="mr-2 h-4 w-4" />
+            Launch
+          </span>
+        </div>
+      </CardFooter>
+    </Card>
   );
 }
