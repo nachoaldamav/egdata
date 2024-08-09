@@ -45,13 +45,13 @@ type KeyImages = {
  * @param keyImages - Array of keyImages
  * @param types - Array of types to search for
  */
-export const getImage = (keyImages: KeyImages[], types: EGSImageTypes[]) => {
+export const getImage = (keyImages: KeyImages[] | null, types: EGSImageTypes[]) => {
   for (const type of types) {
-    const image = keyImages.find((image) => image.type === type);
+    const image = (keyImages ?? []).find((image) => image.type === type);
     if (image) {
       return image;
     }
   }
 
-  return keyImages[0];
+  return keyImages?.[0] ?? null;
 };
