@@ -25,6 +25,9 @@ import { Skeleton } from '~/components/ui/skeleton';
 import { Card, CardContent, CardFooter } from '~/components/ui/card';
 import { PlayIcon } from '@radix-ui/react-icons';
 import type { KeyImage } from '~/types/single-offer';
+import { cn } from '~/lib/utils';
+import { buildGameLauncherURI } from '~/lib/build-game-launcher';
+import { useEffect, useState } from 'react';
 
 const getItem = async (id: string) => {
   return client.get<SingleItem>(`/items/${id}`).then((res) => res.data);
@@ -54,33 +57,9 @@ export async function loader({ params }: LoaderFunctionArgs) {
   };
 }
 
-export async function clientLoader({ params }: ClientLoaderFunctionArgs) {
-  const { id } = params;
-  const queryClient = getQueryClient();
+type loader = typeof loader;
 
-  if (!id) {
-    return clientRedirect('/');
-  }
-
-  await queryClient.prefetchQuery({
-    queryKey: [
-      'item',
-      {
-        id,
-      },
-    ],
-    queryFn: () => getItem(id),
-  });
-
-  return {
-    id: id,
-    dehydratedState: dehydrate(queryClient),
-  };
-}
-
-type loader = typeof loader | typeof clientLoader;
-
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
+export const meta: MetaFunction<loader> = ({ data }) => {
   if (!data) {
     return [
       {
@@ -310,6 +289,7 @@ function ItemsPage({ id }: { id: string }) {
               <VerticalLauncherCard
                 image={getImage(data.keyImages, ['DieselGameBoxTall'])?.url ?? '/placeholder.webp'}
                 title={data.title}
+                item={data}
               />
             )}
           </div>
@@ -343,32 +323,82 @@ function ItemsPageSkeleton() {
   );
 }
 
-function VerticalLauncherCard({
-  image,
-  title,
-}: {
+interface VerticalLauncherCardProps {
   image: string;
   title: string;
-}) {
+  item: SingleItem;
+}
+
+function VerticalLauncherCard({ image, title, item }: VerticalLauncherCardProps) {
+  const hasAssets = item.releaseInfo.length > 0;
+  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(100);
+
+  const handleClick = () => {
+    if (hasAssets) {
+      setLoading(true);
+    }
+  };
+
+  useEffect(() => {
+    if (loading) {
+      const interval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev <= 0) {
+            clearInterval(interval);
+            const uri = buildGameLauncherURI({
+              namespace: item.namespace,
+              asset: {
+                assetId: item.releaseInfo[0].appId,
+                itemId: item.id,
+              },
+            });
+            open(uri, '_blank', 'noreferrer');
+            setLoading(false);
+            return 0;
+          }
+          return prev - 4; // Adjust this value for faster or slower loading
+        });
+      }, 50); // Adjust this value for smoother or more incremental loading
+
+      return () => clearInterval(interval);
+    }
+  }, [loading, item]);
+
   return (
-    <Card className="w-[250px] bg-transparent border-0 text-card-foreground cursor-not-allowed group">
+    <Card
+      className={cn(
+        'w-[250px] bg-transparent border-0 text-card-foreground cursor-not-allowed group',
+        hasAssets && 'cursor-pointer',
+      )}
+      onClick={handleClick}
+    >
       <CardContent className="p-0 relative">
-        <span className="absolute top-0 left-0 bg-transparent group-hover:bg-white/5 rounded-lg z-[999] w-full h-full transition-all duration-300 ease-in-out" />
-        <Image
-          src={image}
-          alt="Pacific Drive"
-          width={250}
-          height={350}
-          className="rounded-lg z-50"
-        />
+        <div className="relative z-10">
+          <Image
+            src={image}
+            alt={title}
+            width={250}
+            height={350}
+            className="rounded"
+            quality="high"
+          />
+        </div>
+        {loading && progress > 0 && (
+          <div
+            className="absolute top-0 left-0 bg-white/5 transition-all duration-300 ease-in-out rounded"
+            style={{
+              width: `${100 - progress}%`,
+              height: '100%',
+              zIndex: 999,
+            }}
+          />
+        )}
       </CardContent>
       <CardFooter className="px-1 py-2">
         <div className="space-y-1 w-full">
           <div className="flex items-center justify-between w-full">
             <h3 className="text-lg font-extrabold">{title}</h3>
-            <span className="inline-flex items-center justify-center font-extrabold rounded bg-transparent hover:bg-white/25 px-1 ease-in-out transition-all duration-300">
-              . . .
-            </span>
           </div>
           <span className="p-0 text-gray-400 group-hover:text-white inline-flex items-center justify-center gap-0 transition-all duration-300 ease-in-out">
             <PlayIcon className="mr-2 h-4 w-4" />
