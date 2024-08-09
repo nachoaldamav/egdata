@@ -378,8 +378,8 @@ function VerticalLauncherCard({ image, title, item }: VerticalLauncherCardProps)
           <Image
             src={image}
             alt={title}
-            width={250}
-            height={350}
+            width={400}
+            height={550}
             className="rounded"
             quality="high"
           />
