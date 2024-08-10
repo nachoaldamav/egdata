@@ -1,5 +1,5 @@
 interface FetchOptions extends RequestInit {
-  params?: Record<string, string | number | boolean>;
+  params?: Record<string, string | number | boolean | undefined | null>;
   headers?: Record<string, string>;
   retries?: number;
   retryDelay?: number;
@@ -32,6 +32,9 @@ class HttpFetch {
 
     if (finalOptions.params) {
       for (const [key, value] of Object.entries(finalOptions.params)) {
+        if (value === undefined || value === null) {
+          continue;
+        }
         url.searchParams.append(key, String(value));
       }
 

@@ -135,7 +135,6 @@ export function PriceChart({ selectedRegion, id }: PriceChartProps) {
         .get<Price[]>(`/offers/${id}/price-history`, {
           params: {
             region: selectedRegion,
-            // @ts-expect-error
             since:
               timeRange === 'all'
                 ? undefined
@@ -149,17 +148,15 @@ export function PriceChart({ selectedRegion, id }: PriceChartProps) {
   const { data: usdPricing, isLoading: usdPricingLoading } = useQuery({
     queryKey: ['price-history', { region: 'US', id, timeRange }],
     queryFn: () =>
-      client
-        .get<Price[]>(`/offers/${id}/price-history`, {
-          params: {
-            region: 'US',
-            since:
-              timeRange === 'all'
-                ? undefined
-                : calculateSinceDate(timeRange as 'all' | '3y' | '1y').toISOString(),
-          },
-        })
-        .then((res) => res.data),
+      httpClient.get<Price[]>(`/offers/${id}/price-history`, {
+        params: {
+          region: 'US',
+          since:
+            timeRange === 'all'
+              ? undefined
+              : calculateSinceDate(timeRange as 'all' | '3y' | '1y').toISOString(),
+        },
+      }),
     placeholderData: keepPreviousData,
   });
 
