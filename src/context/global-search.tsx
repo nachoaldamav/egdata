@@ -1,9 +1,7 @@
 import { useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
 import lodash from 'lodash';
 import { Portal } from '@radix-ui/react-portal';
-import { client } from '~/lib/client';
 import { defaultState, SearchContext } from './search-context';
-import { internalNamespaces } from '~/lib/internal-namespaces';
 import { Link } from '@remix-run/react';
 import { Input } from '~/components/ui/input';
 import { Badge } from '~/components/ui/badge';
@@ -12,12 +10,12 @@ import { keepPreviousData, useQueries, useQuery } from '@tanstack/react-query';
 import type { SingleOffer } from '~/types/single-offer';
 import type { SingleItem } from '~/types/single-item';
 import type { SingleSeller } from '~/types/sellers';
-import { SinglePrice } from '~/types/price';
 import { Skeleton } from '~/components/ui/skeleton';
 import { Image } from '~/components/app/image';
 import { getImage } from '~/lib/getImage';
 import { platformIcons } from '~/components/app/platform-icons';
 import { ScrollArea } from '~/components/ui/scroll-area';
+import { httpClient } from '~/lib/http-client';
 
 const { debounce } = lodash;
 
@@ -53,11 +51,11 @@ function SearchProvider({ children }: SearchProviderProps) {
         return;
       }
 
-      client
+      httpClient
         .get<Search>('/autocomplete', {
           params: { query },
         })
-        .then(({ data }) => {
+        .then((data) => {
           setSearchState((prevState) => ({
             ...prevState,
             results: data.elements,
@@ -137,7 +135,7 @@ function SearchPortal({ searchState, setSearchState, inputRef }: SearchPortalPro
           },
         ],
         queryFn: async () => {
-          const { data } = await client.get<Multisearch<SingleOffer>>('/multisearch/offers', {
+          const data = await httpClient.get<Multisearch<SingleOffer>>('/multisearch/offers', {
             params: { query: searchQuery },
           });
           return data;
@@ -152,7 +150,7 @@ function SearchPortal({ searchState, setSearchState, inputRef }: SearchPortalPro
           },
         ],
         queryFn: async () => {
-          const { data } = await client.get<Multisearch<SingleItem>>('/multisearch/items', {
+          const data = await httpClient.get<Multisearch<SingleItem>>('/multisearch/items', {
             params: { query: searchQuery },
           });
           return data;
@@ -167,7 +165,7 @@ function SearchPortal({ searchState, setSearchState, inputRef }: SearchPortalPro
           },
         ],
         queryFn: async () => {
-          const { data } = await client.get<Multisearch<SingleSeller>>('/multisearch/sellers', {
+          const data = await httpClient.get<Multisearch<SingleSeller>>('/multisearch/sellers', {
             params: { query: searchQuery },
           });
           return data;
@@ -590,7 +588,7 @@ function OfferPrice({ id, country }: { id: string; country: string }) {
   const { data, isLoading, error } = useQuery({
     queryKey: ['offer-price', { id, country }],
     queryFn: async () => {
-      const { data } = await client.get<SingleOffer['price']>(`/offers/${id}/price`, {
+      const data = await httpClient.get<SingleOffer['price']>(`/offers/${id}/price`, {
         params: { country },
       });
       return data;
