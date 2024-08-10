@@ -18,6 +18,7 @@ import { useRegions } from '~/hooks/use-regions';
 import { ArrowUpIcon } from '@radix-ui/react-icons';
 import { cn } from '~/lib/utils';
 import type { Price } from '~/types/price';
+import { httpClient } from '~/lib/http-client';
 
 interface RegionData {
   region: Region;
@@ -39,12 +40,11 @@ interface RegionalPrice {
 }
 
 const getRegionalPricing = async ({ id }: { id: string }) => {
-  const response = await client.get<RegionalPrice>(`/offers/${id}/regional-price`);
-  return response.data;
+  const response = await httpClient.get<RegionalPrice>(`/offers/${id}/regional-price`);
+  return response;
 };
 
 export function RegionalPricing({ id }: { id: string }) {
-  const queryClient = getQueryClient();
   const { country } = useCountry();
   const [selectedRegion, setSelectedRegion] = useState('EURO');
   const { regions } = useRegions();

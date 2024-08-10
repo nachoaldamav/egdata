@@ -19,8 +19,9 @@ import {
 import type { Price } from '~/types/price';
 import { Checkbox } from '~/components/ui/checkbox';
 import { client } from '~/lib/client';
-import { keepPreviousData, useQueries, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { Skeleton } from '../ui/skeleton';
+import { httpClient } from '~/lib/http-client';
 
 const chartConfig = {
   price: {
@@ -130,17 +131,18 @@ export function PriceChart({ selectedRegion, id }: PriceChartProps) {
   } = useQuery({
     queryKey: ['price-history', { region: selectedRegion, id, timeRange }],
     queryFn: () =>
-      client
+      httpClient
         .get<Price[]>(`/offers/${id}/price-history`, {
           params: {
             region: selectedRegion,
+            // @ts-expect-error
             since:
               timeRange === 'all'
                 ? undefined
                 : calculateSinceDate(timeRange as 'all' | '3y' | '1y').toISOString(),
           },
         })
-        .then((res) => res.data),
+        .then((res) => res),
     placeholderData: keepPreviousData,
   });
 
