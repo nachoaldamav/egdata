@@ -19,7 +19,7 @@ import {
   PaginationPreviousButton,
 } from '~/components/ui/pagination';
 import type { LoaderFunctionArgs } from '@remix-run/node';
-import { type ClientLoaderFunctionArgs, useLoaderData } from '@remix-run/react';
+import { type ClientLoaderFunctionArgs, Link, useLoaderData } from '@remix-run/react';
 
 export interface Root {
   hits: (OfferHit | ItemHit | AssetHit | Hit)[];
@@ -334,6 +334,14 @@ function ChangelogItem({
               </div>
             ))}
           </div>
+          {(hit.metadata.contextType === 'offer' || hit.metadata.contextType === 'item') && (
+            <Link
+              to={`/${hit.metadata.contextType}s/${hit.metadata.contextId}`}
+              className="w-full bg-card p-4 rounded-lg mt-4 block"
+            >
+              View {hit.metadata.contextType}
+            </Link>
+          )}
         </div>
       </CollapsibleContent>
     </Collapsible>
