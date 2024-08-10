@@ -2,13 +2,11 @@ import { useQuery } from '@tanstack/react-query';
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from '~/components/ui/table';
-import { client } from '~/lib/client';
 import type { SingleOffer } from '~/types/single-offer';
 import type { Achievement, AchievementSet } from '~/queries/offer-achievements';
 import { useCountry } from '~/hooks/use-country';
@@ -19,6 +17,7 @@ import { Link, useNavigate } from '@remix-run/react';
 import { ArrowRightIcon } from '@radix-ui/react-icons';
 import { FaTrophy } from 'react-icons/fa6';
 import { cn } from '~/lib/utils';
+import { httpClient } from '~/lib/http-client';
 
 type OfferWithAchievements = SingleOffer & {
   achievements: AchievementSet;
@@ -41,13 +40,11 @@ export function GamesWithAchievements() {
       },
     ],
     queryFn: () =>
-      client
-        .get<OfferWithAchievements[]>('/offers/latest-achievements', {
-          params: {
-            country,
-          },
-        })
-        .then((res) => res.data),
+      httpClient.get<OfferWithAchievements[]>('/offers/latest-achievements', {
+        params: {
+          country,
+        },
+      }),
   });
 
   if (isLoading) {

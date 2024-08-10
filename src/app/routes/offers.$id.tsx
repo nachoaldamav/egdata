@@ -45,6 +45,7 @@ import { SuggestedOffers } from '~/components/modules/suggested-offers';
 import { platformIcons } from '~/components/app/platform-icons';
 import { SellerOffers } from '~/components/modules/seller-offers';
 import { useCountry } from '~/hooks/use-country';
+import { httpClient } from '~/lib/http-client';
 
 function supportedPlatforms(items: SingleItem[]): string[] {
   try {
@@ -72,22 +73,15 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   await Promise.allSettled([
     queryClient.prefetchQuery({
       queryKey: ['offer', { id: params.id }],
-      queryFn: () =>
-        client.get<SingleOffer>(`/offers/${params.id}`).then((response) => response.data),
+      queryFn: () => httpClient.get<SingleOffer>(`/offers/${params.id}`),
     }),
     queryClient.prefetchQuery({
       queryKey: ['items', { id: params.id }],
-      queryFn: () =>
-        client
-          .get<Array<SingleItem>>(`/offers/${params.id}/items`)
-          .then((response) => response.data),
+      queryFn: () => httpClient.get<Array<SingleItem>>(`/offers/${params.id}/items`),
     }),
     queryClient.prefetchQuery({
       queryKey: ['price', { id: params.id, country }],
-      queryFn: () =>
-        client
-          .get<Price>(`/offers/${params.id}/price?country=${country || 'US'}`)
-          .then((response) => response.data),
+      queryFn: () => httpClient.get<Price>(`/offers/${params.id}/price?country=${country || 'US'}`),
     }),
   ]);
 
@@ -314,21 +308,18 @@ function OfferPage() {
     queries: [
       {
         queryKey: ['offer', { id }],
-        queryFn: () => client.get<SingleOffer>(`/offers/${id}`).then((response) => response.data),
+        queryFn: () => httpClient.get<SingleOffer>(`/offers/${id}`),
       },
       {
         queryKey: ['items', { id }],
-        queryFn: () =>
-          client.get<Array<SingleItem>>(`/offers/${id}/items`).then((response) => response.data),
+        queryFn: () => httpClient.get<Array<SingleItem>>(`/offers/${id}/items`),
       },
       {
         queryKey: ['price', { id, country }],
         queryFn: () =>
-          client
-            .get<Price>(`/offers/${id}/price`, {
-              params: { country },
-            })
-            .then((response) => response.data),
+          httpClient.get<Price>(`/offers/${id}/price`, {
+            params: { country },
+          }),
       },
     ],
   });

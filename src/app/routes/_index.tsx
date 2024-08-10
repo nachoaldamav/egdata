@@ -3,7 +3,7 @@ import type { FullTag } from '~/types/tags';
 import type { SingleOffer } from '~/types/single-offer';
 import type { GiveawayOffer } from '~/types/giveaways';
 import { useLoaderData } from '@remix-run/react';
-import { client, getQueryClient } from '~/lib/client';
+import { getQueryClient } from '~/lib/client';
 import cookie from 'cookie';
 import { useCookies } from 'react-cookie';
 import { SalesModule } from '~/components/modules/sales';
@@ -24,6 +24,7 @@ import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { getFeaturedDiscounts } from '~/queries/featured-discounts';
 import { getTopSection } from '~/queries/top-section';
 import { getLastModified } from '~/queries/last-modified';
+import { httpClient } from '~/lib/http-client';
 
 export const meta: MetaFunction = () => {
   return [
@@ -60,54 +61,48 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     queryClient.fetchQuery({
       queryKey: ['latest-games'],
       queryFn: () =>
-        client
+        httpClient
           .get<SingleOffer[]>('/latest-games', {
             params: {
               country,
             },
           })
-          .then((res) => res.data)
           .catch((error) => {
             console.error('Failed to fetch latest games', error);
-            return { data: [] as SingleOffer[] };
+            return [] as SingleOffer[];
           }),
     }),
     queryClient.fetchQuery({
       queryKey: ['featured'],
       queryFn: () =>
-        client
+        httpClient
           .get<SingleOffer[]>('/featured', {
             params: {
               country,
             },
           })
-          .then((res) => res.data)
           .catch((error) => {
             console.error('Failed to fetch featured game', error);
-            return { data: [] };
+            return [];
           }),
     }),
     queryClient.fetchQuery({
       queryKey: ['promotions'],
       queryFn: () =>
-        client
-          .get<FullTag[]>('/promotions')
-          .then((res) => res.data)
-          .catch((error) => {
-            console.error('Failed to fetch events', error);
-            return { data: [] as FullTag[] };
-          }),
+        httpClient.get<FullTag[]>('/promotions').catch((error) => {
+          console.error('Failed to fetch events', error);
+          return { data: [] as FullTag[] };
+        }),
     }),
     queryClient.fetchQuery({
       queryKey: ['giveaways'],
       queryFn: () =>
-        client
+        httpClient
           .get<GiveawayOffer[]>('/free-games', {
             params: {
               country,
             },
           })
-          .then((res) => res.data)
           .catch((error) => {
             console.error('Failed to fetch giveaways', error);
             return [] as GiveawayOffer[];

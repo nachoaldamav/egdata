@@ -2,7 +2,7 @@ import { useLoaderData, useSearchParams } from '@remix-run/react';
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import cookie from 'cookie';
 import { Input } from '~/components/ui/input';
-import { client, getQueryClient } from '~/lib/client';
+import { getQueryClient } from '~/lib/client';
 import type { FullTag } from '~/types/tags';
 import { Button } from '~/components/ui/button';
 import { cn } from '~/lib/utils';
@@ -42,6 +42,7 @@ import { ArrowDownIcon, GridIcon, ListBulletIcon } from '@radix-ui/react-icons';
 import { OfferListItem } from '~/components/app/game-card';
 import { usePreferences } from '~/hooks/use-preferences';
 import { Label } from '~/components/ui/label';
+import { httpClient } from '~/lib/http-client';
 
 export const meta: MetaFunction = () => {
   return [
@@ -110,15 +111,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   const [tagsData, hashData, typesData] = await Promise.allSettled([
-    client.get<FullTag[]>('/search/tags?raw=true'),
-    client.get<{
+    httpClient.get<FullTag[]>('/search/tags?raw=true'),
+    httpClient.get<{
       [key: string]:
         | unknown
         | {
             [key: string]: unknown;
           };
     }>(`/search/${hash}?country=${country}`),
-    client.get<
+    httpClient.get<
       {
         _id: string;
         count: number;
@@ -126,9 +127,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     >('/search/offer-types'),
   ]);
 
-  const tags = tagsData.status === 'fulfilled' ? tagsData.value.data : [];
-  let query = hashData.status === 'fulfilled' ? hashData.value.data : null;
-  const offerTypes = typesData.status === 'fulfilled' ? typesData.value.data : [];
+  const tags = tagsData.status === 'fulfilled' ? tagsData.value : [];
+  let query = hashData.status === 'fulfilled' ? hashData.value : null;
+  const offerTypes = typesData.status === 'fulfilled' ? typesData.value : [];
 
   if (sortBy) {
     if (!query) query = {};
@@ -165,7 +166,7 @@ export default function SearchPage() {
   } = useLoaderData<typeof loader>();
   const { data: tags } = useQuery({
     queryKey: ['tags'],
-    queryFn: () => client.get<FullTag[]>('/search/tags').then((res) => res.data),
+    queryFn: () => httpClient.get<FullTag[]>('/search/tags'),
     placeholderData: initialTagList || [],
     refetchInterval: 1000 * 60,
   });
@@ -562,34 +563,32 @@ function SearchResults({
       },
     ],
     queryFn: () =>
-      client
-        .post<{
-          elements: SingleOffer[];
-          page: number;
-          limit: number;
-          total: number;
-          query: string;
-        }>(
-          '/search',
-          {
-            sortBy: sortBy,
-            sortDir: sortDir,
-            limit: 32,
-            page: page,
-            title: query === '' ? undefined : query,
-            tags: selectedTags.length === 0 ? undefined : selectedTags,
-            isCodeRedemptionOnly,
-            offerType: selectedOfferType,
-            onSale: isSale,
-            price: price,
+      httpClient.post<{
+        elements: SingleOffer[];
+        page: number;
+        limit: number;
+        total: number;
+        query: string;
+      }>(
+        '/search',
+        {
+          sortBy: sortBy,
+          sortDir: sortDir,
+          limit: 32,
+          page: page,
+          title: query === '' ? undefined : query,
+          tags: selectedTags.length === 0 ? undefined : selectedTags,
+          isCodeRedemptionOnly,
+          offerType: selectedOfferType,
+          onSale: isSale,
+          price: price,
+        },
+        {
+          params: {
+            country,
           },
-          {
-            params: {
-              country,
-            },
-          },
-        )
-        .then((res) => res.data),
+        },
+      ),
     placeholderData: keepPreviousData,
   });
 
@@ -604,16 +603,14 @@ function SearchResults({
             },
           ],
           queryFn: () =>
-            client
-              .get<{
-                tagCounts: TagCount[];
-                offerTypeCounts: {
-                  _id: string;
-                  count: number;
-                }[];
-                total: number;
-              }>(`/search/${data.query}/count?country=${country}`)
-              .then((res) => res.data),
+            httpClient.get<{
+              tagCounts: TagCount[];
+              offerTypeCounts: {
+                _id: string;
+                count: number;
+              }[];
+              total: number;
+            }>(`/search/${data.query}/count?country=${country}`),
         })
         .then((res) => {
           setTagsCount(res.tagCounts || []);

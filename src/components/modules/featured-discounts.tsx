@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { client } from '~/lib/client';
 import type { SingleOffer } from '~/types/single-offer';
 import {
   Carousel,
@@ -24,6 +23,7 @@ import { Skeleton } from '../ui/skeleton';
 import { getFeaturedDiscounts } from '~/queries/featured-discounts';
 import { ArrowUpIcon } from '@radix-ui/react-icons';
 import type { Price as OfferPrice } from '~/types/price';
+import { httpClient } from '~/lib/http-client';
 
 const SLIDE_DELAY = 10_000;
 
@@ -219,7 +219,7 @@ function ProgressIndicator({
                       'DieselStoreFrontWide',
                       'Featured',
                       'OfferImageWide',
-                    ])?.url,
+                    ])?.url ?? '/300x150-egdata-placeholder.png',
                     400,
                     'medium',
                   )}
@@ -239,7 +239,7 @@ function FeaturedOffer({ offer }: { offer: SingleOffer }) {
   const [image, setImage] = useState<string | null>(null);
   const { data: offerMedia } = useQuery({
     queryKey: ['media', { id: offer.id }],
-    queryFn: () => client.get<Media>(`/offers/${offer.id}/media`).then((response) => response.data),
+    queryFn: () => httpClient.get<Media>(`/offers/${offer.id}/media`),
   });
   const [isHovered, setIsHovered] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);

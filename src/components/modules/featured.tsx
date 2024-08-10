@@ -17,11 +17,11 @@ import { getImage } from '~/lib/getImage';
 import { Link } from '@remix-run/react';
 import { cn } from '~/lib/utils';
 import { useQuery } from '@tanstack/react-query';
-import { client } from '~/lib/client';
 import { useCountry } from '~/hooks/use-country';
 import Autoplay from 'embla-carousel-autoplay';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '../ui/tooltip';
 import buildImageUrl from '~/lib/build-image-url';
+import { httpClient } from '~/lib/http-client';
 
 const SLIDE_DELAY = 5000; // 5 seconds
 
@@ -235,7 +235,7 @@ function ProgressIndicator({
                       'DieselStoreFrontWide',
                       'Featured',
                       'OfferImageWide',
-                    ])?.url,
+                    ])?.url ?? '/300x150-egdata-placeholder.png',
                     400,
                     'medium',
                   )}
@@ -256,8 +256,7 @@ function OfferPrice({ id, releaseDate }: { id: string; releaseDate: Date }) {
   const { data } = useQuery<Price>({
     queryKey: ['offer-price', id],
     staleTime: 3600,
-    queryFn: () =>
-      client.get<Price>(`/offers/${id}/price?country=${country}`).then((res) => res.data),
+    queryFn: () => httpClient.get<Price>(`/offers/${id}/price?country=${country}`),
   });
 
   if (!data) {
@@ -292,7 +291,7 @@ function OfferPrice({ id, releaseDate }: { id: string; releaseDate: Date }) {
 function OfferLogo({ id }: { id: string }) {
   const { data: media } = useQuery({
     queryKey: ['media', { id }],
-    queryFn: () => client.get<Media>(`/offers/${id}/media`).then((response) => response.data),
+    queryFn: () => httpClient.get<Media>(`/offers/${id}/media`),
     retry: false,
   });
 

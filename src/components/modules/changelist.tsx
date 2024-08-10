@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { client } from '~/lib/client';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { UpdateIcon } from '@radix-ui/react-icons';
 import { timeAgo } from '~/lib/time-ago';
 import { ScrollArea } from '../ui/scroll-area';
+import { httpClient } from '~/lib/http-client';
 
 export interface Change {
   timestamp: string;
@@ -65,7 +65,7 @@ export function ChangelistModule() {
   } = useQuery({
     queryKey: ['changelist', 'home'],
     queryFn: async () => {
-      return (await client.get<Change[]>('/changelist?limit=20')).data;
+      return await httpClient.get<Change[]>('/changelist?limit=20');
     },
   });
 
