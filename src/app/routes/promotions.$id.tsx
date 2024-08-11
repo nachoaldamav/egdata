@@ -29,6 +29,7 @@ import {
 import { ArrowDownIcon, GridIcon, ListBulletIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 import { cn } from '~/lib/utils';
+import { httpClient } from '~/lib/http-client';
 
 export const meta: MetaFunction<typeof loader> = ({ params, data }) => {
   try {
@@ -162,7 +163,7 @@ const fetchPromotionData = async ({
   sortBy: SortBy | null;
   sortDir: 'asc' | 'desc' | null;
 }) => {
-  const { data } = await client.get<{
+  const data = await httpClient.get<{
     elements: SingleOffer[];
     title: string;
     start: number;
@@ -203,11 +204,9 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     queryClient.fetchQuery({
       queryKey: ['promotion-cover', { id }],
       queryFn: () =>
-        client
-          .get<Pick<SingleOffer, '_id' | 'id' | 'namespace' | 'title' | 'keyImages'>>(
-            `/promotions/${id}/cover`,
-          )
-          .then((res) => res.data),
+        httpClient.get<Pick<SingleOffer, '_id' | 'id' | 'namespace' | 'title' | 'keyImages'>>(
+          `/promotions/${id}/cover`,
+        ),
     }),
     queryClient.fetchQuery({
       queryKey: ['promotion-meta', { id, country, limit: 20, sortBy, sortDir, page: 1 }],
@@ -335,7 +334,7 @@ function Promotion() {
                 'featuredMedia',
                 'DieselGameBoxWide',
                 'DieselStoreFrontWide',
-              ]).url
+              ])?.url ?? '/placeholder.webp'
             }
             alt={promotion.pages[0].title}
             width={1920}

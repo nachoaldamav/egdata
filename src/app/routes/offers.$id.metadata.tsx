@@ -10,6 +10,7 @@ import {
   TableCell,
 } from '~/components/ui/table';
 import { client } from '~/lib/client';
+import { httpClient } from '~/lib/http-client';
 import type { SingleOffer } from '~/types/single-offer';
 import type { SingleSandbox } from '~/types/single-sandbox';
 
@@ -27,8 +28,7 @@ export default function ItemsSection() {
         id: data.namespace,
       },
     ],
-    queryFn: () =>
-      client.get<SingleSandbox>(`/sandboxes/${data.namespace}`).then((res) => res.data),
+    queryFn: () => httpClient.get<SingleSandbox>(`/sandboxes/${data.namespace}`),
   });
 
   return (

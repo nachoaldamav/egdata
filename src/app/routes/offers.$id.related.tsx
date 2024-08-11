@@ -5,6 +5,7 @@ import { Card, CardHeader, CardContent } from '~/components/ui/card';
 import { Skeleton } from '~/components/ui/skeleton';
 import { client } from '~/lib/client';
 import { getImage } from '~/lib/getImage';
+import { httpClient } from '~/lib/http-client';
 import { offersDictionary } from '~/lib/offers-dictionary';
 import type { SingleOffer } from '~/types/single-offer';
 
@@ -22,9 +23,7 @@ type RelatedOffer = Pick<
 >;
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
-  const data = await client
-    .get<RelatedOffer[]>(`/offers/${params.id}/related`)
-    .then((res) => res.data);
+  const data = await httpClient.get<RelatedOffer[]>(`/offers/${params.id}/related`);
 
   return {
     data,
@@ -32,9 +31,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
 };
 
 export const clientLoader = async ({ params }: ClientLoaderFunctionArgs) => {
-  const data = await client
-    .get<RelatedOffer[]>(`/offers/${params.id}/related`)
-    .then((res) => res.data);
+  const data = await httpClient.get<RelatedOffer[]>(`/offers/${params.id}/related`);
 
   return {
     data,

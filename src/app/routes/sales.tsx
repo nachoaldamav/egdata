@@ -10,7 +10,6 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '~/components/ui/pagination';
-import { client } from '~/lib/client';
 import type { SingleOffer } from '~/types/single-offer';
 import type { LoaderFunctionArgs } from '@remix-run/node';
 import { useCountry } from '~/hooks/use-country';
@@ -24,6 +23,7 @@ import { Button } from '~/components/ui/button';
 import { OfferListItem } from '~/components/app/game-card';
 import { cn } from '~/lib/utils';
 import { usePreferences } from '~/hooks/use-preferences';
+import { httpClient } from '~/lib/http-client';
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
@@ -36,21 +36,21 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     return redirect('/sales?country=US', 302);
   }
 
-  const latestGames = await client.get<{
+  const latestGames = await httpClient.get<{
     elements: SingleOffer[];
     page: number;
     total: number;
     limit: number;
   }>(`/sales?limit=30&country=${country}&page=${page}`);
 
-  const games = latestGames.data.elements || ([] as SingleOffer[]);
+  const games = latestGames.elements || ([] as SingleOffer[]);
 
   return {
     games,
     meta: {
-      page: latestGames.data.page,
-      total: latestGames.data.total,
-      limit: latestGames.data.limit,
+      page: latestGames.page,
+      total: latestGames.total,
+      limit: latestGames.limit,
     },
     country,
   };

@@ -193,7 +193,7 @@ function ProgressIndicator({
     <div className="flex space-x-2 mt-4 mx-auto w-full justify-center min-h-1">
       <TooltipProvider>
         {Array.from({ length: total }).map((_, i) => (
-          <Tooltip key={`${offers[i].id}`} delayDuration={0}>
+          <Tooltip key={`tooltip-${offers[i].id}`} delayDuration={0}>
             <TooltipTrigger
               className={cn(
                 'block w-5 h-[5px] rounded-full cursor-pointer relative',

@@ -28,9 +28,10 @@ import type { KeyImage } from '~/types/single-offer';
 import { cn } from '~/lib/utils';
 import { buildGameLauncherURI } from '~/lib/build-game-launcher';
 import { useEffect, useState } from 'react';
+import { httpClient } from '~/lib/http-client';
 
 const getItem = async (id: string) => {
-  return client.get<SingleItem>(`/items/${id}`).then((res) => res.data);
+  return httpClient.get<SingleItem>(`/items/${id}`);
 };
 
 export async function loader({ params }: LoaderFunctionArgs) {

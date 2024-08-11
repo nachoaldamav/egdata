@@ -26,6 +26,7 @@ import { Skeleton } from '~/components/ui/skeleton';
 import { XIcon } from '@primer/octicons-react';
 import { useQueries } from '@tanstack/react-query';
 import { Image } from '~/components/app/image';
+import { httpClient } from '~/lib/http-client';
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: defaultPlayerTheme },
@@ -76,11 +77,11 @@ export async function loader({ params }: LoaderFunctionArgs) {
   const [mediaData, offerData] = await Promise.allSettled([
     queryClient.fetchQuery({
       queryKey: ['media', { id: params.id }],
-      queryFn: () => client.get<Media>(`/offers/${params.id}/media`).then((res) => res.data),
+      queryFn: () => httpClient.get<Media>(`/offers/${params.id}/media`),
     }),
     queryClient.fetchQuery({
       queryKey: ['offer', { id: params.id }],
-      queryFn: () => client.get<SingleOffer>(`/offers/${params.id}`).then((res) => res.data),
+      queryFn: () => httpClient.get<SingleOffer>(`/offers/${params.id}`),
     }),
   ]);
 
@@ -129,7 +130,7 @@ export default function ItemsSection() {
     queries: [
       {
         queryKey: ['media', { id }],
-        queryFn: () => client.get<Media>(`/offers/${id}/media`).then((res) => res.data),
+        queryFn: () => httpClient.get<Media>(`/offers/${id}/media`),
         initialData: initialDataMedia ?? undefined,
         staleTime: 1000,
         initialDataUpdatedAt: serverTimestamp,
@@ -137,7 +138,7 @@ export default function ItemsSection() {
       },
       {
         queryKey: ['offer', { id }],
-        queryFn: () => client.get<SingleOffer>(`/offers/${id}`).then((res) => res.data),
+        queryFn: () => httpClient.get<SingleOffer>(`/offers/${id}`),
         initialData: initialDataOffer ?? undefined,
         staleTime: 1000,
         initialDataUpdatedAt: serverTimestamp,

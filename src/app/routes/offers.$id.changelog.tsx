@@ -7,13 +7,14 @@ import { GitPullRequestClosedIcon, GitPullRequestIcon, PlusIcon } from '@primer/
 import { ArrowRightIcon } from '@radix-ui/react-icons';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '~/components/ui/tooltip'; // Ensure you have these components
 import { useQuery } from '@tanstack/react-query';
+import { httpClient } from '~/lib/http-client';
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const queryClient = getQueryClient();
 
   const data = await queryClient.fetchQuery({
     queryKey: ['changelog', { id: params.id }],
-    queryFn: () => client.get<Change[]>(`/offers/${params.id}/changelog`).then((res) => res.data),
+    queryFn: () => httpClient.get<Change[]>(`/offers/${params.id}/changelog`),
   });
 
   return {
@@ -41,7 +42,7 @@ export default function OfferChangelog() {
   const { data: initialData, id } = useLoaderData<typeof loader | typeof clientLoader>();
   const { data, isLoading } = useQuery({
     queryKey: ['changelog', { id }],
-    queryFn: () => client.get<Change[]>(`/offers/${id}/changelog`).then((res) => res.data),
+    queryFn: () => httpClient.get<Change[]>(`/offers/${id}/changelog`),
     initialData: initialData ?? undefined,
   });
 

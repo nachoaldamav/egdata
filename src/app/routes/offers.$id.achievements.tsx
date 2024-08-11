@@ -16,6 +16,7 @@ import {
 import { Skeleton } from '~/components/ui/skeleton';
 import { client, getQueryClient } from '~/lib/client';
 import { getRarity } from '~/lib/get-rarity';
+import { httpClient } from '~/lib/http-client';
 import { cn } from '~/lib/utils';
 import type { Achievement, AchievementsSets } from '~/queries/offer-achievements';
 
@@ -23,8 +24,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
   const queryClient = getQueryClient();
   const data = await queryClient.fetchQuery<AchievementsSets>({
     queryKey: ['achievements', { id: params.id }],
-    queryFn: () =>
-      client.get<AchievementsSets>(`/offers/${params.id}/achievements`).then((res) => res.data),
+    queryFn: () => httpClient.get<AchievementsSets>(`/offers/${params.id}/achievements`),
   });
 
   return {
@@ -49,8 +49,7 @@ export default function OfferAchievements() {
         id,
       },
     ],
-    queryFn: () =>
-      client.get<AchievementsSets>(`/offers/${id}/achievements`).then((res) => res.data),
+    queryFn: () => httpClient.get<AchievementsSets>(`/offers/${id}/achievements`),
     initialData: initialData ?? undefined,
     retry: false,
   });
