@@ -118,7 +118,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
         | {
             [key: string]: unknown;
           };
-    }>(`/search/${hash}?country=${country}`),
+    }>(`/search/${hash}?country=${country}`, {
+      retries: 0,
+      retryDelay: 10,
+    }),
     httpClient.get<
       {
         _id: string;
