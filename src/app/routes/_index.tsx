@@ -171,18 +171,24 @@ export default function Index() {
   const [order, setOrder] = useState(userPrefs.order || defaultOrder);
 
   const sections = [
-    { key: 'featured', component: <FeaturedModule offers={featured} /> },
-    { key: 'giveaways', component: <GiveawaysCarousel initialData={giveaways} /> },
-    { key: 'latest', component: <LatestOffers offers={games} /> },
-    { key: 'featuredDiscounts', component: <FeaturedDiscounts /> },
-    { key: 'lastModified', component: <LastModifiedGames /> },
-    { key: 'upcomingCalendar', component: <UpcomingCalendar /> },
-    { key: 'upcomingOffers', component: <UpcomingOffers /> },
-    { key: 'summerSale', component: <SalesModule event="Summer Sale" eventId="16979" /> },
+    { key: 'featured', component: <FeaturedModule key={'featured'} offers={featured} /> },
+    {
+      key: 'giveaways',
+      component: <GiveawaysCarousel key={'giveaways'} initialData={giveaways} />,
+    },
+    { key: 'latest', component: <LatestOffers key={'latest'} offers={games} /> },
+    { key: 'featuredDiscounts', component: <FeaturedDiscounts key={'featuredDiscounts'} /> },
+    { key: 'lastModified', component: <LastModifiedGames key={'lastModified'} /> },
+    { key: 'upcomingCalendar', component: <UpcomingCalendar key={'upcomingCalendar'} /> },
+    { key: 'upcomingOffers', component: <UpcomingOffers key={'upcomingOffers'} /> },
+    {
+      key: 'summerSale',
+      component: <SalesModule key={'summerSale'} event="Summer Sale" eventId="16979" />,
+    },
     {
       key: 'statsCombined',
       component: (
-        <section className="w-full flex flex-row justify-between gap-10">
+        <section key={'statsCombined'} className="w-full flex flex-row justify-between gap-10">
           <StatsModule />
           <ChangelistModule />
         </section>
@@ -190,19 +196,34 @@ export default function Index() {
     },
     {
       key: 'topWishlisted',
-      component: <TopSection slug="top-wishlisted" title="Most Anticipated" side="right" />,
+      component: (
+        <TopSection
+          key={'topWishlisted'}
+          slug="top-wishlisted"
+          title="Most Anticipated"
+          side="right"
+        />
+      ),
     },
-    { key: 'achievements', component: <GamesWithAchievements /> },
-    { key: 'event1', component: <SalesModule event={events[0].name} eventId={events[0].id} /> },
+    { key: 'achievements', component: <GamesWithAchievements key={'achievements'} /> },
+    {
+      key: 'event1',
+      component: <SalesModule key={'event1'} event={events[0].name} eventId={events[0].id} />,
+    },
     {
       key: 'topSeller',
-      component: <TopSection slug="top-sellers" title="Top Seller" side="left" />,
+      component: <TopSection key={'topSeller'} slug="top-sellers" title="Top Seller" side="left" />,
     },
     {
       key: 'event2',
-      component: <SalesModule event={'Borderlands Franchise Sale'} eventId={'38257'} />,
+      component: (
+        <SalesModule key={'event2'} event={'Borderlands Franchise Sale'} eventId={'38257'} />
+      ),
     },
-    { key: 'event3', component: <SalesModule event={events[2].name} eventId={events[2].id} /> },
+    {
+      key: 'event3',
+      component: <SalesModule key={'event3'} event={events[2].name} eventId={events[2].id} />,
+    },
   ];
 
   const orderedSections = defaultOrder.map((key) =>
