@@ -507,15 +507,15 @@ function FeaturedResult({
     '/placeholder.webp';
 
   return (
-    <div className="flex flex-col gap-4 w-full">
+    <div className="flex flex-col gap-4 w-full" key={`multi-search-${id}`}>
       <Image
         src={imageToShow}
-        alt="Game Screenshot"
-        className="w-full rounded mb-4"
+        alt={type === 'item' || type === 'offer' ? data.title : data.name}
+        className="w-full rounded mb-4 aspect-video"
         width={600}
-        height={400}
+        height={350}
         quality="high"
-        key={imageToShow}
+        key={`${id}-preview-image`}
       />
       <h6 className="text-lg font-bold inline-flex items-center gap-2">
         {type === 'offer' || type === 'item' ? data.title : data.name}{' '}
