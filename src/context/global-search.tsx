@@ -13,7 +13,11 @@ import type { SingleSeller } from '~/types/sellers';
 import { Skeleton } from '~/components/ui/skeleton';
 import { Image } from '~/components/app/image';
 import { getImage } from '~/lib/getImage';
-import { platformIcons } from '~/components/app/platform-icons';
+import {
+  getPlatformsArray,
+  platformIcons,
+  textPlatformIcons,
+} from '~/components/app/platform-icons';
 import { ScrollArea } from '~/components/ui/scroll-area';
 import { httpClient } from '~/lib/http-client';
 
@@ -375,7 +379,7 @@ function SearchPortal({ searchState, setSearchState, inputRef }: SearchPortalPro
                     <Link
                       className="flex items-center justify-between p-2 bg-slate-700/25 rounded"
                       key={item._id}
-                      to={`/items/${item._id}`}
+                      to={`/items/${item.id}`}
                       onClick={() => {
                         setSearchState((prevState) => ({
                           ...prevState,
@@ -402,6 +406,11 @@ function SearchPortal({ searchState, setSearchState, inputRef }: SearchPortalPro
                           />
                         </div>
                         <span>{item.title}</span>
+                      </div>
+                      <div className="inline-flex items-center gap-2">
+                        {getPlatformsArray(item.releaseInfo)
+                          .filter((platform) => textPlatformIcons[platform])
+                          .map((platform) => textPlatformIcons[platform])}
                       </div>
                     </Link>
                   ))}
