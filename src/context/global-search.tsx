@@ -551,7 +551,7 @@ function FeaturedOffer({ id, data }: { id: string; data: SingleOffer }) {
           .filter((tag) => tag !== null)
           .slice(0, 4)
           .map((tag) => (
-            <Badge variant="default" key={tag.id}>
+            <Badge variant="default" key={`${data.id}-${tag?.id}`}>
               {tag.name}
             </Badge>
           ))}
@@ -566,7 +566,13 @@ function FeaturedOffer({ id, data }: { id: string; data: SingleOffer }) {
         </p>
         <p className="inline-flex items-center gap-2">
           <span className="font-bold">Supported Platforms:</span>{' '}
-          {data.tags.filter((tag) => platformIcons[tag.id]).map((tag) => platformIcons[tag.id])}
+          {data.tags
+            .filter((tag) => platformIcons[tag.id])
+            .map((tag) => (
+              <span key={`${data.id}-${tag.id}`} title={tag.name}>
+                {platformIcons[tag.id]}
+              </span>
+            ))}
         </p>
         <p>
           <span className="font-bold">Release Date:</span>{' '}
