@@ -29,6 +29,7 @@ import { cn } from '~/lib/utils';
 import { buildGameLauncherURI } from '~/lib/build-game-launcher';
 import { useEffect, useState } from 'react';
 import { httpClient } from '~/lib/http-client';
+import { getPlatformsArray, textPlatformIcons } from '~/components/app/platform-icons';
 
 const getItem = async (id: string) => {
   return httpClient.get<SingleItem>(`/items/${id}`);
@@ -240,6 +241,16 @@ function ItemsPage({ id }: { id: string }) {
                       hour: 'numeric',
                       minute: 'numeric',
                     })}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="font-medium">Platforms</TableCell>
+                  <TableCell className="border-l-gray-300/10 border-l inline-flex items-center justify-start gap-1">
+                    {getPlatformsArray(data.releaseInfo)
+                      .filter((platform) => textPlatformIcons[platform])
+                      .map((platform) => (
+                        <span key={platform}>{textPlatformIcons[platform]}</span>
+                      ))}
                   </TableCell>
                 </TableRow>
               </TableBody>
