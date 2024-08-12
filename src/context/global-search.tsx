@@ -517,7 +517,7 @@ function FeaturedResult({
         alt={type === 'item' || type === 'offer' ? data.title : data.name}
         className="w-full rounded mb-4 aspect-video"
         width={600}
-        height={350}
+        height={325}
         quality="high"
         key={`${id}-preview-image`}
       />
@@ -543,9 +543,9 @@ function FeaturedOffer({ id, data }: { id: string; data: SingleOffer }) {
       <Image
         src={imageToShow}
         alt="Game Screenshot"
-        className="w-full rounded mb-4"
+        className="w-full rounded mb-4 aspect-video"
         width={600}
-        height={350}
+        height={325}
         quality="high"
         key={`${id}-preview-image`}
       />
