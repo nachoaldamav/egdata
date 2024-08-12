@@ -545,9 +545,9 @@ function FeaturedOffer({ id, data }: { id: string; data: SingleOffer }) {
         alt="Game Screenshot"
         className="w-full rounded mb-4"
         width={600}
-        height={400}
+        height={350}
         quality="high"
-        key={imageToShow}
+        key={`${id}-preview-image`}
       />
       <h6 className="text-lg font-bold">{data.title}</h6>
       <div className="flex flex-wrap gap-2 mb-4">
