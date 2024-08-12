@@ -410,7 +410,11 @@ function SearchPortal({ searchState, setSearchState, inputRef }: SearchPortalPro
                       <div className="inline-flex items-center gap-2">
                         {getPlatformsArray(item.releaseInfo)
                           .filter((platform) => textPlatformIcons[platform])
-                          .map((platform) => textPlatformIcons[platform])}
+                          .map((platform) => (
+                            <span key={platform} title={platform}>
+                              {textPlatformIcons[platform]}
+                            </span>
+                          ))}
                       </div>
                     </Link>
                   ))}
