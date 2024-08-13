@@ -13,10 +13,14 @@ interface OfferFeatures {
   epicFeatures: string[];
 }
 
+type FeaturesSizes = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+
 export function GameFeatures({
   id,
+  size = 'md',
 }: {
   id: string;
+  size?: FeaturesSizes;
 }) {
   const [offerFeatures, setOfferFeatures] = useState<OfferFeatures | null>(null);
 
@@ -44,7 +48,7 @@ export function GameFeatures({
 
   return (
     <div className="w-full justify-center items-center flex absolute bottom-3 right-0 left-0">
-      <div className="h-auto flex gap-3 w-fit bg-gray-500/30 py-2 px-6 rounded-xl justify-center items-center text-white backdrop-blur-sm">
+      <div className="h-auto flex gap-3 w-fit max-w-[95%] bg-gray-500/30 py-2 px-6 rounded-xl justify-center items-center text-white backdrop-blur-sm">
         {launcher && (
           <TooltipProvider>
             <Tooltip delayDuration={50}>

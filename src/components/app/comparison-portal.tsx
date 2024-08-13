@@ -17,6 +17,8 @@ import { Link } from '@remix-run/react';
 import type { SingleSandbox } from '~/types/single-sandbox';
 import { useCountry } from '~/hooks/use-country';
 import { Button } from '../ui/button';
+import { platformIcons } from './platform-icons';
+import { GameFeatures } from './features';
 
 const CompareIcon = (props: JSX.IntrinsicElements['svg']) => (
   <svg
@@ -118,24 +120,37 @@ function SingleGame({ query, id }: { query: UseQueryResult<SingleOffer, Error>; 
 
   return (
     <div className="flex flex-col gap-2 max-h-[800px] w-72">
-      <Image
-        src={
-          getImage(data.keyImages, ['OfferImageWide', 'Featured', 'DieselStoreFrontWide'])?.url ??
-          '/placeholder.webp'
-        }
-        alt={data.title}
-        className="w-full h-48 object-cover rounded-lg"
-        width={600}
-        height={350}
-      />
-      <Link to={`/offers/${data.id}`} className="font-bold">
+      <div className="relative">
+        <Image
+          src={
+            getImage(data.keyImages, ['OfferImageWide', 'Featured', 'DieselStoreFrontWide'])?.url ??
+            '/placeholder.webp'
+          }
+          alt={data.title}
+          className="w-full h-48 object-cover rounded-lg"
+          width={600}
+          height={350}
+        />
+        <GameFeatures id={id} />
+      </div>
+      <Link
+        to={`/offers/${data.id}`}
+        className="font-bold underline underline-offset-4 decoration-slate-100/20"
+      >
         {data.title}
       </Link>
       <section id="metadata" className="flex flex-col gap-2">
         <OfferMetadataRow label="Type" value={offersDictionary[data.offerType] ?? data.offerType} />
         <OfferMetadataRow
           label="Seller"
-          value={<Link to={`/sellers/${data.seller.id}`}>{data.seller.name}</Link>}
+          value={
+            <Link
+              to={`/sellers/${data.seller.id}`}
+              className="underline underline-offset-4 decoration-slate-100/20"
+            >
+              {data.seller.name}
+            </Link>
+          }
         />
         <OfferMetadataRow label="Developer" value={data.developerDisplayName ?? data.seller.name} />
         <OfferMetadataRow
@@ -175,6 +190,19 @@ function SingleGame({ query, id }: { query: UseQueryResult<SingleOffer, Error>; 
               .join(', ')}
           />
         )}
+        <OfferMetadataRow
+          label="Platforms"
+          value={
+            <span className="inline-flex gap-2 items-center justify-start">
+              {data.tags
+                .filter((tag) => platformIcons[tag.id])
+                .map((tag) => platformIcons[tag.id])
+                .map((icon, index) => (
+                  <span key={index}>{icon}</span>
+                ))}
+            </span>
+          }
+        />
         <Achievements id={data.id} />
       </section>
       <hr className="border-t border-gray-300/25" />
@@ -485,7 +513,7 @@ function Price({ id }: { id: string }) {
           <div className="inline-flex items-center justify-center">
             <span
               className={cn(
-                'text-lg mt-3 font-bold',
+                'text-sm mt-3 font-bold',
                 data.currentPrice.price.discount > 0
                   ? 'bg-blue-600 text-white px-2 rounded-md'
                   : '',
@@ -494,7 +522,7 @@ function Price({ id }: { id: string }) {
               {priceFmtr.format(data.currentPrice.price.discountPrice / 100)}
             </span>
             {data.currentPrice.price.discount > 0 && (
-              <span className="text-base mt-3 font-bold line-through text-gray-500 ml-2">
+              <span className="text-xs mt-3 font-bold line-through text-gray-500 ml-2">
                 {priceFmtr.format(data.currentPrice.price.originalPrice / 100)}
               </span>
             )}
@@ -502,12 +530,14 @@ function Price({ id }: { id: string }) {
         </div>
         <div className="text-center">
           <div>Lowest</div>
-          <div className="text-lg mt-3 font-bold">
+          <div className="text-sm mt-3 font-bold">
             {priceFmtr.format(data.minPrice / 100)}{' '}
-            <span className="text-red-500">
-              ({Math.round((data.minPrice / data.currentPrice.price.originalPrice) * 100) - 100}
-              %)
-            </span>
+            {data.minPrice !== data.currentPrice.price.originalPrice && (
+              <span className="text-red-500 text-xs">
+                ({Math.round((data.minPrice / data.currentPrice.price.originalPrice) * 100) - 100}
+                %)
+              </span>
+            )}
           </div>
         </div>
       </div>
