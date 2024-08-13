@@ -507,7 +507,7 @@ function OfferPage() {
             <OpenEgs offer={offerData} />
             <OpenEgl offer={offerData} />
             <OpenLauncher id={offerData.id} />
-            {/* <Button
+            <Button
               onClick={() => {
                 if (compare.includes(offerData.id)) {
                   removeFromCompare(offerData.id);
@@ -519,7 +519,7 @@ function OfferPage() {
             >
               {compare.includes(offerData.id) ? <RemoveIcon /> : <AddIcon />}
               <span>Compare</span>
-            </Button> */}
+            </Button>
           </div>
           <OfferHero offer={offerData} />
           <p className="px-1">{offerData.description}</p>
