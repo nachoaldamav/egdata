@@ -398,7 +398,7 @@ function AgeRatings({ namespace }: { namespace: string }) {
         <span className="text-sm text-gray-500">Age Rating:</span>
       </div>
       <div className="flex flex-row gap-2 flex-wrap justify-center items-center">
-        {Object.entries(data.ageGatings).map(([key, rating]) => (
+        {Object.entries(data.ageGatings || {}).map(([key, rating]) => (
           <div className="flex flex-row gap-2" key={key}>
             {rating.ratingImage && rating.ratingImage !== '' ? (
               <img
