@@ -46,6 +46,10 @@ import { platformIcons } from '~/components/app/platform-icons';
 import { SellerOffers } from '~/components/modules/seller-offers';
 import { useCountry } from '~/hooks/use-country';
 import { httpClient } from '~/lib/http-client';
+import { Button } from '~/components/ui/button';
+import { useCompare } from '~/hooks/use-compare';
+import { RemoveIcon } from '~/components/icons/remove';
+import { AddIcon } from '~/components/icons/add';
 
 function supportedPlatforms(items: SingleItem[]): string[] {
   try {
@@ -303,6 +307,7 @@ function OfferPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { country } = useCountry();
+  const { addToCompare, removeFromCompare, compare } = useCompare();
   const { subPath: serverSubPath, id } = useLoaderData<typeof loader>();
   const [offerQuery, itemsQuery] = useQueries({
     queries: [
@@ -502,6 +507,19 @@ function OfferPage() {
             <OpenEgs offer={offerData} />
             <OpenEgl offer={offerData} />
             <OpenLauncher id={offerData.id} />
+            {/* <Button
+              onClick={() => {
+                if (compare.includes(offerData.id)) {
+                  removeFromCompare(offerData.id);
+                } else {
+                  addToCompare(offerData.id);
+                }
+              }}
+              className="inline-flex items-center gap-1 bg-card text-white hover:bg-card-hover border"
+            >
+              {compare.includes(offerData.id) ? <RemoveIcon /> : <AddIcon />}
+              <span>Compare</span>
+            </Button> */}
           </div>
           <OfferHero offer={offerData} />
           <p className="px-1">{offerData.description}</p>

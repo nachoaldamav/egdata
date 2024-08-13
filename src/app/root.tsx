@@ -1,4 +1,5 @@
 import {
+  isRouteErrorResponse,
   Link,
   Links,
   Meta,
@@ -6,6 +7,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useRouteError,
 } from '@remix-run/react';
 import type { LinksFunction, LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -15,23 +17,33 @@ import Navbar from '~/components/app/navbar';
 import { SearchProvider } from '~/context/global-search';
 import { CountryProvider } from '~/context/country';
 import { CookiesProvider } from '~/context/cookies';
+import { CompareProvider } from '~/providers/compare';
+import { ComparisonPortal } from '~/components/app/comparison-portal';
 import { getQueryClient } from '~/lib/client';
 import { type Preferences, PreferencesProvider } from '~/context/preferences';
 import { decode } from '~/lib/preferences-encoding';
 import getCountryCode from '~/lib/get-country-code';
-import '../tailwind.css';
-import '../fonts.css';
-import tailwindCss from '../tailwind.css?url';
-import fontCss from '../fonts.css?url';
 import Bugsnag from '@bugsnag/js';
 import BugsnagPluginReact from '@bugsnag/plugin-react';
 import BugsnagPerformance from '@bugsnag/browser-performance';
+import tailwindCss from '../tailwind.css?url';
+import fontCss from '../fonts.css?url';
+import '../tailwind.css';
+import '../fonts.css';
+import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
+import { IoAlertCircle, IoWarning } from 'react-icons/io5';
+import { ScrollArea } from '~/components/ui/scroll-area';
+import { Button } from '~/components/ui/button';
 
-Bugsnag.start({
-  apiKey: '5f4462bdefb8d9b6a281d664d667004e',
-  plugins: [new BugsnagPluginReact()],
-});
-BugsnagPerformance.start({ apiKey: '5f4462bdefb8d9b6a281d664d667004e' });
+if (!import.meta.env.SSR) {
+  Bugsnag.start({
+    apiKey: '5f4462bdefb8d9b6a281d664d667004e',
+    plugins: [new BugsnagPluginReact()],
+  });
+  BugsnagPerformance.start({ apiKey: '5f4462bdefb8d9b6a281d664d667004e' });
+} else {
+  Bugsnag.start({ apiKey: '04cf12758cb83aa44a33701b509c01b8' });
+}
 
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://cdn1.epicgames.com/' },
@@ -115,6 +127,56 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 }
 
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  if (isRouteErrorResponse(error)) {
+    Bugsnag.notify({
+      errorMessage: error.statusText,
+      errorClass: error.status.toString(),
+      message: error.data,
+    });
+    return (
+      <Alert variant="destructive">
+        <IoAlertCircle className="h-4 w-4" />
+        <AlertTitle>
+          {error.status} {error.statusText}
+        </AlertTitle>
+        <AlertDescription>{error.data}</AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (error instanceof Error) {
+    Bugsnag.notify(error);
+
+    return (
+      <Alert variant="destructive">
+        <IoAlertCircle className="h-4 w-4" />
+        <AlertTitle>Error</AlertTitle>
+        <AlertDescription>{error.message}</AlertDescription>
+        <details className="mt-2">
+          <summary className="cursor-pointer text-sm font-medium">View stack trace</summary>
+          <ScrollArea className="h-[200px] w-full rounded-md border p-4 mt-2">
+            <pre className="text-xs">{error.stack}</pre>
+          </ScrollArea>
+        </details>
+        <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
+          Reload page
+        </Button>
+      </Alert>
+    );
+  }
+
+  return (
+    <Alert variant="destructive">
+      <IoAlertCircle className="h-4 w-4" />
+      <AlertTitle>Unknown Error</AlertTitle>
+      <AlertDescription>An unexpected error occurred. Please try again later.</AlertDescription>
+    </Alert>
+  );
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
   const { userPreferences, country } = useLoaderData<typeof loader>() || {};
   const queryClient = getQueryClient();
@@ -131,40 +193,43 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <div className="md:container mx-auto overflow-x-hidden">
           <QueryClientProvider client={queryClient}>
             <CountryProvider defaultCountry={country || 'US'}>
-              <SearchProvider>
-                <Navbar />
-                <CookiesProvider>
-                  <PreferencesProvider initialPreferences={userPreferences}>
-                    {children}
-                  </PreferencesProvider>
-                </CookiesProvider>
-                <ScrollRestoration />
-                <Scripts />
-                <footer className="flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400 text-xs gap-1">
-                  <p>
-                    egdata.app is a fan-made website and is not affiliated by any means with Epic
-                    Games, Inc.
-                  </p>
-                  <p>
-                    All the logos, images, trademarks and creatives are property of their respective
-                    owners.
-                  </p>
-                  <hr className="w-1/3 my-2 border-gray-300/40" />
-                  <div className="inline-flex gap-2">
-                    <span>
-                      Countries flags by{' '}
-                      <Link to="https://flagpedia.net" target="_blank" rel="noopener noreferrer">
-                        <strong>Flagpedia</strong>
-                      </Link>
-                    </span>
-                    <span>|</span>
-                    <span className="inline-flex gap-1 items-center">
-                      Made in <img src="https://flagcdn.com/16x12/eu.webp" alt="EU Flag" />
-                    </span>
-                  </div>
-                </footer>
-                <ReactQueryDevtools initialIsOpen={false} />
-              </SearchProvider>
+              <CompareProvider>
+                <SearchProvider>
+                  <Navbar />
+                  <CookiesProvider>
+                    <PreferencesProvider initialPreferences={userPreferences}>
+                      {children}
+                    </PreferencesProvider>
+                  </CookiesProvider>
+                  <ScrollRestoration />
+                  <Scripts />
+                  <ComparisonPortal />
+                  <footer className="flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400 text-xs gap-1">
+                    <p>
+                      egdata.app is a fan-made website and is not affiliated by any means with Epic
+                      Games, Inc.
+                    </p>
+                    <p>
+                      All the logos, images, trademarks and creatives are property of their
+                      respective owners.
+                    </p>
+                    <hr className="w-1/3 my-2 border-gray-300/40" />
+                    <div className="inline-flex gap-2">
+                      <span>
+                        Countries flags by{' '}
+                        <Link to="https://flagpedia.net" target="_blank" rel="noopener noreferrer">
+                          <strong>Flagpedia</strong>
+                        </Link>
+                      </span>
+                      <span>|</span>
+                      <span className="inline-flex gap-1 items-center">
+                        Made in <img src="https://flagcdn.com/16x12/eu.webp" alt="EU Flag" />
+                      </span>
+                    </div>
+                  </footer>
+                  <ReactQueryDevtools initialIsOpen={false} />
+                </SearchProvider>
+              </CompareProvider>
             </CountryProvider>
           </QueryClientProvider>
         </div>

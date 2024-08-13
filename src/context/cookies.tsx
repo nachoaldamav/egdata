@@ -85,10 +85,11 @@ export const CookiesProvider = ({ children }: { children: ReactNode }) => {
       session,
     };
 
-    navigator.serviceWorker.controller?.postMessage({
-      type: 'track',
-      payload: trackData,
-    });
+    if ('serviceWorker' in navigator)
+      navigator.serviceWorker?.controller?.postMessage({
+        type: 'track',
+        payload: trackData,
+      });
   }, [location]);
 
   const acceptCookies = () => {
