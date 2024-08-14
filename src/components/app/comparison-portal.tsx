@@ -94,64 +94,9 @@ function CompareTable() {
     })),
   });
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (scrollContainerRef.current) {
-      const scrollContainer = scrollContainerRef.current;
-      scrollContainer.style.cursor = 'grabbing';
-      scrollContainer.style.userSelect = 'none';
-
-      const startX = e.pageX - scrollContainer.offsetLeft;
-      const scrollLeft = scrollContainer.scrollLeft;
-
-      const handleMouseMove = (event: MouseEvent) => {
-        const x = event.pageX - scrollContainer.offsetLeft;
-        const walk = (x - startX) * 1; // Adjust the scroll speed
-        scrollContainer.scrollLeft = scrollLeft - walk;
-        console.log(scrollContainer.scrollWidth, scrollContainer.scrollLeft);
-      };
-
-      const handleMouseUp = () => {
-        scrollContainer.style.cursor = 'grab';
-        scrollContainer.style.removeProperty('user-select');
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
-      };
-
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-    }
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (scrollContainerRef.current) {
-      const scrollContainer = scrollContainerRef.current;
-      const startX = e.touches[0].pageX - scrollContainer.offsetLeft;
-      const scrollLeft = scrollContainer.scrollLeft;
-
-      const handleTouchMove = (event: TouchEvent) => {
-        const x = event.touches[0].pageX - scrollContainer.offsetLeft;
-        const walk = (x - startX) * 1; // Adjust the scroll speed
-        scrollContainer.scrollLeft = scrollLeft - walk;
-      };
-
-      const handleTouchEnd = () => {
-        window.removeEventListener('touchmove', handleTouchMove);
-        window.removeEventListener('touchend', handleTouchEnd);
-      };
-
-      window.addEventListener('touchmove', handleTouchMove);
-      window.addEventListener('touchend', handleTouchEnd);
-    }
-  };
-
   return (
     <ScrollArea>
-      <div
-        className="flex flex-row gap-2 overflow-x-auto mb-4"
-        ref={scrollContainerRef}
-        onMouseDown={handleMouseDown}
-        onTouchStart={handleTouchStart}
-      >
+      <div className="flex flex-row gap-2 overflow-x-auto mb-4" ref={scrollContainerRef}>
         {queries.map((query, index) => (
           <SingleGame key={compare[index]} query={query} id={compare[index]} />
         ))}
@@ -189,12 +134,16 @@ function SingleGame({ query, id }: { query: UseQueryResult<SingleOffer, Error>; 
         />
         <GameFeatures id={id} />
       </div>
-      <section id="metadata" className="flex flex-col h-96 max-h-96 min-h-96 justify-between">
+      <section
+        id="metadata"
+        className="flex flex-col h-[20rem] max-h-[20rem] min-h-[20rem] justify-between"
+      >
         <Link
           to={`/offers/${data.id}`}
-          className="font-bold underline underline-offset-4 decoration-slate-100/20 overflow-ellipsis"
+          className="font-bold underline underline-offset-4 decoration-slate-100/20 overflow-ellipsis mb-2"
         >
-          {data.title}
+          {data.title.slice(0, 50)}
+          {data.title.length > 50 && '...'}{' '}
         </Link>
         <div className="flex flex-col gap-2">
           <OfferMetadataRow
