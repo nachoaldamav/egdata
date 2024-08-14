@@ -27,7 +27,7 @@ export function StatsModule() {
   });
 
   return (
-    <Card className="w-1/2 h-full my-auto">
+    <Card className="md:w-1/2 h-full my-auto w-full">
       <CardHeader className="flex flex-col">
         <h2 className="text-xl font-semibold">Stats</h2>
         <p className="text-sm text-gray-500">Statistics about the platform</p>

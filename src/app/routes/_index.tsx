@@ -188,7 +188,10 @@ export default function Index() {
     {
       key: 'statsCombined',
       component: (
-        <section key={'statsCombined'} className="w-full flex flex-row justify-between gap-10">
+        <section
+          key={'statsCombined'}
+          className="w-full flex md:flex-row justify-between gap-10 flex-col"
+        >
           <StatsModule />
           <ChangelistModule />
         </section>

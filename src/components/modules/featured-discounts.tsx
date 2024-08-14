@@ -25,7 +25,7 @@ import { ArrowUpIcon } from '@radix-ui/react-icons';
 import type { Price as OfferPrice } from '~/types/price';
 import { httpClient } from '~/lib/http-client';
 
-const SLIDE_DELAY = 10_000;
+const SLIDE_DELAY = 100_000;
 
 export function FeaturedDiscounts() {
   const { country } = useCountry();
@@ -124,7 +124,7 @@ export function FeaturedDiscounts() {
   }
 
   return (
-    <section id="featured-discounts">
+    <section id="featured-discounts" className="max-w-[95vw] h-full">
       <div className="flex justify-between items-center mb-4">
         <h4 className="text-xl font-bold text-left inline-flex group items-center gap-2">
           Featured Discounts
@@ -149,7 +149,7 @@ export function FeaturedDiscounts() {
         </div>
       </div>
       <Carousel
-        className="mt-2 p-4 h-[550px]"
+        className="mt-2 p-4 md:h-[550px] h-full"
         setApi={setApi}
         plugins={[
           Autoplay({ delay: SLIDE_DELAY, stopOnMouseEnter: true, stopOnInteraction: false }),
@@ -162,7 +162,7 @@ export function FeaturedDiscounts() {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <div className="flex space-x-2 mt-4 mx-auto w-full justify-center">
+        <div className="md:flex space-x-2 mt-4 mx-auto w-full justify-center hidden">
           <ProgressIndicator
             current={current}
             total={count}
@@ -266,8 +266,8 @@ function FeaturedOffer({ offer }: { offer: SingleOffer }) {
   }, [isHovered]);
 
   return (
-    <div className="w-full bg-background rounded-lg shadow-lg overflow-hidden group mx-auto select-none">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="md:w-full bg-background rounded-lg shadow-lg overflow-hidden group mx-auto select-none w-[80vw]">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
         <div className="flex flex-col gap-2">
           <div
             className="relative w-full h-full"
@@ -313,7 +313,7 @@ function FeaturedOffer({ offer }: { offer: SingleOffer }) {
           </div>
         </div>
         <div className="md:col-span-1 flex flex-col justify-between px-4 gap-1">
-          <div className="h-full">
+          <div className="h-full hidden md:block">
             <div className="grid grid-cols-2 gap-2 h-full">
               {offerMedia?.images.slice(0, 4).map((image) => (
                 <div

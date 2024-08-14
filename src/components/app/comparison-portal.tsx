@@ -1,6 +1,6 @@
 import * as Portal from '@radix-ui/react-portal';
 import { useQueries, useQuery, type UseQueryResult } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useCompare } from '~/hooks/use-compare';
 import { httpClient } from '~/lib/http-client';
 import { cn } from '~/lib/utils';
@@ -65,7 +65,7 @@ export function ComparisonPortal() {
         </div>
       )}
       {open && (
-        <div className="fixed inset-0 z-10">
+        <div className="fixed inset-0 z-20">
           <div
             className="absolute inset-0 bg-black/50 cursor-pointer backdrop-blur-[2px] transition-all duration-300 ease-in-out"
             onClick={() => setOpen(false)}
@@ -85,6 +85,7 @@ export function ComparisonPortal() {
 
 function CompareTable() {
   const { compare } = useCompare();
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const queries = useQueries({
     queries: compare.map((id) => ({
@@ -93,9 +94,64 @@ function CompareTable() {
     })),
   });
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (scrollContainerRef.current) {
+      const scrollContainer = scrollContainerRef.current;
+      scrollContainer.style.cursor = 'grabbing';
+      scrollContainer.style.userSelect = 'none';
+
+      const startX = e.pageX - scrollContainer.offsetLeft;
+      const scrollLeft = scrollContainer.scrollLeft;
+
+      const handleMouseMove = (event: MouseEvent) => {
+        const x = event.pageX - scrollContainer.offsetLeft;
+        const walk = (x - startX) * 1; // Adjust the scroll speed
+        scrollContainer.scrollLeft = scrollLeft - walk;
+        console.log(scrollContainer.scrollWidth, scrollContainer.scrollLeft);
+      };
+
+      const handleMouseUp = () => {
+        scrollContainer.style.cursor = 'grab';
+        scrollContainer.style.removeProperty('user-select');
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+      };
+
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (scrollContainerRef.current) {
+      const scrollContainer = scrollContainerRef.current;
+      const startX = e.touches[0].pageX - scrollContainer.offsetLeft;
+      const scrollLeft = scrollContainer.scrollLeft;
+
+      const handleTouchMove = (event: TouchEvent) => {
+        const x = event.touches[0].pageX - scrollContainer.offsetLeft;
+        const walk = (x - startX) * 1; // Adjust the scroll speed
+        scrollContainer.scrollLeft = scrollLeft - walk;
+      };
+
+      const handleTouchEnd = () => {
+        window.removeEventListener('touchmove', handleTouchMove);
+        window.removeEventListener('touchend', handleTouchEnd);
+      };
+
+      window.addEventListener('touchmove', handleTouchMove);
+      window.addEventListener('touchend', handleTouchEnd);
+    }
+  };
+
   return (
     <ScrollArea>
-      <div className="flex flex-row gap-2">
+      <div
+        className="flex flex-row gap-2 overflow-x-auto mb-4"
+        ref={scrollContainerRef}
+        onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
+      >
         {queries.map((query, index) => (
           <SingleGame key={compare[index]} query={query} id={compare[index]} />
         ))}
@@ -133,77 +189,84 @@ function SingleGame({ query, id }: { query: UseQueryResult<SingleOffer, Error>; 
         />
         <GameFeatures id={id} />
       </div>
-      <Link
-        to={`/offers/${data.id}`}
-        className="font-bold underline underline-offset-4 decoration-slate-100/20"
-      >
-        {data.title}
-      </Link>
-      <section id="metadata" className="flex flex-col gap-2">
-        <OfferMetadataRow label="Type" value={offersDictionary[data.offerType] ?? data.offerType} />
-        <OfferMetadataRow
-          label="Seller"
-          value={
-            <Link
-              to={`/sellers/${data.seller.id}`}
-              className="underline underline-offset-4 decoration-slate-100/20"
-            >
-              {data.seller.name}
-            </Link>
-          }
-        />
-        <OfferMetadataRow label="Developer" value={data.developerDisplayName ?? data.seller.name} />
-        <OfferMetadataRow
-          label="Release Date"
-          value={
-            data.releaseDate
-              ? new Date(data.releaseDate).toLocaleDateString('en-UK', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric',
-                })
-              : 'Unknown'
-          }
-        />
-        <OfferMetadataRow
-          label="PC Release Date"
-          value={
-            data.pcReleaseDate
-              ? new Date(data.pcReleaseDate).toLocaleDateString('en-UK', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric',
-                })
-              : 'Unknown'
-          }
-        />
-        {genres && (
+      <section id="metadata" className="flex flex-col h-96 max-h-96 min-h-96 justify-between">
+        <Link
+          to={`/offers/${data.id}`}
+          className="font-bold underline underline-offset-4 decoration-slate-100/20 overflow-ellipsis"
+        >
+          {data.title}
+        </Link>
+        <div className="flex flex-col gap-2">
           <OfferMetadataRow
-            label="Genres"
-            value={data.tags
-              .filter((tag) => {
-                const tagId = tag.id;
-                return genres.some((genre) => genre.id === tagId);
-              })
-              .map((tag) => tag.name)
-              .slice(0, 3)
-              .join(', ')}
+            label="Type"
+            value={offersDictionary[data.offerType] ?? data.offerType}
           />
-        )}
-        <OfferMetadataRow
-          label="Platforms"
-          value={
-            <span className="inline-flex gap-2 items-center justify-start">
-              {data.tags
-                .filter((tag) => platformIcons[tag.id])
-                .map((tag) => platformIcons[tag.id])
-                .map((icon, index) => (
-                  <span key={index}>{icon}</span>
-                ))}
-            </span>
-          }
-        />
-        <Achievements id={data.id} />
+          <OfferMetadataRow
+            label="Seller"
+            value={
+              <Link
+                to={`/sellers/${data.seller.id}`}
+                className="underline underline-offset-4 decoration-slate-100/20"
+              >
+                {data.seller.name}
+              </Link>
+            }
+          />
+          <OfferMetadataRow
+            label="Developer"
+            value={data.developerDisplayName ?? data.seller.name}
+          />
+          <OfferMetadataRow
+            label="Release Date"
+            value={
+              data.releaseDate
+                ? new Date(data.releaseDate).toLocaleDateString('en-UK', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                  })
+                : 'Unknown'
+            }
+          />
+          <OfferMetadataRow
+            label="PC Release Date"
+            value={
+              data.pcReleaseDate
+                ? new Date(data.pcReleaseDate).toLocaleDateString('en-UK', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                  })
+                : 'Unknown'
+            }
+          />
+          {genres && (
+            <OfferMetadataRow
+              label="Genres"
+              value={data.tags
+                .filter((tag) => {
+                  const tagId = tag.id;
+                  return genres.some((genre) => genre.id === tagId);
+                })
+                .map((tag) => tag.name)
+                .slice(0, 3)
+                .join(', ')}
+            />
+          )}
+          <OfferMetadataRow
+            label="Platforms"
+            value={
+              <span className="inline-flex gap-2 items-center justify-start">
+                {data.tags
+                  .filter((tag) => platformIcons[tag.id])
+                  .map((tag) => (
+                    <span key={tag.id}>{platformIcons[tag.id]}</span>
+                  ))}
+              </span>
+            }
+          />
+          <Achievements id={data.id} />
+        </div>
       </section>
       <hr className="border-t border-gray-300/25" />
       <AgeRatings namespace={data.namespace} />
