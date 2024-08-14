@@ -61,8 +61,13 @@ export function SellerOffers({
     return null;
   }
 
-  const handleNextSlide = () => api?.scrollNext();
-  const handlePreviousSlide = () => api?.scrollPrev();
+  const handlePreviousSlide = () => {
+    api?.scrollPrev();
+  };
+
+  const handleNextSlide = () => {
+    api?.scrollNext();
+  };
 
   return (
     <section className="w-full h-full" id={`seller-offers-${id}`}>
@@ -78,7 +83,6 @@ export function SellerOffers({
           <button
             onClick={handlePreviousSlide}
             className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-card text-muted-foreground hover:bg-gray-900 focus:outline-none focus:ring focus:ring-gray-300/50 disabled:opacity-50"
-            disabled={!api?.canScrollPrev()}
             type="button"
           >
             <ArrowUpIcon className="w-5 h-5 transform -rotate-90" />
@@ -86,7 +90,6 @@ export function SellerOffers({
           <button
             onClick={handleNextSlide}
             className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-card text-muted-foreground hover:bg-gray-900 focus:outline-none focus:ring focus:ring-gray-300/50 disabled:opacity-50"
-            disabled={!api?.canScrollNext()}
             type="button"
           >
             <ArrowUpIcon className="w-5 h-5 transform rotate-90" />
