@@ -98,14 +98,18 @@ function CompareTable() {
     <ScrollArea>
       <div className="flex flex-row gap-2 overflow-x-auto mb-4" ref={scrollContainerRef}>
         {queries.map((query, index) => (
-          <SingleGame key={compare[index]} query={query} id={compare[index]} />
+          <div key={compare[index]} className="flex flex-row gap-2">
+            <SingleGame key={compare[index]} query={query} id={compare[index]} />
+            {index < queries.length - 1 && (
+              <div className="h-full border-l border-gray-300/25 w-1" />
+            )}
+          </div>
         ))}
       </div>
       <ScrollBar orientation="horizontal" />
     </ScrollArea>
   );
 }
-
 function SingleGame({ query, id }: { query: UseQueryResult<SingleOffer, Error>; id: string }) {
   const { removeFromCompare } = useCompare();
   const { genres } = useGenres();
