@@ -160,8 +160,6 @@ export function PriceChart({ selectedRegion, id }: PriceChartProps) {
     placeholderData: keepPreviousData,
   });
 
-  console.log({ regionPricing, usdPricing });
-
   if (regionPricingLoading || usdPricingLoading || !regionPricing || !usdPricing) {
     return <Skeleton className="w-3/4 mx-auto h-[400px]" />;
   }
