@@ -228,6 +228,31 @@ function valueToComponent(value: unknown, field: string, type: 'before' | 'after
     );
   }
 
+  if (field === 'releaseInfo') {
+    const typedValue = value as { id: string; appId: string; platform: string[] };
+
+    return (
+      <Tooltip>
+        <TooltipTrigger>
+          <span className="underline decoration-dotted underline-offset-4">
+            {typedValue.id.slice(0, 10)} ({typedValue.platform.join(', ')})
+          </span>
+        </TooltipTrigger>
+        <TooltipContent className="max-w-[300px]">
+          <p>
+            <span className="font-semibold">ID:</span> {typedValue.id}
+          </p>
+          <p>
+            <span className="font-semibold">App ID:</span> {typedValue.appId}
+          </p>
+          <p>
+            <span className="font-semibold">Platforms:</span> {typedValue.platform.join(', ')}
+          </p>
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
   return value?.toString() as string;
 }
 
