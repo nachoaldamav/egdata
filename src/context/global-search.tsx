@@ -271,7 +271,7 @@ function SearchPortal({ searchState, setSearchState, inputRef }: SearchPortalPro
   } = calculateDisplayCounts(offersCount, itemsCount, sellersCount);
 
   return (
-    <div className="fixed top-0 right-0 z-10 w-full h-full bg-card/50 backdrop-blur-[3px] items-center flex-col gap-2 justify-center flex">
+    <div className="fixed top-0 right-0 z-20 w-full h-full bg-card/50 backdrop-blur-[3px] items-center flex-col gap-2 justify-center flex">
       <span
         className="absolute top-0 left-0 w-full h-full cursor-pointer z-0"
         onClick={() =>
