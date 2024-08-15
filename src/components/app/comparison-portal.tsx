@@ -421,7 +421,7 @@ function AgeRatings({ namespace }: { namespace: string }) {
                 key={key}
                 src={rating.ratingImage}
                 alt={key}
-                title={`${rating.title} - ${rating.gameRating}`}
+                title={rating.title}
                 className="size-8 mx-auto"
               />
             ) : (
