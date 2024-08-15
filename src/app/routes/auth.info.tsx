@@ -38,11 +38,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect('/auth/login');
   }
 
-  const account = await fetch('http://localhost:4000/accounts', {
+  const account = await httpClient.get<any>('/accounts', {
     headers: {
       Authorization: `Bearer ${authCookie}`,
     },
-  }).then((res) => res.json());
+  });
 
   return json({
     account_id: data.account_id,
