@@ -19,7 +19,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     },
   });
 
-  return redirect('/', {
+  return redirect('/auth/info', {
     headers: {
       'Set-Cookie': await epic.serialize(response.jwt),
     },
