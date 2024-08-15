@@ -11,6 +11,7 @@ import { Input } from '~/components/ui/input';
 import { useSearch } from '~/hooks/use-search';
 import { CountriesSelector } from './country-selector';
 import { useEffect } from 'react';
+import { useAuth } from '~/hooks/use-auth';
 
 const routes = [
   {
@@ -33,6 +34,7 @@ const routes = [
 
 export default function Navbar() {
   const { setFocus, focus } = useSearch();
+  const { account } = useAuth();
 
   useEffect(() => {
     // If the user uses "CMD + K" or "CTRL + K" to focus the search input
@@ -116,6 +118,11 @@ export default function Navbar() {
         </div>
       </div>
       <CountriesSelector />
+      {account && (
+        <div className="flex items-center gap-2">
+          <span className="text-white text-sm font-montserrat">{account.displayName}</span>
+        </div>
+      )}
     </header>
   );
 }

@@ -10,7 +10,7 @@ import {
   useRouteError,
 } from '@remix-run/react';
 import type { LinksFunction, LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { dehydrate, HydrationBoundary, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import cookie from 'cookie';
 import Navbar from '~/components/app/navbar';
@@ -34,6 +34,10 @@ import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
 import { IoAlertCircle, IoWarning } from 'react-icons/io5';
 import { ScrollArea } from '~/components/ui/scroll-area';
 import { Button } from '~/components/ui/button';
+import { epic } from './cookies.server';
+import { AuthProvider } from '~/providers/auth';
+import { httpClient } from '~/lib/http-client';
+import type { Account } from '~/context/auth';
 
 if (!import.meta.env.SSR) {
   Bugsnag.start({
@@ -105,6 +109,7 @@ export const meta: MetaFunction = () => {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
+  const queryClient = getQueryClient();
   try {
     let cookieHeader = request.headers.get('Cookie');
     if (typeof cookieHeader !== 'string') {
@@ -114,15 +119,30 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const userPreferences = (
       cookies.EGDATA_PREFERENCES ? JSON.parse(decode(cookies.EGDATA_PREFERENCES)) : undefined
     ) as Preferences;
+    const authCookie = await epic.parse(cookieHeader);
     const url = new URL(request.url);
     const country = getCountryCode(url, cookies);
 
-    return { userPreferences, country };
+    if (authCookie) {
+      await queryClient.prefetchQuery({
+        queryKey: ['account', authCookie],
+        queryFn: () =>
+          httpClient.get<{ data: Account[] }>('/accounts', {
+            headers: {
+              Authorization: `Bearer ${authCookie}`,
+            },
+          }),
+      });
+    }
+
+    return { userPreferences, country, authCookie, dehydratedState: dehydrate(queryClient) };
   } catch (error) {
     console.error(error);
     return {
       userPreferences: {} as Preferences,
       country: 'US',
+      authCookie: null,
+      dehydratedState: null,
     };
   }
 }
@@ -178,8 +198,9 @@ export function ErrorBoundary() {
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { userPreferences, country } = useLoaderData<typeof loader>() || {};
   const queryClient = getQueryClient();
+  const { userPreferences, country, authCookie, dehydratedState } =
+    useLoaderData<typeof loader>() || {};
 
   return (
     <html lang="en" className="dark">
@@ -192,45 +213,53 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body className="antialiased">
         <div className="md:container mx-auto overflow-x-hidden">
           <QueryClientProvider client={queryClient}>
-            <CountryProvider defaultCountry={country || 'US'}>
-              <CompareProvider>
-                <SearchProvider>
-                  <Navbar />
-                  <CookiesProvider>
-                    <PreferencesProvider initialPreferences={userPreferences}>
-                      {children}
-                    </PreferencesProvider>
-                  </CookiesProvider>
-                  <ScrollRestoration />
-                  <Scripts />
-                  <ComparisonPortal />
-                  <footer className="flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400 text-xs gap-1">
-                    <p>
-                      egdata.app is a fan-made website and is not affiliated by any means with Epic
-                      Games, Inc.
-                    </p>
-                    <p>
-                      All the logos, images, trademarks and creatives are property of their
-                      respective owners.
-                    </p>
-                    <hr className="w-1/3 my-2 border-gray-300/40" />
-                    <div className="inline-flex gap-2">
-                      <span>
-                        Countries flags by{' '}
-                        <Link to="https://flagpedia.net" target="_blank" rel="noopener noreferrer">
-                          <strong>Flagpedia</strong>
-                        </Link>
-                      </span>
-                      <span>|</span>
-                      <span className="inline-flex gap-1 items-center">
-                        Made in <img src="https://flagcdn.com/16x12/eu.webp" alt="EU Flag" />
-                      </span>
-                    </div>
-                  </footer>
-                  <ReactQueryDevtools initialIsOpen={false} />
-                </SearchProvider>
-              </CompareProvider>
-            </CountryProvider>
+            <HydrationBoundary state={dehydratedState}>
+              <CountryProvider defaultCountry={country || 'US'}>
+                <CompareProvider>
+                  <SearchProvider>
+                    <AuthProvider initialJwt={authCookie || null}>
+                      <Navbar />
+                      <CookiesProvider>
+                        <PreferencesProvider initialPreferences={userPreferences}>
+                          {children}
+                        </PreferencesProvider>
+                      </CookiesProvider>
+                      <ScrollRestoration />
+                      <Scripts />
+                      <ComparisonPortal />
+                      <footer className="flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400 text-xs gap-1">
+                        <p>
+                          egdata.app is a fan-made website and is not affiliated by any means with
+                          Epic Games, Inc.
+                        </p>
+                        <p>
+                          All the logos, images, trademarks and creatives are property of their
+                          respective owners.
+                        </p>
+                        <hr className="w-1/3 my-2 border-gray-300/40" />
+                        <div className="inline-flex gap-2">
+                          <span>
+                            Countries flags by{' '}
+                            <Link
+                              to="https://flagpedia.net"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <strong>Flagpedia</strong>
+                            </Link>
+                          </span>
+                          <span>|</span>
+                          <span className="inline-flex gap-1 items-center">
+                            Made in <img src="https://flagcdn.com/16x12/eu.webp" alt="EU Flag" />
+                          </span>
+                        </div>
+                      </footer>
+                      <ReactQueryDevtools initialIsOpen={false} />
+                    </AuthProvider>
+                  </SearchProvider>
+                </CompareProvider>
+              </CountryProvider>
+            </HydrationBoundary>
           </QueryClientProvider>
         </div>
       </body>
