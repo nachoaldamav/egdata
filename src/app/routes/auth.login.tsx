@@ -1,7 +1,7 @@
 import { type LoaderFunctionArgs, redirect } from '@remix-run/node';
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const redirectUrl = new URL(request.url);
+  const redirectUrl = new URL(process.env.APP_URL ?? request.url);
   redirectUrl.pathname = '/auth/callback';
 
   if (!process.env.COOKIE_SECRET) {
