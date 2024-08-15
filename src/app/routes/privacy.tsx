@@ -14,7 +14,7 @@ export default function Privacy() {
     <div className="max-w-3xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-4">Privacy Policy for EGData App</h1>
       <p className="mb-4">
-        <strong>Effective Date:</strong> July 3, 2024
+        <strong>Effective Date:</strong> August 15, 2024
       </p>
 
       <h2 className="text-2xl font-semibold mb-2">1. Introduction</h2>
@@ -48,6 +48,11 @@ export default function Privacy() {
           may include your IP address, browser type, operating system, referring URLs, information
           on actions taken on the Site, and dates and times of Site visits.
         </li>
+        <li>
+          <strong>"Login with Epic Games" data</strong>: If you use the "Login with Epic Games"
+          feature, we will collect only the IDs and usernames of the users who log in. The ID is
+          used solely for website features and is never used for ad personalization.
+        </li>
       </ul>
 
       <h2 className="text-2xl font-semibold mb-2">3. Use of Your Information</h2>
@@ -57,6 +62,10 @@ export default function Privacy() {
       <ul className="list-disc list-inside mb-4">
         <li>To analyze and improve the functionality and user experience of our Site.</li>
         <li>To monitor and analyze trends, usage, and activities in connection with our Site.</li>
+        <li>
+          To detect, prevent, and address technical issues and improve the security of our Site.
+        </li>
+        <li>Future user specific features that require login with Epic Games data.</li>
       </ul>
 
       <h2 className="text-2xl font-semibold mb-2">4. Google Analytics</h2>
