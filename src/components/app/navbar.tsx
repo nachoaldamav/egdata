@@ -12,6 +12,16 @@ import { useSearch } from '~/hooks/use-search';
 import { CountriesSelector } from './country-selector';
 import { useEffect } from 'react';
 import { useAuth } from '~/hooks/use-auth';
+import { Image } from './image';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 const routes = [
   {
@@ -34,7 +44,7 @@ const routes = [
 
 export default function Navbar() {
   const { setFocus, focus } = useSearch();
-  const { account } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
     // If the user uses "CMD + K" or "CTRL + K" to focus the search input
@@ -118,10 +128,56 @@ export default function Navbar() {
         </div>
       </div>
       <CountriesSelector />
-      {account && (
-        <div className="flex items-center gap-2">
-          <span className="text-white text-sm font-montserrat">{account.displayName}</span>
-        </div>
+      {user && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="icon" className="overflow-hidden rounded-full">
+              <Avatar>
+                <AvatarImage
+                  src={
+                    URL.canParse(user.avatarUrl)
+                      ? user.avatarUrl
+                      : `https://cdn.discordapp.com/avatars/${user.id}/${user.avatarUrl}.png`
+                  }
+                />
+                <AvatarFallback>{user.displayName.slice(0, 2).toUpperCase()}</AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>
+              <span className="text-gray-700 dark:text-gray-300">Hello, {user.displayName}!</span>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild className="cursor-pointer">
+              <Link to="/dashboard">Dashboard</Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild className="cursor-pointer">
+              <a href="/logout">Logout</a>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
+      {!user && (
+        <Link to="/login">
+          <Avatar>
+            <AvatarFallback>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="size-5"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </AvatarFallback>
+          </Avatar>
+        </Link>
       )}
     </header>
   );

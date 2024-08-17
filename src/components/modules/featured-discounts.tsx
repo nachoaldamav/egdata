@@ -215,7 +215,7 @@ function ProgressIndicator({
               {current !== i + 1 && (
                 <img
                   src={buildImageUrl(
-                    getImage(offers[i].keyImages, [
+                    getImage(offers[i]?.keyImages ?? [], [
                       'DieselStoreFrontWide',
                       'Featured',
                       'OfferImageWide',

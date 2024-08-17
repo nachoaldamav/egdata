@@ -26,18 +26,17 @@ import getCountryCode from '~/lib/get-country-code';
 import Bugsnag from '@bugsnag/js';
 import BugsnagPluginReact from '@bugsnag/plugin-react';
 import BugsnagPerformance from '@bugsnag/browser-performance';
-import tailwindCss from '../tailwind.css?url';
-import fontCss from '../fonts.css?url';
-import '../tailwind.css';
-import '../fonts.css';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
-import { IoAlertCircle, IoWarning } from 'react-icons/io5';
+import { IoAlertCircle } from 'react-icons/io5';
 import { ScrollArea } from '~/components/ui/scroll-area';
 import { Button } from '~/components/ui/button';
 import { epic } from './cookies.server';
 import { AuthProvider } from '~/providers/auth';
-import { httpClient } from '~/lib/http-client';
-import type { Account } from '~/context/auth';
+import { authenticator } from './services/auth.server';
+import tailwindCss from '../tailwind.css?url';
+import fontCss from '../fonts.css?url';
+import '../tailwind.css';
+import '../fonts.css';
 
 if (!import.meta.env.SSR) {
   Bugsnag.start({
@@ -123,19 +122,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const url = new URL(request.url);
     const country = getCountryCode(url, cookies);
 
-    if (authCookie) {
-      await queryClient.prefetchQuery({
-        queryKey: ['account', authCookie],
-        queryFn: () =>
-          httpClient.get<{ data: Account[] }>('/accounts', {
-            headers: {
-              Authorization: `Bearer ${authCookie}`,
-            },
-          }),
-      });
-    }
+    const authenticatedUser = await authenticator.isAuthenticated(request);
 
-    return { userPreferences, country, authCookie, dehydratedState: dehydrate(queryClient) };
+    return {
+      userPreferences,
+      country,
+      authCookie,
+      dehydratedState: dehydrate(queryClient),
+      authenticatedUser,
+    };
   } catch (error) {
     console.error(error);
     return {
@@ -143,6 +138,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       country: 'US',
       authCookie: null,
       dehydratedState: null,
+      authenticatedUser: null,
     };
   }
 }
@@ -199,7 +195,7 @@ export function ErrorBoundary() {
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
-  const { userPreferences, country, authCookie, dehydratedState } =
+  const { userPreferences, country, dehydratedState, authenticatedUser } =
     useLoaderData<typeof loader>() || {};
 
   return (
@@ -217,7 +213,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <CountryProvider defaultCountry={country || 'US'}>
                 <CompareProvider>
                   <SearchProvider>
-                    <AuthProvider initialJwt={authCookie || null}>
+                    <AuthProvider user={authenticatedUser}>
                       <Navbar />
                       <CookiesProvider>
                         <PreferencesProvider initialPreferences={userPreferences}>

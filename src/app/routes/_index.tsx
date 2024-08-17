@@ -73,20 +73,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
           }),
     }),
     queryClient.fetchQuery({
-      queryKey: ['featured'],
-      queryFn: () =>
-        httpClient
-          .get<SingleOffer[]>('/featured', {
-            params: {
-              country,
-            },
-          })
-          .catch((error) => {
-            console.error('Failed to fetch featured game', error);
-            return [];
-          }),
-    }),
-    queryClient.fetchQuery({
       queryKey: ['promotions'],
       queryFn: () =>
         httpClient.get<FullTag[]>('/promotions').catch((error) => {
