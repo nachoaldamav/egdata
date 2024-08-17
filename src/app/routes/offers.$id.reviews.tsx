@@ -201,7 +201,7 @@ function ReviewsPage({ id }: { id: string }) {
 
 function Review({ review }: { review: SingleReview }) {
   return (
-    <div className="grid gap-4">
+    <Card className="grid gap-4 p-4">
       <div className="flex gap-2 justify-start items-center">
         <div className="font-semibold">{review.userId}</div>
         <Badge variant="secondary" className="text-xs">
@@ -222,7 +222,7 @@ function Review({ review }: { review: SingleReview }) {
       <h5 className="text-lg font-semibold">{review.title}</h5>
 
       <p className="text-muted-foreground">{review.content}</p>
-    </div>
+    </Card>
   );
 }
 
