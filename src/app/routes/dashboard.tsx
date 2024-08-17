@@ -263,7 +263,7 @@ function Step1({ onNext }: { onNext: () => void }) {
         <li>
           Open{' '}
           <Link
-            to="https://store.epicgames.com/es-ES/u"
+            to="https://store.epicgames.com/u"
             target="_blank"
             rel="noopener noreferrer"
             className="underline text-blue-500"
