@@ -23,7 +23,7 @@ export function TopSection({
   const { genres } = useGenres();
   const { country } = useCountry();
   const { data, isLoading } = useQuery({
-    queryKey: ['top-section', { slug }],
+    queryKey: ['top-section', { slug, limit: 1 }],
     queryFn: () => getTopSection(slug),
   });
   const { data: price } = useQuery({
