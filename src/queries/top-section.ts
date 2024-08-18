@@ -1,4 +1,4 @@
-import { client } from '~/lib/client';
+import { httpClient } from '~/lib/http-client';
 import type { SingleOffer } from '~/types/single-offer';
 
 type TopSection = {
@@ -9,5 +9,9 @@ type TopSection = {
 };
 
 export const getTopSection = async (slug: string) => {
-  return client.get<TopSection>(`/offers/${slug}`).then((res) => res.data);
+  return httpClient.get<TopSection>(`/offers/${slug}`, {
+    params: {
+      limit: 1,
+    },
+  });
 };
