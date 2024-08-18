@@ -298,7 +298,6 @@ function ReviewsPage({ id }: { id: string }) {
 }
 
 function Review({ review }: { review: SingleReview }) {
-  console.log(review);
   const userAvatar = URL.canParse(review.user.avatarUrl ?? '')
     ? review.user.avatarUrl
     : `https://cdn.discordapp.com/avatars/${review.user.id}/${review.user.avatarUrl}.png`;
