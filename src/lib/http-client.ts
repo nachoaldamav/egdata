@@ -104,6 +104,10 @@ class HttpFetch {
     });
   }
 
+  public options<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
+    return this.request<T>(endpoint, { ...options, method: 'OPTIONS' });
+  }
+
   public delete<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
     return this.request<T>(endpoint, { ...options, method: 'DELETE' });
   }
