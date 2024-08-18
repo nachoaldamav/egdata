@@ -235,11 +235,17 @@ function ReviewsPage({ id }: { id: string }) {
                     <p className="text-4xl font-extrabold">{summary?.overallScore} / 10</p>
                   </div>
                   <div className="flex flex-col items-center justify-between gap-4">
-                    <span className="text-sm">Based on 72532 reviews</span>
+                    <span className="text-sm">
+                      Based on{' '}
+                      {summary?.totalReviews.toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })}{' '}
+                      reviews
+                    </span>
                     <RecommendationBar
-                      recommendedPercentage={0.75}
-                      notRecommendedPercentage={0.25}
-                      totalReviews={72532}
+                      recommendedPercentage={summary?.recommendedPercentage ?? 0}
+                      notRecommendedPercentage={summary?.notRecommendedPercentage ?? 0}
+                      totalReviews={summary?.totalReviews ?? 0}
                     />
                   </div>
                 </div>
