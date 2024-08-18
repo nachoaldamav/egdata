@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs, ActionFunctionArgs } from '@remix-run/node';
 import { redirect, useLoaderData, Form, useActionData, json } from '@remix-run/react';
 import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
-import { StarIcon, ThumbsDown, ThumbsUp, ThumbsUpIcon } from 'lucide-react';
+import { ThumbsDown, ThumbsUp, ThumbsUpIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import * as Portal from '@radix-ui/react-portal';
 import { Badge } from '~/components/ui/badge';
@@ -45,7 +45,7 @@ type ReviewSummary = {
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const queryClient = getQueryClient();
 
-  const user = await authenticator.isAuthenticated(request);
+  const user = await authenticator.isAuthenticated(request).catch(() => null);
 
   if (!params.id) {
     return redirect('/');
@@ -91,7 +91,6 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
         retries: 1,
       })
       .catch((error) => {
-        console.error('Error fetching reviews', error);
         return null;
       }),
   ]);
@@ -100,7 +99,15 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     dehydratedState: dehydrate(queryClient),
     id: params.id,
     userId: user?.id,
-    userCanReview: userCanReview?.canReview ?? false,
+    userCanReview: userCanReview
+      ? {
+          status: userCanReview.canReview,
+          label: 'Already reviewed',
+        }
+      : {
+          status: false,
+          label: 'Login to review',
+        },
   };
 };
 
@@ -266,9 +273,9 @@ function ReviewsPage({ id }: { id: string }) {
                 variant="outline"
                 className="text-sm w-full"
                 onClick={() => setShowReviewForm((prev) => !prev)}
-                disabled={!userCanReview}
+                disabled={!userCanReview.status}
               >
-                {userCanReview ? 'Leave a review' : 'Already reviewed'}
+                {userCanReview.status ? 'Leave a review' : userCanReview.label}
               </Button>
             </Card>
           </div>
