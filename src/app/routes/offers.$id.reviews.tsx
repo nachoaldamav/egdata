@@ -1,6 +1,6 @@
-import type { LoaderFunctionArgs, ActionFunctionArgs } from '@remix-run/node';
+import type { LoaderFunctionArgs, ActionFunctionArgs, LinksFunction } from '@remix-run/node';
 import { redirect, useLoaderData, Form, useActionData, json } from '@remix-run/react';
-import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
+import { dehydrate, HydrationBoundary, useQueries, useQuery } from '@tanstack/react-query';
 import { ThumbsDown, ThumbsUp, ThumbsUpIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import * as Portal from '@radix-ui/react-portal';
@@ -35,6 +35,16 @@ import {
 } from '~/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import { ScrollArea } from '~/components/ui/scroll-area';
+import type { SingleOffer } from '~/types/single-offer';
+import { ClientOnly } from 'remix-utils/client-only';
+import {
+  MDXEditor,
+  headingsPlugin,
+  listsPlugin,
+  markdownShortcutPlugin,
+  quotePlugin,
+} from '@mdxeditor/editor';
+import '@mdxeditor/editor/style.css';
 
 type ReviewSummary = {
   overallScore: number;
@@ -113,7 +123,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
-  const actionType = request.method as 'POST' | 'PUT' | 'DELETE';
+  const actionType = request.method as 'POST' | 'PATCH' | 'DELETE';
   const user = await authenticator.isAuthenticated(request);
 
   if (!user) {
@@ -155,33 +165,33 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
       tags,
     };
 
-    const res = await httpClient
-      .post(`/offers/${params.id}/reviews`, body, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${user.accessToken}`,
-        },
-        retries: 1,
-      })
-      .catch((error) => {
-        console.error('Error submitting review');
-        return null;
-      });
+    // const res = await httpClient
+    //   .post(`/offers/${params.id}/reviews`, body, {
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       Authorization: `Bearer ${user.accessToken}`,
+    //     },
+    //     retries: 1,
+    //   })
+    //   .catch((error) => {
+    //     console.error('Error submitting review');
+    //     return null;
+    //   });
 
-    if (!res) {
-      errors.general = 'An error occurred while submitting review';
-      return json({
-        success: false,
-        errors,
-      });
-    }
+    // if (!res) {
+    //   errors.general = 'An error occurred while submitting review';
+    //   return json({
+    //     success: false,
+    //     errors,
+    //   });
+    // }
 
     console.log('Submitted review', body);
 
     return json({ success: true, errors: null });
   }
 
-  if (actionType === 'PUT') {
+  if (actionType === 'PATCH') {
     // Handle form submission
   }
 
@@ -206,29 +216,41 @@ function ReviewsPage({ id }: { id: string }) {
   const { userCanReview } = useLoaderData<typeof loader>();
   const [page, setPage] = useState(1);
   const [showReviewForm, setShowReviewForm] = useState(false);
-  const { data: reviews } = useQuery({
-    queryKey: [
-      'reviews',
+  const [reviewsQuery, summaryQuery, offerQuery] = useQueries({
+    queries: [
       {
-        id,
-        page,
+        queryKey: [
+          'reviews',
+          {
+            id,
+            page,
+          },
+        ],
+        queryFn: () =>
+          httpClient.get<{ elements: SingleReview[]; page: number; total: number }>(
+            `/offers/${id}/reviews`,
+            { params: { page } },
+          ),
+      },
+      {
+        queryKey: [
+          'reviews-summary',
+          {
+            id,
+          },
+        ],
+        queryFn: () => httpClient.get<ReviewSummary>(`/offers/${id}/reviews-summary`),
+      },
+      {
+        queryKey: ['offer', { id }],
+        queryFn: () => httpClient.get<SingleOffer>(`/offers/${id}`),
       },
     ],
-    queryFn: () =>
-      httpClient.get<{ elements: SingleReview[]; page: number; total: number }>(
-        `/offers/${id}/reviews`,
-        { params: { page } },
-      ),
   });
-  const { data: summary } = useQuery({
-    queryKey: [
-      'reviews-summary',
-      {
-        id,
-      },
-    ],
-    queryFn: () => httpClient.get<ReviewSummary>(`/offers/${id}/reviews-summary`),
-  });
+
+  const reviews = reviewsQuery.data;
+  const summary = summaryQuery.data;
+  const offer = offerQuery.data;
 
   return (
     <div className="grid gap-6 mx-auto mt-10">
@@ -240,7 +262,7 @@ function ReviewsPage({ id }: { id: string }) {
                 <div className="flex flex-col sm:flex-row items-center justify-evenly gap-4">
                   <div className="flex flex-col items-center sm:items-start">
                     <h2 className="text-lg font-semibold mb-1">Overall Score</h2>
-                    <p className="text-4xl font-extrabold">{summary?.overallScore} / 10</p>
+                    <p className="text-4xl font-extrabold">{summary?.overallScore ?? '-'} / 10</p>
                   </div>
                   <div className="flex flex-col items-center justify-between gap-4">
                     <span className="text-sm">
@@ -290,7 +312,7 @@ function ReviewsPage({ id }: { id: string }) {
           ))}
         </div>
       ) : (
-        <div className="w-full text-center">
+        <div className="w-full text-center min-h-[400px]">
           <h6 className="text-lg font-semibold">No reviews yet</h6>
           <p className="text-muted-foreground">Be the first to leave a review</p>
           <Button
@@ -304,9 +326,10 @@ function ReviewsPage({ id }: { id: string }) {
       )}
       <Portal.Root>
         {showReviewForm && (
-          <ReviewForm isOpen={showReviewForm} setIsOpen={setShowReviewForm} id={id} />
+          <ReviewForm isOpen={showReviewForm} setIsOpen={setShowReviewForm} id={id} offer={offer} />
         )}
       </Portal.Root>
+      <hr className="border-t border-gray-200/15 my-8" />
     </div>
   );
 }
@@ -363,10 +386,17 @@ function ReviewForm({
   isOpen,
   setIsOpen,
   id,
-}: { isOpen: boolean; setIsOpen: (isOpen: boolean) => void; id: string }) {
+  offer,
+}: {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+  id: string;
+  offer: SingleOffer | undefined;
+}) {
   const actionData = useActionData<typeof action>();
   const [rating, setRating] = useState(5);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [content, setContent] = useState('Please enter your review here');
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -393,10 +423,12 @@ function ReviewForm({
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: already handled */}
       <div className="fixed inset-0 cursor-pointer" onClick={() => setIsOpen(false)} />
       <Card className="w-full max-w-2xl z-20">
-        <ScrollArea className="h-[50vh]">
+        <ScrollArea className="h-[60vh]">
           <CardHeader>
             <CardTitle>Submit a Review</CardTitle>
-            <CardDescription>Share your thoughts about the product</CardDescription>
+            <CardDescription>
+              Share your thoughts about {offer?.title ?? 'the product'}
+            </CardDescription>
           </CardHeader>
           <Form
             method="post"
@@ -462,10 +494,29 @@ function ReviewForm({
 
               <div className="space-y-2">
                 <Label htmlFor="content">Review Content</Label>
-                <Textarea
+                <ClientOnly fallback={<p>Loading...</p>}>
+                  {() => (
+                    <MDXEditor
+                      markdown={content ?? ' '}
+                      contentEditableClassName="text-white border border-primary/10 px-4 rounded-lg prose prose-sm prose-neutral dark:prose-invert w-full max-w-none min-h-[200px]"
+                      plugins={[
+                        headingsPlugin({
+                          allowedHeadingLevels: [2, 3, 4],
+                        }),
+                        quotePlugin(),
+                        listsPlugin(),
+                        markdownShortcutPlugin(),
+                      ]}
+                      onChange={(value) => setContent(value)}
+                    />
+                  )}
+                </ClientOnly>
+                <textarea
+                  hidden
                   id="content"
                   name="content"
-                  placeholder="Write your review here"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
                   required
                 />
                 {actionData?.errors?.content && (

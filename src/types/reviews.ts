@@ -23,5 +23,5 @@ export interface SingleReview {
 
 export type ReviewInput = Omit<
   SingleReview,
-  'id' | 'createdAt' | 'updatedAt' | 'verified' | 'userId' | 'editions'
+  'id' | 'createdAt' | 'updatedAt' | 'verified' | 'userId' | 'editions' | 'user'
 >;
