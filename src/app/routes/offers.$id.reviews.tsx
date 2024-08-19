@@ -1,8 +1,8 @@
 import type { LoaderFunctionArgs, ActionFunctionArgs } from '@remix-run/node';
 import { redirect, useLoaderData, Form, useActionData, json } from '@remix-run/react';
 import { dehydrate, HydrationBoundary, useQueries } from '@tanstack/react-query';
-import { ThumbsDown, ThumbsUp, ThumbsUpIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { ChevronDown, ThumbsDown, ThumbsUp, ThumbsUpIcon } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import * as Portal from '@radix-ui/react-portal';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
@@ -433,8 +433,9 @@ function ReviewsPage({ id }: { id: string }) {
   );
 }
 
-function Review({ review }: { review: SingleReview }) {
+function Review({ review, full }: { review: SingleReview; full?: boolean }) {
   const [showEditForm, setShowEditForm] = useState(false);
+  const [showFull, setShowFull] = useState(full);
   const { userId } = useLoaderData<typeof loader>();
   const userAvatar = URL.canParse(review.user.avatarUrl ?? '')
     ? review.user.avatarUrl
@@ -467,38 +468,136 @@ function Review({ review }: { review: SingleReview }) {
       </div>
       <div className="bg-gray-900 p-4 rounded-lg">
         <h3 className="font-bold mb-2">{review.title}</h3>
-        <p className="mb-4 prose prose-sm prose-neutral dark:prose-invert max-w-none">
-          <Markdown>
-            {review.content.length > 200 ? `${review.content.slice(0, 200)}...` : review.content}
-          </Markdown>
-        </p>
-      </div>
-      <div className="mt-4  inline-flex justify-between items-center w-full">
-        <span className="text-gray-400">
-          Reviewed on{' '}
-          {new Date(review.createdAt).toLocaleDateString('en-UK', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-          })}
-        </span>
-        {userId === review.userId && (
-          <Button
-            variant="outline"
-            className="text-sm"
-            onClick={() => setShowEditForm((prev) => !prev)}
-          >
-            Edit
-          </Button>
-        )}
-      </div>
-      {userId === review.userId && (
-        <Portal.Root>
-          {showEditForm && (
-            <EditReviewForm setIsOpen={setShowEditForm} previousReview={review} offer={undefined} />
+        <div className="relative">
+          <p className="mb-4 prose prose-sm prose-neutral dark:prose-invert max-w-none">
+            <Markdown>
+              {review.content.length <= 200 ? review.content : `${review.content.slice(0, 200)}...`}
+            </Markdown>
+          </p>
+          {review.content.length > 200 && (
+            <div className="absolute bottom-0 left-0 w-full">
+              <div className="absolute bottom-0 left-0 w-full h-10 bg-gradient-to-b from-transparent to-gray-900 pointer-events-none" />
+              <Button
+                variant="link"
+                className="text-sm absolute z-10 -bottom-4 right-0 left-0 w-fit mx-auto inline-flex items-center gap-1"
+                onClick={() => setShowFull(true)}
+              >
+                <ChevronDown className="size-4" />
+                Read more
+                <ChevronDown className="size-4" />
+              </Button>
+            </div>
           )}
+        </div>
+      </div>
+      <div className="inline-flex justify-between items-center w-full">
+        <div className="mt-4 inline-flex justify-between items-center w-full">
+          <span className="text-gray-400">
+            Reviewed on{' '}
+            {new Date(review.createdAt).toLocaleDateString('en-UK', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+            })}
+          </span>
+          {userId === review.userId && (
+            <Button
+              variant="outline"
+              className="text-sm"
+              onClick={() => setShowEditForm((prev) => !prev)}
+            >
+              Edit
+            </Button>
+          )}
+        </div>
+        {userId === review.userId && (
+          <Portal.Root>
+            {showEditForm && (
+              <EditReviewForm
+                setIsOpen={setShowEditForm}
+                previousReview={review}
+                offer={undefined}
+              />
+            )}
+          </Portal.Root>
+        )}
+        <Portal.Root>
+          {showFull && <FullReview review={review} setIsOpen={setShowFull} />}
         </Portal.Root>
-      )}
+      </div>
+    </div>
+  );
+}
+
+function FullReview({
+  review,
+  setIsOpen,
+}: { review: SingleReview; setIsOpen: (isOpen: boolean) => void }) {
+  const { userId } = useLoaderData<typeof loader>();
+  const userAvatar = URL.canParse(review.user.avatarUrl ?? '')
+    ? review.user.avatarUrl
+    : `https://cdn.discordapp.com/avatars/${review.user.id}/${review.user.avatarUrl}.png`;
+  return (
+    <div className="fixed inset-0 h-full w-full flex items-center justify-center bg-black bg-opacity-50 z-20">
+      <span
+        className="fixed inset-0 cursor-pointer"
+        onClick={() => setIsOpen(false)}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            setIsOpen(false);
+          }
+        }}
+      />
+      <div className="p-2 bg-card text-white rounded-lg max-w-2xl mx-auto w-full z-30">
+        <div className="w-full  p-4 rounded-lg">
+          <div className="flex items-center mb-4">
+            <Avatar>
+              <AvatarImage src={userAvatar as string} alt={review.user.displayName} />
+              <AvatarFallback>{review.user.displayName.slice(0, 2).toUpperCase()}</AvatarFallback>
+            </Avatar>
+            <div className="ml-4 inline-flex items-center space-x-2">
+              <div className="font-bold">{review.user.displayName}</div>
+              {review.verified && <Badge variant="secondary">Verified Owner</Badge>}
+            </div>
+            <div className="ml-auto flex items-end space-x-2 bg-gray-900 px-2 py-1 rounded-lg">
+              <div className=" text-white px-2 py-1 rounded-lg font-bold">{review.rating} / 10</div>
+              <div className="flex items-center space-x-1 font-bold">
+                <span>{review.recommended ? 'Recommended' : 'Not Recommended'}</span>
+                <ThumbsUpIcon
+                  className={cn(
+                    'p-[4px] size-8',
+                    review.recommended ? 'fill-blue-600' : 'fill-red-600 transform rotate-180',
+                  )}
+                  stroke="none"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="bg-gray-900 p-4 rounded-lg">
+            <h3 className="font-bold mb-2">{review.title}</h3>
+            <div className="relative">
+              <ScrollArea className="h-[50vh]">
+                <p className="mb-4 prose prose-sm prose-neutral dark:prose-invert max-w-none">
+                  <Markdown>{review.content}</Markdown>
+                </p>
+              </ScrollArea>
+            </div>
+          </div>
+          <div className="mt-4 inline-flex justify-between items-center w-full">
+            <span className="text-gray-400">
+              Reviewed on{' '}
+              {new Date(review.createdAt).toLocaleDateString('en-UK', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+              })}
+            </span>
+            <Button variant="outline" className="text-sm" onClick={() => setIsOpen(false)}>
+              Close
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
