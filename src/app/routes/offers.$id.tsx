@@ -565,9 +565,6 @@ function OfferPage() {
           <TabsContent value="media">
             <Outlet />
           </TabsContent>
-          <TabsContent value="reviews">
-            <Outlet />
-          </TabsContent>
         </Tabs>
       </section>
       <SellerOffers
