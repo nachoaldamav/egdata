@@ -341,6 +341,10 @@ function ReviewsPage({ id }: { id: string }) {
   const summary = summaryQuery.data;
   const offer = offerQuery.data;
 
+  const isReleased = offer
+    ? new Date(offer?.releaseDate || offer?.effectiveDate) < new Date()
+    : false;
+
   return (
     <div className="grid gap-6 mx-auto mt-10">
       <div className="grid gap-4">
@@ -385,7 +389,7 @@ function ReviewsPage({ id }: { id: string }) {
                 variant="outline"
                 className="text-sm w-full"
                 onClick={() => setShowReviewForm((prev) => !prev)}
-                disabled={!userCanReview.status}
+                disabled={!isReleased || !userCanReview.status}
               >
                 {userCanReview.status ? 'Leave a review' : userCanReview.label}
               </Button>
@@ -402,12 +406,20 @@ function ReviewsPage({ id }: { id: string }) {
         </div>
       ) : (
         <div className="w-full text-center min-h-[400px]">
-          <h6 className="text-lg font-semibold">No reviews yet</h6>
-          <p className="text-muted-foreground">Be the first to leave a review</p>
+          <h6 className="text-lg font-semibold">
+            {/* No reviews yet */}
+            {isReleased ? 'No reviews yet' : 'This product has not been released yet'}
+          </h6>
+          <p className="text-muted-foreground">
+            {isReleased
+              ? 'Be the first to leave a review for this product!'
+              : 'Check back after the release date to leave a review!'}
+          </p>
           <Button
             variant="outline"
             className="mt-4"
             onClick={() => setShowReviewForm((prev) => !prev)}
+            disabled={!isReleased || !userCanReview.status}
           >
             Leave a review
           </Button>
