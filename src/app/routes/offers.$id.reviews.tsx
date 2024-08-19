@@ -141,7 +141,11 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     const recommended = formData.get('recommended') === 'true';
     const content = formData.get('content') as string;
     const title = formData.get('title') as string;
-    const tags = (formData.get('tags') as string).split(',').map((tag) => tag.trim());
+    const tags = (formData.get('tags') as string)
+      .split(',')
+      .map((tag) => tag.trim())
+      .filter(Boolean)
+      .filter((tag) => tag.length > 0);
 
     if (!title) errors.title = 'Title is required';
 
@@ -193,6 +197,68 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
   if (actionType === 'PATCH') {
     // Handle form submission
+    const errors: Record<string, string> = {};
+
+    // Handle form submission
+    const formData = await request.formData();
+
+    console.log(formData);
+    const rating = Number(formData.get('rating'));
+    const recommended = formData.get('recommended') === 'true';
+    const content = formData.get('content') as string;
+    const title = formData.get('title') as string;
+    const tags = (formData.get('tags') as string)
+      .split(',')
+      .map((tag) => tag.trim())
+      .filter(Boolean)
+      .filter((tag) => tag.length > 0);
+
+    if (!title) errors.title = 'Title is required';
+
+    if (title.length < 3) errors.title = 'Title must be at least 3 characters long';
+
+    if (!content) errors.content = 'Content is required';
+
+    if (content.length < 3) errors.content = 'Content must be at least 3 characters long';
+
+    if (rating < 0 || rating > 10) errors.rating = 'Rating must be between 0 and 10';
+
+    if (Object.keys(errors).length) {
+      return json({ errors, success: false }, { status: 400 });
+    }
+
+    const body: ReviewInput = {
+      rating,
+      recommended,
+      content,
+      title,
+      tags,
+    };
+
+    const res = await httpClient
+      .patch(`/offers/${params.id}/reviews`, body, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.accessToken}`,
+        },
+        retries: 1,
+      })
+      .catch((error) => {
+        console.error('Error submitting review');
+        return null;
+      });
+
+    if (!res) {
+      errors.general = 'An error occurred while submitting review';
+      return json({
+        success: false,
+        errors,
+      });
+    }
+
+    console.log('Submitted review', body);
+
+    return json({ success: true, errors: null });
   }
 
   if (actionType === 'DELETE') {
@@ -325,9 +391,7 @@ function ReviewsPage({ id }: { id: string }) {
         </div>
       )}
       <Portal.Root>
-        {showReviewForm && (
-          <ReviewForm isOpen={showReviewForm} setIsOpen={setShowReviewForm} id={id} offer={offer} />
-        )}
+        {showReviewForm && <ReviewForm setIsOpen={setShowReviewForm} offer={offer} />}
       </Portal.Root>
       <hr className="border-t border-gray-200/15 my-8" />
     </div>
@@ -335,6 +399,8 @@ function ReviewsPage({ id }: { id: string }) {
 }
 
 function Review({ review }: { review: SingleReview }) {
+  const [showEditForm, setShowEditForm] = useState(false);
+  const { userId } = useLoaderData<typeof loader>();
   const userAvatar = URL.canParse(review.user.avatarUrl ?? '')
     ? review.user.avatarUrl
     : `https://cdn.discordapp.com/avatars/${review.user.id}/${review.user.avatarUrl}.png`;
@@ -372,29 +438,119 @@ function Review({ review }: { review: SingleReview }) {
           </Markdown>
         </p>
       </div>
-      <div className="mt-4 text-gray-400">
-        Reviewed on{' '}
-        {new Date(review.createdAt).toLocaleDateString('en-UK', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-        })}
+      <div className="mt-4  inline-flex justify-between items-center w-full">
+        <span className="text-gray-400">
+          Reviewed on{' '}
+          {new Date(review.createdAt).toLocaleDateString('en-UK', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+          })}
+        </span>
+        {userId === review.userId && (
+          <Button
+            variant="outline"
+            className="text-sm"
+            onClick={() => setShowEditForm((prev) => !prev)}
+          >
+            Edit
+          </Button>
+        )}
+      </div>
+      {userId === review.userId && (
+        <Portal.Root>
+          {showEditForm && (
+            <EditReviewForm setIsOpen={setShowEditForm} previousReview={review} offer={undefined} />
+          )}
+        </Portal.Root>
+      )}
+    </div>
+  );
+}
+
+function RecommendationBar({
+  recommendedPercentage,
+  notRecommendedPercentage,
+  totalReviews,
+}: {
+  recommendedPercentage: number;
+  notRecommendedPercentage: number;
+  totalReviews: number;
+}) {
+  const [hovered, setHovered] = useState<'recommended' | 'notRecommended' | null>(null);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-row items-center justify-between gap-2 px-2">
+        <div className="flex items-center gap-1 font-bold">
+          <ThumbsUp className="w-5 h-5 fill-blue-600" stroke="none" />
+          {(hovered === 'notRecommended' || hovered === null) && (
+            <span className="text-sm font-bold">{(recommendedPercentage ?? 0) * 100}%</span>
+          )}
+          {hovered === 'recommended' && (
+            <span className="text-sm">
+              {(recommendedPercentage * totalReviews).toLocaleString(undefined, {
+                maximumFractionDigits: 0,
+              })}{' '}
+              review
+              {totalReviews === 1 ? '' : 's'}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-1 font-bold">
+          {hovered === 'notRecommended' && (
+            <span className="text-sm">
+              {(notRecommendedPercentage * totalReviews).toLocaleString(undefined, {
+                maximumFractionDigits: 0,
+              })}{' '}
+              review
+              {totalReviews === 1 ? '' : 's'}
+            </span>
+          )}
+          {(hovered === 'recommended' || hovered === null) && (
+            <span className="text-sm font-bold">{(notRecommendedPercentage ?? 0) * 100}%</span>
+          )}
+          <ThumbsDown className="w-5 h-5 fill-red-600" stroke="none" />
+        </div>
+      </div>
+      <div className="flex h-[4px] w-[300px] overflow-hidden rounded-full gap-1">
+        <div
+          className={cn(
+            'bg-blue-600 rounded-full transition-all duration-300 ease-in-out cursor-pointer',
+            hovered === 'notRecommended' ? 'bg-opacity-50' : 'bg-opacity-100',
+          )}
+          style={{ width: `${(recommendedPercentage ?? 0) * 100}%` }}
+          role="progressbar"
+          aria-valuenow={(recommendedPercentage ?? 0) * 100}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          onMouseEnter={() => setHovered('recommended')}
+          onMouseLeave={() => setHovered(null)}
+        />
+        <div
+          className={cn(
+            'bg-red-600 rounded-full transition-all duration-300 ease-in-out cursor-pointer',
+            hovered === 'recommended' ? 'bg-opacity-50' : 'bg-opacity-100',
+          )}
+          style={{ width: `${(notRecommendedPercentage ?? 0) * 100}%` }}
+          role="progressbar"
+          aria-valuenow={(notRecommendedPercentage ?? 0) * 100}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          onMouseEnter={() => setHovered('notRecommended')}
+          onMouseLeave={() => setHovered(null)}
+        />
       </div>
     </div>
   );
 }
 
-function ReviewForm({
-  isOpen,
-  setIsOpen,
-  id,
-  offer,
-}: {
-  isOpen: boolean;
+interface ReviewFormProps {
   setIsOpen: (isOpen: boolean) => void;
-  id: string;
   offer: SingleOffer | undefined;
-}) {
+}
+
+function ReviewForm({ setIsOpen, offer }: ReviewFormProps) {
   const actionData = useActionData<typeof action>();
   const [rating, setRating] = useState(5);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -433,7 +589,7 @@ function ReviewForm({
             </CardDescription>
           </CardHeader>
           <Form
-            method="post"
+            method="POST"
             onSubmit={() => {
               setIsSubmitting(true);
             }}
@@ -548,79 +704,151 @@ function ReviewForm({
   );
 }
 
-function RecommendationBar({
-  recommendedPercentage,
-  notRecommendedPercentage,
-  totalReviews,
-}: {
-  recommendedPercentage: number;
-  notRecommendedPercentage: number;
-  totalReviews: number;
-}) {
-  const [hovered, setHovered] = useState<'recommended' | 'notRecommended' | null>(null);
+interface EditReviewFormProps {
+  setIsOpen: (isOpen: boolean) => void;
+  previousReview: SingleReview;
+  offer: SingleOffer | undefined;
+}
+
+function EditReviewForm({ setIsOpen, previousReview, offer }: EditReviewFormProps) {
+  const actionData = useActionData<typeof action>();
+  const [rating, setRating] = useState(previousReview.rating);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [content, setContent] = useState(previousReview.content);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [setIsOpen]);
+
+  useEffect(() => {
+    if (typeof actionData?.success === 'boolean') {
+      setIsSubmitting(false);
+    }
+  }, [actionData]);
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex flex-row items-center justify-between gap-2 px-2">
-        <div className="flex items-center gap-1 font-bold">
-          <ThumbsUp className="w-5 h-5 fill-blue-600" stroke="none" />
-          {(hovered === 'notRecommended' || hovered === null) && (
-            <span className="text-sm font-bold">{(recommendedPercentage ?? 0) * 100}%</span>
-          )}
-          {hovered === 'recommended' && (
-            <span className="text-sm">
-              {(recommendedPercentage * totalReviews).toLocaleString(undefined, {
-                maximumFractionDigits: 0,
-              })}{' '}
-              review
-              {totalReviews === 1 ? '' : 's'}
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-1 font-bold">
-          {hovered === 'notRecommended' && (
-            <span className="text-sm">
-              {(notRecommendedPercentage * totalReviews).toLocaleString(undefined, {
-                maximumFractionDigits: 0,
-              })}{' '}
-              review
-              {totalReviews === 1 ? '' : 's'}
-            </span>
-          )}
-          {(hovered === 'recommended' || hovered === null) && (
-            <span className="text-sm font-bold">{(notRecommendedPercentage ?? 0) * 100}%</span>
-          )}
-          <ThumbsDown className="w-5 h-5 fill-red-600" stroke="none" />
-        </div>
-      </div>
-      <div className="flex h-[4px] w-[300px] overflow-hidden rounded-full gap-1">
-        <div
-          className={cn(
-            'bg-blue-600 rounded-full transition-all duration-300 ease-in-out cursor-pointer',
-            hovered === 'notRecommended' ? 'bg-opacity-50' : 'bg-opacity-100',
-          )}
-          style={{ width: `${(recommendedPercentage ?? 0) * 100}%` }}
-          role="progressbar"
-          aria-valuenow={(recommendedPercentage ?? 0) * 100}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          onMouseEnter={() => setHovered('recommended')}
-          onMouseLeave={() => setHovered(null)}
-        />
-        <div
-          className={cn(
-            'bg-red-600 rounded-full transition-all duration-300 ease-in-out cursor-pointer',
-            hovered === 'recommended' ? 'bg-opacity-50' : 'bg-opacity-100',
-          )}
-          style={{ width: `${(notRecommendedPercentage ?? 0) * 100}%` }}
-          role="progressbar"
-          aria-valuenow={(notRecommendedPercentage ?? 0) * 100}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          onMouseEnter={() => setHovered('notRecommended')}
-          onMouseLeave={() => setHovered(null)}
-        />
-      </div>
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: already handled */}
+      <div className="fixed inset-0 cursor-pointer" onClick={() => setIsOpen(false)} />
+      <Card className="w-full max-w-2xl z-20">
+        <ScrollArea className="h-[60vh]">
+          <CardHeader>
+            <CardTitle>Edit Review</CardTitle>
+            <CardDescription>
+              Share your thoughts about {offer?.title ?? 'the product'}
+            </CardDescription>
+          </CardHeader>
+          <Form
+            method="PATCH"
+            onSubmit={() => {
+              setIsSubmitting(true);
+            }}
+          >
+            <CardContent className="space-y-6">
+              {actionData?.success && (
+                <Alert>
+                  <AlertDescription>Your review has been submitted successfully!</AlertDescription>
+                </Alert>
+              )}
+              {actionData?.errors?.general && (
+                <Alert variant="destructive">
+                  <AlertDescription>{actionData.errors.general}</AlertDescription>
+                </Alert>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="rating">Rating</Label>
+                <Slider
+                  name="rating"
+                  min={0}
+                  max={10}
+                  step={1}
+                  value={[rating]}
+                  onValueChange={(value) => setRating(value[0])}
+                  className="w-full"
+                />
+                <div className="text-center font-bold">{rating} / 10</div>
+                {actionData?.errors?.rating && (
+                  <p className="text-sm text-red-500">{actionData.errors.rating}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  name="title"
+                  defaultValue={previousReview.title}
+                  placeholder="Enter a title for your review"
+                  required
+                />
+                {actionData?.errors?.title && (
+                  <p className="text-sm text-red-500">{actionData.errors.title}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="content">Review Content</Label>
+                <ClientOnly fallback={<p>Loading...</p>}>
+                  {() => (
+                    <MDXEditor
+                      markdown={content ?? ' '}
+                      contentEditableClassName="text-white border border-primary/10 px-4 rounded-lg prose prose-sm prose-neutral dark:prose-invert w-full max-w-none min-h-[200px]"
+                      plugins={[
+                        headingsPlugin({
+                          allowedHeadingLevels: [2, 3, 4],
+                        }),
+                        quotePlugin(),
+                        listsPlugin(),
+                        markdownShortcutPlugin(),
+                      ]}
+                      onChange={(value) => setContent(value)}
+                    />
+                  )}
+                </ClientOnly>
+                <textarea
+                  hidden
+                  id="content"
+                  name="content"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  required
+                />
+                {actionData?.errors?.content && (
+                  <p className="text-sm text-red-500">{actionData.errors.content}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="tags">Tags (comma-separated)</Label>
+                <Input
+                  id="tags"
+                  name="tags"
+                  defaultValue={previousReview.tags.join(', ')}
+                  placeholder="e.g. quality, design, performance"
+                />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button
+                type="submit"
+                className="w-full inline-flex items-center justify-center gap-2"
+                disabled={isSubmitting}
+              >
+                {isSubmitting && <ReloadIcon className="animate-spin size-4" />}
+                {isSubmitting ? 'Submitting...' : 'Submit Review'}
+              </Button>
+            </CardFooter>
+          </Form>
+        </ScrollArea>
+      </Card>
     </div>
   );
 }
