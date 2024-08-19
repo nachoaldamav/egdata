@@ -782,6 +782,24 @@ function EditReviewForm({ setIsOpen, previousReview, offer }: EditReviewFormProp
                   <p className="text-sm text-red-500">{actionData.errors.rating}</p>
                 )}
               </div>
+
+              <div className="space-y-2">
+                <Label>Would you recommend this product?</Label>
+                <RadioGroup
+                  name="recommended"
+                  defaultValue={previousReview.recommended ? 'true' : 'false'}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="true" id="yes" />
+                    <Label htmlFor="yes">Yes</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="false" id="no" />
+                    <Label htmlFor="no">No</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="title">Title</Label>
                 <Input
