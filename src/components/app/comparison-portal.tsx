@@ -517,46 +517,51 @@ function Price({ id }: { id: string }) {
 
   const priceFmtr = new Intl.NumberFormat(undefined, {
     style: 'currency',
-    currency: data.currentPrice.price.currencyCode ?? 'USD',
+    currency: data?.currentPrice?.price?.currencyCode ?? 'USD',
   });
 
   return (
     <div className="flex flex-col gap-4 h-28">
       <span className="text-sm text-gray-500">Price:</span>
-      <div className="flex justify-evenly gap-4">
-        <div className="text-center">
-          <div>Current</div>
-          <div className="inline-flex items-center justify-center">
-            <span
-              className={cn(
-                'text-sm mt-3 font-bold',
-                data.currentPrice.price.discount > 0
-                  ? 'bg-blue-600 text-white px-2 rounded-md'
-                  : '',
+      {data.currentPrice && (
+        <div className="flex justify-evenly gap-4">
+          <div className="text-center">
+            <div>Current</div>
+            <div className="inline-flex items-center justify-center">
+              <span
+                className={cn(
+                  'text-sm mt-3 font-bold',
+                  data.currentPrice?.price.discount > 0
+                    ? 'bg-blue-600 text-white px-2 rounded-md'
+                    : '',
+                )}
+              >
+                {priceFmtr.format(data.currentPrice.price.discountPrice / 100)}
+              </span>
+              {data.currentPrice.price.discount > 0 && (
+                <span className="text-xs mt-3 font-bold line-through text-gray-500 ml-2">
+                  {priceFmtr.format(data.currentPrice.price.originalPrice / 100)}
+                </span>
               )}
-            >
-              {priceFmtr.format(data.currentPrice.price.discountPrice / 100)}
-            </span>
-            {data.currentPrice.price.discount > 0 && (
-              <span className="text-xs mt-3 font-bold line-through text-gray-500 ml-2">
-                {priceFmtr.format(data.currentPrice.price.originalPrice / 100)}
-              </span>
-            )}
+            </div>
+          </div>
+          <div className="text-center">
+            <div>Lowest</div>
+            <div className="text-sm mt-3 font-bold">
+              {priceFmtr.format(data.minPrice / 100)}{' '}
+              {data.minPrice !== data.currentPrice.price.originalPrice && (
+                <span className="text-red-500 text-xs">
+                  ({Math.round((data.minPrice / data.currentPrice.price.originalPrice) * 100) - 100}
+                  %)
+                </span>
+              )}
+            </div>
           </div>
         </div>
-        <div className="text-center">
-          <div>Lowest</div>
-          <div className="text-sm mt-3 font-bold">
-            {priceFmtr.format(data.minPrice / 100)}{' '}
-            {data.minPrice !== data.currentPrice.price.originalPrice && (
-              <span className="text-red-500 text-xs">
-                ({Math.round((data.minPrice / data.currentPrice.price.originalPrice) * 100) - 100}
-                %)
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
+      )}
+      {!data.currentPrice && (
+        <div className="text-sm text-gray-500 text-center">No price found</div>
+      )}
     </div>
   );
 }
