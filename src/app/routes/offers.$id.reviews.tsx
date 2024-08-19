@@ -262,7 +262,30 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   }
 
   if (actionType === 'DELETE') {
-    // Handle form submission
+    const errors: Record<string, string> = {};
+    const res = await httpClient
+      .delete(`/offers/${params.id}/reviews`, {
+        headers: {
+          Authorization: `Bearer ${user.accessToken}`,
+        },
+        retries: 1,
+      })
+      .catch((error) => {
+        console.error('Error deleting review');
+        return null;
+      });
+
+    if (!res) {
+      errors.general = 'An error occurred while deleting review';
+      return json({
+        success: false,
+        errors,
+      });
+    }
+
+    console.log('Deleted review');
+
+    return json({ success: true, errors: null });
   }
 
   json({ success: true, errors: null });
@@ -733,14 +756,30 @@ function EditReviewForm({ setIsOpen, previousReview, offer }: EditReviewFormProp
   useEffect(() => {
     if (typeof actionData?.success === 'boolean') {
       setIsSubmitting(false);
+
+      if (actionData.success) {
+        setIsOpen(false);
+      }
     }
-  }, [actionData]);
+  }, [actionData, setIsOpen]);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: already handled */}
       <div className="fixed inset-0 cursor-pointer" onClick={() => setIsOpen(false)} />
-      <Card className="w-full max-w-2xl z-20">
+      <Card className="w-full max-w-2xl z-20 relative">
+        <span className="absolute top-4 right-4 z-30">
+          <Form method="DELETE" onSubmit={() => setIsSubmitting(true)}>
+            <Button
+              type="submit"
+              variant="outline"
+              className="text-sm border-destructive hover:bg-destructive hover:bg-opacity-10"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Deleting...' : 'Delete'}
+            </Button>
+          </Form>
+        </span>
         <ScrollArea className="h-[60vh]">
           <CardHeader>
             <CardTitle>Edit Review</CardTitle>
@@ -854,14 +893,14 @@ function EditReviewForm({ setIsOpen, previousReview, offer }: EditReviewFormProp
                 />
               </div>
             </CardContent>
-            <CardFooter>
+            <CardFooter className="flex flex-row justify-between gap-2">
               <Button
                 type="submit"
                 className="w-full inline-flex items-center justify-center gap-2"
                 disabled={isSubmitting}
               >
                 {isSubmitting && <ReloadIcon className="animate-spin size-4" />}
-                {isSubmitting ? 'Submitting...' : 'Submit Review'}
+                {isSubmitting ? 'Submitting...' : 'Update Review'}
               </Button>
             </CardFooter>
           </Form>
