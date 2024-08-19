@@ -9,13 +9,13 @@ export interface SingleReview {
   content: string;
   title: string;
   tags: string[];
-  createdAt: Date;
+  createdAt: string;
   verified: boolean;
-  updatedAt: Date;
+  updatedAt: string;
   editions?: {
     title: string;
     content: string;
-    createdAt: Date;
+    createdAt: string;
     rating: number;
     tags: string[];
   }[];

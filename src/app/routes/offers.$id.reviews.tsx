@@ -2,7 +2,7 @@ import type { LoaderFunctionArgs, ActionFunctionArgs } from '@remix-run/node';
 import { redirect, useLoaderData, Form, useActionData, json } from '@remix-run/react';
 import { dehydrate, HydrationBoundary, useQueries } from '@tanstack/react-query';
 import { ChevronDown, ThumbsDown, ThumbsUp, ThumbsUpIcon } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as Portal from '@radix-ui/react-portal';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
@@ -45,6 +45,7 @@ import {
 } from '@mdxeditor/editor';
 import Markdown from 'react-markdown';
 import '@mdxeditor/editor/style.css';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 
 type ReviewSummary = {
   overallScore: number;
@@ -479,7 +480,7 @@ function Review({ review, full }: { review: SingleReview; full?: boolean }) {
               <div className="absolute bottom-0 left-0 w-full h-10 bg-gradient-to-b from-transparent to-gray-900 pointer-events-none" />
               <Button
                 variant="link"
-                className="text-sm absolute z-10 -bottom-4 right-0 left-0 w-fit mx-auto inline-flex items-center gap-1"
+                className="text-sm absolute z-10 -bottom-4 right-0 left-0 w-fit mx-auto inline-flex items-center gap-1 font-bold"
                 onClick={() => setShowFull(true)}
               >
                 <ChevronDown className="size-4" />
@@ -492,14 +493,53 @@ function Review({ review, full }: { review: SingleReview; full?: boolean }) {
       </div>
       <div className="inline-flex justify-between items-center w-full">
         <div className="mt-4 inline-flex justify-between items-center w-full">
-          <span className="text-gray-400">
-            Reviewed on{' '}
-            {new Date(review.createdAt).toLocaleDateString('en-UK', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-            })}
-          </span>
+          <TooltipProvider>
+            <Tooltip disableHoverableContent={!review.editions}>
+              <TooltipTrigger>
+                <span
+                  className={cn(
+                    'text-gray-400',
+                    review.updatedAt !== review.createdAt
+                      ? 'underline decoration-dotted cursor-pointer underline-offset-4'
+                      : '',
+                  )}
+                >
+                  Reviewed on{' '}
+                  {new Date(review.createdAt).toLocaleDateString('en-UK', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                  })}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <span className="text-xs flex flex-col gap-1">
+                  <span>
+                    Last updated on{' '}
+                    {new Date(review.updatedAt).toLocaleDateString('en-UK', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: 'numeric',
+                    })}
+                  </span>
+                  {review.editions?.map((edition) => (
+                    <span key={edition.createdAt as string}>
+                      Updated on{' '}
+                      {new Date(edition.createdAt).toLocaleDateString('en-UK', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric',
+                      })}
+                    </span>
+                  ))}
+                </span>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           {userId === review.userId && (
             <Button
               variant="outline"
@@ -533,7 +573,6 @@ function FullReview({
   review,
   setIsOpen,
 }: { review: SingleReview; setIsOpen: (isOpen: boolean) => void }) {
-  const { userId } = useLoaderData<typeof loader>();
   const userAvatar = URL.canParse(review.user.avatarUrl ?? '')
     ? review.user.avatarUrl
     : `https://cdn.discordapp.com/avatars/${review.user.id}/${review.user.avatarUrl}.png`;
