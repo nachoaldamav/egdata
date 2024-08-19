@@ -1,6 +1,6 @@
-import type { LoaderFunctionArgs, ActionFunctionArgs, LinksFunction } from '@remix-run/node';
+import type { LoaderFunctionArgs, ActionFunctionArgs } from '@remix-run/node';
 import { redirect, useLoaderData, Form, useActionData, json } from '@remix-run/react';
-import { dehydrate, HydrationBoundary, useQueries, useQuery } from '@tanstack/react-query';
+import { dehydrate, HydrationBoundary, useQueries } from '@tanstack/react-query';
 import { ThumbsDown, ThumbsUp, ThumbsUpIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import * as Portal from '@radix-ui/react-portal';
@@ -19,7 +19,6 @@ import {
 } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
-import { Textarea } from '~/components/ui/textarea';
 import { authenticator } from '../services/auth.server';
 import { Alert, AlertDescription } from '~/components/ui/alert';
 import { Slider } from '~/components/ui/slider';
@@ -44,6 +43,7 @@ import {
   markdownShortcutPlugin,
   quotePlugin,
 } from '@mdxeditor/editor';
+import Markdown from 'react-markdown';
 import '@mdxeditor/editor/style.css';
 
 type ReviewSummary = {
@@ -165,26 +165,26 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
       tags,
     };
 
-    // const res = await httpClient
-    //   .post(`/offers/${params.id}/reviews`, body, {
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //       Authorization: `Bearer ${user.accessToken}`,
-    //     },
-    //     retries: 1,
-    //   })
-    //   .catch((error) => {
-    //     console.error('Error submitting review');
-    //     return null;
-    //   });
+    const res = await httpClient
+      .post(`/offers/${params.id}/reviews`, body, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.accessToken}`,
+        },
+        retries: 1,
+      })
+      .catch((error) => {
+        console.error('Error submitting review');
+        return null;
+      });
 
-    // if (!res) {
-    //   errors.general = 'An error occurred while submitting review';
-    //   return json({
-    //     success: false,
-    //     errors,
-    //   });
-    // }
+    if (!res) {
+      errors.general = 'An error occurred while submitting review';
+      return json({
+        success: false,
+        errors,
+      });
+    }
 
     console.log('Submitted review', body);
 
@@ -366,8 +366,10 @@ function Review({ review }: { review: SingleReview }) {
       </div>
       <div className="bg-gray-900 p-4 rounded-lg">
         <h3 className="font-bold mb-2">{review.title}</h3>
-        <p className="mb-4">
-          {review.content.length > 200 ? `${review.content.slice(0, 200)}...` : review.content}
+        <p className="mb-4 prose prose-sm prose-neutral dark:prose-invert max-w-none">
+          <Markdown>
+            {review.content.length > 200 ? `${review.content.slice(0, 200)}...` : review.content}
+          </Markdown>
         </p>
       </div>
       <div className="mt-4 text-gray-400">
