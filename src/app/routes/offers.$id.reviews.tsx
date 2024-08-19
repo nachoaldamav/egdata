@@ -34,6 +34,7 @@ import {
   SelectTrigger,
 } from '~/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
+import { ScrollArea } from '~/components/ui/scroll-area';
 
 type ReviewSummary = {
   overallScore: number;
@@ -392,91 +393,103 @@ function ReviewForm({
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: already handled */}
       <div className="fixed inset-0 cursor-pointer" onClick={() => setIsOpen(false)} />
       <Card className="w-full max-w-2xl z-20">
-        <CardHeader>
-          <CardTitle>Submit a Review</CardTitle>
-          <CardDescription>Share your thoughts about the product</CardDescription>
-        </CardHeader>
-        <Form
-          method="post"
-          onSubmit={() => {
-            setIsSubmitting(true);
-          }}
-        >
-          <CardContent className="space-y-6">
-            {actionData?.success && (
-              <Alert>
-                <AlertDescription>Your review has been submitted successfully!</AlertDescription>
-              </Alert>
-            )}
-            {actionData?.errors?.general && (
-              <Alert variant="destructive">
-                <AlertDescription>{actionData.errors.general}</AlertDescription>
-              </Alert>
-            )}
-
-            <div className="space-y-2">
-              <Label htmlFor="rating">Rating</Label>
-              <Slider
-                name="rating"
-                min={0}
-                max={10}
-                step={1}
-                value={[rating]}
-                onValueChange={(value) => setRating(value[0])}
-                className="w-full"
-              />
-              <div className="text-center font-bold">{rating} / 10</div>
-              {actionData?.errors?.rating && (
-                <p className="text-sm text-red-500">{actionData.errors.rating}</p>
+        <ScrollArea className="h-[50vh]">
+          <CardHeader>
+            <CardTitle>Submit a Review</CardTitle>
+            <CardDescription>Share your thoughts about the product</CardDescription>
+          </CardHeader>
+          <Form
+            method="post"
+            onSubmit={() => {
+              setIsSubmitting(true);
+            }}
+          >
+            <CardContent className="space-y-6">
+              {actionData?.success && (
+                <Alert>
+                  <AlertDescription>Your review has been submitted successfully!</AlertDescription>
+                </Alert>
               )}
-            </div>
-
-            <div className="space-y-2">
-              <Label>Would you recommend this product?</Label>
-              <RadioGroup name="recommended" defaultValue="true">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="true" id="yes" />
-                  <Label htmlFor="yes">Yes</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="false" id="no" />
-                  <Label htmlFor="no">No</Label>
-                </div>
-              </RadioGroup>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
-              <Input id="title" name="title" placeholder="Enter a title for your review" required />
-              {actionData?.errors?.title && (
-                <p className="text-sm text-red-500">{actionData.errors.title}</p>
+              {actionData?.errors?.general && (
+                <Alert variant="destructive">
+                  <AlertDescription>{actionData.errors.general}</AlertDescription>
+                </Alert>
               )}
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="content">Review Content</Label>
-              <Textarea id="content" name="content" placeholder="Write your review here" required />
-              {actionData?.errors?.content && (
-                <p className="text-sm text-red-500">{actionData.errors.content}</p>
-              )}
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="rating">Rating</Label>
+                <Slider
+                  name="rating"
+                  min={0}
+                  max={10}
+                  step={1}
+                  value={[rating]}
+                  onValueChange={(value) => setRating(value[0])}
+                  className="w-full"
+                />
+                <div className="text-center font-bold">{rating} / 10</div>
+                {actionData?.errors?.rating && (
+                  <p className="text-sm text-red-500">{actionData.errors.rating}</p>
+                )}
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="tags">Tags (comma-separated)</Label>
-              <Input id="tags" name="tags" placeholder="e.g. quality, design, performance" />
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button
-              type="submit"
-              className="w-full inline-flex items-center justify-center gap-2"
-              disabled={isSubmitting}
-            >
-              {isSubmitting && <ReloadIcon className="animate-spin size-4" />}
-              {isSubmitting ? 'Submitting...' : 'Submit Review'}
-            </Button>
-          </CardFooter>
-        </Form>
+              <div className="space-y-2">
+                <Label>Would you recommend this product?</Label>
+                <RadioGroup name="recommended" defaultValue="true">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="true" id="yes" />
+                    <Label htmlFor="yes">Yes</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="false" id="no" />
+                    <Label htmlFor="no">No</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  name="title"
+                  placeholder="Enter a title for your review"
+                  required
+                />
+                {actionData?.errors?.title && (
+                  <p className="text-sm text-red-500">{actionData.errors.title}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="content">Review Content</Label>
+                <Textarea
+                  id="content"
+                  name="content"
+                  placeholder="Write your review here"
+                  required
+                />
+                {actionData?.errors?.content && (
+                  <p className="text-sm text-red-500">{actionData.errors.content}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="tags">Tags (comma-separated)</Label>
+                <Input id="tags" name="tags" placeholder="e.g. quality, design, performance" />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button
+                type="submit"
+                className="w-full inline-flex items-center justify-center gap-2"
+                disabled={isSubmitting}
+              >
+                {isSubmitting && <ReloadIcon className="animate-spin size-4" />}
+                {isSubmitting ? 'Submitting...' : 'Submit Review'}
+              </Button>
+            </CardFooter>
+          </Form>
+        </ScrollArea>
       </Card>
     </div>
   );
