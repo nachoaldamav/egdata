@@ -614,6 +614,10 @@ const ReleaseDate: React.FC<{
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                timeZoneName: 'short',
               })}
             </span>
           </TooltipTrigger>
