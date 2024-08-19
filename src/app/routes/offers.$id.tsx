@@ -541,7 +541,6 @@ function OfferPage() {
             <TabsTrigger value="metadata">Metadata</TabsTrigger>
             <TabsTrigger value="changelog">Changelog</TabsTrigger>
             <TabsTrigger value="media">Media</TabsTrigger>
-            <TabsTrigger value="reviews">Reviews</TabsTrigger>
           </TabsList>
           <TabsContent value="price">
             <h2 className="text-2xl font-bold">Price</h2>
