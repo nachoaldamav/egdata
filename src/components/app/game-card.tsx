@@ -7,6 +7,7 @@ import { getImage } from '~/lib/getImage';
 import { Badge } from '../ui/badge';
 import { cn } from '~/lib/utils';
 import { offersDictionary } from '~/lib/offers-dictionary';
+import { calculatePrice } from '~/lib/calculate-price';
 
 export function GameCard({
   game,
@@ -142,7 +143,9 @@ export function OfferListItem({
               {game.price.appliedRules.length > 0 && <SaleModule game={game} />}
               {game.price.price.originalPrice !== game.price.price.discountPrice && (
                 <span className="line-through text-muted-foreground">
-                  {priceFmtd.format(game.price.price.originalPrice / 100)}
+                  {priceFmtd.format(
+                    calculatePrice(game.price.price.originalPrice, game.price.price.currencyCode),
+                  )}
                 </span>
               )}
               <span
@@ -153,7 +156,9 @@ export function OfferListItem({
                     : 'text-white',
                 )}
               >
-                {priceFmtd.format(game.price.price.discountPrice / 100)}
+                {priceFmtd.format(
+                  calculatePrice(game.price.price.discountPrice, game.price.price.currencyCode),
+                )}
               </span>
             </div>
           )}
