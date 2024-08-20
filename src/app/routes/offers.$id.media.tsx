@@ -27,6 +27,7 @@ import { XIcon } from '@primer/octicons-react';
 import { useQueries } from '@tanstack/react-query';
 import { Image } from '~/components/app/image';
 import { httpClient } from '~/lib/http-client';
+import { DownloadIcon } from 'lucide-react';
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: defaultPlayerTheme },
@@ -233,8 +234,19 @@ export default function ItemsSection() {
           <AccordionContent>
             <div className="grid grid-cols-2 gap-4">
               {offer?.keyImages.map((cover) => (
-                <div key={cover.md5} className="flex flex-col items-center gap-2">
-                  <img key={cover.md5} src={cover.url} alt="" />
+                <div key={cover.md5} className="flex flex-col items-center gap-2 relative">
+                  <span className="absolute top-2 right-2 text-xs font-mono">
+                    <a
+                      className="text-xs bg-card/15 p-2 rounded-md cursor-pointer inline-block"
+                      href={cover.url}
+                      download={`${offer.title}-${cover.type}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <DownloadIcon className="w-4 h-4" />
+                    </a>
+                  </span>
+                  <img key={cover.md5} src={cover.url} alt={`${offer.title} - ${cover.type}`} />
                   <span className="text-sm font-mono">{cover.type}</span>
                 </div>
               ))}
