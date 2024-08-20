@@ -921,7 +921,7 @@ function EditReviewForm({ setIsOpen, previousReview, offer }: EditReviewFormProp
   }, [actionData, setIsOpen]);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: already handled */}
       <div className="fixed inset-0 cursor-pointer" onClick={() => setIsOpen(false)} />
       <Card className="w-full max-w-2xl z-20 relative">
