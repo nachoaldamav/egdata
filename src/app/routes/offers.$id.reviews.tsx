@@ -139,10 +139,10 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
   const formData = await request.formData();
 
-  const honneyPot = formData.get('website') as string;
+  const honeyPot = formData.get('website') as string;
 
-  if (typeof honneyPot === 'string' && honneyPot !== '') {
-    console.error('Spam detected', honneyPot);
+  if (typeof honeyPot === 'string' && honeyPot !== '') {
+    console.error('Spam detected', honeyPot);
     return json({
       success: false,
       errors: { general: 'An error occurred while submitting review' },
