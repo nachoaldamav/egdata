@@ -309,8 +309,6 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 export default function Index() {
   const { dehydratedState, id } = useLoaderData<typeof loader>();
 
-  console.log(dehydratedState);
-
   return (
     <HydrationBoundary state={dehydratedState}>
       <ReviewsPage id={id} />
