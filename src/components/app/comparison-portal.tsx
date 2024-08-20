@@ -19,6 +19,7 @@ import { useCountry } from '~/hooks/use-country';
 import { Button } from '../ui/button';
 import { platformIcons } from './platform-icons';
 import { GameFeatures } from './features';
+import { calculatePrice } from '~/lib/calculate-price';
 
 const CompareIcon = (props: JSX.IntrinsicElements['svg']) => (
   <svg
@@ -536,11 +537,21 @@ function Price({ id }: { id: string }) {
                     : '',
                 )}
               >
-                {priceFmtr.format(data.currentPrice.price.discountPrice / 100)}
+                {priceFmtr.format(
+                  calculatePrice(
+                    data.currentPrice.price.discountPrice,
+                    data.currentPrice.price.currencyCode,
+                  ),
+                )}
               </span>
               {data.currentPrice.price.discount > 0 && (
                 <span className="text-xs mt-3 font-bold line-through text-gray-500 ml-2">
-                  {priceFmtr.format(data.currentPrice.price.originalPrice / 100)}
+                  {priceFmtr.format(
+                    calculatePrice(
+                      data.currentPrice.price.originalPrice,
+                      data.currentPrice.price.currencyCode,
+                    ),
+                  )}
                 </span>
               )}
             </div>
@@ -548,7 +559,9 @@ function Price({ id }: { id: string }) {
           <div className="text-center">
             <div>Lowest</div>
             <div className="text-sm mt-3 font-bold">
-              {priceFmtr.format(data.minPrice / 100)}{' '}
+              {priceFmtr.format(
+                calculatePrice(data.minPrice, data.currentPrice.price.currencyCode),
+              )}
               {data.minPrice !== data.currentPrice.price.originalPrice && (
                 <span className="text-red-500 text-xs">
                   ({Math.round((data.minPrice / data.currentPrice.price.originalPrice) * 100) - 100}

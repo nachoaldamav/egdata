@@ -65,6 +65,7 @@ export function OfferListItem({
     | 'releaseDate'
     | 'price'
     | 'offerType'
+    | 'prePurchase'
   >;
 }) {
   const epicImage = getImage(game.keyImages, [
@@ -75,13 +76,13 @@ export function OfferListItem({
 
   const priceFmtd = new Intl.NumberFormat(undefined, {
     style: 'currency',
-    currency: game.price.price.currencyCode || 'USD',
+    currency: game.price?.price.currencyCode || 'USD',
   });
 
   return (
     <Link to={`/offers/${game.id}`} className="w-full" prefetch="viewport">
       <Card className="flex flex-row w-full bg-card text-white p-1 rounded-lg h-44">
-        <div className="flex-shrink-0 w-72 h-full inline-flex items-center justify-center">
+        <div className="flex-shrink-0 w-72 h-full inline-flex items-center justify-center relative">
           <Image
             src={
               epicImage
@@ -93,6 +94,11 @@ export function OfferListItem({
             width={300}
             height={170}
           />
+          {game.prePurchase && (
+            <Badge variant="default" className="absolute top-2 left-2 text-sm">
+              Pre-purchase
+            </Badge>
+          )}
         </div>
         <div className="flex flex-col flex-grow ml-2 p-2 w-full justify-between">
           <div className="flex items-start justify-between">

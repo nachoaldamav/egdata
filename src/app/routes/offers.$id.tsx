@@ -50,6 +50,7 @@ import { Button } from '~/components/ui/button';
 import { useCompare } from '~/hooks/use-compare';
 import { RemoveIcon } from '~/components/icons/remove';
 import { AddIcon } from '~/components/icons/add';
+import { Badge } from '~/components/ui/badge';
 
 function supportedPlatforms(items: SingleItem[]): string[] {
   try {
@@ -366,7 +367,7 @@ function OfferPage() {
         <div className="flex flex-col gap-1">
           <h1 className="text-4xl font-bold">{offerData.title}</h1>
           <h4
-            className="text-lg font-semibold opacity-50"
+            className="text-lg font-semibold opacity-50 inline-flex items-center gap-1"
             aria-label={`Offered by ${offerData.seller.name}`}
           >
             {getSeller({
@@ -375,6 +376,7 @@ function OfferPage() {
               seller: offerData.seller.name,
               customAttributes: offerData.customAttributes,
             })}
+            {offerData.prePurchase && <Badge variant="outline">Pre-Purchase</Badge>}
           </h4>
 
           <div className="rounded-xl border border-gray-300/10 mt-2">

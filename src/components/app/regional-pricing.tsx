@@ -19,6 +19,7 @@ import { ArrowUpIcon } from '@radix-ui/react-icons';
 import { cn } from '~/lib/utils';
 import type { Price } from '~/types/price';
 import { httpClient } from '~/lib/http-client';
+import { calculatePrice } from '~/lib/calculate-price';
 
 interface RegionData {
   region: Region;
@@ -162,6 +163,7 @@ export function RegionalPricing({ id }: { id: string }) {
               style: 'currency',
               currency: lastPrice.price.currencyCode,
             });
+
             const usdFormatter = new Intl.NumberFormat(undefined, {
               style: 'currency',
               currency: 'USD',
@@ -181,10 +183,16 @@ export function RegionalPricing({ id }: { id: string }) {
               >
                 <TableCell>{regions?.[key]?.description || key}</TableCell>
                 <TableCell>
-                  {currencyFormatter.format(lastPrice.price.discountPrice / 100)}
+                  {currencyFormatter.format(
+                    calculatePrice(lastPrice.price.discountPrice, lastPrice.price.currencyCode),
+                  )}
                 </TableCell>
-                <TableCell>{currencyFormatter.format(maxPrice / 100)}</TableCell>
-                <TableCell>{currencyFormatter.format(minPrice / 100)}</TableCell>
+                <TableCell>
+                  {currencyFormatter.format(calculatePrice(maxPrice, lastPrice.price.currencyCode))}
+                </TableCell>
+                <TableCell>
+                  {currencyFormatter.format(calculatePrice(minPrice, lastPrice.price.currencyCode))}
+                </TableCell>
                 <TableCell className="text-right">
                   {usdFormatter.format(lastPrice.price.basePayoutPrice / 100)}
                 </TableCell>

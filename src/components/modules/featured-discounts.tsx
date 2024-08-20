@@ -24,6 +24,7 @@ import { getFeaturedDiscounts } from '~/queries/featured-discounts';
 import { ArrowUpIcon } from '@radix-ui/react-icons';
 import type { Price as OfferPrice } from '~/types/price';
 import { httpClient } from '~/lib/http-client';
+import { calculatePrice } from '~/lib/calculate-price';
 
 const SLIDE_DELAY = 100_000;
 
@@ -193,7 +194,7 @@ function ProgressIndicator({
     <div className="flex space-x-2 mt-4 mx-auto w-full justify-center min-h-1">
       <TooltipProvider>
         {Array.from({ length: total }).map((_, i) => (
-          <Tooltip key={`tooltip-${offers[i].id}`} delayDuration={0}>
+          <Tooltip key={`tooltip-${offers[i]?.id}`} delayDuration={0}>
             <TooltipTrigger
               className={cn(
                 'block w-5 h-[5px] rounded-full cursor-pointer relative',
@@ -223,7 +224,7 @@ function ProgressIndicator({
                     400,
                     'medium',
                   )}
-                  alt={offers[i].title}
+                  alt={offers[i]?.title}
                   className="w-auto h-28 object-cover rounded-md"
                 />
               )}
@@ -393,14 +394,18 @@ function Price({ offer }: { offer: SingleOffer }) {
       <div className="flex flex-col gap-0">
         {offer.price?.price.originalPrice !== offer.price?.price.discountPrice && (
           <span className="line-through text-muted-foreground text-sm">
-            {priceFmtd.format(offer.price?.price.originalPrice / 100)}
+            {priceFmtd.format(
+              calculatePrice(offer.price?.price.originalPrice, offer.price?.price.currencyCode),
+            )}
           </span>
         )}
         {isFree ? (
           <span className="text-xl font-bold text-green-400">Free</span>
         ) : (
           <span className="text-xl font-bold text-green-400">
-            {priceFmtd.format(offer.price?.price.discountPrice / 100)}
+            {priceFmtd.format(
+              calculatePrice(offer.price?.price.discountPrice, offer.price?.price.currencyCode),
+            )}
           </span>
         )}
       </div>
