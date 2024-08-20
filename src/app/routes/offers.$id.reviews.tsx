@@ -486,10 +486,10 @@ function Review({ review, full }: { review: SingleReview; full?: boolean }) {
         <div className="relative">
           <p className="mb-4 prose prose-sm prose-neutral dark:prose-invert max-w-none">
             <Markdown>
-              {review.content.length <= 200 ? review.content : `${review.content.slice(0, 200)}...`}
+              {review.content.length <= 750 ? review.content : `${review.content.slice(0, 750)}...`}
             </Markdown>
           </p>
-          {review.content.length > 200 && (
+          {review.content.length > 750 && (
             <div className="absolute bottom-0 left-0 w-full">
               <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-b via-gray-900/50 from-transparent to-gray-900 pointer-events-none" />
               <Button
@@ -538,18 +538,7 @@ function Review({ review, full }: { review: SingleReview; full?: boolean }) {
                       minute: 'numeric',
                     })}
                   </span>
-                  {review.editions?.map((edition) => (
-                    <span key={edition.createdAt as string}>
-                      Updated on{' '}
-                      {new Date(edition.createdAt).toLocaleDateString('en-UK', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: 'numeric',
-                        minute: 'numeric',
-                      })}
-                    </span>
-                  ))}
+                  {review.editions && <span>Edited {review.editions?.length ?? 0} times</span>}
                 </span>
               </TooltipContent>
             </Tooltip>
