@@ -33,7 +33,7 @@ import {
   SelectTrigger,
 } from '~/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
-import { ScrollArea } from '~/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '~/components/ui/scroll-area';
 import type { SingleOffer } from '~/types/single-offer';
 import { ClientOnly } from 'remix-utils/client-only';
 import {
@@ -622,9 +622,10 @@ function FullReview({
             <h3 className="font-bold mb-2">{review.title}</h3>
             <div className="relative">
               <ScrollArea className="h-[50vh]">
-                <p className="mb-4 prose prose-sm prose-neutral dark:prose-invert max-w-none">
+                <p className="mb-4 prose prose-sm prose-neutral dark:prose-invert max-w-none mr-2">
                   <Markdown>{review.content}</Markdown>
                 </p>
+                <ScrollBar />
               </ScrollArea>
             </div>
           </div>
@@ -1015,6 +1016,7 @@ function EditReviewForm({ setIsOpen, previousReview, offer }: EditReviewFormProp
                   {() => (
                     <MDXEditor
                       markdown={content ?? ' '}
+                      className="dark-theme dark-editor"
                       contentEditableClassName="text-white border border-primary/10 px-4 rounded-lg prose prose-sm prose-neutral dark:prose-invert w-full max-w-none min-h-[200px]"
                       plugins={[
                         headingsPlugin({
