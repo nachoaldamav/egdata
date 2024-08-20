@@ -158,11 +158,16 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
     if (title.length < 3) errors.title = 'Title must be at least 3 characters long';
 
+    if (title.length > 200) errors.title = 'Title must be less than 200 characters long';
+
     if (!content) errors.content = 'Content is required';
 
     if (content.length < 3) errors.content = 'Content must be at least 3 characters long';
 
-    if (rating < 0 || rating > 10) errors.rating = 'Rating must be between 0 and 10';
+    if (content.length > 50_000)
+      errors.content = 'Content must be less than 50,000 characters long';
+
+    if (rating < 1 || rating > 10) errors.rating = 'Rating must be between 1 and 10';
 
     if (Object.keys(errors).length) {
       return json({ errors, success: false }, { status: 400 });
@@ -753,6 +758,9 @@ function ReviewForm({ setIsOpen, offer }: ReviewFormProps) {
   useEffect(() => {
     if (typeof actionData?.success === 'boolean') {
       setIsSubmitting(false);
+      if (actionData.success) {
+        window.location.reload();
+      }
     }
   }, [actionData]);
 
@@ -916,10 +924,10 @@ function EditReviewForm({ setIsOpen, previousReview, offer }: EditReviewFormProp
       setIsSubmitting(false);
 
       if (actionData.success) {
-        setIsOpen(false);
+        window.location.reload();
       }
     }
-  }, [actionData, setIsOpen]);
+  }, [actionData]);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
