@@ -145,7 +145,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     console.error('Spam detected', honeyPot);
     return json({
       success: false,
-      errors: { general: 'An error occurred while submitting review' },
+      errors: { general: 'An error occurred while submitting review' } as Record<string, string>,
     });
   }
 
@@ -491,7 +491,7 @@ function Review({ review, full }: { review: SingleReview; full?: boolean }) {
           </p>
           {review.content.length > 200 && (
             <div className="absolute bottom-0 left-0 w-full">
-              <div className="absolute bottom-0 left-0 w-full h-10 bg-gradient-to-b from-transparent to-gray-900 pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-b via-gray-900/50 from-transparent to-gray-900 pointer-events-none" />
               <Button
                 variant="link"
                 className="text-sm absolute z-10 -bottom-4 right-0 left-0 w-fit mx-auto inline-flex items-center gap-1 font-bold"
@@ -963,6 +963,7 @@ function EditReviewForm({ setIsOpen, previousReview, offer }: EditReviewFormProp
               setIsSubmitting(true);
             }}
           >
+            <input hidden name="website" placeholder="https://egdata.app" />
             <CardContent className="space-y-6">
               {actionData?.success && (
                 <Alert>
