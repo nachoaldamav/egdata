@@ -1,4 +1,4 @@
-import type { LoaderFunctionArgs, ActionFunctionArgs } from '@remix-run/node';
+import type { LoaderFunctionArgs, ActionFunctionArgs, LinksFunction } from '@remix-run/node';
 import { redirect, useLoaderData, Form, useActionData, json } from '@remix-run/react';
 import { dehydrate, HydrationBoundary, useQueries } from '@tanstack/react-query';
 import { ChevronDown, ThumbsDown, ThumbsUp, ThumbsUpIcon } from 'lucide-react';
@@ -44,14 +44,20 @@ import {
   quotePlugin,
 } from '@mdxeditor/editor';
 import Markdown from 'react-markdown';
-import '@mdxeditor/editor/style.css';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
+import '@mdxeditor/editor/style.css';
+import MdxEditorCss from '@mdxeditor/editor/style.css?url';
+import '../../mdx-editor.css';
 
 type ReviewSummary = {
   overallScore: number;
   recommendedPercentage: number;
   notRecommendedPercentage: number;
   totalReviews: number;
+};
+
+export const links: LinksFunction = () => {
+  return [{ rel: 'stylesheet', href: MdxEditorCss }];
 };
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
@@ -830,6 +836,7 @@ function ReviewForm({ setIsOpen, offer }: ReviewFormProps) {
                     <MDXEditor
                       markdown={content ?? ' '}
                       contentEditableClassName="text-white border border-primary/10 px-4 rounded-lg prose prose-sm prose-neutral dark:prose-invert w-full max-w-none min-h-[200px]"
+                      className="dark-theme dark-editor"
                       plugins={[
                         headingsPlugin({
                           allowedHeadingLevels: [2, 3, 4],
