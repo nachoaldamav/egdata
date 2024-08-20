@@ -137,11 +137,20 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     return redirect('/login');
   }
 
+  const formData = await request.formData();
+
+  const honneyPot = formData.get('website') as string;
+
+  if (typeof honneyPot === 'string' && honneyPot !== '') {
+    console.error('Spam detected', honneyPot);
+    return json({
+      success: false,
+      errors: { general: 'An error occurred while submitting review' },
+    });
+  }
+
   if (actionType === 'POST') {
     const errors: Record<string, string> = {};
-
-    // Handle form submission
-    const formData = await request.formData();
 
     console.log(formData);
     const rating = Number(formData.get('rating'));
@@ -211,10 +220,6 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     // Handle form submission
     const errors: Record<string, string> = {};
 
-    // Handle form submission
-    const formData = await request.formData();
-
-    console.log(formData);
     const rating = Number(formData.get('rating'));
     const recommended = formData.get('recommended') === 'true';
     const content = formData.get('content') as string;
@@ -294,8 +299,6 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
         errors,
       });
     }
-
-    console.log('Deleted review');
 
     return json({ success: true, errors: null });
   }
@@ -782,6 +785,7 @@ function ReviewForm({ setIsOpen, offer }: ReviewFormProps) {
               setIsSubmitting(true);
             }}
           >
+            <input hidden name="website" placeholder="https://egdata.app" />
             <CardContent className="space-y-6">
               {actionData?.success && (
                 <Alert>
