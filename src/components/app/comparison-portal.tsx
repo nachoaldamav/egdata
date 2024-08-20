@@ -552,6 +552,7 @@ function Price({ id }: { id: string }) {
                       data.currentPrice?.price.currencyCode,
                     ),
                   )}
+
                 </span>
               )}
             </div>
