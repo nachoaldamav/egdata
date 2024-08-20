@@ -181,7 +181,10 @@ export function RegionalPricing({ id }: { id: string }) {
                   selectedRegion === key && 'bg-slate-800/25 text-white',
                 )}
               >
-                <TableCell>{regions?.[key]?.description || key}</TableCell>
+                <TableCell className="inline-flex items-center gap-2">
+                  <CountryFlag code={key} />
+                  {regions?.[key]?.description || key}
+                </TableCell>
                 <TableCell>
                   {currencyFormatter.format(
                     calculatePrice(lastPrice.price.discountPrice, lastPrice.price.currencyCode),
@@ -202,5 +205,65 @@ export function RegionalPricing({ id }: { id: string }) {
         </TableBody>
       </Table>
     </div>
+  );
+}
+
+const flagAlternativesCodes: Record<string, string> = {
+  EURO: 'EU',
+};
+
+const flagAlternativesEmoji: Record<string, string> = {
+  EURO: '🇪🇺',
+  AFRICA: '🌍',
+  SEA: '🌏',
+  LATAM: '🌎',
+  EAST: '🌏',
+  CIS: '🇪🇺',
+  MIDEAST: '🌏',
+  ROW: '🌍',
+  ANZ: '🌏',
+};
+
+const flagAlternativeImages: Record<string, string> = {
+  CIS: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Emblem_of_CIS.svg/504px-Emblem_of_CIS.svg.png',
+};
+
+function CountryFlag({ code }: { code: string }) {
+  let fmtdCode = code.toLowerCase().replaceAll('2', '');
+
+  if (code === 'EURO') {
+    return (
+      <img
+        src={'https://flagcdn.com/16x12/eu.png'}
+        srcSet={`https://flagcdn.com/32x24/eu.png 2x,
+              https://flagcdn.com/48x36/eu.png 3x`}
+        width="16"
+        height="12"
+        alt="EURO"
+      />
+    );
+  }
+
+  if (flagAlternativesCodes[code]) {
+    fmtdCode = flagAlternativesCodes[code];
+  }
+
+  if (flagAlternativeImages[code] && !flagAlternativesCodes[fmtdCode]) {
+    return <img src={flagAlternativeImages[code]} width="16" height="16" alt={code} />;
+  }
+
+  if (flagAlternativesEmoji[code] && !flagAlternativesCodes[fmtdCode]) {
+    return <span>{flagAlternativesEmoji[code]}</span>;
+  }
+
+  return (
+    <img
+      src={`https://flagcdn.com/16x12/${fmtdCode}.png`}
+      srcSet={`https://flagcdn.com/32x24/${fmtdCode}.png 2x,
+              https://flagcdn.com/48x36/${fmtdCode}.png 3x`}
+      width="16"
+      height="12"
+      alt="Ukraine"
+    />
   );
 }
