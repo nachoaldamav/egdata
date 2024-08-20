@@ -7,6 +7,7 @@ import { getImage } from '~/lib/getImage';
 import { Badge } from '../ui/badge';
 import { cn } from '~/lib/utils';
 import { offersDictionary } from '~/lib/offers-dictionary';
+import { calculatePrice } from '~/lib/calculate-price';
 
 export function GameCard({
   game,
@@ -65,6 +66,7 @@ export function OfferListItem({
     | 'releaseDate'
     | 'price'
     | 'offerType'
+    | 'prePurchase'
   >;
 }) {
   const epicImage = getImage(game.keyImages, [
@@ -75,13 +77,13 @@ export function OfferListItem({
 
   const priceFmtd = new Intl.NumberFormat(undefined, {
     style: 'currency',
-    currency: game.price.price.currencyCode || 'USD',
+    currency: game.price?.price.currencyCode || 'USD',
   });
 
   return (
     <Link to={`/offers/${game.id}`} className="w-full" prefetch="viewport">
       <Card className="flex flex-row w-full bg-card text-white p-1 rounded-lg h-44">
-        <div className="flex-shrink-0 w-72 h-full inline-flex items-center justify-center">
+        <div className="flex-shrink-0 w-72 h-full inline-flex items-center justify-center relative">
           <Image
             src={
               epicImage
@@ -93,6 +95,11 @@ export function OfferListItem({
             width={300}
             height={170}
           />
+          {game.prePurchase && (
+            <Badge variant="default" className="absolute top-2 left-2 text-sm">
+              Pre-purchase
+            </Badge>
+          )}
         </div>
         <div className="flex flex-col flex-grow ml-2 p-2 w-full justify-between">
           <div className="flex items-start justify-between">
@@ -136,7 +143,9 @@ export function OfferListItem({
               {game.price.appliedRules.length > 0 && <SaleModule game={game} />}
               {game.price.price.originalPrice !== game.price.price.discountPrice && (
                 <span className="line-through text-muted-foreground">
-                  {priceFmtd.format(game.price.price.originalPrice / 100)}
+                  {priceFmtd.format(
+                    calculatePrice(game.price.price.originalPrice, game.price.price.currencyCode),
+                  )}
                 </span>
               )}
               <span
@@ -147,7 +156,9 @@ export function OfferListItem({
                     : 'text-white',
                 )}
               >
-                {priceFmtd.format(game.price.price.discountPrice / 100)}
+                {priceFmtd.format(
+                  calculatePrice(game.price.price.discountPrice, game.price.price.currencyCode),
+                )}
               </span>
             </div>
           )}

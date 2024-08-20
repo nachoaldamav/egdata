@@ -136,6 +136,7 @@ const config = {
     require('@vidstack/react/tailwind.cjs')({
       prefix: '',
     }),
+    require('@tailwindcss/typography'),
   ],
 } satisfies Config;
 

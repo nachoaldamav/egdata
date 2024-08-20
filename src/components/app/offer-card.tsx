@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 import { useGenres } from '~/hooks/use-genres';
 import { cn } from '~/lib/utils';
 import { Badge } from '../ui/badge';
+import { calculatePrice } from '~/lib/calculate-price';
 
 export function GameCard({ offer }: { offer: SingleOffer }) {
   const fmt = Intl.NumberFormat(undefined, {
@@ -269,11 +270,23 @@ export function OfferCard({
                     {isReleased && offer.price && (
                       <div className="flex items-center gap-2 text-right w-full justify-start">
                         <span>
-                          {isFree ? 'Free' : fmt.format(offer.price?.price.discountPrice / 100)}
+                          {isFree
+                            ? 'Free'
+                            : fmt.format(
+                                calculatePrice(
+                                  offer.price?.price.discountPrice,
+                                  offer.price?.price.currencyCode,
+                                ),
+                              )}
                         </span>
                         {offer.price?.price.discount > 0 && (
                           <span className="line-through text-sm">
-                            {fmt.format(offer.price?.price.originalPrice / 100)}
+                            {fmt.format(
+                              calculatePrice(
+                                offer.price?.price.originalPrice,
+                                offer.price?.price.currencyCode,
+                              ),
+                            )}
                           </span>
                         )}
                       </div>
@@ -290,10 +303,22 @@ export function OfferCard({
                     )}
                     {!isReleased && isPreOrder && (
                       <div className="flex items-center gap-2 text-right w-full justify-start">
-                        <span>{fmt.format(offer.price?.price.discountPrice / 100)}</span>
+                        <span>
+                          {fmt.format(
+                            calculatePrice(
+                              offer.price?.price.discountPrice,
+                              offer.price?.price.currencyCode,
+                            ),
+                          )}
+                        </span>
                         {offer.price?.price.discount > 0 && (
                           <span className="line-through text-sm">
-                            {fmt.format(offer.price?.price.originalPrice / 100)}
+                            {fmt.format(
+                              calculatePrice(
+                                offer.price?.price.originalPrice,
+                                offer.price?.price.currencyCode,
+                              ),
+                            )}
                           </span>
                         )}
                       </div>
@@ -304,10 +329,22 @@ export function OfferCard({
                       offer.price &&
                       offer.price?.price.discountPrice !== 0 && (
                         <div className="flex items-center gap-2 text-right w-full justify-start">
-                          <span>{fmt.format(offer.price?.price.discountPrice / 100)}</span>
+                          <span>
+                            {fmt.format(
+                              calculatePrice(
+                                offer.price?.price.discountPrice,
+                                offer.price?.price.currencyCode,
+                              ),
+                            )}
+                          </span>
                           {offer.price?.price.discount > 0 && (
                             <span className="line-through text-sm">
-                              {fmt.format(offer.price?.price.originalPrice / 100)}
+                              {fmt.format(
+                                calculatePrice(
+                                  offer.price?.price.originalPrice,
+                                  offer.price?.price.currencyCode,
+                                ),
+                              )}
                             </span>
                           )}
                         </div>
@@ -334,6 +371,11 @@ export function OfferCard({
             }}
           />
         </div>
+        {offer.prePurchase && (
+          <Badge variant={'default'} className="absolute top-2 right-2 z-10">
+            Pre-Purchase
+          </Badge>
+        )}
       </Card>
     </Link>
   );

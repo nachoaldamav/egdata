@@ -10,6 +10,7 @@ import { InfoCircledIcon } from '@radix-ui/react-icons';
 import { Link } from '@remix-run/react';
 import type { GiveawayOffer } from '~/types/giveaways';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
+import { calculatePrice } from '~/lib/calculate-price';
 
 export function GiveawaysCarousel({
   initialData,
@@ -107,11 +108,23 @@ function GiveawayCard({ offer }: { offer: GiveawayOffer }) {
             {offer.price && (
               <>
                 <span className="text-xl font-bold">
-                  {isOnGoing ? 'Free' : priceFmtr.format(offer.price?.price.originalPrice / 100)}
+                  {isOnGoing
+                    ? 'Free'
+                    : priceFmtr.format(
+                        calculatePrice(
+                          offer.price?.price.originalPrice,
+                          offer.price?.price.currencyCode,
+                        ),
+                      )}
                 </span>
                 {isOnGoing && (
                   <span className="text-sm font-semibold line-through">
-                    {priceFmtr.format(offer.price?.price.originalPrice / 100)}
+                    {priceFmtr.format(
+                      calculatePrice(
+                        offer.price?.price.originalPrice,
+                        offer.price?.price.currencyCode,
+                      ),
+                    )}
                   </span>
                 )}
               </>

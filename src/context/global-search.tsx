@@ -20,6 +20,7 @@ import {
 } from '~/components/app/platform-icons';
 import { ScrollArea } from '~/components/ui/scroll-area';
 import { httpClient } from '~/lib/http-client';
+import { calculatePrice } from '~/lib/calculate-price';
 
 const { debounce } = lodash;
 
@@ -638,7 +639,9 @@ function OfferPrice({ id, country }: { id: string; country: string }) {
     return <p>Free</p>;
   }
 
-  return <p>{priceFmtr.format(data.price.discountPrice / 100)}</p>;
+  return (
+    <p>{priceFmtr.format(calculatePrice(data.price.discountPrice, data.price.currencyCode))}</p>
+  );
 }
 
 function ComputerIcon(props: React.SVGProps<SVGSVGElement>) {

@@ -3,7 +3,6 @@ import { type ClientLoaderFunctionArgs, Link, useLoaderData } from '@remix-run/r
 import { Image } from '~/components/app/image';
 import { Card, CardHeader, CardContent } from '~/components/ui/card';
 import { Skeleton } from '~/components/ui/skeleton';
-import { client } from '~/lib/client';
 import { getImage } from '~/lib/getImage';
 import { httpClient } from '~/lib/http-client';
 import { offersDictionary } from '~/lib/offers-dictionary';

@@ -28,11 +28,28 @@ export default function Privacy() {
         (the "Site"). Please read this policy carefully to understand our views and practices
         regarding your personal data and how we will treat it.
       </p>
+
       <p className="mb-4">
         The first time you visit our Site, you will be asked to consent to our use of cookies in
         accordance with the terms of this Privacy Policy. If the user does not consent to the use of
         cookies, the Site won't allow Google Analytics to collect any data directly. Instead, the
         Site will collect anonymized data that cannot be used to identify the user.
+      </p>
+
+      <h3 className="text-lg font-medium mb-2">1.1 What is egdata.app?</h3>
+      <p className="mb-4">
+        egdata.app is a website that tracks changes in games, downloadable content (DLCs), add-ons,
+        and apps available on the Epic Games Store. We provide information about these changes,
+        including pricing history and updates. Our goal is to offer users a comprehensive overview
+        of the evolving landscape of the Epic Games Store's offerings.
+      </p>
+
+      <h3 className="text-lg font-medium mb-2">1.2 What is NOT egdata.app?</h3>
+      <p className="mb-4">
+        It's important to understand that egdata.app is not a platform for downloading, hacking, or
+        pirating any of the games or content we track. We do not provide any downloadable content
+        whatsoever. All data displayed on egdata.app is publicly available information gathered from
+        the Epic Games Store.
       </p>
 
       <h2 className="text-2xl font-semibold mb-2">2. Information We Collect</h2>

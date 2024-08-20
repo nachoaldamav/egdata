@@ -9,6 +9,7 @@ import { cn } from '~/lib/utils';
 import { useGenres } from '~/hooks/use-genres';
 import { useCountry } from '~/hooks/use-country';
 import { getTopSection } from '~/queries/top-section';
+import { calculatePrice } from '~/lib/calculate-price';
 
 const platforms: Record<string, string> = {
   '9547': 'Windows',
@@ -129,14 +130,18 @@ export function TopSection({
                       {new Intl.NumberFormat(undefined, {
                         style: 'currency',
                         currency: price.price.currencyCode,
-                      }).format(price.price.discountPrice / 100)}
+                      }).format(
+                        calculatePrice(price.price.discountPrice, price.price.currencyCode),
+                      )}
                     </span>
                     {price.price.discountPrice < price.price.originalPrice && (
                       <span className="text-sm line-through text-muted-foreground">
                         {new Intl.NumberFormat(undefined, {
                           style: 'currency',
                           currency: price.price.currencyCode,
-                        }).format(price.price.originalPrice / 100)}
+                        }).format(
+                          calculatePrice(price.price.originalPrice, price.price.currencyCode),
+                        )}
                       </span>
                     )}
                   </div>
