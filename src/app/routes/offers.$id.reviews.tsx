@@ -428,7 +428,7 @@ function ReviewsPage({ id }: { id: string }) {
                       totalReviews={summary?.totalReviews ?? 0}
                     />
                   </div>
-                  {poll && (
+                  {poll?.averageRating && (
                     <div className="flex flex-col items-center justify-between">
                       <span className="text-lg font-semibold mb-1">Epic Rating</span>
                       <StarsRating rating={poll.averageRating} />
