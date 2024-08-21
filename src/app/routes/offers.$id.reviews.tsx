@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs, ActionFunctionArgs, LinksFunction } from '@remix-run/node';
-import { redirect, useLoaderData, Form, useActionData, json } from '@remix-run/react';
+import { redirect, useLoaderData, Form, useActionData, json, Link } from '@remix-run/react';
 import { dehydrate, HydrationBoundary, useQueries } from '@tanstack/react-query';
 import { ChevronDown, ThumbsDown, ThumbsUp, ThumbsUpIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -403,7 +403,45 @@ function ReviewsPage({ id }: { id: string }) {
   return (
     <div className="grid gap-6 mx-auto mt-10">
       <div className="grid gap-4">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center flex-col gap-4">
+          {poll?.averageRating && (
+            <Card className="w-full bg-card text-white p-4">
+              <div className="flex flex-row items-center justify-evenly gap-4">
+                <div className="flex flex-col items-center justify-center text-center">
+                  <h2 className="text-6xl font-bold mb-1">
+                    {poll?.averageRating.toLocaleString(undefined, {
+                      maximumFractionDigits: 1,
+                    }) ?? '-'}
+                  </h2>
+                  <StarsRating rating={poll.averageRating} />
+                </div>
+                <div className="grid grid-rows-3 grid-flow-col gap-4">
+                  {poll.pollResult
+                    .sort((a, b) => b.total - a.total)
+                    .slice(0, 6)
+                    .map((result) => (
+                      <Link
+                        key={result.id}
+                        className="bg-[#202024] text-white flex flex-row gap-4 items-center justify-start p-4 w-[300px] shadow-sm rounded-lg transform transition-transform hover:translate-y-[-2px]"
+                        to={`/search?tags=${result.tagId}`}
+                      >
+                        <img
+                          src={result.localizations.resultEmoji}
+                          alt={result.localizations.text}
+                          className="size-10"
+                        />
+                        <div className="flex flex-col items-start justify-center">
+                          <p className="text-xs text-gray-400">{result.localizations.resultText}</p>
+                          <p className="text-base font-semibold">
+                            {result.localizations.resultTitle}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                </div>
+              </div>
+            </Card>
+          )}
           <div className="flex items-center justify-between flex-row w-full h-32 gap-4">
             <Card className="w-full bg-card text-white h-32">
               <CardContent className="p-6">
@@ -428,17 +466,6 @@ function ReviewsPage({ id }: { id: string }) {
                       totalReviews={summary?.totalReviews ?? 0}
                     />
                   </div>
-                  {poll?.averageRating && (
-                    <div className="flex flex-col items-center justify-between">
-                      <span className="text-lg font-semibold mb-1">Epic Rating</span>
-                      <StarsRating rating={poll.averageRating} />
-                      <span className="text-lg mt-1 font-semibold">
-                        {poll.averageRating.toLocaleString(undefined, {
-                          maximumFractionDigits: 1,
-                        })}
-                      </span>
-                    </div>
-                  )}
                 </div>
               </CardContent>
             </Card>
