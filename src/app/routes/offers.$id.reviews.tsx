@@ -509,7 +509,7 @@ function Review({ review, full }: { review: SingleReview; full?: boolean }) {
     : `https://cdn.discordapp.com/avatars/${review.user.id}/${review.user.avatarUrl}.png`;
 
   return (
-    <div className="p-4 bg-card text-white rounded-lg max-w-2xl mx-auto w-full">
+    <div className="p-4 bg-card text-white rounded-lg max-w-2xl mx-auto w-full h-full flex flex-col">
       <div className="flex items-center mb-4">
         <Avatar>
           <AvatarImage src={userAvatar as string} alt={review.user.displayName} />
@@ -533,7 +533,7 @@ function Review({ review, full }: { review: SingleReview; full?: boolean }) {
           </div>
         </div>
       </div>
-      <div className="bg-gray-900 p-4 rounded-lg">
+      <div className="bg-gray-900 p-4 rounded-lg h-full">
         <h3 className="font-bold mb-2">{review.title}</h3>
         <div className="relative">
           <p className="mb-4 prose prose-sm prose-neutral dark:prose-invert max-w-none">
@@ -569,30 +569,32 @@ function Review({ review, full }: { review: SingleReview; full?: boolean }) {
                   day: 'numeric',
                 })}
               </span>
-              <Tooltip disableHoverableContent={!review.editions}>
-                <TooltipTrigger>
-                  <InfoCircledIcon
-                    className="ml-2 text-gray-400 cursor-pointer fill-white"
-                    aria-label="More information"
-                    fill="white"
-                  />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <span className="text-xs flex flex-col gap-1">
-                    <span>
-                      Last updated on{' '}
-                      {new Date(review.updatedAt).toLocaleDateString('en-UK', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: 'numeric',
-                        minute: 'numeric',
-                      })}
+              {review.editions?.length && review.editions.length > 0 ? (
+                <Tooltip disableHoverableContent={!review.editions}>
+                  <TooltipTrigger>
+                    <InfoCircledIcon
+                      className="ml-2 text-gray-400 cursor-pointer fill-white"
+                      aria-label="More information"
+                      fill="white"
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <span className="text-xs flex flex-col gap-1">
+                      <span>
+                        Last updated on{' '}
+                        {new Date(review.updatedAt).toLocaleDateString('en-UK', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: 'numeric',
+                          minute: 'numeric',
+                        })}
+                      </span>
+                      {review.editions && <span>Edited {review.editions?.length ?? 0} times</span>}
                     </span>
-                    {review.editions && <span>Edited {review.editions?.length ?? 0} times</span>}
-                  </span>
-                </TooltipContent>
-              </Tooltip>
+                  </TooltipContent>
+                </Tooltip>
+              ) : null}
             </div>
           </TooltipProvider>
           {userId === review.userId && (
