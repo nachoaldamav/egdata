@@ -415,7 +415,13 @@ function ReviewsPage({ id }: { id: string }) {
                   </h2>
                   <StarsRating rating={poll.averageRating} />
                 </div>
-                <div className="grid grid-rows-3 grid-flow-col gap-4">
+                <div
+                  className={cn(
+                    'grid grid-rows-3 grid-flow-col gap-4',
+                    poll.pollResult.length === 2 ? 'grid-rows-2' : undefined,
+                    poll.pollResult.length === 1 ? 'grid-rows-1' : undefined,
+                  )}
+                >
                   {poll.pollResult
                     .sort((a, b) => b.total - a.total)
                     .slice(0, 6)
