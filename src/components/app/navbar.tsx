@@ -22,6 +22,7 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { CommandShortcut } from '../ui/command';
 
 const routes = [
   {

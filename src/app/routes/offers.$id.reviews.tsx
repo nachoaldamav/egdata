@@ -23,7 +23,7 @@ import { authenticator } from '../services/auth.server';
 import { Alert, AlertDescription } from '~/components/ui/alert';
 import { Slider } from '~/components/ui/slider';
 import { RadioGroup, RadioGroupItem } from '~/components/ui/radio-group';
-import { ReloadIcon } from '@radix-ui/react-icons';
+import { InfoCircledIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { cn } from '~/lib/utils';
 import {
   Select,
@@ -48,12 +48,22 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/comp
 import '@mdxeditor/editor/style.css';
 import MdxEditorCss from '@mdxeditor/editor/style.css?url';
 import '../../mdx-editor.css';
+import type { SinglePoll } from '~/types/polls';
+import StarsRating from '~/components/app/stars-rating';
 
 type ReviewSummary = {
   overallScore: number;
   recommendedPercentage: number;
   notRecommendedPercentage: number;
   totalReviews: number;
+};
+
+type ReviewsFilter = 'all' | 'verified' | 'not-verified';
+
+const getVerificationParam = (verified: ReviewsFilter): 'true' | 'false' | undefined => {
+  if (verified === 'verified') return 'true';
+  if (verified === 'not-verified') return 'false';
+  return undefined;
 };
 
 export const links: LinksFunction = () => {
@@ -76,6 +86,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
         {
           id: params.id,
           page: 1,
+          verified: getVerificationParam('all'),
         },
       ],
       queryFn: () =>
@@ -87,6 +98,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
         }>(`/offers/${params.id}/reviews`, {
           params: {
             page: 1,
+            verified: getVerificationParam('all'),
           },
         }),
     }),
@@ -95,9 +107,15 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
         'reviews-summary',
         {
           id: params.id,
+          verified: getVerificationParam('all'),
         },
       ],
-      queryFn: () => httpClient.get<ReviewSummary>(`/offers/${params.id}/reviews-summary`),
+      queryFn: () =>
+        httpClient.get<ReviewSummary>(`/offers/${params.id}/reviews-summary`, {
+          params: {
+            verified: getVerificationParam('all'),
+          },
+        }),
     }),
     httpClient
       .get<{
@@ -111,6 +129,10 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
       .catch((error) => {
         return null;
       }),
+    queryClient.prefetchQuery({
+      queryKey: ['offer', { id: params.id }],
+      queryFn: () => httpClient.get<SingleOffer>(`/offers/${params.id}`),
+    }),
   ]);
 
   return {
@@ -319,8 +341,9 @@ export default function Index() {
 function ReviewsPage({ id }: { id: string }) {
   const { userCanReview } = useLoaderData<typeof loader>();
   const [page, setPage] = useState(1);
+  const [filter, setFilter] = useState<ReviewsFilter>('all');
   const [showReviewForm, setShowReviewForm] = useState(false);
-  const [reviewsQuery, summaryQuery, offerQuery] = useQueries({
+  const [reviewsQuery, summaryQuery, offerQuery, pollsQuery] = useQueries({
     queries: [
       {
         queryKey: [
@@ -328,12 +351,13 @@ function ReviewsPage({ id }: { id: string }) {
           {
             id,
             page,
+            verified: getVerificationParam(filter),
           },
         ],
         queryFn: () =>
           httpClient.get<{ elements: SingleReview[]; page: number; total: number }>(
             `/offers/${id}/reviews`,
-            { params: { page } },
+            { params: { page, verified: getVerificationParam(filter) } },
           ),
       },
       {
@@ -341,13 +365,28 @@ function ReviewsPage({ id }: { id: string }) {
           'reviews-summary',
           {
             id,
+            verified: getVerificationParam(filter),
           },
         ],
-        queryFn: () => httpClient.get<ReviewSummary>(`/offers/${id}/reviews-summary`),
+        queryFn: () =>
+          httpClient.get<ReviewSummary>(`/offers/${id}/reviews-summary`, {
+            params: {
+              verified: getVerificationParam(filter),
+            },
+          }),
       },
       {
         queryKey: ['offer', { id }],
         queryFn: () => httpClient.get<SingleOffer>(`/offers/${id}`),
+      },
+      {
+        queryKey: [
+          'polls',
+          {
+            offer: id,
+          },
+        ],
+        queryFn: () => httpClient.get<SinglePoll>(`/offers/${id}/polls`),
       },
     ],
   });
@@ -355,6 +394,7 @@ function ReviewsPage({ id }: { id: string }) {
   const reviews = reviewsQuery.data;
   const summary = summaryQuery.data;
   const offer = offerQuery.data;
+  const poll = pollsQuery.data;
 
   const isReleased = offer
     ? new Date(offer?.releaseDate || offer?.effectiveDate) < new Date()
@@ -368,9 +408,11 @@ function ReviewsPage({ id }: { id: string }) {
             <Card className="w-full bg-card text-white h-32">
               <CardContent className="p-6">
                 <div className="flex flex-col sm:flex-row items-center justify-evenly gap-4">
-                  <div className="flex flex-col items-center sm:items-start">
+                  <div className="flex flex-col items-center justify-center text-center">
                     <h2 className="text-lg font-semibold mb-1">Overall Score</h2>
-                    <p className="text-4xl font-extrabold">{summary?.overallScore ?? '-'} / 10</p>
+                    <p className="text-4xl font-extrabold text-center">
+                      {summary?.overallScore ?? '-'} / 10
+                    </p>
                   </div>
                   <div className="flex flex-col items-center justify-between gap-4">
                     <span className="text-sm">
@@ -386,11 +428,22 @@ function ReviewsPage({ id }: { id: string }) {
                       totalReviews={summary?.totalReviews ?? 0}
                     />
                   </div>
+                  {poll && (
+                    <div className="flex flex-col items-center justify-between">
+                      <span className="text-lg font-semibold mb-1">Epic Rating</span>
+                      <StarsRating rating={poll.averageRating} />
+                      <span className="text-lg mt-1 font-semibold">
+                        {poll.averageRating.toLocaleString(undefined, {
+                          maximumFractionDigits: 1,
+                        })}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
             <Card className="w-fit flex flex-col items-start justify-center p-4 h-full gap-2 text-left">
-              <Select>
+              <Select value={filter} onValueChange={(value) => setFilter(value as ReviewsFilter)}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="All Reviews" />
                 </SelectTrigger>
@@ -422,7 +475,6 @@ function ReviewsPage({ id }: { id: string }) {
       ) : (
         <div className="w-full text-center min-h-[400px]">
           <h6 className="text-lg font-semibold">
-            {/* No reviews yet */}
             {isReleased ? 'No reviews yet' : 'This product has not been released yet'}
           </h6>
           <p className="text-muted-foreground">
@@ -508,40 +560,40 @@ function Review({ review, full }: { review: SingleReview; full?: boolean }) {
       <div className="inline-flex justify-between items-center w-full">
         <div className="mt-4 inline-flex justify-between items-center w-full">
           <TooltipProvider>
-            <Tooltip disableHoverableContent={!review.editions}>
-              <TooltipTrigger>
-                <span
-                  className={cn(
-                    'text-gray-400',
-                    review.updatedAt !== review.createdAt
-                      ? 'underline decoration-dotted cursor-pointer underline-offset-4'
-                      : '',
-                  )}
-                >
-                  Reviewed on{' '}
-                  {new Date(review.createdAt).toLocaleDateString('en-UK', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })}
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>
-                <span className="text-xs flex flex-col gap-1">
-                  <span>
-                    Last updated on{' '}
-                    {new Date(review.updatedAt).toLocaleDateString('en-UK', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                      hour: 'numeric',
-                      minute: 'numeric',
-                    })}
+            <div className="flex items-center">
+              <span className="text-gray-400">
+                Reviewed on{' '}
+                {new Date(review.createdAt).toLocaleDateString('en-UK', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                })}
+              </span>
+              <Tooltip disableHoverableContent={!review.editions}>
+                <TooltipTrigger>
+                  <InfoCircledIcon
+                    className="ml-2 text-gray-400 cursor-pointer fill-white"
+                    aria-label="More information"
+                    fill="white"
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <span className="text-xs flex flex-col gap-1">
+                    <span>
+                      Last updated on{' '}
+                      {new Date(review.updatedAt).toLocaleDateString('en-UK', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric',
+                      })}
+                    </span>
+                    {review.editions && <span>Edited {review.editions?.length ?? 0} times</span>}
                   </span>
-                  {review.editions && <span>Edited {review.editions?.length ?? 0} times</span>}
-                </span>
-              </TooltipContent>
-            </Tooltip>
+                </TooltipContent>
+              </Tooltip>
+            </div>
           </TooltipProvider>
           {userId === review.userId && (
             <Button
