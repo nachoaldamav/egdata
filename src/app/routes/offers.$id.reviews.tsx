@@ -52,6 +52,7 @@ import StarsRating from '~/components/app/stars-rating';
 import { InfoIcon } from '@primer/octicons-react';
 import type { RatingsType } from '@egdata/core.schemas.ratings';
 import '../../mdx-editor.css';
+import { CircularRating } from '~/components/ui/circular-rating';
 
 type ReviewSummary = {
   overallScore: number;
@@ -613,11 +614,12 @@ function ReviewsPage({ id }: { id: string }) {
                     <br />
                     Average
                   </span>
-                  <span className="text-6xl font-bold">
-                    {ratings?.criticAverage.toLocaleString(undefined, {
-                      maximumFractionDigits: 1,
-                    }) ?? '-'}
-                  </span>
+                  <CircularRating
+                    rating={ratings?.criticAverage ?? 0}
+                    maxRating={10}
+                    size="sm"
+                    strokeWidth={10}
+                  />
                 </div>
                 <div className="flex flex-row items-center justify-center gap-4">
                   <span className="text-xl text-center">
@@ -625,11 +627,13 @@ function ReviewsPage({ id }: { id: string }) {
                     <br />
                     Recommend
                   </span>
-                  <span className="text-6xl font-bold">
-                    {ratings?.recommendPercentage.toLocaleString(undefined, {
-                      maximumFractionDigits: 1,
-                    }) ?? '-'}
-                  </span>
+                  <CircularRating
+                    rating={ratings?.recommendPercentage ?? 0}
+                    maxRating={10}
+                    size="sm"
+                    strokeWidth={10}
+                    suffix="%"
+                  />
                 </div>
               </div>
             </Card>
