@@ -603,7 +603,7 @@ function ReviewsPage({ id }: { id: string }) {
                     Rating
                   </span>
                   <img
-                    src="https://img.opencritic.com/mighty-man/strong-man.png"
+                    src={`https://img.opencritic.com/mighty-man/${ratings.criticRating.toLowerCase()}-man.png`}
                     alt="OpenCritic Rating"
                     className="size-20"
                   />

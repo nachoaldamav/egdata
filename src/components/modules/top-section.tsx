@@ -87,11 +87,15 @@ export function TopSection({
                 <CalendarIcon className="h-5 w-5 text-muted-foreground" />
                 <span className="font-medium">Release Date:</span>
                 <span>
-                  {new Date(offer.releaseDate).toLocaleDateString('en-UK', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
+                  {offer.releaseDate.includes('2099') ? (
+                    <span>TBA</span>
+                  ) : (
+                    new Date(offer.releaseDate).toLocaleDateString('en-UK', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })
+                  )}
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -124,28 +128,41 @@ export function TopSection({
               )}
             >
               <div>
-                {price?.price?.discountPrice && (
+                {price?.price?.discountPrice ? (
                   <div className="inline-flex items-center gap-2">
                     <span className="text-2xl font-bold">
-                      {new Intl.NumberFormat(undefined, {
-                        style: 'currency',
-                        currency: price.price.currencyCode,
-                      }).format(
-                        calculatePrice(price.price.discountPrice, price.price.currencyCode),
-                      )}
-                    </span>
-                    {price.price.discountPrice < price.price.originalPrice && (
-                      <span className="text-sm line-through text-muted-foreground">
-                        {new Intl.NumberFormat(undefined, {
+                      {price.price.discountPrice === 0 ? (
+                        <span>Free</span>
+                      ) : (
+                        new Intl.NumberFormat(undefined, {
                           style: 'currency',
                           currency: price.price.currencyCode,
                         }).format(
-                          calculatePrice(price.price.originalPrice, price.price.currencyCode),
+                          calculatePrice(price.price.discountPrice, price.price.currencyCode),
+                        )
+                      )}
+                    </span>
+                    {price.price.discountPrice < price.price.originalPrice ? (
+                      <span className="text-sm line-through text-muted-foreground">
+                        {price.price.originalPrice === 0 ? (
+                          <span>Free</span>
+                        ) : (
+                          new Intl.NumberFormat(undefined, {
+                            style: 'currency',
+                            currency: price.price.currencyCode,
+                          }).format(
+                            calculatePrice(price.price.originalPrice, price.price.currencyCode),
+                          )
                         )}
                       </span>
-                    )}
+                    ) : null}
                   </div>
-                )}
+                ) : null}
+                {price?.price?.discountPrice === 0 ? (
+                  <div className="inline-flex items-center gap-2">
+                    <span className="text-2xl font-bold">Free</span>
+                  </div>
+                ) : null}
               </div>
               <Button asChild size="lg" className="w-full md:w-auto">
                 <Link to={`/offers/${offer.id}`}>Check Offer</Link>
