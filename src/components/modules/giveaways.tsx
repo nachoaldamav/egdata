@@ -72,7 +72,6 @@ function GiveawayCard({ offer }: { offer: GiveawayOffer }) {
 
   const isOnGoing = startDate < now && endDate > now;
   const isUpcoming = startDate > now;
-  const isEnded = endDate < now;
 
   const priceFmtr = new Intl.NumberFormat(undefined, {
     style: 'currency',
@@ -186,30 +185,32 @@ function Countdown({ targetDate }: { targetDate: Date }) {
     seconds: 0,
   });
 
-  if (targetDate < new Date()) {
-    return 'Ended';
-  }
-
   useEffect(() => {
     let interval: NodeJS.Timeout;
 
+    const updateCountdown = () => {
+      const now = new Date();
+      const diff = targetDate.getTime() - now.getTime();
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      setTimeLeft({ days, hours, minutes, seconds });
+    };
+
+    // Initial update
+    updateCountdown();
+
+    // Set interval only if the target date is in the future
     if (targetDate > new Date()) {
-      interval = setInterval(() => {
-        const now = new Date();
-        const diff = targetDate.getTime() - now.getTime();
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-        setTimeLeft({ days, hours, minutes, seconds });
-      }, 1000);
+      interval = setInterval(updateCountdown, 1000);
     }
 
     return () => clearInterval(interval);
   }, [targetDate]);
 
   if (timeLeft.days < 0 && timeLeft.hours < 0 && timeLeft.minutes < 0 && timeLeft.seconds < 0) {
-    return 'Ended';
+    return '00:00:00';
   }
 
   return (
