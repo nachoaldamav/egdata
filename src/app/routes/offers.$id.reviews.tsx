@@ -616,7 +616,7 @@ function ReviewsPage({ id }: { id: string }) {
                   </span>
                   <CircularRating
                     rating={ratings?.criticAverage ?? 0}
-                    maxRating={10}
+                    maxRating={100}
                     size="sm"
                     strokeWidth={10}
                   />
@@ -629,7 +629,7 @@ function ReviewsPage({ id }: { id: string }) {
                   </span>
                   <CircularRating
                     rating={ratings?.recommendPercentage ?? 0}
-                    maxRating={10}
+                    maxRating={100}
                     size="sm"
                     strokeWidth={10}
                     suffix="%"
