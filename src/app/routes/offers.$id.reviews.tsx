@@ -23,7 +23,7 @@ import { authenticator } from '../services/auth.server';
 import { Alert, AlertDescription } from '~/components/ui/alert';
 import { Slider } from '~/components/ui/slider';
 import { RadioGroup, RadioGroupItem } from '~/components/ui/radio-group';
-import { InfoCircledIcon, ReloadIcon } from '@radix-ui/react-icons';
+import { ReloadIcon } from '@radix-ui/react-icons';
 import { cn } from '~/lib/utils';
 import {
   Select,
@@ -47,9 +47,11 @@ import Markdown from 'react-markdown';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 import '@mdxeditor/editor/style.css';
 import MdxEditorCss from '@mdxeditor/editor/style.css?url';
-import '../../mdx-editor.css';
 import type { SinglePoll } from '~/types/polls';
 import StarsRating from '~/components/app/stars-rating';
+import { InfoIcon } from '@primer/octicons-react';
+import type { RatingsType } from '@egdata/core.schemas.ratings';
+import '../../mdx-editor.css';
 
 type ReviewSummary = {
   overallScore: number;
@@ -132,6 +134,10 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     queryClient.prefetchQuery({
       queryKey: ['offer', { id: params.id }],
       queryFn: () => httpClient.get<SingleOffer>(`/offers/${params.id}`),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: ['ratings', { id: params.id }],
+      queryFn: () => httpClient.get<RatingsType>(`/offers/${params.id}/ratings`),
     }),
   ]);
 
@@ -343,7 +349,7 @@ function ReviewsPage({ id }: { id: string }) {
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState<ReviewsFilter>('all');
   const [showReviewForm, setShowReviewForm] = useState(false);
-  const [reviewsQuery, summaryQuery, offerQuery, pollsQuery] = useQueries({
+  const [reviewsQuery, summaryQuery, offerQuery, pollsQuery, ratingsQuery] = useQueries({
     queries: [
       {
         queryKey: [
@@ -388,6 +394,15 @@ function ReviewsPage({ id }: { id: string }) {
         ],
         queryFn: () => httpClient.get<SinglePoll>(`/offers/${id}/polls`),
       },
+      {
+        queryKey: [
+          'ratings',
+          {
+            id,
+          },
+        ],
+        queryFn: () => httpClient.get<RatingsType>(`/offers/${id}/ratings`),
+      },
     ],
   });
 
@@ -395,6 +410,7 @@ function ReviewsPage({ id }: { id: string }) {
   const summary = summaryQuery.data;
   const offer = offerQuery.data;
   const poll = pollsQuery.data;
+  const ratings = ratingsQuery.data;
 
   const isReleased = offer
     ? new Date(offer?.releaseDate || offer?.effectiveDate) < new Date()
@@ -405,49 +421,63 @@ function ReviewsPage({ id }: { id: string }) {
       <div className="grid gap-4">
         <div className="flex items-center flex-col gap-4">
           {poll?.averageRating && (
-            <Card className="w-full bg-card text-white p-4">
-              <div className="flex flex-row items-center justify-evenly gap-4">
-                <div className="flex flex-col items-center justify-center text-center">
-                  <h2 className="text-6xl font-bold mb-1">
-                    {poll?.averageRating.toLocaleString(undefined, {
-                      maximumFractionDigits: 1,
-                    }) ?? '-'}
-                  </h2>
-                  <StarsRating rating={poll.averageRating} />
-                </div>
-                <div
-                  className={cn(
-                    'grid grid-rows-3 grid-flow-col gap-4',
-                    poll.pollResult.length === 2 ? 'grid-rows-2' : undefined,
-                    poll.pollResult.length === 1 ? 'grid-rows-1' : undefined,
-                  )}
-                >
-                  {poll.pollResult
-                    .sort((a, b) => b.total - a.total)
-                    .slice(0, 6)
-                    .map((result) => (
-                      <Link
-                        key={result.id}
-                        className="bg-[#202024] text-white flex flex-row gap-4 items-center justify-start p-4 w-[300px] shadow-sm rounded-lg transform transition-transform hover:translate-y-[-2px]"
-                        to={`/search?tags=${result.tagId}`}
-                      >
-                        <img
-                          src={result.localizations.resultEmoji}
-                          alt={result.localizations.text}
-                          className="size-10"
-                        />
-                        <div className="flex flex-col items-start justify-center">
-                          <p className="text-xs text-gray-400">{result.localizations.resultText}</p>
-                          <p className="text-base font-semibold">
-                            {result.localizations.resultTitle}
-                          </p>
-                        </div>
-                      </Link>
-                    ))}
-                </div>
+            <section className="flex flex-col items-start justify-center text-left w-full">
+              <div className="flex flex-col items-start justify-center text-center mb-4">
+                <h3 className="text-2xl font-semibold mb-1 text-left">Epic Players Rating</h3>
+                <p className="text-sm text-muted-foreground">
+                  Captured from players in the Epic Games ecosystem
+                </p>
               </div>
-            </Card>
+              <Card className="w-full bg-card text-white p-4">
+                <div className="flex flex-row items-center justify-evenly gap-4">
+                  <div className="flex flex-col items-center justify-center text-center">
+                    <h2 className="text-6xl font-bold mb-1">
+                      {poll?.averageRating.toLocaleString(undefined, {
+                        maximumFractionDigits: 1,
+                      }) ?? '-'}
+                    </h2>
+                    <StarsRating rating={poll.averageRating} />
+                  </div>
+                  <div
+                    className={cn(
+                      'grid grid-rows-3 grid-flow-col gap-4',
+                      poll.pollResult.length === 2 ? 'grid-rows-2' : undefined,
+                      poll.pollResult.length === 1 ? 'grid-rows-1' : undefined,
+                    )}
+                  >
+                    {poll.pollResult
+                      .sort((a, b) => b.total - a.total)
+                      .slice(0, 6)
+                      .map((result) => (
+                        <Link
+                          key={result.id}
+                          className="bg-[#202024] text-white flex flex-row gap-4 items-center justify-start p-4 w-[300px] shadow-sm rounded-lg transform transition-transform hover:translate-y-[-2px]"
+                          to={`/search?tags=${result.tagId}`}
+                        >
+                          <img
+                            src={result.localizations.resultEmoji}
+                            alt={result.localizations.text}
+                            className="size-10"
+                          />
+                          <div className="flex flex-col items-start justify-center">
+                            <p className="text-xs text-gray-400">
+                              {result.localizations.resultText}
+                            </p>
+                            <p className="text-base font-bold">
+                              {result.localizations.resultTitle}
+                            </p>
+                          </div>
+                        </Link>
+                      ))}
+                  </div>
+                </div>
+              </Card>
+            </section>
           )}
+          <hr className="border-t border-gray-200/15 my-2 w-full" />
+          <div className="flex flex-col items-start justify-center text-center w-full">
+            <h3 className="text-2xl font-semibold mb-1 text-left">EGDATA Rating</h3>
+          </div>
           <div className="flex items-center justify-between flex-row w-full h-32 gap-4">
             <Card className="w-full bg-card text-white h-32">
               <CardContent className="p-6">
@@ -497,7 +527,32 @@ function ReviewsPage({ id }: { id: string }) {
             </Card>
           </div>
         </div>
-        <p className="text-muted-foreground">Based on {summary?.totalReviews ?? '0'} reviews</p>
+        <TooltipProvider>
+          <div className="inline-flex items-center gap-2">
+            <Tooltip>
+              <TooltipTrigger className="inline-flex items-center gap-1">
+                <InfoIcon className="size-4" fill="white" />
+              </TooltipTrigger>
+              <p className="text-muted-foreground inline-flex items-center gap-1">
+                <strong>Ownership verification</strong> is based on the completion of at least one
+                achievement by the player.
+              </p>
+              <TooltipContent>
+                <p className="text-xs max-w-sm">
+                  We use the Epic Games achievements to verify the ownership of the product.
+                  <br />
+                  To mark a player as verified owner, they must have completed at least one
+                  achievement for the selected product in the Epic Games Store.
+                  <br />
+                  To link your account to your egdata profile, you need to go to{' '}
+                  <Link to="/dashboard" className="text-blue-600">
+                    your dashboard
+                  </Link>
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        </TooltipProvider>
       </div>
       {reviews?.elements.length ? (
         <div className="grid gap-6 grid-cols-2">
@@ -528,7 +583,60 @@ function ReviewsPage({ id }: { id: string }) {
       <Portal.Root>
         {showReviewForm && <ReviewForm setIsOpen={setShowReviewForm} offer={offer} />}
       </Portal.Root>
-      <hr className="border-t border-gray-200/15 my-8" />
+      <hr className="border-t border-gray-200/15 my-2" />
+      {ratings && (
+        <div className="flex items-center flex-col gap-4">
+          <section className="flex flex-col items-start justify-center text-left w-full">
+            <div className="flex flex-col items-start justify-center text-center mb-4">
+              <h3 className="text-2xl font-semibold mb-1 text-left">Critic Reviews</h3>
+              <p className="text-sm text-muted-foreground">
+                Based on {ratings?.reviews.length ?? 0} critic reviews
+              </p>
+            </div>
+            <Card className="w-full bg-card text-white p-4">
+              <div className="flex flex-row items-center justify-evenly gap-4">
+                <div className="flex flex-row items-center justify-center gap-4">
+                  <span className="text-xl text-center">
+                    OpenCritic
+                    <br />
+                    Rating
+                  </span>
+                  <img
+                    src="https://img.opencritic.com/mighty-man/strong-man.png"
+                    alt="OpenCritic Rating"
+                    className="size-20"
+                  />
+                </div>
+                <div className="flex flex-row items-center justify-center gap-4">
+                  <span className="text-xl text-center">
+                    Top Critic
+                    <br />
+                    Average
+                  </span>
+                  <span className="text-6xl font-bold">
+                    {ratings?.criticAverage.toLocaleString(undefined, {
+                      maximumFractionDigits: 1,
+                    }) ?? '-'}
+                  </span>
+                </div>
+                <div className="flex flex-row items-center justify-center gap-4">
+                  <span className="text-xl text-center">
+                    Critics
+                    <br />
+                    Recommend
+                  </span>
+                  <span className="text-6xl font-bold">
+                    {ratings?.recommendPercentage.toLocaleString(undefined, {
+                      maximumFractionDigits: 1,
+                    }) ?? '-'}
+                  </span>
+                </div>
+              </div>
+            </Card>
+          </section>
+          <hr className="border-t border-gray-200/15 my-2 w-full" />
+        </div>
+      )}
     </div>
   );
 }
@@ -604,12 +712,8 @@ function Review({ review, full }: { review: SingleReview; full?: boolean }) {
               </span>
               {review.editions?.length && review.editions.length > 0 ? (
                 <Tooltip disableHoverableContent={!review.editions}>
-                  <TooltipTrigger>
-                    <InfoCircledIcon
-                      className="ml-2 text-gray-400 cursor-pointer fill-white"
-                      aria-label="More information"
-                      fill="white"
-                    />
+                  <TooltipTrigger className="inline-flex items-center gap-1 ml-2">
+                    <InfoIcon className="size-4" fill="white" />
                   </TooltipTrigger>
                   <TooltipContent>
                     <span className="text-xs flex flex-col gap-1">
