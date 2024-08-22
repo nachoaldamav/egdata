@@ -852,7 +852,21 @@ function RecommendationBar({
   const [hovered, setHovered] = useState<'recommended' | 'notRecommended' | null>(null);
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 relative">
+      <div className="absolute inset-0 bg-transparent w-full h-full flex flex-row items-center justify-between gap-2">
+        <span
+          className="relative z-10 cursor-pointer h-full"
+          style={{ width: `${(recommendedPercentage ?? 0) * 100}%` }}
+          onMouseEnter={() => setHovered('recommended')}
+          onMouseLeave={() => setHovered(null)}
+        />
+        <span
+          className="relative z-10 cursor-pointer h-full"
+          style={{ width: `${(notRecommendedPercentage ?? 0) * 100}%` }}
+          onMouseEnter={() => setHovered('notRecommended')}
+          onMouseLeave={() => setHovered(null)}
+        />
+      </div>
       <div className="flex flex-row items-center justify-between gap-2 px-2">
         <div className="flex items-center gap-1 font-bold">
           <ThumbsUp className="w-5 h-5 fill-blue-600" stroke="none" />
@@ -885,7 +899,7 @@ function RecommendationBar({
           <ThumbsDown className="w-5 h-5 fill-red-600" stroke="none" />
         </div>
       </div>
-      <div className="flex h-[4px] w-[300px] overflow-hidden rounded-full gap-1">
+      <div className="flex h-[4px] w-[300px] overflow-hidden rounded-full gap-1 relative">
         <div
           className={cn(
             'bg-blue-600 rounded-full transition-all duration-300 ease-in-out cursor-pointer',
