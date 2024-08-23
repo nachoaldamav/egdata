@@ -32,9 +32,7 @@ export const InternalBanner: React.FC<{
       }>(`/autocomplete?query=${title}`)
       .then((response) => {
         setResults(
-          response.data.elements
-            .filter(({ namespace }) => !internalNamespaces.includes(namespace))
-            .sort((a, b) => a.title.localeCompare(b.title)),
+          response.data.elements.filter(({ namespace }) => !internalNamespaces.includes(namespace)),
         );
       });
   }, [title]);
