@@ -22,6 +22,7 @@ import { client } from '~/lib/client';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { Skeleton } from '../ui/skeleton';
 import { httpClient } from '~/lib/http-client';
+import { useRegions } from '~/hooks/use-regions';
 
 const chartConfig = {
   price: {
@@ -121,6 +122,7 @@ const calculateSinceDate = (timeRange: 'all' | '3y' | '1y') => {
 };
 
 export function PriceChart({ selectedRegion, id }: PriceChartProps) {
+  const { regions } = useRegions();
   const [timeRange, setTimeRange] = React.useState('1y');
   const [compareUSD, setCompareUSD] = React.useState(false);
 
@@ -307,13 +309,15 @@ export function PriceChart({ selectedRegion, id }: PriceChartProps) {
             <YAxis
               axisLine={false}
               tickLine={false}
-              tickMargin={8}
+              tickMargin={0}
+              width={80}
               tickFormatter={(value) => {
                 const formatter = new Intl.NumberFormat(undefined, {
                   style: 'currency',
                   currency: compareUSD ? 'USD' : regionPricing[0]?.price.currencyCode || 'USD',
                   compactDisplay: 'short',
                   maximumFractionDigits: 0,
+                  currencyDisplay: 'symbol',
                 });
 
                 return formatter.format(value);
@@ -331,6 +335,7 @@ export function PriceChart({ selectedRegion, id }: PriceChartProps) {
                     });
                   }}
                   formatter={(value, key) => {
+                    const regionName = regions?.[selectedRegion]?.description || selectedRegion;
                     const formatter = new Intl.NumberFormat(undefined, {
                       style: 'currency',
                       currency: compareUSD ? 'USD' : regionPricing[0].price.currencyCode,
@@ -344,8 +349,8 @@ export function PriceChart({ selectedRegion, id }: PriceChartProps) {
                         />
                         <span>
                           {chartConfig[key as 'price' | 'usd'].label === 'Region'
-                            ? selectedRegion
-                            : 'US'}
+                            ? regionName
+                            : 'United States'}
                           :
                         </span>
                         {formatter.format(value as number)}
