@@ -214,7 +214,9 @@ export function PriceChart({ selectedRegion, id }: PriceChartProps) {
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
         <div className="grid flex-1 gap-1 text-center sm:text-left">
           <CardTitle>Region Price chart</CardTitle>
-          <CardDescription>Price chart for {selectedRegion} region</CardDescription>
+          <CardDescription>
+            Price chart for {regions?.[selectedRegion]?.description || selectedRegion} region
+          </CardDescription>
         </div>
         <div className="items-center flex space-x-2">
           <Checkbox
