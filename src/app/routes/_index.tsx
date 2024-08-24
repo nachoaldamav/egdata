@@ -25,6 +25,7 @@ import { getFeaturedDiscounts } from '~/queries/featured-discounts';
 import { getTopSection } from '~/queries/top-section';
 import { getLastModified } from '~/queries/last-modified';
 import { httpClient } from '~/lib/http-client';
+import { getLatestOffers } from '~/queries/latest-offers';
 
 export const meta: MetaFunction = () => {
   return [
@@ -57,21 +58,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userPrefsCookie = cookie.parse(cookieHeader as string).EGDATA_USER_PREFS as string;
   const userPrefs = JSON.parse(userPrefsCookie || '{}') as preferencesCookie;
 
-  const [latestGames, eventsData, giveawaysData] = await Promise.allSettled([
-    queryClient.fetchQuery({
-      queryKey: ['latest-games'],
-      queryFn: () =>
-        httpClient
-          .get<SingleOffer[]>('/latest-games', {
-            params: {
-              country,
-            },
-          })
-          .catch((error) => {
-            console.error('Failed to fetch latest games', error);
-            return [] as SingleOffer[];
-          }),
-    }),
+  const [eventsData, giveawaysData] = await Promise.allSettled([
     queryClient.fetchQuery({
       queryKey: ['promotions'],
       queryFn: () =>
@@ -111,16 +98,18 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       queryKey: ['last-modified-offers', { country }],
       queryFn: () => getLastModified(country),
     }),
+    queryClient.prefetchQuery({
+      queryKey: ['latest-games'],
+      queryFn: () => getLatestOffers(country),
+    }),
   ]);
 
-  const games = latestGames.status === 'fulfilled' ? latestGames.value : [];
   const events = eventsData.status === 'fulfilled' ? eventsData.value : [];
   const giveaways = giveawaysData.status === 'fulfilled' ? giveawaysData.value : [];
 
   const dehydratedState = dehydrate(queryClient);
 
   return {
-    games: games as SingleOffer[],
     events: events as FullTag[],
     giveaways: giveaways as GiveawayOffer[],
     userPrefs: userPrefs,
@@ -150,7 +139,7 @@ const defaultOrder = [
 
 export default function Index() {
   const [, setCookies] = useCookies(['EGDATA_USER_PREFS']);
-  const { games, events, giveaways, userPrefs, dehydratedState } = useLoaderData<LoaderData>();
+  const { events, giveaways, userPrefs, dehydratedState } = useLoaderData<LoaderData>();
   const [order, setOrder] = useState(userPrefs.order || defaultOrder);
 
   const sections = [
@@ -158,7 +147,7 @@ export default function Index() {
       key: 'giveaways',
       component: <GiveawaysCarousel key={'giveaways'} initialData={giveaways} />,
     },
-    { key: 'latest', component: <LatestOffers key={'latest'} offers={games} /> },
+    { key: 'latest', component: <LatestOffers key={'latest'} /> },
     { key: 'featuredDiscounts', component: <FeaturedDiscounts key={'featuredDiscounts'} /> },
     { key: 'lastModified', component: <LastModifiedGames key={'lastModified'} /> },
     { key: 'upcomingCalendar', component: <UpcomingCalendar key={'upcomingCalendar'} /> },

@@ -1,4 +1,3 @@
-import type { SingleOffer } from '~/types/single-offer';
 import { OfferCard } from '../app/offer-card';
 import {
   Carousel,
@@ -7,8 +6,19 @@ import {
   CarouselItem,
   CarouselNext,
 } from '../ui/carousel';
+import { useQuery } from '@tanstack/react-query';
+import { useCountry } from '~/hooks/use-country';
+import { getLatestOffers } from '~/queries/latest-offers';
 
-export function LatestOffers({ offers }: { offers: SingleOffer[] }) {
+export function LatestOffers() {
+  const { country } = useCountry();
+  const { data: offers, isLoading: loading } = useQuery({
+    queryKey: ['latest-games'],
+    queryFn: () => getLatestOffers(country),
+  });
+
+  if (loading || !offers) return null;
+
   return (
     <section className="w-full pt-4" id="latest-games">
       <h4 className="text-xl font-bold text-left">Latest Offers</h4>

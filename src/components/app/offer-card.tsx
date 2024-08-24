@@ -198,14 +198,6 @@ export function OfferCard({
 }: { offer: SingleOffer; size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'; content?: JSX.Element }) {
   const { genres } = useGenres();
   const [gradient, setGradient] = useState<string | null>(null);
-  const fmt = Intl.NumberFormat(undefined, {
-    style: 'currency',
-    currency: offer.price?.price.currencyCode || 'USD',
-  });
-
-  const isReleased = offer.releaseDate ? new Date(offer.releaseDate) < new Date() : false;
-  const isPreOrder = offer.prePurchase;
-  const isFree = offer.price?.price.discountPrice === 0;
 
   const offerGenres = genres
     ? offer.tags
@@ -254,107 +246,13 @@ export function OfferCard({
                   <h3 className={cn('text-xl font-bold', textSizes[size] ?? textSizes.xl)}>
                     {offer.title}
                   </h3>
-                  {/* <div className="flex items-center gap-1 text-sm font-medium">
-                      <StarIcon className="w-4 h-4 fill-primary" />
-                      <span>4.8</span>
-                    </div> 
-                  */}
                 </div>
                 <div className="text-sm text-muted-foreground mb-4 z-10">
                   {offerGenres.length > 0
                     ? offerGenres.join(', ')
                     : offersDictionary[offer.offerType]}
                 </div>
-                {offer.price && (
-                  <div className="text-lg font-bold text-primary inline-flex items-end gap-2 z-10 h-full">
-                    {isReleased && offer.price && (
-                      <div className="flex items-center gap-2 text-right w-full justify-start">
-                        <span>
-                          {isFree
-                            ? 'Free'
-                            : fmt.format(
-                                calculatePrice(
-                                  offer.price?.price.discountPrice,
-                                  offer.price?.price.currencyCode,
-                                ),
-                              )}
-                        </span>
-                        {offer.price?.price.discount > 0 && (
-                          <span className="line-through text-sm">
-                            {fmt.format(
-                              calculatePrice(
-                                offer.price?.price.originalPrice,
-                                offer.price?.price.currencyCode,
-                              ),
-                            )}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                    {offer.price.price.discount > 0 && (
-                      <div className="text-xs inline-flex items-center rounded-full bg-green-400 text-black px-2 py-1 font-semibold">
-                        {offer.price.price.discount &&
-                          `-${Math.round(
-                            ((offer.price.price.originalPrice - offer.price.price.discountPrice) /
-                              offer.price.price.originalPrice) *
-                              100,
-                          )}%`}
-                      </div>
-                    )}
-                    {!isReleased && isPreOrder && (
-                      <div className="flex items-center gap-2 text-right w-full justify-start">
-                        <span>
-                          {fmt.format(
-                            calculatePrice(
-                              offer.price?.price.discountPrice,
-                              offer.price?.price.currencyCode,
-                            ),
-                          )}
-                        </span>
-                        {offer.price?.price.discount > 0 && (
-                          <span className="line-through text-sm">
-                            {fmt.format(
-                              calculatePrice(
-                                offer.price?.price.originalPrice,
-                                offer.price?.price.currencyCode,
-                              ),
-                            )}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                    {!isReleased && !isPreOrder && !offer.price && <span>Coming Soon</span>}
-                    {!isReleased &&
-                      !isPreOrder &&
-                      offer.price &&
-                      offer.price?.price.discountPrice !== 0 && (
-                        <div className="flex items-center gap-2 text-right w-full justify-start">
-                          <span>
-                            {fmt.format(
-                              calculatePrice(
-                                offer.price?.price.discountPrice,
-                                offer.price?.price.currencyCode,
-                              ),
-                            )}
-                          </span>
-                          {offer.price?.price.discount > 0 && (
-                            <span className="line-through text-sm">
-                              {fmt.format(
-                                calculatePrice(
-                                  offer.price?.price.originalPrice,
-                                  offer.price?.price.currencyCode,
-                                ),
-                              )}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    {!isReleased &&
-                      !isPreOrder &&
-                      offer.price &&
-                      offer.price?.price.discountPrice === 0 && <span>Coming Soon</span>}
-                  </div>
-                )}
+                <OfferPrice offer={offer} size={size} />
               </>
             )}
             {content && content}
@@ -378,5 +276,91 @@ export function OfferCard({
         )}
       </Card>
     </Link>
+  );
+}
+
+function OfferPrice({
+  offer,
+  size = 'xl',
+}: { offer: SingleOffer; size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' }) {
+  const fmt = Intl.NumberFormat(undefined, {
+    style: 'currency',
+    currency: offer.price?.price.currencyCode || 'USD',
+  });
+
+  const isReleased = offer.releaseDate ? new Date(offer.releaseDate) < new Date() : false;
+  const isPreOrder = offer.prePurchase;
+  const isFree = offer.price?.price.discountPrice === 0;
+
+  if (!offer.price) return null;
+
+  return (
+    <div className="text-lg font-bold text-primary inline-flex items-end gap-2 z-10 h-full">
+      {isReleased && offer.price && (
+        <div className="flex items-center gap-2 text-right w-full justify-start">
+          <span>
+            {isFree
+              ? 'Free'
+              : fmt.format(
+                  calculatePrice(offer.price?.price.discountPrice, offer.price?.price.currencyCode),
+                )}
+          </span>
+          {offer.price?.price.discount > 0 && (
+            <span className="line-through text-sm">
+              {fmt.format(
+                calculatePrice(offer.price?.price.originalPrice, offer.price?.price.currencyCode),
+              )}
+            </span>
+          )}
+        </div>
+      )}
+
+      {!isReleased && isPreOrder && (
+        <div className="flex items-center gap-2 text-right w-full justify-start">
+          <span>
+            {fmt.format(
+              calculatePrice(offer.price?.price.discountPrice, offer.price?.price.currencyCode),
+            )}
+          </span>
+          {offer.price?.price.discount > 0 && (
+            <span className="line-through text-sm">
+              {fmt.format(
+                calculatePrice(offer.price?.price.originalPrice, offer.price?.price.currencyCode),
+              )}
+            </span>
+          )}
+        </div>
+      )}
+      {!isReleased && !isPreOrder && !offer.price && <span>Coming Soon</span>}
+      {!isReleased && !isPreOrder && offer.price && offer.price?.price.discountPrice !== 0 && (
+        <div className="flex items-center gap-2 text-right w-full justify-start">
+          <span>
+            {fmt.format(
+              calculatePrice(offer.price?.price.discountPrice, offer.price?.price.currencyCode),
+            )}
+          </span>
+          {offer.price?.price.discount > 0 && (
+            <span className="line-through text-sm">
+              {fmt.format(
+                calculatePrice(offer.price?.price.originalPrice, offer.price?.price.currencyCode),
+              )}
+            </span>
+          )}
+        </div>
+      )}
+      {!isReleased && !isPreOrder && offer.price && offer.price?.price.discountPrice === 0 && (
+        <span>Coming Soon</span>
+      )}
+      {offer.price.price.discount > 0 && (
+        <div className="text-xs inline-flex items-center rounded-full bg-green-400 text-black px-2 py-1 font-semibold">
+          {offer.price.price.discount &&
+            `-${Math.round(
+              ((offer.price.price.originalPrice - offer.price.price.discountPrice) /
+                offer.price.price.originalPrice) *
+                100,
+            )}%`}
+        </div>
+      )}
+    </div>
   );
 }
