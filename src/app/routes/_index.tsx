@@ -1,6 +1,5 @@
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import type { FullTag } from '~/types/tags';
-import type { SingleOffer } from '~/types/single-offer';
 import type { GiveawayOffer } from '~/types/giveaways';
 import { useLoaderData } from '@remix-run/react';
 import { getQueryClient } from '~/lib/client';
@@ -8,7 +7,6 @@ import cookie from 'cookie';
 import { useCookies } from 'react-cookie';
 import { SalesModule } from '~/components/modules/sales';
 import { ChangelistModule } from '~/components/modules/changelist';
-import { FeaturedModule } from '~/components/modules/featured';
 import { UpcomingOffers } from '~/components/modules/upcoming';
 import { StatsModule } from '~/components/modules/stats';
 import { TopSection } from '~/components/modules/top-section';
