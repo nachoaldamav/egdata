@@ -13,8 +13,8 @@ import {
 } from '~/components/ui/table';
 import { Image } from '../app/image';
 import { getImage } from '~/lib/getImage';
-import { Link, useNavigate } from '@remix-run/react';
-import { ArrowRightIcon } from '@radix-ui/react-icons';
+import { useNavigate } from '@remix-run/react';
+import { Badge } from '../ui/badge';
 
 type UpcomingOffer = Pick<
   SingleOffer,
@@ -130,11 +130,7 @@ function TablePrice({
 
   return (
     <div className="inline-flex items-center gap-2">
-      {prePurchase && (
-        <span className="bg-red-400 text-white text-xs font-semibold px-2 py-1 rounded-full">
-          Pre-order
-        </span>
-      )}
+      {prePurchase && <Badge variant="default">Pre-Purchase</Badge>}
       <span className="text-primary font-bold">{fmt.format(price.price.discountPrice / 100)}</span>
     </div>
   );
