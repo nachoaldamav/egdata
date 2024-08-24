@@ -189,22 +189,29 @@ function AgeRatings({ ageRatings }: { ageRatings: SingleSandbox['ageGatings'] })
 }
 
 function Assets({ assets }: { assets: { assets: Asset }[] }) {
-  return (
-    <div className="flex flex-col gap-2 items-start justify-start">
-      {assets.map(({ assets: asset }) => (
-        <div className="flex flex-row gap-2 items-center" key={asset._id}>
-          {textPlatformIcons[asset.platform]}
-          <span className="text-xs text-left">{asset.artifactId}</span>
-          <span className="text-xs text-left">
-            Download: {bytesToSize(asset.downloadSizeBytes)}
-          </span>
-          <span className="text-xs text-left">
-            Install: {bytesToSize(asset.installedSizeBytes)}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
+  try {
+    return (
+      <div className="flex flex-col gap-2 items-start justify-start">
+        {assets
+          .filter(({ assets: asset }) => asset.platform)
+          .map(({ assets: asset }) => (
+            <div className="flex flex-row gap-2 items-center" key={asset._id}>
+              {textPlatformIcons[asset.platform]}
+              <span className="text-xs text-left">{asset.artifactId}</span>
+              <span className="text-xs text-left">
+                Download: {bytesToSize(asset.downloadSizeBytes)}
+              </span>
+              <span className="text-xs text-left">
+                Install: {bytesToSize(asset.installedSizeBytes)}
+              </span>
+            </div>
+          ))}
+      </div>
+    );
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }
 
 const bytesToSize = (bytes: number) => {
