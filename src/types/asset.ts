@@ -1,4 +1,5 @@
 export interface Asset {
+  _id: string;
   artifactId: string;
   downloadSizeBytes: number;
   installedSizeBytes: number;

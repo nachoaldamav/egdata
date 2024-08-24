@@ -1,6 +1,7 @@
 import { useOutletContext } from '@remix-run/react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { platformIcons, textPlatformIcons } from '~/components/app/platform-icons';
 import {
   Table,
   TableHeader,
@@ -9,8 +10,8 @@ import {
   TableBody,
   TableCell,
 } from '~/components/ui/table';
-import { client } from '~/lib/client';
 import { httpClient } from '~/lib/http-client';
+import type { Asset } from '~/types/asset';
 import type { SingleOffer } from '~/types/single-offer';
 import type { SingleSandbox } from '~/types/single-sandbox';
 
@@ -30,9 +31,23 @@ export default function ItemsSection() {
     ],
     queryFn: () => httpClient.get<SingleSandbox>(`/sandboxes/${data.namespace}`),
   });
+  const { data: assets } = useQuery({
+    queryKey: [
+      'assets',
+      {
+        id: data.id,
+      },
+    ],
+    queryFn: () =>
+      httpClient.get<
+        {
+          assets: Asset;
+        }[]
+      >(`/offers/${data.id}/assets`),
+  });
 
   return (
-    <>
+    <div className="flex flex-col gap-2 w-full">
       <h2 className="text-2xl font-bold">Metadata</h2>
       <Table>
         <TableHeader>
@@ -77,6 +92,7 @@ export default function ItemsSection() {
                 .join(', ')}
             </TableCell>
           </TableRow>
+
           <TableRow>
             <TableCell>Age Ratings</TableCell>
             <TableCell>
@@ -84,9 +100,17 @@ export default function ItemsSection() {
               <AgeRatings ageRatings={sandboxData?.ageGatings ?? {}} />
             </TableCell>
           </TableRow>
+          {assets && assets?.length > 0 ? (
+            <TableRow>
+              <TableCell>Assets</TableCell>
+              <TableCell>
+                <Assets assets={assets} />
+              </TableCell>
+            </TableRow>
+          ) : null}
         </TableBody>
       </Table>
-    </>
+    </div>
   );
 }
 
@@ -163,3 +187,30 @@ function AgeRatings({ ageRatings }: { ageRatings: SingleSandbox['ageGatings'] })
     </div>
   );
 }
+
+function Assets({ assets }: { assets: { assets: Asset }[] }) {
+  return (
+    <div className="flex flex-col gap-2 items-start justify-start">
+      {assets.map(({ assets: asset }) => (
+        <div className="flex flex-row gap-2 items-center" key={asset._id}>
+          {textPlatformIcons[asset.platform]}
+          <span className="text-xs text-left">{asset.artifactId}</span>
+          <span className="text-xs text-left">
+            Download: {bytesToSize(asset.downloadSizeBytes)}
+          </span>
+          <span className="text-xs text-left">
+            Install: {bytesToSize(asset.installedSizeBytes)}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const bytesToSize = (bytes: number) => {
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  if (bytes === 0) return '0 Byte';
+  const i = Number.parseInt(String(Math.floor(Math.log(bytes) / Math.log(1024))));
+  if (i === 0) return `${bytes} ${sizes[i]}`;
+  return `${(bytes / 1024 ** i).toFixed(1)} ${sizes[i]}`;
+};
