@@ -353,6 +353,7 @@ function SearchPortal({ searchState, setSearchState, inputRef }: SearchPortalPro
                           />
                         </div>
                         <span>{offer.title}</span>
+                        {offer.prePurchase && <Badge variant="default">Pre-Purchase</Badge>}
                       </div>
                       <OfferPrice id={offer.id} country={country} />
                     </Link>
