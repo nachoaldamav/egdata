@@ -146,7 +146,7 @@ async function handleUnlinkAction(user: DiscordUser) {
 export default function Dashboard() {
   const { user, data } = useLoaderData<typeof loader>();
   return (
-    <div className="flex flex-col items-start justify-start h-screen">
+    <div className="flex flex-col items-start justify-start h-screen w-full">
       <h1 className="text-4xl font-bold">Dashboard</h1>
       <p className="mt-4 text-lg text-muted-foreground">
         Welcome back, <span className="font-semibold">{user.displayName}!</span>
@@ -182,6 +182,9 @@ export default function Dashboard() {
           </Card>
         </div>
       )}
+      <section className="w-full mx-auto mt-4">
+        <LinkingForm />
+      </section>
     </div>
   );
 }
@@ -350,5 +353,131 @@ function Step3({
         </Button>
       </Form>
     </div>
+  );
+}
+
+function LinkingForm() {
+  const [step, setStep] = useState(1);
+  const [accountId, setAccountId] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Simulate extension interaction
+  useEffect(() => {
+    if (step === 2) {
+      setIsLoading(true);
+      // TODO: use a specific extension ID to avoid conflicts
+      window.postMessage({ type: 'FROM_PAGE', event: 'linkAccount' });
+
+      const eventHandler = (event: MessageEvent) => {
+        if (event.data.type === 'FROM_EXTENSION' && event.data.event === 'linkAccountSuccess') {
+          setAccountId(event.data.accountId);
+          setIsLoading(false);
+        }
+      };
+
+      window.addEventListener('message', eventHandler);
+
+      return () => {
+        window.removeEventListener('message', eventHandler);
+      };
+    }
+  }, [step]);
+
+  const handleNext = () => {
+    if (step < 3) setStep(step + 1);
+  };
+
+  const handlePrevious = () => {
+    if (step > 1) setStep(step - 1);
+  };
+
+  const renderStep = () => {
+    switch (step) {
+      case 1:
+        return (
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold">Step 1: Introduction</h2>
+            <p>Welcome to the account linking process. Here's what you need to know:</p>
+            <ul className="list-disc list-inside space-y-2">
+              <li>Make sure you have our browser extension installed</li>
+              <li>
+                Open{' '}
+                <Link
+                  to="https://store.epicgames.com"
+                  className="underline text-blue-500"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  https://store.epicgames.com
+                </Link>{' '}
+                in your browser
+              </li>
+              <li>Make sure you're logged in to your Epic Games account</li>
+              <li>When you're ready, click on "Next" to proceed</li>
+            </ul>
+          </div>
+        );
+      case 2:
+        return (
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold">Step 2: Linking Process</h2>
+            {isLoading ? (
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto" />
+                <p className="mt-4">Retrieving your account ID from the extension...</p>
+              </div>
+            ) : (
+              <p>Your account ID has been successfully retrieved.</p>
+            )}
+          </div>
+        );
+      case 3:
+        return (
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold">Step 3: Confirmation</h2>
+            <p>Please confirm the account ID retrieved from the extension:</p>
+            <div className="space-y-2">
+              <Label htmlFor="accountId">Account ID</Label>
+              <Input id="accountId" value={accountId} readOnly />
+            </div>
+            <p>If this ID is correct, click 'Finish' to complete the linking process.</p>
+          </div>
+        );
+    }
+  };
+
+  return (
+    <Card className="w-full max-w-lg mx-auto">
+      <CardHeader>
+        <CardTitle>Link Your Account</CardTitle>
+        <CardDescription>Follow the steps to link your account using our extension</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="mb-4">
+          <div className="flex justify-between mb-2">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className={`w-1/3 h-2 rounded-full ${i <= step ? 'bg-primary' : 'bg-muted'}`}
+              />
+            ))}
+          </div>
+          <div className="flex justify-between text-sm text-muted-foreground">
+            <span>Introduction</span>
+            <span>Linking</span>
+            <span>Confirmation</span>
+          </div>
+        </div>
+        {renderStep()}
+      </CardContent>
+      <CardFooter className="flex justify-between">
+        <Button onClick={handlePrevious} disabled={step === 1 || isLoading}>
+          Previous
+        </Button>
+        <Button onClick={handleNext} disabled={step === 3 || isLoading}>
+          {step === 3 ? 'Finish' : 'Next'}
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }
