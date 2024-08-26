@@ -1,7 +1,7 @@
 import { useOutletContext } from '@remix-run/react';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { platformIcons, textPlatformIcons } from '~/components/app/platform-icons';
+import { textPlatformIcons } from '~/components/app/platform-icons';
 import {
   Table,
   TableHeader,
@@ -16,11 +16,13 @@ import type { SingleOffer } from '~/types/single-offer';
 import type { SingleSandbox } from '~/types/single-sandbox';
 
 export default function ItemsSection() {
-  const data = useOutletContext<SingleOffer>();
+  const outlet = useOutletContext<{ offer: SingleOffer }>();
 
-  if (!data) {
+  if (!outlet) {
     return null;
   }
+
+  const data = outlet.offer;
 
   const { data: sandboxData } = useQuery({
     queryKey: [

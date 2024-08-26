@@ -418,7 +418,7 @@ function ReviewsPage({ id }: { id: string }) {
     : false;
 
   return (
-    <div className="grid gap-6 mx-auto mt-10">
+    <div className="grid gap-6 mx-auto mt-10 w-full">
       <div className="grid gap-4">
         <div className="flex items-center flex-col gap-4">
           {poll?.averageRating && (

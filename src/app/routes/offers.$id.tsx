@@ -1,20 +1,17 @@
-import type { LoaderFunctionArgs } from '@remix-run/node';
+import { type LoaderFunctionArgs, redirect } from '@remix-run/node';
 import {
   Link,
   Outlet,
   useLoaderData,
   useLocation,
   useNavigate,
-  useNavigation,
   type MetaFunction,
 } from '@remix-run/react';
-import { Image } from '~/components/app/image';
-import { client, getQueryClient } from '~/lib/client';
+import { getQueryClient } from '~/lib/client';
 import { getImage } from '~/lib/getImage';
 import { getSeller } from '~/lib/get-seller';
 import type { SingleOffer } from '~/types/single-offer';
 import type { SingleItem } from '~/types/single-item';
-import type { Media } from '~/types/media';
 import type { Price } from '~/types/price';
 import {
   Table,
@@ -28,19 +25,16 @@ import { offersDictionary } from '~/lib/offers-dictionary';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 import { compareDates, timeAgo } from '~/lib/time-ago';
 import { internalNamespaces } from '~/lib/internal-namespaces';
-import { GameFeatures } from '~/components/app/features';
 import { cn } from '~/lib/utils';
 import { OpenLauncher } from '~/components/app/open-launcher';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
-import { RegionalPricing } from '~/components/app/regional-pricing';
 import getCountryCode from '~/lib/get-country-code';
 import { OpenEgs } from '~/components/app/open-egs';
 import { OpenEgl } from '~/components/app/open-egl';
 import { BaseGame } from '~/components/app/base-game';
 import { InternalBanner } from '~/components/app/internal-banner';
-import { dehydrate, HydrationBoundary, useQueries, useQuery } from '@tanstack/react-query';
+import { dehydrate, HydrationBoundary, useQueries } from '@tanstack/react-query';
 import cookie from 'cookie';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import { SuggestedOffers } from '~/components/modules/suggested-offers';
 import { platformIcons } from '~/components/app/platform-icons';
 import { SellerOffers } from '~/components/modules/seller-offers';
@@ -51,6 +45,8 @@ import { useCompare } from '~/hooks/use-compare';
 import { RemoveIcon } from '~/components/icons/remove';
 import { AddIcon } from '~/components/icons/add';
 import { Badge } from '~/components/ui/badge';
+import { OfferHero } from '~/components/app/offer-hero';
+import { SectionsNav } from '~/components/app/offer-sections';
 
 function supportedPlatforms(items: SingleItem[]): string[] {
   try {
@@ -68,35 +64,6 @@ function supportedPlatforms(items: SingleItem[]): string[] {
   } catch (error) {
     return [];
   }
-}
-
-export async function loader({ params, request }: LoaderFunctionArgs) {
-  const queryClient = getQueryClient();
-  const url = new URL(request.url);
-  const country = getCountryCode(url, cookie.parse(request.headers.get('Cookie') || ''));
-
-  await Promise.allSettled([
-    queryClient.prefetchQuery({
-      queryKey: ['offer', { id: params.id }],
-      queryFn: () => httpClient.get<SingleOffer>(`/offers/${params.id}`),
-    }),
-    queryClient.prefetchQuery({
-      queryKey: ['items', { id: params.id }],
-      queryFn: () => httpClient.get<Array<SingleItem>>(`/offers/${params.id}/items`),
-    }),
-    queryClient.prefetchQuery({
-      queryKey: ['price', { id: params.id, country }],
-      queryFn: () => httpClient.get<Price>(`/offers/${params.id}/price?country=${country || 'US'}`),
-    }),
-  ]);
-
-  const subPath = request.url.split(`/${params.id}/`)[1] as string | undefined;
-
-  return {
-    subPath,
-    id: params.id,
-    dehydratedState: dehydrate(queryClient),
-  };
 }
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
@@ -294,6 +261,39 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
   }
 };
 
+export async function loader({ params, request }: LoaderFunctionArgs) {
+  const queryClient = getQueryClient();
+  const url = new URL(request.url);
+  const country = getCountryCode(url, cookie.parse(request.headers.get('Cookie') || ''));
+
+  await Promise.allSettled([
+    queryClient.prefetchQuery({
+      queryKey: ['offer', { id: params.id }],
+      queryFn: () => httpClient.get<SingleOffer>(`/offers/${params.id}`),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: ['items', { id: params.id }],
+      queryFn: () => httpClient.get<Array<SingleItem>>(`/offers/${params.id}/items`),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: ['price', { id: params.id, country }],
+      queryFn: () => httpClient.get<Price>(`/offers/${params.id}/price?country=${country || 'US'}`),
+    }),
+  ]);
+
+  const subPath = request.url.split(`/${params.id}/`)[1] as string | undefined;
+
+  if (!subPath) {
+    return redirect(`/offers/${params.id}/price`);
+  }
+
+  return {
+    subPath,
+    id: params.id,
+    dehydratedState: dehydrate(queryClient),
+  };
+}
+
 export default function Index() {
   const { dehydratedState } = useLoaderData<typeof loader>();
 
@@ -309,7 +309,7 @@ function OfferPage() {
   const location = useLocation();
   const { country } = useCountry();
   const { addToCompare, removeFromCompare, compare } = useCompare();
-  const { subPath: serverSubPath, id } = useLoaderData<typeof loader>();
+  const { id } = useLoaderData<typeof loader>();
   const [offerQuery, itemsQuery] = useQueries({
     queries: [
       {
@@ -333,7 +333,7 @@ function OfferPage() {
   const { data: offerData, isLoading: offerLoading } = offerQuery;
   const { data: items } = itemsQuery;
 
-  const subPath = serverSubPath ?? location.pathname.split(`/${id}/`)[1] ?? 'price';
+  const subPath = location.pathname.split(`/${id}/`)[1] ?? 'price';
 
   useEffect(() => {
     if (!subPath || subPath === '') {
@@ -352,14 +352,6 @@ function OfferPage() {
   if (offerData.title === 'Error') {
     return <div>{offerData.description}</div>;
   }
-
-  const handleTabChange = (value: string) => {
-    if (value === 'price') {
-      navigate(`/offers/${offerData.id}`, { replace: true, preventScrollReset: true });
-    } else {
-      navigate(`/offers/${offerData.id}/${value}`, { replace: true, preventScrollReset: true });
-    }
-  };
 
   return (
     <main className="flex flex-col items-start justify-start w-full min-h-screen gap-4">
@@ -528,50 +520,64 @@ function OfferPage() {
         </div>
       </header>
 
-      <section id="offer-information" className="w-full min-h-[50vh]">
-        <Tabs
-          defaultValue={subPath}
-          className="w-full"
-          onValueChange={handleTabChange}
-          key={`subsection-${offerData.id}`}
-        >
-          <TabsList>
-            <TabsTrigger value="price">Price</TabsTrigger>
-            <TabsTrigger value="items">Items</TabsTrigger>
-            <TabsTrigger value="achievements">Achievements</TabsTrigger>
-            <TabsTrigger value="related">Related</TabsTrigger>
-            <TabsTrigger value="metadata">Metadata</TabsTrigger>
-            <TabsTrigger value="changelog">Changelog</TabsTrigger>
-            <TabsTrigger value="media">Media</TabsTrigger>
-            <TabsTrigger value="reviews">Reviews</TabsTrigger>
-          </TabsList>
-          <TabsContent value="price">
-            <h2 className="text-2xl font-bold">Price</h2>
-            <RegionalPricing id={offerData.id} />
-          </TabsContent>
-          <TabsContent value="items" className="w-full">
-            <Outlet context={{ items }} />
-          </TabsContent>
-          <TabsContent value="achievements">
-            <Outlet />
-          </TabsContent>
-          <TabsContent value="related">
-            <Outlet />
-          </TabsContent>
-          <TabsContent value="metadata">
-            <Outlet context={offerData} />
-          </TabsContent>
-          <TabsContent value="changelog">
-            <Outlet />
-          </TabsContent>
-          <TabsContent value="media">
-            <Outlet />
-          </TabsContent>
-          <TabsContent value="reviews">
-            <Outlet />
-          </TabsContent>
-        </Tabs>
+      <section id="offer-information" className="w-full min-h-[50vh] flex flex-col gap-4">
+        <SectionsNav
+          links={[
+            {
+              id: 'price',
+              label: 'Price',
+              href: `/offers/${offerData.id}/price`,
+            },
+            {
+              id: 'items',
+              label: 'Items',
+              href: `/offers/${offerData.id}/items`,
+            },
+            {
+              id: 'achievements',
+              label: 'Achievements',
+              href: `/offers/${offerData.id}/achievements`,
+            },
+            {
+              id: 'related',
+              label: 'Related',
+              href: `/offers/${offerData.id}/related`,
+            },
+            {
+              id: 'metadata',
+              label: 'Metadata',
+              href: `/offers/${offerData.id}/metadata`,
+            },
+            {
+              id: 'changelog',
+              label: 'Changelog',
+              href: `/offers/${offerData.id}/changelog`,
+            },
+            {
+              id: 'media',
+              label: 'Media',
+              href: `/offers/${offerData.id}/media`,
+            },
+            {
+              id: 'reviews',
+              label: 'Reviews',
+              href: `/offers/${offerData.id}/reviews`,
+            },
+          ]}
+          activeSection={subPath ?? 'price'}
+          onSectionChange={(id) => {
+            navigate(`/offers/${offerData.id}/${id}`, { replace: false, preventScrollReset: true });
+          }}
+        />
+
+        <Outlet
+          context={{
+            offer: offerData,
+            items: items,
+          }}
+        />
       </section>
+
       <SellerOffers
         id={offerData.seller.id}
         name={offerData.seller.name}
@@ -640,81 +646,3 @@ const ReleaseDate: React.FC<{
     </>
   );
 };
-
-function OfferHero({ offer }: { offer: SingleOffer }) {
-  const { data: media } = useQuery({
-    queryKey: ['media', { id: offer.id }],
-    queryFn: () => client.get<Media>(`/offers/${offer.id}/media`).then((response) => response.data),
-    retry: false,
-  });
-  const [isHovered, setIsHovered] = useState(false);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-
-  const videoUrl = media?.videos?.[0]?.outputs
-    .filter((output) => output.width !== undefined)
-    .sort((a, b) => (b?.width ?? 0) - (a?.width ?? 0))[0]?.url;
-
-  useEffect(() => {
-    if (videoUrl && videoRef.current) {
-      videoRef.current.src = videoUrl;
-      videoRef.current.load();
-    }
-  }, [videoUrl]);
-
-  useEffect(() => {
-    if (videoRef.current) {
-      if (!isHovered) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-    }
-  }, [isHovered]);
-
-  return (
-    <div
-      className="relative w-full h-auto"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {videoUrl && (
-        <video
-          className={cn(
-            'rounded-xl shadow-lg transition-opacity duration-700 absolute inset-0 ease-in-out',
-            isHovered ? 'opacity-100' : 'opacity-0',
-          )}
-          autoPlay
-          loop
-          muted
-          playsInline
-          controls={false}
-          width={'100%'}
-          height={'auto'}
-          src={videoUrl}
-          ref={(element) => {
-            videoRef.current = element;
-          }}
-        />
-      )}
-      <Image
-        src={
-          getImage(offer.keyImages, [
-            'DieselStoreFrontWide',
-            'OfferImageWide',
-            'DieselGameBoxWide',
-            'TakeoverWide',
-          ])?.url
-        }
-        alt={offer.title}
-        quality="original"
-        width={1920}
-        height={1080}
-        className={cn(
-          'rounded-xl shadow-lg transition-opacity duration-700 ease-in-out',
-          videoUrl && isHovered ? 'opacity-0' : 'opacity-100',
-        )}
-      />
-      <GameFeatures id={offer.id} />
-    </div>
-  );
-}

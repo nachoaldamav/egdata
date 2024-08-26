@@ -54,6 +54,10 @@ class HttpFetch {
         const response = await fetch(url, { ...options, signal: controller.signal });
         clearTimeout(timeoutId);
 
+        if (response.status === 404) {
+          throw new Error(`HTTP error! Status: 404 - Not Found`);
+        }
+
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
@@ -61,7 +65,10 @@ class HttpFetch {
         const data = await response.json();
         return data as T;
       } catch (error) {
-        if (attempts < options.retries! - 1) {
+        if (
+          attempts < options.retries! - 1 &&
+          !(error instanceof Error && error.message.includes('Status: 404'))
+        ) {
           await this.delay(options.retryDelay!);
         } else {
           throw error;
