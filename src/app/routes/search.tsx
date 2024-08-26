@@ -632,7 +632,12 @@ function SearchResults({
   useEffect(() => {
     if (data?.query) {
       console.log('setting search params', data.query);
-      setSearchParams({ hash: data.query });
+      setSearchParams(
+        { hash: data.query },
+        {
+          replace: true,
+        },
+      );
     }
   }, [data, setSearchParams]);
 
