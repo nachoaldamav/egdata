@@ -20,6 +20,7 @@ import { cn } from '~/lib/utils';
 import type { Price } from '~/types/price';
 import { httpClient } from '~/lib/http-client';
 import { calculatePrice } from '~/lib/calculate-price';
+import { Badge } from '~/components/ui/badge';
 
 interface RegionData {
   region: Region;
@@ -193,8 +194,14 @@ export function RegionalPricing({ id }: { id: string }) {
                 <TableCell>
                   {currencyFormatter.format(calculatePrice(maxPrice, lastPrice.price.currencyCode))}
                 </TableCell>
-                <TableCell>
+                <TableCell className="inline-flex items-center gap-1">
                   {currencyFormatter.format(calculatePrice(minPrice, lastPrice.price.currencyCode))}
+                  {calculateDiscountPercentage(minPrice, lastPrice.price.originalPrice) !== '0' &&
+                  selectedRegion === key ? (
+                    <Badge className="text-xs" variant="outline">
+                      -{calculateDiscountPercentage(minPrice, lastPrice.price.originalPrice)}%
+                    </Badge>
+                  ) : null}
                 </TableCell>
                 <TableCell className="text-right">
                   {usdFormatter.format(lastPrice.price.basePayoutPrice / 100)}
@@ -267,3 +274,11 @@ function CountryFlag({ code }: { code: string }) {
     />
   );
 }
+
+const calculateDiscountPercentage = (minPrice: number, maxPrice: number) => {
+  if (maxPrice === 0) {
+    return 0;
+  }
+
+  return (((maxPrice - minPrice) / maxPrice) * 100).toFixed(0);
+};
