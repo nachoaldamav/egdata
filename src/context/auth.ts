@@ -1,8 +1,8 @@
 import { createContext } from 'react';
-import type { User } from '~/types/auth';
+import type { DiscordUser } from '~/app/services/auth.server';
 
 export interface AuthContextType {
-  user: User | null;
+  user: DiscordUser | null;
 }
 
 export const AuthContext = createContext<AuthContextType>({

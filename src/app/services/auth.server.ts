@@ -16,10 +16,11 @@ export interface DiscordUser {
   guilds?: Array<CustomDiscordGuild>;
   accessToken: string;
   refreshToken: string;
+  expires_at: string;
   epicId: string | null | undefined;
 }
 
-const discordStrategy = new DiscordStrategy(
+export const discordStrategy = new DiscordStrategy(
   {
     clientID: process.env.DISCORD_CLIENT_ID as string,
     clientSecret: process.env.DISCORD_CLIENT_SECRET as string,
@@ -94,6 +95,7 @@ const discordStrategy = new DiscordStrategy(
       locale: profile.__json.locale,
       accessToken,
       refreshToken: refreshToken as string,
+      expires_at: new Date(Date.now() + extraParams.expires_in * 1000).toISOString(),
       guilds,
       epicId: undefined,
     };

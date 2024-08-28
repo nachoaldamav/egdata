@@ -9,7 +9,12 @@ import {
   useLoaderData,
   useRouteError,
 } from '@remix-run/react';
-import type { LinksFunction, LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
+import {
+  type LinksFunction,
+  type LoaderFunctionArgs,
+  type MetaFunction,
+  redirect,
+} from '@remix-run/node';
 import { dehydrate, HydrationBoundary, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import cookie from 'cookie';
@@ -123,6 +128,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const country = getCountryCode(url, cookies);
 
     const authenticatedUser = await authenticator.isAuthenticated(request);
+
+    if (authenticatedUser) {
+      if (!authenticatedUser.expires_at) {
+        return redirect('/logout');
+      }
+
+      if (new Date(authenticatedUser.expires_at).getTime() < Date.now()) {
+        return redirect('/auth/discord/refresh');
+      }
+    }
 
     return {
       userPreferences,

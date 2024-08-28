@@ -17,6 +17,7 @@ import { ArrowRight, LinkIcon } from 'lucide-react';
 import { Label } from '~/components/ui/label';
 import { Input } from '~/components/ui/input';
 import { ReloadIcon } from '@radix-ui/react-icons';
+import consola from 'consola';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const cookies = request.headers.get('Cookie');
@@ -24,18 +25,27 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const token = await getSession(cookies);
 
-  if (!user || !token) {
+  if (!user) {
+    consola.info('User not authenticated, missing user');
     return redirect('/login');
   }
 
-  const userData = await httpClient.get<DiscordUser>('/users/discord', {
-    headers: {
-      Authorization: `Bearer ${user.accessToken}`,
-    },
-    retries: 1,
-  });
+  if (!token) {
+    consola.info('User not authenticated, missing token');
+    return redirect('/login');
+  }
+
+  const userData = await httpClient
+    .get<DiscordUser>('/users/discord', {
+      headers: {
+        Authorization: `Bearer ${user.accessToken}`,
+      },
+      retries: 1,
+    })
+    .catch(() => null);
 
   if (!userData) {
+    consola.info('API returned null user data');
     return redirect('/login');
   }
 
