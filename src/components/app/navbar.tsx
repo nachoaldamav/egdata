@@ -69,14 +69,14 @@ const routes: Route[] = [
               </NavigationMenuLink>
             )}
           </li>
+          <ListItem href="/search" title="Search">
+            Find what you're looking for on the Epic Games Store.
+          </ListItem>
           <ListItem href="/search?categories=freegames" title="Free Games">
             Explore the latest free game offerings on the Epic Games Store.
           </ListItem>
           <ListItem href="/search?on_sale=true" title="With Discounts">
             Check out games currently on sale with great discounts.
-          </ListItem>
-          <ListItem href="/search?tags=19847&offer_type=BASE_GAME" title="Epic Achievements">
-            Find games that feature achievements to unlock as you play.
           </ListItem>
         </ul>
       );
@@ -307,21 +307,22 @@ function SearchIcon(props: React.SVGProps<SVGSVGElement>) {
 }
 
 const ListItem = React.forwardRef<React.ElementRef<'a'>, React.ComponentPropsWithoutRef<'a'>>(
-  ({ className, title, children, ...props }, ref) => {
+  ({ className, title, children, href, ...props }, ref) => {
     return (
       <li>
         <NavigationMenuLink asChild>
-          <a
+          <Link
             ref={ref}
             className={cn(
               'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-gray-800 hover:text-white focus:bg-accent/20 focus:text-white',
               className,
             )}
+            to={href ?? '/'}
             {...props}
           >
             <div className="text-sm font-medium leading-none">{title}</div>
             <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">{children}</p>
-          </a>
+          </Link>
         </NavigationMenuLink>
       </li>
     );
