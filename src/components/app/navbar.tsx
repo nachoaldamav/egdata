@@ -1,15 +1,18 @@
 import { Sheet, SheetTrigger, SheetContent, SheetHeader } from '~/components/ui/sheet';
 import { Button } from '~/components/ui/button';
-import { Link } from '@remix-run/react';
+import { Link, useNavigate } from '@remix-run/react';
 import {
   NavigationMenu,
   NavigationMenuList,
   NavigationMenuLink,
+  NavigationMenuItem,
+  NavigationMenuTrigger,
+  NavigationMenuContent,
 } from '~/components/ui/navigation-menu';
 import { Input } from '~/components/ui/input';
 import { useSearch } from '~/hooks/use-search';
 import { CountriesSelector } from './country-selector';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useAuth } from '~/hooks/use-auth';
 import {
   DropdownMenu,
@@ -20,11 +23,40 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { cn } from '~/lib/utils';
 
 const routes = [
   {
     name: 'Browse',
     href: '/search',
+    component: () => {
+      return (
+        <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+          <li className="row-span-3">
+            <NavigationMenuLink asChild>
+              <a
+                className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
+                href="/"
+              >
+                <div className="mb-2 mt-4 text-lg font-medium">shadcn/ui</div>
+                <p className="text-sm leading-tight text-muted-foreground">
+                  Beautifully designed components built with Radix UI and Tailwind CSS.
+                </p>
+              </a>
+            </NavigationMenuLink>
+          </li>
+          <ListItem href="/docs" title="Introduction">
+            Re-usable components built using Radix UI and Tailwind CSS.
+          </ListItem>
+          <ListItem href="/docs/installation" title="Installation">
+            How to install dependencies and structure your app.
+          </ListItem>
+          <ListItem href="/docs/primitives/typography" title="Typography">
+            Styles for headings, paragraphs, lists...etc
+          </ListItem>
+        </ul>
+      );
+    },
   },
   {
     name: 'On Sale',
@@ -42,6 +74,7 @@ const routes = [
 ];
 
 export default function Navbar() {
+  const navigate = useNavigate();
   const { setFocus, focus } = useSearch();
   const { user } = useAuth();
 
@@ -101,15 +134,31 @@ export default function Navbar() {
       </Link>
       <NavigationMenu className="hidden lg:flex">
         <NavigationMenuList>
-          {routes.map((route) => (
-            <NavigationMenuLink key={route.name} asChild>
-              <Button variant="ghost" className="hover:bg-gray-800/25 hover:text-white" asChild>
-                <Link key={route.name} to={route.href} prefetch="render">
-                  {route.name}
-                </Link>
-              </Button>
-            </NavigationMenuLink>
-          ))}
+          {routes.map((route) => {
+            if (route.component) {
+              return (
+                <NavigationMenuItem key={route.name}>
+                  <NavigationMenuTrigger
+                    onClick={() => navigate(route.href)}
+                    className="hover:bg-gray-800/25 hover:text-white active:bg-gray-800/25 data-[active]:bg-gray-800/20 data-[state=open]:bg-gray-800/20"
+                  >
+                    {route.name}
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>{route.component()}</NavigationMenuContent>
+                </NavigationMenuItem>
+              );
+            }
+
+            return (
+              <NavigationMenuLink key={route.name} asChild>
+                <Button variant="ghost" className="hover:bg-gray-800/25 hover:text-white " asChild>
+                  <Link key={route.name} to={route.href} prefetch="render">
+                    {route.name}
+                  </Link>
+                </Button>
+              </NavigationMenuLink>
+            );
+          })}
         </NavigationMenuList>
       </NavigationMenu>
       <div className="ml-auto flex items-center gap-4">
@@ -228,3 +277,26 @@ function SearchIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+const ListItem = React.forwardRef<React.ElementRef<'a'>, React.ComponentPropsWithoutRef<'a'>>(
+  ({ className, title, children, ...props }, ref) => {
+    return (
+      <li>
+        <NavigationMenuLink asChild>
+          <a
+            ref={ref}
+            className={cn(
+              'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
+              className,
+            )}
+            {...props}
+          >
+            <div className="text-sm font-medium leading-none">{title}</div>
+            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">{children}</p>
+          </a>
+        </NavigationMenuLink>
+      </li>
+    );
+  },
+);
+ListItem.displayName = 'ListItem';

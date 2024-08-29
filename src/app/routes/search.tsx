@@ -55,7 +55,7 @@ import {
   DrawerTrigger,
 } from '~/components/ui/drawer';
 import { ScrollArea } from '~/components/ui/scroll-area';
-import { Settings, SettingsIcon } from 'lucide-react';
+import consola from 'consola';
 
 export const meta: MetaFunction = () => {
   return [
@@ -112,6 +112,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const q = url.searchParams.get('q');
   const offerType = url.searchParams.get('offer_type');
   const page = url.searchParams.get('page');
+  const categories = url.searchParams.getAll('categories');
 
   if (!hash) {
     // Try to get the hash from the request.headers.referer
@@ -159,6 +160,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     if (!query) query = {};
     query.offerType = offerType;
   }
+  if (categories) {
+    if (!query) query = {};
+    query.categories = categories;
+  }
 
   return {
     tags,
@@ -167,6 +172,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     country,
     initialTags: initialTags ? initialTags.split(',') : [],
     initialQuery: q,
+    categories: categories ? categories : [],
     page: page ? Number.parseInt(page) : 1,
   };
 }
@@ -177,6 +183,7 @@ export default function SearchPage() {
     hash,
     offerTypes,
     initialTags,
+    categories: initialCategories,
     initialQuery,
     page: initialPage,
   } = useLoaderData<typeof loader>();
@@ -189,6 +196,9 @@ export default function SearchPage() {
   const { view, setView } = usePreferences();
   const [selectedTags, setSelectedTags] = useState<string[]>(
     (hash?.tags as string[]) ?? initialTags,
+  );
+  const [categories, setCategories] = useState<string[]>(
+    (hash?.categories as string[]) ?? initialCategories,
   );
   const [selectedOfferType, setSelectedOfferType] = useState<string | undefined>(
     hash?.offerType as string,
@@ -213,9 +223,9 @@ export default function SearchPage() {
   const [minPrice, setMinPrice] = useState<number | undefined>(
     hash?.price?.min as number | undefined,
   );
-  // New state for the immediate input value
   const [inputValue, setInputValue] = useState<string>(query);
   const [page, setPage] = useState(initialPage ?? 1);
+  const [fetching, setFetching] = useState<boolean>(false);
 
   function handleSelect(tag: string) {
     setSelectedTags((prev) => {
@@ -310,6 +320,12 @@ export default function SearchPage() {
           {typeof maxPrice === 'number' && (
             <QuickPill label={`< $${maxPrice / 100}`} onRemove={() => setMaxPrice(undefined)} />
           )}
+          {categories.length > 0 && (
+            <QuickPill
+              label={categories.map((c) => offersDictionary[c] ?? c).join(', ')}
+              onRemove={() => setCategories([])}
+            />
+          )}
         </div>
         <div className="flex flex-col justify-between items-start gap-2 mt-4">
           <Label>Price</Label>
@@ -403,7 +419,6 @@ export default function SearchPage() {
             );
           })}
         </Accordion>
-
         <div className="items-center flex space-x-2 mt-4">
           <Checkbox
             checked={isCodeRedemptionOnly ?? false}
@@ -437,7 +452,31 @@ export default function SearchPage() {
       </aside>
       <main id="results" className="flex flex-col gap-4 px-4 overflow-hidden flex-1">
         <header className="flex flex-row justify-between items-center gap-4">
-          <h2 className="flex-none text-2xl">Results</h2>
+          <div className="inline-flex items-center gap-2">
+            <h2 className="flex-none text-2xl">Results</h2>
+            {fetching && (
+              <svg
+                className="animate-spin -ml-1 mr-3 size-4"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+            )}
+          </div>
           <div className="flex flex-row gap-2">
             <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortBy)}>
               <SelectTrigger className="w-[180px]">
@@ -480,6 +519,7 @@ export default function SearchPage() {
         <SearchResults
           query={query}
           selectedTags={selectedTags}
+          categories={categories}
           selectedOfferType={selectedOfferType}
           setTagsCount={setTagsCount}
           setOfferTypesCount={setOfferTypeCount}
@@ -491,6 +531,7 @@ export default function SearchPage() {
           price={{ min: minPrice, max: maxPrice }}
           page={page}
           setPage={setPage}
+          setFetching={setFetching}
         />
       </main>
       <Portal.Root>
@@ -514,7 +555,7 @@ export default function SearchPage() {
                 </svg>
               </Button>
             </DrawerTrigger>
-            <DrawerContent>
+            <DrawerContent className="px-3">
               <DrawerHeader>
                 <div className="flex flex-row justify-between items-center gap-1">
                   <h2>Search</h2>
@@ -581,10 +622,16 @@ export default function SearchPage() {
                       onRemove={() => setMaxPrice(undefined)}
                     />
                   )}
+                  {categories.length > 0 && (
+                    <QuickPill
+                      label={categories.map((c) => offersDictionary[c] ?? c).join(', ')}
+                      onRemove={() => setCategories([])}
+                    />
+                  )}
                 </div>
               </DrawerHeader>
               <ScrollArea>
-                <DrawerFooter className="max-h-56 w-full">
+                <DrawerDescription className="max-h-56 w-full">
                   <div className="flex flex-col justify-between items-start gap-2 mt-4">
                     <Label>Price</Label>
                     <div className="flex flex-row gap-2">
@@ -708,7 +755,7 @@ export default function SearchPage() {
                       </label>
                     </div>
                   </div>
-                </DrawerFooter>
+                </DrawerDescription>
               </ScrollArea>
             </DrawerContent>
           </Drawer>
@@ -746,6 +793,7 @@ function TagSelect({
 function SearchResults({
   query,
   selectedTags,
+  categories,
   setTagsCount,
   selectedOfferType,
   setOfferTypesCount,
@@ -757,9 +805,11 @@ function SearchResults({
   price,
   page,
   setPage,
+  setFetching,
 }: {
   query: string;
   selectedTags: string[];
+  categories: string[];
   setTagsCount: React.Dispatch<React.SetStateAction<TagCount[]>>;
   selectedOfferType: string | undefined;
   setOfferTypesCount: React.Dispatch<
@@ -778,17 +828,19 @@ function SearchResults({
   price?: { min?: number; max?: number };
   page: number;
   setPage: React.Dispatch<React.SetStateAction<number>>;
+  setFetching: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const queryClient = getQueryClient();
   const { country } = useCountry();
   const [, setSearchParams] = useSearchParams();
   const [count, setCount] = useState(0);
-  const { isPending, error, data } = useQuery({
+  const { isPending, error, data, isFetching } = useQuery({
     queryKey: [
       'search',
       {
         query,
         selectedTags,
+        categories,
         sortBy,
         sortDir,
         isCodeRedemptionOnly,
@@ -815,6 +867,7 @@ function SearchResults({
           page: page,
           title: query === '' ? undefined : query,
           tags: selectedTags.length === 0 ? undefined : selectedTags,
+          categories: categories.length === 0 ? undefined : categories,
           isCodeRedemptionOnly,
           offerType: selectedOfferType,
           onSale: isSale,
@@ -874,6 +927,10 @@ function SearchResults({
       );
     }
   }, [data, setSearchParams]);
+
+  useEffect(() => {
+    setFetching(isFetching);
+  }, [setFetching, isFetching]);
 
   // Set page to 1 when any filter changes
   // biome-ignore lint/correctness/useExhaustiveDependencies: We don't need to add all the dependencies
