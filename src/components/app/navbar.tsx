@@ -24,6 +24,9 @@ import {
 } from '../ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { cn } from '~/lib/utils';
+import { useQuery } from '@tanstack/react-query';
+import { getTopSection } from '~/queries/top-section';
+import { getImage } from '~/lib/getImage';
 
 type Route = {
   name: string;
@@ -35,34 +38,49 @@ const routes: Route[] = [
   {
     name: 'Browse',
     href: '/search',
-    // component: () => {
-    //   return (
-    //     <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-    //       <li className="row-span-3">
-    //         <NavigationMenuLink asChild>
-    //           <a
-    //             className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-    //             href="/"
-    //           >
-    //             <div className="mb-2 mt-4 text-lg font-medium">shadcn/ui</div>
-    //             <p className="text-sm leading-tight text-muted-foreground">
-    //               Beautifully designed components built with Radix UI and Tailwind CSS.
-    //             </p>
-    //           </a>
-    //         </NavigationMenuLink>
-    //       </li>
-    //       <ListItem href="/docs" title="Introduction">
-    //         Re-usable components built using Radix UI and Tailwind CSS.
-    //       </ListItem>
-    //       <ListItem href="/docs/installation" title="Installation">
-    //         How to install dependencies and structure your app.
-    //       </ListItem>
-    //       <ListItem href="/docs/primitives/typography" title="Typography">
-    //         Styles for headings, paragraphs, lists...etc
-    //       </ListItem>
-    //     </ul>
-    //   );
-    // },
+    component: () => {
+      const { data } = useQuery({
+        queryKey: ['top-section', { slug: 'top-sellers' }],
+        queryFn: () => getTopSection('top-sellers'),
+      });
+
+      const offer = data?.elements[0];
+
+      return (
+        <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+          <li className="row-span-3">
+            {offer && (
+              <NavigationMenuLink asChild>
+                <a
+                  className="flex h-full w-full select-none flex-col justify-end rounded-md p-4 no-underline outline-none focus:shadow-md relative group"
+                  href={`/offers/${offer.id}`}
+                  style={{
+                    backgroundImage: `url(${getImage(offer.keyImages, ['DieselGameBoxTall', 'DieselStoreFrontTall', 'OfferImageTall'])?.url ?? '/placeholder.webp'})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }}
+                >
+                  <span className="absolute inset-0 bg-gradient-to-b from-transparent via-black/75 to-black/75 mix-blend-multiply z-0 group-hover:mix-blend-normal" />
+                  <div className="mb-2 mt-4 text-base font-bold z-10">{offer.title}</div>
+                  <p className="text-sm leading-tight text-muted-foreground z-10">
+                    Top Selled game on the Epic Games Store
+                  </p>
+                </a>
+              </NavigationMenuLink>
+            )}
+          </li>
+          <ListItem href="/search?categories=freegames" title="Free Games">
+            Explore the latest free game offerings on the Epic Games Store.
+          </ListItem>
+          <ListItem href="/search?on_sale=true" title="With Discounts">
+            Check out games currently on sale with great discounts.
+          </ListItem>
+          <ListItem href="/search?tags=19847&offer_type=BASE_GAME" title="With Achievements">
+            Find games that feature achievements to unlock as you play.
+          </ListItem>
+        </ul>
+      );
+    },
   },
   {
     name: 'On Sale',
@@ -292,7 +310,7 @@ const ListItem = React.forwardRef<React.ElementRef<'a'>, React.ComponentPropsWit
           <a
             ref={ref}
             className={cn(
-              'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
+              'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-gray-800/20 hover:text-white focus:bg-accent/20 focus:text-white',
               className,
             )}
             {...props}

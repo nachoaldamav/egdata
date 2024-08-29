@@ -113,6 +113,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const offerType = url.searchParams.get('offer_type');
   const page = url.searchParams.get('page');
   const categories = url.searchParams.getAll('categories');
+  const onSale = url.searchParams.get('on_sale');
 
   if (!hash) {
     // Try to get the hash from the request.headers.referer
@@ -164,6 +165,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     if (!query) query = {};
     query.categories = categories;
   }
+  if (onSale) {
+    if (!query) query = {};
+    query.onSale = onSale;
+  }
 
   return {
     tags,
@@ -173,6 +178,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     initialTags: initialTags ? initialTags.split(',') : [],
     initialQuery: q,
     categories: categories ? categories : [],
+    onSale: onSale ? onSale === 'true' : undefined,
     page: page ? Number.parseInt(page) : 1,
   };
 }
@@ -184,6 +190,7 @@ export default function SearchPage() {
     offerTypes,
     initialTags,
     categories: initialCategories,
+    onSale,
     initialQuery,
     page: initialPage,
   } = useLoaderData<typeof loader>();
@@ -216,7 +223,7 @@ export default function SearchPage() {
   const [isCodeRedemptionOnly, setIsCodeRedemptionOnly] = useState<boolean | undefined>(
     (hash?.isCodeRedemptionOnly as boolean) ?? undefined,
   );
-  const [isSale, setIsSale] = useState<boolean | undefined>(hash?.onSale as boolean);
+  const [isSale, setIsSale] = useState<boolean | undefined>(onSale);
   const [maxPrice, setMaxPrice] = useState<number | undefined>(
     hash?.price?.max as number | undefined,
   );
