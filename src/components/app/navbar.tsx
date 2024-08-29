@@ -126,7 +126,7 @@ export default function Navbar() {
           <Input
             type="search"
             placeholder="Search games..."
-            className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px] cursor-text"
+            className="pl-8 w-[200px] cursor-text"
             onFocus={() => setFocus(true)}
             readOnly
           />
