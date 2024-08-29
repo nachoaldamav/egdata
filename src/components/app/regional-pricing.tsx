@@ -8,11 +8,10 @@ import {
   TableHeader,
   TableRow,
 } from '../ui/table';
-import { fetchOfferPrice } from '~/queries/offer-price';
 import { PriceChart } from './price-chart';
 import { useEffect, useState } from 'react';
 import { useCountry } from '~/hooks/use-country';
-import { client, getQueryClient } from '~/lib/client';
+import { client } from '~/lib/client';
 import { Skeleton } from '../ui/skeleton';
 import { useRegions } from '~/hooks/use-regions';
 import { ArrowUpIcon } from '@radix-ui/react-icons';

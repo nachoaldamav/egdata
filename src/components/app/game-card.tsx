@@ -8,6 +8,7 @@ import { Badge } from '../ui/badge';
 import { cn } from '~/lib/utils';
 import { offersDictionary } from '~/lib/offers-dictionary';
 import { calculatePrice } from '~/lib/calculate-price';
+import { textPlatformIcons } from './platform-icons';
 
 export function GameCard({
   game,
@@ -82,7 +83,7 @@ export function OfferListItem({
 
   return (
     <Link to={`/offers/${game.id}`} className="w-full" prefetch="viewport">
-      <Card className="flex flex-row w-full bg-card text-white p-1 rounded-lg h-44">
+      <Card className="flex flex-row w-full bg-card text-white p-1 rounded-lg h-44 relative">
         <div className="flex-shrink-0 w-72 h-full inline-flex items-center justify-center relative">
           <Image
             src={
@@ -163,6 +164,15 @@ export function OfferListItem({
             </div>
           )}
         </div>
+        <span className="absolute top-0 right-0 p-3">
+          {game.tags
+            .filter((tag) => textPlatformIcons[tag?.name])
+            .map((tag) => (
+              <span key={tag?.id} className="inline-flex items-center gap-1">
+                {textPlatformIcons[tag?.name]}
+              </span>
+            ))}
+        </span>
       </Card>
     </Link>
   );

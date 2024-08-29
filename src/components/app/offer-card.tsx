@@ -5,7 +5,6 @@ import { getImage } from '~/lib/getImage';
 import { Skeleton } from '../ui/skeleton';
 import type { SingleOffer } from '~/types/single-offer';
 import { offersDictionary } from '~/lib/offers-dictionary';
-import { StarIcon } from '@radix-ui/react-icons';
 import { useEffect, useState } from 'react';
 import { useGenres } from '~/hooks/use-genres';
 import { cn } from '~/lib/utils';

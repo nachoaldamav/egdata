@@ -18,7 +18,6 @@ import {
 } from '~/components/ui/select';
 import type { Price } from '~/types/price';
 import { Checkbox } from '~/components/ui/checkbox';
-import { client } from '~/lib/client';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { Skeleton } from '../ui/skeleton';
 import { httpClient } from '~/lib/http-client';
@@ -176,7 +175,7 @@ export function PriceChart({ selectedRegion, id }: PriceChartProps) {
         )
       );
     })
-    .map((item, index) => {
+    .map((item) => {
       const date = new Date(item.updatedAt);
       const isComparison = compareUSD;
 
