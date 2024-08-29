@@ -164,7 +164,11 @@ export default function Navbar() {
                 <NavigationMenuItem key={route.name}>
                   <NavigationMenuTrigger
                     onClick={() => navigate(route.href)}
-                    className="hover:bg-gray-800/25 hover:text-white active:bg-gray-800/25 data-[active]:bg-gray-800/20 data-[state=open]:bg-gray-800/20"
+                    className={cn(
+                      'hover:bg-gray-800 hover:text-white',
+                      'active:bg-gray-800 data-[active]:bg-gray-800 data-[state=open]:bg-gray-800',
+                      'active:text-white data-[active]:text-white data-[state=open]:text-white',
+                    )}
                   >
                     {route.name}
                   </NavigationMenuTrigger>
@@ -175,7 +179,7 @@ export default function Navbar() {
 
             return (
               <NavigationMenuLink key={route.name} asChild>
-                <Button variant="ghost" className="hover:bg-gray-800/25 hover:text-white " asChild>
+                <Button variant="ghost" className="hover:bg-gray-800 hover:text-white " asChild>
                   <Link key={route.name} to={route.href} prefetch="render">
                     {route.name}
                   </Link>
@@ -310,7 +314,7 @@ const ListItem = React.forwardRef<React.ElementRef<'a'>, React.ComponentPropsWit
           <a
             ref={ref}
             className={cn(
-              'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-gray-800/20 hover:text-white focus:bg-accent/20 focus:text-white',
+              'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-gray-800 hover:text-white focus:bg-accent/20 focus:text-white',
               className,
             )}
             {...props}
