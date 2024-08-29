@@ -78,6 +78,7 @@
     "remix-utils": "^7.6.0",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
+    "vaul": "^0.9.1",
     "workbox-window": "^7.1.0"
   },
   "devDependencies": {

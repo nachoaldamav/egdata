@@ -220,7 +220,11 @@ export function OfferCard({
   }, [offer.keyImages]);
 
   return (
-    <Link to={`/offers/${offer.id}`} prefetch="intent" className="select-none group mx-auto w-full">
+    <Link
+      to={`/offers/${offer.id}`}
+      prefetch="intent"
+      className="select-none group mx-auto w-fit md:w-full"
+    >
       <Card className="w-64 md:w-full overflow-hidden rounded-lg border-0 relative">
         <Image
           src={
