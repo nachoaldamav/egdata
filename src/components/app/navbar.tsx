@@ -1,18 +1,16 @@
 import { Sheet, SheetTrigger, SheetContent, SheetHeader } from '~/components/ui/sheet';
 import { Button } from '~/components/ui/button';
-import { Link, useNavigate } from '@remix-run/react';
+import { Link } from '@remix-run/react';
 import {
   NavigationMenu,
   NavigationMenuList,
   NavigationMenuLink,
-  navigationMenuTriggerStyle,
 } from '~/components/ui/navigation-menu';
 import { Input } from '~/components/ui/input';
 import { useSearch } from '~/hooks/use-search';
 import { CountriesSelector } from './country-selector';
 import { useEffect } from 'react';
 import { useAuth } from '~/hooks/use-auth';
-import { Image } from './image';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,21 +20,21 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { CommandShortcut } from '../ui/command';
 
 const routes = [
   {
-    name: 'Search',
+    name: 'Browse',
     href: '/search',
+  },
+  {
+    name: 'On Sale',
+    href: '/sales',
   },
   {
     name: 'Genres',
     href: '/genres',
   },
-  {
-    name: 'Sales',
-    href: '/sales',
-  },
+
   {
     name: 'Changelog',
     href: '/changelog',
@@ -86,8 +84,12 @@ export default function Navbar() {
           </SheetHeader>
           <NavigationMenu className="grid gap-2 py-6">
             {routes.map((route) => (
-              <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild key={route.name}>
-                <Link to={route.href}>{route.name}</Link>
+              <NavigationMenuLink key={route.name} asChild>
+                <Button variant="ghost" className="hover:bg-gray-800/25 hover:text-white" asChild>
+                  <Link key={route.name} to={route.href} prefetch="render">
+                    {route.name}
+                  </Link>
+                </Button>
               </NavigationMenuLink>
             ))}
           </NavigationMenu>
@@ -100,10 +102,12 @@ export default function Navbar() {
       <NavigationMenu className="hidden lg:flex">
         <NavigationMenuList>
           {routes.map((route) => (
-            <NavigationMenuLink className={navigationMenuTriggerStyle()} asChild key={route.name}>
-              <Link key={route.name} to={route.href} prefetch="render">
-                {route.name}
-              </Link>
+            <NavigationMenuLink key={route.name} asChild>
+              <Button variant="ghost" className="hover:bg-gray-800/25 hover:text-white" asChild>
+                <Link key={route.name} to={route.href} prefetch="render">
+                  {route.name}
+                </Link>
+              </Button>
             </NavigationMenuLink>
           ))}
         </NavigationMenuList>
@@ -136,8 +140,8 @@ export default function Navbar() {
               <Avatar>
                 <AvatarImage
                   src={
-                    URL.canParse(user.avatarUrl)
-                      ? user.avatarUrl
+                    URL.canParse(user.avatarUrl as string)
+                      ? (user.avatarUrl as string)
                       : `https://cdn.discordapp.com/avatars/${user.id}/${user.avatarUrl}.png`
                   }
                 />
