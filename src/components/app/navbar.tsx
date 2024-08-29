@@ -75,7 +75,7 @@ const routes: Route[] = [
           <ListItem href="/search?on_sale=true" title="With Discounts">
             Check out games currently on sale with great discounts.
           </ListItem>
-          <ListItem href="/search?tags=19847&offer_type=BASE_GAME" title="With Achievements">
+          <ListItem href="/search?tags=19847&offer_type=BASE_GAME" title="Epic Achievements">
             Find games that feature achievements to unlock as you play.
           </ListItem>
         </ul>
