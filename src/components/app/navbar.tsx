@@ -84,10 +84,6 @@ const routes: Route[] = [
     },
   },
   {
-    name: 'On Sale',
-    href: '/sales',
-  },
-  {
     name: 'Tops',
     href: '/',
     component: () => {
@@ -154,6 +150,10 @@ const routes: Route[] = [
         </ul>
       );
     },
+  },
+  {
+    name: 'On Sale',
+    href: '/sales',
   },
   {
     name: 'Genres',
