@@ -273,7 +273,7 @@ export function OfferCard({
           />
         </div>
         {offer.prePurchase && (
-          <Badge variant={'default'} className="absolute top-2 right-2 z-10">
+          <Badge variant={'default'} className="absolute top-2 right-2">
             Pre-Purchase
           </Badge>
         )}
