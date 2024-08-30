@@ -47,8 +47,17 @@ const routes: Route[] = [
       const offer = data?.elements[0];
 
       return (
-        <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr] z-50">
-          <li className="row-span-3">
+        <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[1fr_.75fr] lg:grid-rows-[repeat(3, auto)]">
+          <ListItem href="/search" title="Search">
+            Find what you're looking for on the Epic Games Store.
+          </ListItem>
+          <ListItem href="/search?categories=freegames" title="Free Games">
+            Explore the latest free game offerings on the Epic Games Store.
+          </ListItem>
+          <ListItem href="/search?on_sale=true" title="With Discounts">
+            Check out games currently on sale with great discounts.
+          </ListItem>
+          <li className="col-start-2 row-start-1 row-end-4">
             {offer && (
               <NavigationMenuLink asChild>
                 <a
@@ -60,7 +69,7 @@ const routes: Route[] = [
                     backgroundPosition: 'center',
                   }}
                 >
-                  <span className="absolute inset-0 bg-gradient-to-b from-transparent via-black/75 to-black/75 mix-blend-multiply z-0 group-hover:mix-blend-normal" />
+                  <span className="absolute inset-0 bg-gradient-to-b from-transparent via-card/75 to-card z-0 rounded-md" />
                   <div className="mb-2 mt-4 text-base font-bold z-10">{offer.title}</div>
                   <p className="text-sm leading-tight text-muted-foreground z-10">
                     Top Seller on the Epic Games Store
@@ -69,15 +78,6 @@ const routes: Route[] = [
               </NavigationMenuLink>
             )}
           </li>
-          <ListItem href="/search" title="Search">
-            Find what you're looking for on the Epic Games Store.
-          </ListItem>
-          <ListItem href="/search?categories=freegames" title="Free Games">
-            Explore the latest free game offerings on the Epic Games Store.
-          </ListItem>
-          <ListItem href="/search?on_sale=true" title="With Discounts">
-            Check out games currently on sale with great discounts.
-          </ListItem>
         </ul>
       );
     },
