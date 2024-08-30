@@ -2,14 +2,13 @@ import { useLoaderData, redirect } from '@remix-run/react';
 import { getQueryClient } from '~/lib/client';
 import type { LoaderFunction } from '@remix-run/node';
 import cookie from 'cookie';
-import type { SingleOffer } from '~/types/single-offer';
 import getCountryCode from '~/lib/get-country-code';
 import { dehydrate, HydrationBoundary, useInfiniteQuery } from '@tanstack/react-query';
 import { useCountry } from '~/hooks/use-country';
 import { OfferCard } from '~/components/app/offer-card';
 import { Button } from '~/components/ui/button';
 import { getImage } from '~/lib/getImage';
-import { getCollection } from '~/queries/collection';
+import { getCollection, type Collections } from '~/queries/collection';
 
 export const loader: LoaderFunction = async ({ params, request }) => {
   const queryClient = getQueryClient();
@@ -38,11 +37,8 @@ export const loader: LoaderFunction = async ({ params, request }) => {
         country,
       }),
     initialPageParam: 1,
-    getNextPageParam: (
-      lastPage: { elements: SingleOffer[]; start: number; total: number },
-      allPages: { elements: SingleOffer[]; start: number; total: number }[],
-    ) => {
-      if (lastPage.start + 20 > lastPage.total) {
+    getNextPageParam: (lastPage: Collections, allPages: Collections[]) => {
+      if (lastPage.page * lastPage.limit + 20 > lastPage.total) {
         return undefined;
       }
 
@@ -81,10 +77,7 @@ function Collection({
         country,
       }),
     initialPageParam: 1,
-    getNextPageParam: (
-      lastPage: { elements: SingleOffer[]; limit: number; page: number; total: number },
-      allPages: { elements: SingleOffer[]; limit: number; page: number; total: number }[],
-    ) => {
+    getNextPageParam: (lastPage: Collections, allPages: Collections[]) => {
       if (lastPage.page * lastPage.limit + 20 > lastPage.total) {
         return undefined;
       }
