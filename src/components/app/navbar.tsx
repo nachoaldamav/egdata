@@ -63,7 +63,7 @@ const routes: Route[] = [
                   <span className="absolute inset-0 bg-gradient-to-b from-transparent via-black/75 to-black/75 mix-blend-multiply z-0 group-hover:mix-blend-normal" />
                   <div className="mb-2 mt-4 text-base font-bold z-10">{offer.title}</div>
                   <p className="text-sm leading-tight text-muted-foreground z-10">
-                    Top Selled game on the Epic Games Store
+                    Top Seller on the Epic Games Store
                   </p>
                 </a>
               </NavigationMenuLink>
