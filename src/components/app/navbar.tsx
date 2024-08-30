@@ -147,7 +147,9 @@ const routes: Route[] = [
                 ])?.url ?? '/placeholder.webp'
               }
               className="min-h-[70px]"
-            />
+            >
+              {data?.elements[0]?.title}
+            </ListItem>
           ))}
         </ul>
       );
@@ -385,15 +387,15 @@ const ListItem = React.forwardRef<React.ElementRef<'a'>, ListItemProps>(
           <Link
             ref={ref}
             className={cn(
-              'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors',
-              'hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
+              'block select-none rounded-md leading-none no-underline outline-none transition-colors',
+              'hover:text-accent-foreground focus:bg-accent hover:bg-accent focus:text-accent-foreground',
               'group relative overflow-hidden',
               className,
             )}
             to={href ?? '/'}
             {...props}
           >
-            <div className="relative z-20">
+            <div className="relative z-20 p-3 space-y-1">
               <div
                 className={cn(
                   'text-sm font-medium leading-none',
@@ -412,7 +414,7 @@ const ListItem = React.forwardRef<React.ElementRef<'a'>, ListItemProps>(
               <>
                 <span className="absolute inset-0 bg-gradient-to-l from-transparent via-card/75 to-card z-10 rounded-md" />
                 <div
-                  className="absolute inset-0 opacity-25 group-hover:opacity-75 bg-cover bg-center transition-opacity duration-300 ease-in-out rounded-md"
+                  className="h-full absolute inset-0 opacity-25 group-hover:opacity-75 bg-cover bg-center transition-opacity duration-500 ease-in-out rounded-md"
                   style={{ backgroundImage: `url(${backgroundImage})` }}
                   aria-hidden="true"
                 />
