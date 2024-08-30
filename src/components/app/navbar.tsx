@@ -116,7 +116,7 @@ const routes: Route[] = [
 
       const queries = useQueries({
         queries: collections.map((slug) => ({
-          queryKey: ['collection', { slug, country: 'US', limit: 20, page: 1 }],
+          queryKey: ['collection', { slug: slug.slug, country: 'US', limit: 20, page: 1 }],
           queryFn: () =>
             getCollection({
               slug: slug.slug,
