@@ -46,7 +46,7 @@ export const meta: MetaFunction<typeof loader> = ({ params, data }) => {
         'featuredMedia',
         'DieselGameBoxWide',
         'DieselStoreFrontWide',
-      ])?.url ?? 'https://via.placeholder.com/1920x1080?text=No+Cover+Image';
+      ])?.url ?? 'https://egdata.app/placeholder.webp';
 
     return [
       {
