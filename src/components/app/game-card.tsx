@@ -115,7 +115,7 @@ export function OfferListItem({
               <div className="flex flex-wrap mt-1 space-x-2">
                 {game.tags
                   .filter((tag) => tag?.name)
-                  .slice(0, 5)
+                  .slice(0, 4)
                   ?.map((tag) => (
                     <Badge key={tag?.id} variant="secondary">
                       {tag?.name ?? 'N/A'}
