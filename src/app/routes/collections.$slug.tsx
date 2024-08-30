@@ -28,7 +28,6 @@ export const loader: LoaderFunction = async ({ params, request }) => {
         slug,
         country,
         limit: 20,
-        page: 1,
       },
     ],
     queryFn: ({ pageParam }) =>
@@ -73,7 +72,7 @@ function Collection({
 }) {
   const { country } = useCountry();
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
-    queryKey: ['collection', { slug, country, limit: 20, page: 1 }],
+    queryKey: ['collection', { slug, country, limit: 20 }],
     queryFn: ({ pageParam }) =>
       getCollection({
         slug,
@@ -83,10 +82,10 @@ function Collection({
       }),
     initialPageParam: 1,
     getNextPageParam: (
-      lastPage: { elements: SingleOffer[]; start: number; total: number },
-      allPages: { elements: SingleOffer[]; start: number; total: number }[],
+      lastPage: { elements: SingleOffer[]; limit: number; page: number; total: number },
+      allPages: { elements: SingleOffer[]; limit: number; page: number; total: number }[],
     ) => {
-      if (lastPage.start + 20 > lastPage.total) {
+      if (lastPage.page * lastPage.limit + 20 > lastPage.total) {
         return undefined;
       }
 
