@@ -1,7 +1,6 @@
 import { useLoaderData, type MetaFunction } from '@remix-run/react';
-import { client, getQueryClient } from '~/lib/client';
+import { getQueryClient } from '~/lib/client';
 import { getImage } from '~/lib/getImage';
-import { Image } from '~/components/app/image';
 import type { SingleOffer } from '~/types/single-offer';
 import { OfferCard } from '~/components/app/offer-card';
 import { type LoaderFunctionArgs, redirect } from '@remix-run/node';
@@ -30,6 +29,8 @@ import { ArrowDownIcon, GridIcon, ListBulletIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 import { cn } from '~/lib/utils';
 import { httpClient } from '~/lib/http-client';
+import { Input } from '~/components/ui/input';
+import debounce from 'lodash/debounce';
 
 export const meta: MetaFunction<typeof loader> = ({ params, data }) => {
   try {
@@ -156,12 +157,14 @@ const fetchPromotionData = async ({
   page,
   sortBy,
   sortDir,
+  query,
 }: {
   id: string;
   country: string;
   page: number;
   sortBy: SortBy | null;
   sortDir: 'asc' | 'desc' | null;
+  query: '' | string;
 }) => {
   const data = await httpClient.get<{
     elements: SingleOffer[];
@@ -176,6 +179,7 @@ const fetchPromotionData = async ({
       limit: 20,
       sortBy: sortBy || undefined,
       sortDir: sortDir || undefined,
+      q: query !== '' ? query : undefined,
     },
   });
   return data;
@@ -189,6 +193,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   const country = getCountryCode(url, cookie.parse(request.headers.get('Cookie') || ''));
   const sortBy = (url.searchParams.get('sortBy') ?? 'lastModifiedDate') as SortBy | null;
   const sortDir = (url.searchParams.get('sortDir') ?? 'desc') as 'asc' | 'desc' | null;
+  const q = url.searchParams.get('q') ?? '';
 
   // Check if the country is a valid ISO code using Intl API
   if (!checkCountryCode(country)) {
@@ -209,11 +214,11 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
         ),
     }),
     queryClient.fetchQuery({
-      queryKey: ['promotion-meta', { id, country, limit: 20, sortBy, sortDir, page: 1 }],
-      queryFn: () => fetchPromotionData({ id, country, page: 1, sortBy, sortDir }),
+      queryKey: ['promotion-meta', { id, country, limit: 20, sortBy, sortDir, query: q, page: 1 }],
+      queryFn: () => fetchPromotionData({ id, country, page: 1, sortBy, sortDir, query: q }),
     }),
     queryClient.prefetchInfiniteQuery({
-      queryKey: ['promotion', { id, country, sortBy, sortDir, limit: 20 }],
+      queryKey: ['promotion', { id, country, sortBy, sortDir, query: q, limit: 20 }],
       queryFn: ({ pageParam }) =>
         fetchPromotionData({
           id,
@@ -221,6 +226,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
           page: pageParam as number,
           sortBy,
           sortDir,
+          query: q,
         }),
       initialPageParam: page,
       getNextPageParam: (
@@ -282,6 +288,10 @@ function Promotion() {
   const { view, setView } = usePreferences();
   const [sortBy, setSortBy] = useState<SortBy>('lastModifiedDate');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  const [inputValue, setInputValue] = useState('');
+  const [query, setQuery] = useState('');
+  const debouncedSetQuery = debounce(setQuery, 500);
+
   const { cover, id } = useLoaderData<typeof loader>();
   const {
     data: promotion,
@@ -291,7 +301,7 @@ function Promotion() {
     isFetchingNextPage,
     isFetching,
   } = useInfiniteQuery({
-    queryKey: ['promotion', { id, country, sortBy, sortDir, limit: 20 }],
+    queryKey: ['promotion', { id, country, sortBy, sortDir, query, limit: 20 }],
     queryFn: ({ pageParam }) =>
       fetchPromotionData({
         id,
@@ -299,6 +309,7 @@ function Promotion() {
         page: pageParam as number,
         sortBy,
         sortDir,
+        query,
       }),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
@@ -318,6 +329,11 @@ function Promotion() {
   if (!promotion) {
     return null;
   }
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(event.target.value);
+    debouncedSetQuery(event.target.value);
+  };
 
   return (
     <main className="container mx-auto">
@@ -370,6 +386,13 @@ function Promotion() {
           )}
         </div>
         <div className="flex :flex-row gap-2">
+          <Input
+            type="search"
+            placeholder="Search..."
+            className="w-[200px] cursor-text"
+            onChange={handleInputChange}
+            value={inputValue}
+          />
           <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortBy)}>
             <SelectTrigger className="w-[180px]">
               <SelectValue className="text-sm">{sortByDisplay[sortBy]}</SelectValue>
