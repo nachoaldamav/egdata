@@ -321,28 +321,25 @@ function Promotion() {
 
   return (
     <main className="container mx-auto">
-      <div className="relative h-96 overflow-hidden rounded-2xl">
-        <div className="absolute inset-0 flex flex-col justify-center items-start text-white p-8 bg-gradient-to-r from-black/80 to-black/30 z-10">
+      <div
+        className="relative h-96 overflow-hidden rounded-2xl flex items-center bg-cover bg-center"
+        style={{
+          backgroundImage: `url(${
+            getImage(cover?.keyImages ?? [], [
+              'OfferImageWide',
+              'featuredMedia',
+              'DieselGameBoxWide',
+              'DieselStoreFrontWide',
+            ])?.url ?? '/placeholder.webp'
+          })`,
+        }}
+      >
+        <div className="h-full w-full flex flex-col justify-center items-start text-white p-8 bg-gradient-to-r from-black/80 to-black/30">
           <h1 className="text-5xl font-bold">{promotion.pages[0].title}</h1>
           <p className="mt-4 text-lg">{promotion.pages[0]?.count} offers available in this event</p>
         </div>
-        {cover && (
-          <Image
-            src={
-              getImage(cover.keyImages, [
-                'OfferImageWide',
-                'featuredMedia',
-                'DieselGameBoxWide',
-                'DieselStoreFrontWide',
-              ])?.url ?? '/placeholder.webp'
-            }
-            alt={promotion.pages[0].title}
-            width={1920}
-            height={1080}
-            className="w-full h-full object-cover"
-          />
-        )}
       </div>
+
       <header className="flex flex-col md:flex-row justify-between items-center gap-4 mt-5">
         <div className="inline-flex items-center gap-2">
           <h2 className="text-2xl">Results</h2>

@@ -93,7 +93,10 @@ export function ChangelistModule() {
           </TableHeader>
           <TableBody>
             {changes.map((change) => (
-              <TableRow key={change._id}>
+              <TableRow
+                key={change._id}
+                className="hover:bg-accent/50 transition-colors duration-200"
+              >
                 <TableCell>
                   <span role="img" aria-label={getType(change.metadata.changes)}>
                     {icons[getType(change.metadata.changes)]}

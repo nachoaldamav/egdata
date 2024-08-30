@@ -105,7 +105,7 @@ export function GamesWithAchievements() {
               onClick={() => {
                 navigate(`/offers/${game.id}`);
               }}
-              className="cursor-pointer hover:bg-card"
+              className="cursor-pointer hover:bg-accent/50 transition-colors duration-200"
             >
               <TableCell className="inline-flex items-center gap-4">
                 <span className="h-[40px] w-[75px]">

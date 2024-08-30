@@ -47,7 +47,7 @@ const routes: Route[] = [
       const offer = data?.elements[0];
 
       return (
-        <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+        <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr] z-50">
           <li className="row-span-3">
             {offer && (
               <NavigationMenuLink asChild>
@@ -142,7 +142,7 @@ export default function Navbar() {
           <NavigationMenu className="grid gap-2 py-6">
             {routes.map((route) => (
               <NavigationMenuLink key={route.name} asChild>
-                <Button variant="ghost" className="hover:bg-gray-800/25 hover:text-white" asChild>
+                <Button variant="ghost" className="hover:bg-accent/25 hover:text-white" asChild>
                   <Link key={route.name} to={route.href} prefetch="render">
                     {route.name}
                   </Link>
@@ -165,8 +165,7 @@ export default function Navbar() {
                   <NavigationMenuTrigger
                     onClick={() => navigate(route.href)}
                     className={cn(
-                      'hover:bg-gray-800 hover:text-white',
-                      'active:bg-gray-800 data-[active]:bg-gray-800 data-[state=open]:bg-gray-800',
+                      'hover:text-white z-50',
                       'active:text-white data-[active]:text-white data-[state=open]:text-white',
                     )}
                   >
@@ -179,7 +178,7 @@ export default function Navbar() {
 
             return (
               <NavigationMenuLink key={route.name} asChild>
-                <Button variant="ghost" className="hover:bg-gray-800 hover:text-white " asChild>
+                <Button variant="ghost" className="hover:text-white " asChild>
                   <Link key={route.name} to={route.href} prefetch="render">
                     {route.name}
                   </Link>
@@ -314,7 +313,7 @@ const ListItem = React.forwardRef<React.ElementRef<'a'>, React.ComponentPropsWit
           <Link
             ref={ref}
             className={cn(
-              'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-gray-800 hover:text-white focus:bg-accent/20 focus:text-white',
+              'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent/20 hover:text-white focus:bg-accent/20 focus:text-white',
               className,
             )}
             to={href ?? '/'}

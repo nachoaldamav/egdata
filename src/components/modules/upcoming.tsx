@@ -60,7 +60,7 @@ export function UpcomingOffers() {
     <section id="upcoming-offers" className="mb-8 w-full -mt-4">
       <Table className="w-[73.5vw] mx-auto max-w-full">
         <TableCaption>Upcoming Offers</TableCaption>
-        <TableHeader>
+        <TableHeader className="hover:bg-accent/50 transition-colors duration-200">
           <TableRow>
             <TableHead className="w-[100px]" />
             <TableHead>Title</TableHead>
@@ -72,7 +72,7 @@ export function UpcomingOffers() {
           {data?.elements.map((offer) => (
             <TableRow
               key={offer.id}
-              className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+              className="cursor-pointer hover:bg-accent/50 transition-colors duration-200"
               onClick={() => {
                 navigate(`/offers/${offer.id}`);
               }}
