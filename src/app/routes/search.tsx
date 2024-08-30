@@ -55,7 +55,6 @@ import {
   DrawerTrigger,
 } from '~/components/ui/drawer';
 import { ScrollArea } from '~/components/ui/scroll-area';
-import consola from 'consola';
 
 export const meta: MetaFunction = () => {
   return [
@@ -67,13 +66,14 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-const tagTypes: { name: string; type: 'single' | 'multiple'; label: string }[] = [
+const tagTypes: { name: string | null; type: 'single' | 'multiple'; label: string }[] = [
   { name: 'event', type: 'single', label: 'Events' },
   { name: 'genre', type: 'multiple', label: 'Genres' },
   { name: 'usersay', type: 'multiple', label: 'User Say' },
   { name: 'feature', type: 'multiple', label: 'Features' },
   { name: 'epicfeature', type: 'multiple', label: 'Epic Features' },
   { name: 'accessibility', type: 'multiple', label: 'Accessibility' },
+  { name: null, type: 'multiple', label: 'All Tags' },
 ];
 
 type TagCount = {
@@ -396,6 +396,7 @@ export default function SearchPage() {
           {tagTypes.map((tagType) => {
             const tagTypeTags = tags
               ?.filter((tag) => tag.groupName === tagType.name)
+
               .filter((tag) => {
                 // If there is a tag count, we need to filter the tags with 0 count
                 if (tagsCount.length > 0) {
@@ -406,7 +407,7 @@ export default function SearchPage() {
               });
 
             return (
-              <AccordionItem key={tagType.name} value={tagType.name}>
+              <AccordionItem key={tagType.name} value={tagType.name ?? 'alltags'}>
                 <AccordionTrigger>{tagType.label}</AccordionTrigger>
                 <AccordionContent className="flex flex-col gap-2 w-[250px] mt-2">
                   {tagTypeTags?.map((tag) => (
@@ -711,7 +712,7 @@ export default function SearchPage() {
                         });
 
                       return (
-                        <AccordionItem key={tagType.name} value={tagType.name}>
+                        <AccordionItem key={tagType.name} value={tagType.name ?? 'alltags'}>
                           <AccordionTrigger>{tagType.label}</AccordionTrigger>
                           <AccordionContent className="flex flex-col gap-2 w-[250px] mt-2">
                             {tagTypeTags?.map((tag) => (
