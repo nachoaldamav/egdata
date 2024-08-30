@@ -291,7 +291,6 @@ function Promotion() {
   const [inputValue, setInputValue] = useState('');
   const [query, setQuery] = useState('');
   const debouncedSetQuery = debounce(setQuery, 500);
-
   const { cover, id } = useLoaderData<typeof loader>();
   const {
     data: promotion,

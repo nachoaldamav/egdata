@@ -24,9 +24,10 @@ import {
 } from '../ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { cn } from '~/lib/utils';
-import { useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import { getTopSection } from '~/queries/top-section';
 import { getImage } from '~/lib/getImage';
+import { getCollection } from '~/queries/collection';
 
 type Route = {
   name: string;
@@ -85,6 +86,72 @@ const routes: Route[] = [
   {
     name: 'On Sale',
     href: '/sales',
+  },
+  {
+    name: 'Tops',
+    href: '/',
+    component: () => {
+      const collections: {
+        slug: string;
+        title: string;
+        description: string;
+      }[] = [
+        {
+          slug: 'top-sellers',
+          title: 'Top Sellers',
+          description: 'Top sellers on the Epic Games Store',
+        },
+        {
+          slug: 'most-played',
+          title: 'Most Played',
+          description: 'Most played games on the Epic Games Store',
+        },
+        {
+          slug: 'top-wishlisted',
+          title: 'Top Wishlisted',
+          description: 'Top wishlisted games on the Epic Games Store',
+        },
+        {
+          slug: 'top-new-releases',
+          title: 'Top New Releases',
+          description: 'Top new releases on the Epic Games Store',
+        },
+      ];
+
+      const queries = useQueries({
+        queries: collections.map((slug) => ({
+          queryKey: ['collection', { slug, country: 'US', limit: 20, page: 1 }],
+          queryFn: () =>
+            getCollection({
+              slug: slug.slug,
+              limit: 1,
+              page: 1,
+              country: 'US',
+            }),
+        })),
+      });
+
+      return (
+        <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.5fr_.5fr] lg:grid-rows-[repeat(3, auto)]">
+          {queries.map(({ data }, index) => (
+            <ListItem
+              key={data?.title}
+              href={`/collections/${collections[index].slug}`}
+              title={data?.title ?? ''}
+              backgroundImage={
+                getImage(data?.elements[0]?.keyImages ?? [], [
+                  'OfferImageWide',
+                  'featuredMedia',
+                  'DieselGameBoxWide',
+                  'DieselStoreFrontWide',
+                ])?.url ?? '/placeholder.webp'
+              }
+              className="min-h-[70px]"
+            />
+          ))}
+        </ul>
+      );
+    },
   },
   {
     name: 'Genres',
@@ -304,27 +371,58 @@ function SearchIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+interface ListItemProps extends React.ComponentPropsWithoutRef<'a'> {
+  title: string;
+  href?: string;
+  backgroundImage?: string;
+}
 
-const ListItem = React.forwardRef<React.ElementRef<'a'>, React.ComponentPropsWithoutRef<'a'>>(
-  ({ className, title, children, href, ...props }, ref) => {
+const ListItem = React.forwardRef<React.ElementRef<'a'>, ListItemProps>(
+  ({ className, title, children, href, backgroundImage, ...props }, ref) => {
     return (
       <li>
         <NavigationMenuLink asChild>
           <Link
             ref={ref}
             className={cn(
-              'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent/20 hover:text-white focus:bg-accent/20 focus:text-white',
+              'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors',
+              'hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
+              'group relative overflow-hidden',
               className,
             )}
             to={href ?? '/'}
             {...props}
           >
-            <div className="text-sm font-medium leading-none">{title}</div>
-            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">{children}</p>
+            <div className="relative z-20">
+              <div
+                className={cn(
+                  'text-sm font-medium leading-none',
+                  !children && 'text-lg font-semibold',
+                )}
+              >
+                {title}
+              </div>
+              {children ? (
+                <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                  {children}
+                </p>
+              ) : null}
+            </div>
+            {backgroundImage && (
+              <>
+                <span className="absolute inset-0 bg-gradient-to-l from-transparent via-card/75 to-card z-10 rounded-md" />
+                <div
+                  className="absolute inset-0 opacity-25 group-hover:opacity-75 bg-cover bg-center transition-opacity duration-300 ease-in-out rounded-md"
+                  style={{ backgroundImage: `url(${backgroundImage})` }}
+                  aria-hidden="true"
+                />
+              </>
+            )}
           </Link>
         </NavigationMenuLink>
       </li>
     );
   },
 );
+
 ListItem.displayName = 'ListItem';
