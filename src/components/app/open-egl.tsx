@@ -8,7 +8,7 @@ function trackEvent(offer: SingleOffer) {
     offerNamespace: offer.namespace,
   };
 
-  unami.track('open-egl', trackData);
+  umami.track('open-egl', trackData);
 }
 
 export function OpenEgl({

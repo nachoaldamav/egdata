@@ -9,7 +9,7 @@ function trackEvent(offer: SingleOffer) {
     offerNamespace: offer.namespace,
   };
 
-  unami.track('open-egs', trackData);
+  umami.track('open-egs', trackData);
 }
 
 export function OpenEgs({

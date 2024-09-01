@@ -13,7 +13,8 @@
       "@remix-run/node",
       "vite/client",
       "vite-plugin-pwa/client",
-      "@vite-pwa/remix/remix-sw"
+      "@vite-pwa/remix/remix-sw",
+      "./src/umami.d.ts"
     ],
     "isolatedModules": true,
     "esModuleInterop": true,
