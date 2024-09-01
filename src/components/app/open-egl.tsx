@@ -1,27 +1,14 @@
 import type { SingleOffer } from '~/types/single-offer';
 import { Button } from '../ui/button';
 import { EpicGamesIcon } from '../icons/epic';
-import { getSession, getTempUserId } from '~/lib/user-info';
 
 function trackEvent(offer: SingleOffer) {
-  const userId = getTempUserId();
-  const session = getSession();
-
   const trackData = {
-    event: 'open-egl',
-    location: window.location.href,
-    params: {
-      offerId: offer.id,
-      offerNamespace: offer.namespace,
-    },
-    userId,
-    session,
+    offerId: offer.id,
+    offerNamespace: offer.namespace,
   };
 
-  navigator.serviceWorker.controller?.postMessage({
-    type: 'track',
-    payload: trackData,
-  });
+  unami.track('open-egl', trackData);
 }
 
 export function OpenEgl({

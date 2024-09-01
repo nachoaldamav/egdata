@@ -2,28 +2,14 @@ import type { SingleOffer } from '~/types/single-offer';
 import { Button } from '../ui/button';
 import { Link } from '@remix-run/react';
 import { EGSIcon } from '../icons/egs';
-import { getSession, getTempUserId } from '~/lib/user-info';
-import Bugsnag from '@bugsnag/js';
 
 function trackEvent(offer: SingleOffer) {
-  const userId = getTempUserId();
-  const session = getSession();
-
   const trackData = {
-    event: 'open-egs',
-    location: window.location.href,
-    params: {
-      offerId: offer.id,
-      offerNamespace: offer.namespace,
-    },
-    userId,
-    session,
+    offerId: offer.id,
+    offerNamespace: offer.namespace,
   };
 
-  navigator.serviceWorker.controller?.postMessage({
-    type: 'track',
-    payload: trackData,
-  });
+  unami.track('open-egs', trackData);
 }
 
 export function OpenEgs({
