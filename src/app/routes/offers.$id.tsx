@@ -47,6 +47,7 @@ import { AddIcon } from '~/components/icons/add';
 import { Badge } from '~/components/ui/badge';
 import { OfferHero } from '~/components/app/offer-hero';
 import { SectionsNav } from '~/components/app/offer-sections';
+import { CollectionOffers } from '~/components/modules/collection-offers';
 
 function supportedPlatforms(items: SingleItem[]): string[] {
   try {
@@ -519,6 +520,12 @@ function OfferPage() {
           <p className="px-1">{offerData.description}</p>
         </div>
       </header>
+
+      {offerData.categories.findIndex((category) => category === 'collections') !== -1 && (
+        <section className="w-full min-h-[50vh] flex flex-col gap-4">
+          <CollectionOffers id={offerData.id} />
+        </section>
+      )}
 
       <section id="offer-information" className="w-full min-h-[50vh] flex flex-col gap-4">
         <SectionsNav
