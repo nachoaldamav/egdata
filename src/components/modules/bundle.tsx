@@ -17,6 +17,17 @@ import { EqualIcon } from 'lucide-react';
 import { EGSIcon } from '../icons/egs';
 import { Link } from '@remix-run/react';
 
+const trackEvent = (offers: { id: string; namespace: string }[], type: 'bundle' | 'single') => {
+  window.umami.track(`bundle-${type}`, {
+    offers: offers.map((offer) => {
+      return {
+        id: offer.id,
+        namespace: offer.namespace,
+      };
+    }),
+  });
+};
+
 export function Bundle({ id, offer }: { id: string; offer: SingleOffer }) {
   const { country } = useCountry();
   const [api, setApi] = useState<CarouselApi>();
@@ -193,6 +204,12 @@ export function Bundle({ id, offer }: { id: string; offer: SingleOffer }) {
                     target="_blank"
                     rel="noreferrer noopener"
                     prefetch="intent"
+                    onClick={() => {
+                      trackEvent(
+                        bundleIsBetter ? [offer] : collection?.offers ?? [],
+                        bundleIsBetter ? 'bundle' : 'single',
+                      );
+                    }}
                   >
                     <EGSIcon className="w-5 h-5" />
                     <span>{bundleIsBetter ? 'Buy Bundle' : 'Buy Items Individually'}</span>
