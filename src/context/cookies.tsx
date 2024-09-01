@@ -3,7 +3,6 @@ import * as Portal from '@radix-ui/react-portal';
 import { CookieBanner } from '~/components/app/cookie-banner';
 import { CookiesContext } from './cookies-context';
 import { useLocation } from '@remix-run/react';
-import { registerSW } from 'virtual:pwa-register';
 import { getSession, getTempUserId } from '~/lib/user-info';
 
 export interface CookiesContextProps {
@@ -66,6 +65,19 @@ export const CookiesProvider = ({ children }: { children: ReactNode }) => {
       `;
 
       document.body.appendChild(gtagScript);
+    }
+
+    if (import.meta.env.PROD) {
+      console.log('Injecting Umami script');
+
+      // Inject Umami script
+      const script = document.createElement('script');
+      script.src = 'https://analytics.egdata.app/script.js';
+      script.async = true;
+
+      script.setAttribute('data-website-id', '931f85f9-f8b6-422c-882d-04864194435b');
+
+      document.body.appendChild(script);
     }
   }, [userCookiesState]);
 
