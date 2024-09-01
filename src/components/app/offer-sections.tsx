@@ -34,6 +34,7 @@ export function SectionsNav({ links, activeSection, onSectionChange }: SectionSe
                 e.preventDefault();
                 onSectionChange(link.id);
               }}
+              prefetch="render"
             >
               {link.label}
             </Link>
