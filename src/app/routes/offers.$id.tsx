@@ -48,6 +48,7 @@ import { Badge } from '~/components/ui/badge';
 import { OfferHero } from '~/components/app/offer-hero';
 import { SectionsNav } from '~/components/app/offer-sections';
 import { CollectionOffers } from '~/components/modules/collection-offers';
+import { Bundle } from '~/components/modules/bundle';
 
 function supportedPlatforms(items: SingleItem[]): string[] {
   try {
@@ -526,6 +527,14 @@ function OfferPage() {
           <CollectionOffers id={offerData.id} />
         </section>
       )}
+
+      {offerData.offerType === 'BUNDLE' || offerData.offerType === 'Bundle' ? (
+        <section className="w-full min-h-[50vh] flex flex-col gap-4">
+          <hr className="my-4" />
+          <Bundle id={offerData.id} offer={offerData} />
+          <hr className="my-4" />
+        </section>
+      ) : null}
 
       <section id="offer-information" className="w-full min-h-[50vh] flex flex-col gap-4">
         <SectionsNav
