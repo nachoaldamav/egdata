@@ -4,12 +4,10 @@ import { Link } from '@remix-run/react';
 import { EGSIcon } from '../icons/egs';
 
 function trackEvent(offer: SingleOffer) {
-  const trackData = {
-    offerId: offer.id,
-    offerNamespace: offer.namespace,
-  };
-
-  umami.track('open-egs', trackData);
+  window.umami.track('open-egs', {
+    id: offer.id,
+    namespace: offer.namespace,
+  });
 }
 
 export function OpenEgs({
