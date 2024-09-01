@@ -1,12 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselPrevious,
-  CarouselNext,
-  type CarouselApi,
-} from '../ui/carousel';
+import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from '../ui/carousel';
 import { httpClient } from '~/lib/http-client';
 import { Skeleton } from '../ui/skeleton';
 import { OfferCard } from '../app/offer-card';
