@@ -393,6 +393,7 @@ const ListItem = React.forwardRef<React.ElementRef<'a'>, ListItemProps>(
               className,
             )}
             to={href ?? '/'}
+            reloadDocument={href?.startsWith('/search?')}
             {...props}
           >
             <div className="relative z-20 p-3 space-y-1">

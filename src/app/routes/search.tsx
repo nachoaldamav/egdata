@@ -106,7 +106,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const country = getCountryCode(url, cookie.parse(request.headers.get('Cookie') || ''));
 
-  let hash = url.searchParams.get('hash');
+  const hash = url.searchParams.get('hash');
   const initialTags = url.searchParams.get('tags');
   const sortBy = url.searchParams.get('sort_by');
   const q = url.searchParams.get('q');
@@ -114,16 +114,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const page = url.searchParams.get('page');
   const categories = url.searchParams.getAll('categories');
   const onSale = url.searchParams.get('on_sale');
-
-  if (!hash) {
-    // Try to get the hash from the request.headers.referer
-    const referer = request.headers.get('referer');
-
-    if (referer) {
-      const refererUrl = new URL(referer);
-      hash = refererUrl.searchParams.get('hash');
-    }
-  }
 
   const [tagsData, hashData, typesData] = await Promise.allSettled([
     httpClient.get<FullTag[]>('/search/tags?raw=true'),
