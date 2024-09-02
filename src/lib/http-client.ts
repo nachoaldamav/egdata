@@ -134,8 +134,8 @@ class HttpFetch {
 
 export const httpClient = new HttpFetch(
   import.meta.env.SSR
-    ? process.env.SERVER_API_ENDPOINT ?? 'https://api.egdata.app'
-    : 'https://api.egdata.app',
+    ? process.env.SERVER_API_ENDPOINT ?? 'https://9-api.egdata.app'
+    : 'https://9-api.egdata.app',
   {
     headers: {
       // @ts-expect-error
