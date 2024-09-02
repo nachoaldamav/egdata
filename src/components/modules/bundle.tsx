@@ -160,7 +160,7 @@ export function Bundle({ id, offer }: { id: string; offer: SingleOffer }) {
             {collection?.offers.map((offer) => (
               <CarouselItem key={offer.id} className="md:basis-1/2 lg:basis-1/3">
                 <div className="p-1">
-                  <OfferCard offer={offer} size="md" />
+                  <OfferCard offer={offer} size="sm" />
                 </div>
               </CarouselItem>
             ))}
