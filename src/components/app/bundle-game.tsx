@@ -1,5 +1,6 @@
 import { Link } from '@remix-run/react';
 import { useQuery } from '@tanstack/react-query';
+import { useCountry } from '~/hooks/use-country';
 import buildImageUrl from '~/lib/build-image-url';
 import { getImage } from '~/lib/getImage';
 import { httpClient } from '~/lib/http-client';
@@ -8,14 +9,21 @@ import { cn } from '~/lib/utils';
 import type { SingleOffer } from '~/types/single-offer';
 
 export const OfferInBundle: React.FC<{ offer: SingleOffer }> = ({ offer }) => {
+  const { country } = useCountry();
   const { data: bundles } = useQuery({
     queryKey: [
       'in-bundles',
       {
         id: offer.id,
+        country,
       },
     ],
-    queryFn: () => httpClient.get<SingleOffer[]>(`/offers/${offer.id}/in-bundle`),
+    queryFn: () =>
+      httpClient.get<SingleOffer[]>(`/offers/${offer.id}/in-bundle`, {
+        params: {
+          country,
+        },
+      }),
   });
 
   if (
