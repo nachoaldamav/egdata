@@ -297,8 +297,24 @@ function OfferPrice({
 
   if (!offer.price) return null;
 
+  /**
+   * It has to be 1 level smaller than the text size
+   */
+  const discountTextSizes = {
+    xs: 'text-[0.4rem]',
+    sm: 'text-[0.4rem]',
+    md: 'text-[0.5rem]',
+    lg: 'text-[1rem]',
+    xl: 'text-[1.125rem]',
+  };
+
   return (
-    <div className="text-lg font-bold text-primary inline-flex items-end gap-2 z-10 h-full">
+    <div
+      className={cn(
+        'text-lg font-bold text-primary inline-flex items-end gap-2 z-10 h-full',
+        textSizes[size] ?? textSizes.xl,
+      )}
+    >
       {isReleased && offer.price && (
         <div className="flex items-center gap-2 text-right w-full justify-start">
           <span>
@@ -309,7 +325,7 @@ function OfferPrice({
                 )}
           </span>
           {offer.price?.price.discount > 0 && (
-            <span className="line-through text-sm">
+            <span className="line-through text-xs">
               {fmt.format(
                 calculatePrice(offer.price?.price.originalPrice, offer.price?.price.currencyCode),
               )}
@@ -326,7 +342,12 @@ function OfferPrice({
             )}
           </span>
           {offer.price?.price.discount > 0 && (
-            <span className="line-through text-sm">
+            <span
+              className={cn(
+                'line-through text-xs',
+                discountTextSizes[size] ?? discountTextSizes.xl,
+              )}
+            >
               {fmt.format(
                 calculatePrice(offer.price?.price.originalPrice, offer.price?.price.currencyCode),
               )}
@@ -334,7 +355,9 @@ function OfferPrice({
           )}
         </div>
       )}
+
       {!isReleased && !isPreOrder && !offer.price && <span>Coming Soon</span>}
+
       {!isReleased && !isPreOrder && offer.price && offer.price?.price.discountPrice !== 0 && (
         <div className="flex items-center gap-2 text-right w-full justify-start">
           <span>
@@ -343,7 +366,12 @@ function OfferPrice({
             )}
           </span>
           {offer.price?.price.discount > 0 && (
-            <span className="line-through text-sm">
+            <span
+              className={cn(
+                'line-through text-sm',
+                discountTextSizes[size] ?? discountTextSizes.xl,
+              )}
+            >
               {fmt.format(
                 calculatePrice(offer.price?.price.originalPrice, offer.price?.price.currencyCode),
               )}
