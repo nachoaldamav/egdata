@@ -49,6 +49,7 @@ import { OfferHero } from '~/components/app/offer-hero';
 import { SectionsNav } from '~/components/app/offer-sections';
 import { CollectionOffers } from '~/components/modules/collection-offers';
 import { Bundle } from '~/components/modules/bundle';
+import { OfferInBundle } from '~/components/app/bundle-game';
 
 function supportedPlatforms(items: SingleItem[]): string[] {
   try {
@@ -63,7 +64,7 @@ function supportedPlatforms(items: SingleItem[]): string[] {
 
     const platformSet = new Set(platforms);
     return Array.from(platformSet);
-  } catch (error) {
+  } catch {
     return [];
   }
 }
@@ -253,7 +254,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
         href: `https://api.egdata.app/base-game/${offerData.namespace}`,
       },
     ];
-  } catch (error) {
+  } catch {
     return [
       {
         title: 'Offer not found',
@@ -497,6 +498,7 @@ function OfferPage() {
           </div>
           <InternalBanner title={offerData.title} namespace={offerData.namespace} />
           <BaseGame offer={offerData} />
+          <OfferInBundle offer={offerData} />
         </div>
         <div className="flex justify-start items-start flex-col gap-4">
           <div className="inline-flex items-center gap-2 justify-end w-full h-8">

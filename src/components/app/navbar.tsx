@@ -131,7 +131,7 @@ const routes: Route[] = [
         <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.5fr_.5fr] lg:grid-rows-[repeat(3, auto)]">
           {queries.map(({ data }, index) => (
             <ListItem
-              key={data?.title}
+              key={collections[index].slug}
               href={`/collections/${collections[index].slug}`}
               title={data?.title ?? ''}
               backgroundImage={
