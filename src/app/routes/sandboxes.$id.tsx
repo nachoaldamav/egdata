@@ -1,14 +1,11 @@
 import { LayersIcon } from '@radix-ui/react-icons';
-import { type LoaderFunctionArgs, redirect } from '@remix-run/node';
+import type { LoaderFunctionArgs } from '@remix-run/node';
 import { Link, Outlet, useLoaderData, useMatches } from '@remix-run/react';
+import { FolderIcon } from 'lucide-react';
 import { cn } from '~/lib/utils';
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const lastPath = request.url.split('/').pop();
-
-  if (lastPath === params.id) {
-    return redirect(`/sandboxes/${params.id}/offers`);
-  }
 
   return { lastPath, id: params.id };
 }
@@ -26,6 +23,14 @@ export default function Index() {
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex-1 overflow-auto py-2 min-w-[200px]">
             <nav className="grid items-start px-4 text-sm font-medium">
+              <NavItem
+                currentPath={clientPath || (lastPath as string)}
+                name=""
+                id={clientId || (id as string)}
+              >
+                <FolderIcon className="h-4 w-4" />
+                Sandbox
+              </NavItem>
               <NavItem
                 currentPath={clientPath || (lastPath as string)}
                 name="offers"
@@ -50,14 +55,6 @@ export default function Index() {
                 <LayersIcon className="h-4 w-4" />
                 Assets
               </NavItem>
-              {/* <NavItem
-                currentPath={clientPath || (lastPath as string)}
-                name="sandbox"
-                id={clientId || (id as string)}
-              >
-                <FolderIcon className="h-4 w-4" />
-                Sandbox
-              </NavItem> */}
             </nav>
           </div>
         </div>
@@ -78,12 +75,15 @@ function NavItem({
   children: React.ReactNode;
   id: string;
 }) {
+  const link = name === '' ? `/sandboxes/${id}` : `/sandboxes/${id}/${name}`;
+  const isActive = name === '' ? currentPath === id : currentPath === name;
+
   return (
     <Link
-      to={`/sandboxes/${id}/${name}`}
+      to={link}
       className={cn(
         'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
-        currentPath === name && 'text-primary bg-muted',
+        isActive && 'text-primary bg-muted',
       )}
     >
       {children}
