@@ -1,11 +1,9 @@
-import { Portal } from '@radix-ui/react-portal';
 import { redirect, type LoaderFunctionArgs } from '@remix-run/node';
 import { Link, useLoaderData } from '@remix-run/react';
 import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
 import { LayoutGridIcon } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Image } from '~/components/app/image';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { getQueryClient } from '~/lib/client';
 import { getImage } from '~/lib/getImage';
 import { httpClient } from '~/lib/http-client';
@@ -187,7 +185,11 @@ function ProfileInformation({ profile }: { profile: Profile }) {
           </div>
         )}
 
-        {activeTab === 'achievements' && <div>Achievements content goes here</div>}
+        {activeTab === 'achievements' && (
+          <div>
+            <h4 className="text-2xl font-bold">Detailed Achievements</h4>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -209,7 +211,7 @@ function GameAchievementsSummary({ game }: { game: Profile['achievements']['data
               'TakeoverWide',
             ])?.url ?? '/placeholder.webp'
           }
-          alt="Pacific Drive game scene"
+          alt={game.product.name ?? game.sandboxId}
           width={640}
           height={360}
           className="rounded-md"
