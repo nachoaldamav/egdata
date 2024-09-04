@@ -263,6 +263,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
                           <span className="inline-flex gap-1 items-center">
                             Made in <img src="https://flagcdn.com/16x12/eu.webp" alt="EU Flag" />
                           </span>
+                          <span>|</span>
+                          <Link to="/privacy">Privacy Policy</Link>
                         </div>
                       </footer>
                       <ReactQueryDevtools initialIsOpen={false} />

@@ -164,6 +164,10 @@ const routes: Route[] = [
     name: 'Changelog',
     href: '/changelog',
   },
+  {
+    name: 'About',
+    href: '/about',
+  },
 ];
 
 export default function Navbar() {
