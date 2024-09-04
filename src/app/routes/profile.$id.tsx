@@ -53,7 +53,7 @@ function ProfilePage() {
     return <div>Profile not found</div>;
   }
 
-  const userTotalXP = data.achievements.data.reduce((acc, curr) => acc + curr.totalXP, 0);
+  const userTotalXP = data.achievements.data?.reduce((acc, curr) => acc + curr.totalXP, 0);
 
   // Each level is 250 XP
   const userLevel = Math.floor(userTotalXP / 250);
@@ -75,7 +75,7 @@ function ProfilePage() {
             id="profile-header-achievements"
             className="flex flex-row w-full items-start justify-start"
           >
-            <div id="player-level" className="flex flex-col gap-2 w-[250px] mr-10">
+            <div id="player-level" className="flex flex-col gap-2 w-fit min:w-[250px] mr-10">
               <SectionTitle title="Level" />
               <div className="flex flex-row gap-2 items-center mb-3">
                 <p className="text-4xl font-light inline-flex items-center gap-1">
@@ -99,14 +99,14 @@ function ProfilePage() {
               <SectionTitle title="Achievements" />
               <p className="text-3xl font-light inline-flex items-center gap-2">
                 <EpicTrophyIcon className="size-7 inline-block" />
-                {data.achievements.data.reduce((acc, curr) => acc + curr.totalUnlocked, 0)}
+                {data.achievements.data?.reduce((acc, curr) => acc + curr.totalUnlocked, 0)}
               </p>
             </div>
             <div id="player-platinum-count" className="flex flex-col gap-2 w-[175px]">
               <SectionTitle title="Platinum" />
               <p className="text-3xl font-light inline-flex items-center gap-2">
                 <EpicPlatinumIcon className="size-7 inline-block" />
-                {data.achievements.data.reduce(
+                {data.achievements.data?.reduce(
                   (acc, curr) => acc + (curr.playerAwards.length ?? 0),
                   0,
                 )}
@@ -116,7 +116,7 @@ function ProfilePage() {
               <SectionTitle title="Library" />
               <p className="text-3xl font-light inline-flex items-center gap-2">
                 <LayoutGridIcon className="size-7 inline-block" fill="currentColor" />
-                {data.achievements.data.length}
+                {data.achievements.data?.length ?? 0}
               </p>
             </div>
           </section>
@@ -176,9 +176,9 @@ function ProfileInformation({ profile }: { profile: Profile }) {
           <div className="flex flex-col gap-4">
             <h2 className="text-2xl font-bold">Player Summary</h2>
             <div className="flex items-center flex-col gap-4">
-              {profile.achievements.data
-                .sort((a, b) => b.totalUnlocked - a.totalUnlocked)
-                .map((achievement) => (
+              {profile.achievements?.data
+                ?.sort((a, b) => b.totalUnlocked - a.totalUnlocked)
+                ?.map((achievement) => (
                   <GameAchievementsSummary key={achievement.sandboxId} game={achievement} />
                 ))}
             </div>
@@ -274,10 +274,13 @@ function SectionTitle({ title }: { title: string }) {
 
 function BackgroundImage({ profile }: { profile: Profile }) {
   const offers = useMemo(
-    () => profile.achievements.data.map((achievement) => achievement.baseOfferForSandbox),
+    () => profile.achievements.data?.map((achievement) => achievement.baseOfferForSandbox),
     [profile.achievements.data],
   );
-  const randomOffer = useMemo(() => offers[Math.floor(Math.random() * offers.length)], [offers]);
+  const randomOffer = useMemo(
+    () => offers[Math.floor(Math.random() * (offers?.length ?? 0))],
+    [offers],
+  );
 
   return (
     <div
