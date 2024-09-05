@@ -299,7 +299,7 @@ function BackgroundImage({ profile }: { profile: Profile }) {
         src={
           getImage(randomOffer?.keyImages ?? [], ['DieselStoreFrontWide', 'OfferImageWide'])?.url
         }
-        alt={randomOffer.id as string}
+        alt={randomOffer?.id ?? ''}
         className="absolute inset-0 opacity-[0.25] z-0 w-full h-[50vh]"
         loading="lazy"
         style={{
