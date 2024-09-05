@@ -103,6 +103,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
             page: 1,
             verified: getVerificationParam('all'),
           },
+          headers: user ? { Authorization: `Bearer ${user.accessToken}` } : {},
         }),
     }),
     queryClient.prefetchQuery({
@@ -145,7 +146,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   return {
     dehydratedState: dehydrate(queryClient),
     id: params.id,
-    userId: user?.id,
+    userId: user?.accountId,
     userCanReview: userCanReview
       ? {
           status: userCanReview.canReview,
@@ -649,9 +650,7 @@ function Review({ review, full }: { review: SingleReview; full?: boolean }) {
   const [showEditForm, setShowEditForm] = useState(false);
   const [showFull, setShowFull] = useState(full);
   const { userId } = useLoaderData<typeof loader>();
-  const userAvatar = URL.canParse(review.user.avatarUrl ?? '')
-    ? review.user.avatarUrl
-    : `https://cdn.discordapp.com/avatars/${review.user.id}/${review.user.avatarUrl}.png`;
+  const userAvatar = `https://shared-static-prod.epicgames.com/epic-profile-icon/D8033C/${review.user.displayName[0].toUpperCase()}/icon.png?size=512`;
 
   return (
     <div className="p-4 bg-card text-white rounded-lg max-w-2xl mx-auto w-full h-full flex flex-col">
@@ -771,9 +770,8 @@ function FullReview({
   review,
   setIsOpen,
 }: { review: SingleReview; setIsOpen: (isOpen: boolean) => void }) {
-  const userAvatar = URL.canParse(review.user.avatarUrl ?? '')
-    ? review.user.avatarUrl
-    : `https://cdn.discordapp.com/avatars/${review.user.id}/${review.user.avatarUrl}.png`;
+  const userAvatar = `https://shared-static-prod.epicgames.com/epic-profile-icon/D8033C/${review.user.displayName[0].toUpperCase()}/icon.png?size=512`;
+
   return (
     <div className="fixed inset-0 h-full w-full flex items-center justify-center bg-black bg-opacity-50 z-20">
       <span

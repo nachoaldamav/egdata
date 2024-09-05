@@ -2,7 +2,9 @@ import { Authenticator } from 'remix-auth';
 import { sessionStorage } from '../sessions.server';
 import type { DiscordProfile, PartialDiscordGuild } from 'remix-auth-discord';
 import { DiscordStrategy } from 'remix-auth-discord';
+import { OAuth2Strategy } from 'remix-auth-oauth2';
 import { httpClient } from '~/lib/http-client';
+import { EpicAccountResponse, getEpicAccount } from '~/lib/get-epic-account.server';
 
 type CustomDiscordGuild = Omit<PartialDiscordGuild, 'features'>;
 
@@ -18,6 +20,30 @@ export interface DiscordUser {
   refreshToken: string;
   expires_at: string;
   epicId: string | null | undefined;
+}
+
+export interface EpicUser {
+  accountId: string;
+  displayName: string;
+  preferredLanguage: string;
+  accessToken: string;
+  refreshToken: string;
+  expires_at: string;
+}
+
+interface EpicToken extends Record<string, unknown> {
+  provider: 'epic';
+  scope: string;
+  token_type: string;
+  access_token: string;
+  refresh_token: string;
+  expires_in: number;
+  expires_at: string;
+  refresh_expires_in: number;
+  refresh_expires_at: string;
+  account_id: string;
+  client_id: string;
+  application_id: string;
 }
 
 export const discordStrategy = new DiscordStrategy(
@@ -102,6 +128,44 @@ export const discordStrategy = new DiscordStrategy(
   },
 );
 
-export const authenticator = new Authenticator<DiscordUser>(sessionStorage);
+export const epicStrategy = new OAuth2Strategy<
+  EpicUser,
+  {
+    provider: string;
+  },
+  EpicToken
+>(
+  {
+    clientId: process.env.EPIC_CLIENT_ID as string,
+    clientSecret: process.env.EPIC_CLIENT_SECRET as string,
+    redirectURI: process.env.EPIC_REDIRECT_URI as string,
+    authorizationEndpoint: 'https://www.epicgames.com/id/authorize',
+    tokenEndpoint: 'https://api.epicgames.dev/epic/oauth/v2/token',
+    authenticateWith: 'http_basic_auth',
+    scopes: ['basic_profile'],
+    tokenRevocationEndpoint: 'https://api.epicgames.dev/epic/oauth/v2/token/revoke',
+  },
+  async ({ tokens }) => {
+    await httpClient.get<EpicAccountResponse['0']>('/auth', {
+      retries: 0,
+      headers: {
+        Authorization: `Bearer ${tokens.access_token}`,
+      },
+    });
 
-authenticator.use(discordStrategy);
+    const user = await getEpicAccount(tokens.access_token, tokens.account_id);
+
+    return {
+      accountId: user.accountId,
+      displayName: user.displayName,
+      preferredLanguage: user.preferredLanguage,
+      accessToken: tokens.access_token,
+      refreshToken: tokens.refresh_token,
+      expires_at: new Date(Date.now() + 1000 * tokens.expires_in).toISOString(),
+    };
+  },
+);
+
+export const authenticator = new Authenticator<EpicUser>(sessionStorage);
+
+authenticator.use(epicStrategy, 'epic');

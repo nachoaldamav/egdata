@@ -76,6 +76,7 @@
     "remix-auth": "^3.7.0",
     "remix-auth-discord": "^1.4.0",
     "remix-auth-google": "^2.0.0",
+    "remix-auth-oauth2": "^2.3.0",
     "remix-utils": "^7.6.0",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",

@@ -1,9 +1,9 @@
-import type { DiscordUser } from '~/app/services/auth.server';
+import type { EpicUser } from '~/app/services/auth.server';
 
 export interface SingleReview {
   id: string;
   userId: string;
-  user: DiscordUser;
+  user: EpicUser;
   rating: number;
   recommended: boolean;
   content: string;

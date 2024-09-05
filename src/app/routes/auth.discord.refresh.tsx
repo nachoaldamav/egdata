@@ -21,7 +21,11 @@ export const loader: LoaderFunction = async ({ request }) => {
 
     if (!response.ok) {
       consola.error('Error from Discord', await response.json());
-      return redirect('/login');
+      return redirect('/login', {
+        headers: {
+          'Set-Cookie': await sessionStorage.destroySession(request.headers.get('Cookie')),
+        },
+      });
     }
 
     const { access_token, refresh_token, expires_in } = await response.json();
