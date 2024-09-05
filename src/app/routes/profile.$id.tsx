@@ -1,9 +1,8 @@
 import { redirect, type LoaderFunctionArgs } from '@remix-run/node';
-import { Link, Outlet, useLoaderData, useParams } from '@remix-run/react';
+import { Outlet, useLoaderData, useParams } from '@remix-run/react';
 import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
 import { LayoutGridIcon } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Image } from '~/components/app/image';
+import { useMemo } from 'react';
 import { getQueryClient } from '~/lib/client';
 import { getImage } from '~/lib/getImage';
 import { httpClient } from '~/lib/http-client';
