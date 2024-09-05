@@ -14,7 +14,7 @@ import {
   CardFooter,
 } from '~/components/ui/card';
 import { Skeleton } from '~/components/ui/skeleton';
-import { client, getQueryClient } from '~/lib/client';
+import { getQueryClient } from '~/lib/client';
 import { getRarity } from '~/lib/get-rarity';
 import { httpClient } from '~/lib/http-client';
 import { cn } from '~/lib/utils';
