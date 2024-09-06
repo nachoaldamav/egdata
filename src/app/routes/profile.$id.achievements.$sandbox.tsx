@@ -6,7 +6,7 @@ import { FlippableCard } from '~/components/app/achievement-card';
 import { Button } from '~/components/ui/button';
 import { getQueryClient } from '~/lib/client';
 import { httpClient } from '~/lib/http-client';
-import { SingleOffer } from '~/types/single-offer';
+import type { SingleOffer } from '~/types/single-offer';
 
 interface Root {
   playerAchievements: PlayerAchievement[];
@@ -155,14 +155,17 @@ function PlayerSandboxAchievementsPage() {
 
   // Merge achievements, we know if its unlocked from the playerAchievements, while the sandboxAchievements has the data
   const achievements: PlayerAchievementStatus[] = sandboxAchievements.map((achievement) => {
+    // Find the corresponding player achievement by matching both sandboxId and achievementName
     const playerAchievement = playerAchievements.find(
-      ({ playerAchievement }) => playerAchievement.achievementName === achievement.name,
+      ({ playerAchievement }) =>
+        playerAchievement.achievementName === achievement.name &&
+        playerAchievement.sandboxId === data.playerAchievements[0]?.sandboxId, // Ensure matching sandbox
     );
 
     return {
       ...achievement,
-      unlocked: playerAchievement?.playerAchievement.unlocked ?? false,
-      unlockDate: playerAchievement?.playerAchievement.unlockDate ?? '',
+      unlocked: !!playerAchievement?.playerAchievement.unlocked, // Convert undefined to false
+      unlockDate: playerAchievement?.playerAchievement.unlockDate || '', // Convert undefined to an empty string
     };
   });
 
@@ -183,14 +186,14 @@ function PlayerSandboxAchievementsPage() {
       </div>
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 mt-4">
         {achievements
-          .sort((a, b) => (a.unlocked ? 1 : b.unlocked ? -1 : 0))
+          .sort((a, b) => (a.unlocked ? -1 : b.unlocked ? 1 : 0))
           .map((achievement, index) => (
             <FlippableCard
               key={achievement.name}
               achievement={achievement}
               flipAll={false}
               index={index}
-              flipped={achievement.unlocked}
+              flipped={!achievement.unlocked}
               onCardFlip={() => {}}
             />
           ))}

@@ -659,10 +659,13 @@ function Review({ review, full }: { review: SingleReview; full?: boolean }) {
           <AvatarImage src={userAvatar as string} alt={review.user.displayName} />
           <AvatarFallback>{review.user.displayName.slice(0, 2).toUpperCase()}</AvatarFallback>
         </Avatar>
-        <div className="ml-4 inline-flex items-center space-x-2">
+        <Link
+          className="ml-4 inline-flex items-center space-x-2"
+          to={`/profile/${review.user.accountId}`}
+        >
           <div className="font-bold">{review.user.displayName}</div>
           {review.verified && <Badge variant="secondary">Verified Owner</Badge>}
-        </div>
+        </Link>
         <div className="ml-auto flex items-end space-x-2 bg-gray-900 px-2 py-1 rounded-lg">
           <div className=" text-white px-2 py-1 rounded-lg font-bold">{review.rating} / 10</div>
           <div className="flex items-center space-x-1 font-bold">
