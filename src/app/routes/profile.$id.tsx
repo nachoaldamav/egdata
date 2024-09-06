@@ -324,8 +324,8 @@ function ProfilePage() {
               <Separator orientation="vertical" />
             )}
             {data.creationDate && (
-              <p className="text-sm font-medium">
-                <span className="text-gray-300">Joined </span>
+              <p className="text-sm text-gray-300">
+                <span>Joined </span>
                 {new Date(data.creationDate).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
