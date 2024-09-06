@@ -5,6 +5,12 @@ export interface Profile {
   displayName: string;
   avatar: Avatar;
   achievements: Achievements;
+  linkedAccounts?: LinkedAccount[];
+}
+
+export interface LinkedAccount {
+  identityProviderId: string;
+  displayName: string;
 }
 
 export interface Avatar {

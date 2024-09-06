@@ -31,6 +31,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import { Button } from '~/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
+import { getAccountIcon } from '~/components/app/platform-icons';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const queryClient = getQueryClient();
@@ -300,6 +302,20 @@ function ProfilePage() {
         )}
         <div className="flex flex-col gap-4">
           <h1 className="text-6xl font-thin">{data.displayName}</h1>
+          <div className="inline-flex gap-3 items-center">
+            <TooltipProvider>
+              {data.linkedAccounts
+                ?.filter((account) => getAccountIcon(account))
+                .map((account) => (
+                  <Tooltip key={account.identityProviderId}>
+                    <TooltipTrigger>{getAccountIcon(account)}</TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-sm font-medium">{account.displayName}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                ))}
+            </TooltipProvider>
+          </div>
           <section
             id="profile-header-achievements"
             className="flex flex-row w-full items-start justify-start"
