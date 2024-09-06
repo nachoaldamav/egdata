@@ -289,8 +289,8 @@ export default function Navbar() {
               <Avatar>
                 <AvatarImage
                   src={
-                    user.profile.avatarUrl?.variants.length
-                      ? user.profile.avatarUrl.variants[0]
+                    user.profile?.avatarUrl?.variants?.length
+                      ? user.profile?.avatarUrl?.variants[0]
                       : `https://shared-static-prod.epicgames.com/epic-profile-icon/D8033C/${user.displayName[0].toUpperCase()}/icon.png?size=512`
                   }
                 />

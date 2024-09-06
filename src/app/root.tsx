@@ -135,7 +135,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     const isPrefetch = request.headers.get('purpose') === 'prefetch';
 
-    if (authenticatedUser && !isPrefetch) {
+    if (authenticatedUser) {
       if (
         !authenticatedUser.accountId ||
         !authenticatedUser.expires_at ||
@@ -147,7 +147,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
       const forceRefresh = url.searchParams.get('forceRefresh') === 'true';
 
       // If the token is expired, we can retrieve it from the DB as it's refreshed there
-      if (new Date(authenticatedUser.expires_at).getTime() < Date.now() || forceRefresh) {
+      if (
+        (new Date(authenticatedUser.expires_at).getTime() < Date.now() || forceRefresh) &&
+        !isPrefetch
+      ) {
         console.log(`Token ${authenticatedUser.tokenId} expired, refreshing 🔁`);
         const tokens = await httpClient
           .get<{
@@ -197,12 +200,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
           },
         });
       }
-
-      console.log(
-        `Token ${authenticatedUser.tokenId} still valid, expiring at ${new Date(
-          authenticatedUser.expires_at,
-        ).toLocaleString()}`,
-      );
 
       const profile = await queryClient.fetchQuery({
         queryKey: ['epic-account', authenticatedUser.accountId],
