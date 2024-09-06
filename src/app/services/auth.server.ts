@@ -3,8 +3,9 @@ import { sessionStorage } from '../sessions.server';
 import type { DiscordProfile, PartialDiscordGuild } from 'remix-auth-discord';
 import { DiscordStrategy } from 'remix-auth-discord';
 import { OAuth2Strategy } from 'remix-auth-oauth2';
+import jwt from 'jsonwebtoken';
 import { httpClient } from '~/lib/http-client';
-import { EpicAccountResponse, getEpicAccount } from '~/lib/get-epic-account.server';
+import { type EpicAccountResponse, getEpicAccount } from '~/lib/get-epic-account.server';
 
 type CustomDiscordGuild = Omit<PartialDiscordGuild, 'features'>;
 
@@ -38,6 +39,7 @@ export interface EpicUser {
   refreshToken: string;
   expires_at: string;
   profile: EpicProfile;
+  tokenId: string;
 }
 
 interface EpicToken extends Record<string, unknown> {
@@ -155,6 +157,10 @@ export const epicStrategy = new OAuth2Strategy<
     tokenRevocationEndpoint: 'https://api.epicgames.dev/epic/oauth/v2/token/revoke',
   },
   async ({ tokens }) => {
+    const decoded = jwt.decode(tokens.access_token) as {
+      jti: string;
+    };
+
     await httpClient.get<EpicAccountResponse['0']>('/auth', {
       retries: 0,
       headers: {
@@ -164,14 +170,32 @@ export const epicStrategy = new OAuth2Strategy<
 
     const user = await getEpicAccount(tokens.access_token, tokens.account_id);
 
+    const { id: tokenId } = await httpClient.post<{
+      id: string;
+    }>(
+      '/auth/persist',
+      {
+        refreshToken: tokens.refresh_token,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${tokens.access_token}`,
+        },
+        retries: 0,
+      },
+    );
+
+    console.log(`Token ${tokenId} persisted 🚀`);
+
     return {
+      tokenId,
       accountId: user.accountId,
       displayName: user.displayName,
       preferredLanguage: user.preferredLanguage,
       accessToken: tokens.access_token,
       refreshToken: tokens.refresh_token,
       expires_at: new Date(Date.now() + 1000 * tokens.expires_in).toISOString(),
-    };
+    } as EpicUser;
   },
 );
 

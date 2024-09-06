@@ -44,6 +44,7 @@ import tailwindCss from '../tailwind.css?url';
 import fontCss from '../fonts.css?url';
 import '../tailwind.css';
 import '../fonts.css';
+import { getSession, sessionStorage } from './sessions.server';
 
 if (!import.meta.env.SSR) {
   Bugsnag.start({
@@ -130,19 +131,78 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const country = getCountryCode(url, cookies);
 
     const authenticatedUser = await authenticator.isAuthenticated(request);
+    const session = await getSession(request.headers.get('cookie'));
 
-    if (authenticatedUser) {
-      if (!authenticatedUser.accountId) {
+    const isPrefetch = request.headers.get('purpose') === 'prefetch';
+
+    if (authenticatedUser && !isPrefetch) {
+      if (
+        !authenticatedUser.accountId ||
+        !authenticatedUser.expires_at ||
+        !authenticatedUser.tokenId
+      ) {
         return redirect('/logout');
       }
 
-      if (!authenticatedUser.expires_at) {
-        return redirect('/logout');
+      const forceRefresh = url.searchParams.get('forceRefresh') === 'true';
+
+      // If the token is expired, we can retrieve it from the DB as it's refreshed there
+      if (new Date(authenticatedUser.expires_at).getTime() < Date.now() || forceRefresh) {
+        console.log(`Token ${authenticatedUser.tokenId} expired, refreshing 🔁`);
+        const tokens = await httpClient
+          .get<{
+            accessToken: string;
+            refreshToken: string;
+            expiresAt: string;
+          }>('/auth/refresh', {
+            params: {
+              id: authenticatedUser.tokenId,
+            },
+            headers: {
+              Authorization: `Bearer ${authenticatedUser.accessToken}`,
+            },
+            retries: 0,
+          })
+          .catch(() => null);
+
+        if (!tokens) {
+          console.log(`Token ${authenticatedUser.tokenId} expired, but couldn't refresh`);
+          return redirect('/logout', {
+            headers: {
+              'Set-Cookie': await sessionStorage.destroySession(session),
+            },
+          });
+        }
+
+        console.log(`Token ${authenticatedUser.tokenId} refreshed 🚀`);
+
+        session.set(authenticator.sessionKey, {
+          ...authenticatedUser,
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+          expires_at: tokens.expiresAt,
+        });
+
+        const cookieHeader = await sessionStorage.commitSession(session, {
+          expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
+        });
+
+        const target = url.pathname + url.search;
+
+        console.log(`Redirecting to ${target}`);
+
+        return redirect(forceRefresh ? '/' : target, {
+          headers: {
+            'Set-Cookie': cookieHeader,
+          },
+        });
       }
 
-      if (new Date(authenticatedUser.expires_at).getTime() < Date.now()) {
-        return redirect('/auth/epic/refresh');
-      }
+      console.log(
+        `Token ${authenticatedUser.tokenId} still valid, expiring at ${new Date(
+          authenticatedUser.expires_at,
+        ).toLocaleString()}`,
+      );
 
       const profile = await queryClient.fetchQuery({
         queryKey: ['epic-account', authenticatedUser.accountId],
