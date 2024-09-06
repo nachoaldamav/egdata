@@ -344,7 +344,7 @@ function ProfilePage() {
                   <LevelIcon className="size-7 inline-block" />
                   {userLevel}
                 </p>
-                <Separator orientation="vertical" />
+                <Separator orientation="vertical" className="bg-white/25" />
                 <p className="text-4xl font-thin">{userTotalXP} XP</p>
               </div>
               <div className="flex flex-col gap-2 items-start">
