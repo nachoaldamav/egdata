@@ -14,22 +14,12 @@ import {
   type CarouselApi,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from '~/components/ui/carousel';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '~/components/ui/card';
 import { Separator } from '~/components/ui/separator';
 import type { SingleOffer } from '~/types/single-offer';
 import { EpicTrophyIcon } from './profile.$id';
 import { getRarity } from '~/lib/get-rarity';
-import { rarities, textRarities } from '~/components/app/achievement-card';
+import { textRarities } from '~/components/app/achievement-card';
 import { ArrowUpIcon } from 'lucide-react';
 
 type RareAchievement = Achievement & {
