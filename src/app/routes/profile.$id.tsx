@@ -1,16 +1,40 @@
-import { redirect, type LoaderFunctionArgs } from '@remix-run/node';
-import { Outlet, useLoaderData, useParams } from '@remix-run/react';
+import {
+  type ActionFunctionArgs,
+  redirect,
+  type LoaderFunctionArgs,
+  json,
+  unstable_parseMultipartFormData,
+  unstable_createMemoryUploadHandler,
+  unstable_composeUploadHandlers,
+} from '@remix-run/node';
+import { Form, Outlet, useLoaderData, useParams } from '@remix-run/react';
 import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
-import { LayoutGridIcon } from 'lucide-react';
-import { useMemo } from 'react';
+import { LayoutGridIcon, UploadIcon } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { getQueryClient } from '~/lib/client';
 import { getImage } from '~/lib/getImage';
 import { httpClient } from '~/lib/http-client';
 import { cn } from '~/lib/utils';
 import type { Profile } from '~/types/profiles';
+import { authenticator } from '../services/auth.server';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '~/components/ui/dialog';
+import { Label } from '~/components/ui/label';
+import { Input } from '~/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
+import { Button } from '~/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
+import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader({ params, request }: LoaderFunctionArgs) {
   const queryClient = getQueryClient();
+  const user = await authenticator.isAuthenticated(request);
 
   if (!params.id) {
     return redirect('/');
@@ -24,8 +48,93 @@ export async function loader({ params }: LoaderFunctionArgs) {
   return {
     id: params.id,
     sandbox: params.sandbox,
+    userId: user?.accountId,
     dehydratedState: dehydrate(queryClient),
   };
+}
+
+async function uploadImageToAPI(
+  data: AsyncIterable<Uint8Array>,
+  originalFile: {
+    filename: string;
+    type: string;
+  },
+  accessToken: string,
+) {
+  // Collect all chunks from the AsyncIterable<Uint8Array> into a single Uint8Array
+  const chunks = [];
+  for await (const chunk of data) {
+    chunks.push(chunk);
+  }
+  const blob = new Blob(chunks, { type: originalFile.type });
+
+  // Convert the Blob to a File object
+  const file = new File([blob], originalFile.filename, {
+    type: originalFile.type,
+  });
+
+  // Create FormData and append the file
+  const form = new FormData();
+  form.append('file', file);
+
+  try {
+    const SERVER_API_ENDPOINT = process.env.SERVER_API_ENDPOINT ?? 'https://api.egdata.app';
+    // Send the file to your API
+    const response = await fetch(`${SERVER_API_ENDPOINT}/auth/avatar`, {
+      method: 'POST',
+      body: form,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to upload');
+    }
+
+    // Return the response in the expected format
+    return await response.json(); // Ensure to use `await response.json()` to parse JSON body
+  } catch (error) {
+    console.error('Error uploading file to API:', error);
+    throw error; // Re-throw the error to handle it in the calling code
+  }
+}
+
+export async function action({ request }: ActionFunctionArgs) {
+  const actionType = request.method as 'POST' | 'PATCH' | 'DELETE';
+  const user = await authenticator.isAuthenticated(request);
+
+  if (!user) {
+    return redirect('/login');
+  }
+
+  if (actionType !== 'POST') {
+    return json({ success: false, errors: { general: 'Invalid action' } }, { status: 400 });
+  }
+
+  const uploadHandler = unstable_composeUploadHandlers(
+    // our custom upload handler
+    async ({ name, contentType, data, filename }) => {
+      if (name !== 'avatar') {
+        return undefined;
+      }
+      const uploadedImage = await uploadImageToAPI(
+        data,
+        {
+          filename: filename ?? 'avatar.png',
+          type: contentType,
+        },
+        user.accessToken,
+      );
+      return uploadedImage.secure_url;
+    },
+    // fallback to memory for everything else
+    unstable_createMemoryUploadHandler(),
+  );
+
+  await unstable_parseMultipartFormData(request, uploadHandler);
+
+  return null;
 }
 
 export default function Index() {
@@ -39,11 +148,49 @@ export default function Index() {
 }
 
 function ProfilePage() {
-  const { id } = useLoaderData<typeof loader>();
+  const { id, userId } = useLoaderData<typeof loader>();
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [avatarErrors, setAvatarErrors] = useState<string[]>([]);
   const { data, isLoading } = useQuery({
     queryKey: ['profile', { id }],
     queryFn: () => httpClient.get<Profile>(`/profiles/${id}`),
   });
+
+  useEffect(() => {
+    if (selectedImage) {
+      const image = new Image();
+      image.src = URL.createObjectURL(selectedImage);
+
+      image.onload = () => {
+        const errors: string[] = [];
+
+        // Validate if the image is square
+        if (image.width !== image.height) {
+          errors.push('Image must be square');
+        }
+
+        // Validate the maximum dimensions
+        if (image.width > 1024 || image.height > 1024) {
+          errors.push('Image size must be lower than 1024x1024');
+        }
+
+        // Validate the file size
+        if (selectedImage.size > 5 * 1024 * 1024) {
+          errors.push('Image size must be lower than 5MB');
+        }
+
+        // Set errors if any, or clear them if there are none
+        setAvatarErrors(errors);
+      };
+
+      image.onerror = () => {
+        setAvatarErrors(['Invalid image format']);
+      };
+
+      // Cleanup URL object to avoid memory leaks
+      return () => URL.revokeObjectURL(image.src);
+    }
+  }, [selectedImage]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -64,11 +211,93 @@ function ProfilePage() {
     <main className="flex flex-col items-start justify-start w-full min-h-screen gap-4 mt-10">
       <BackgroundImage profile={data} />
       <section id="profile-header" className="flex flex-row gap-10 w-full">
-        <img
-          src={data.avatar.large}
-          alt={data.displayName}
-          className="rounded-full h-32 w-32 object-cover"
-        />
+        {userId === data.epicAccountId ? (
+          <Dialog>
+            <div className="flex flex-col gap-2 relative">
+              <DialogTrigger asChild>
+                <div className="relative group">
+                  <img
+                    src={data.avatar.large}
+                    alt={data.displayName}
+                    className="rounded-full h-32 w-32 object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full">
+                    <span className="text-white text-lg">
+                      <UploadIcon className="w-6 h-6" />
+                    </span>
+                  </div>
+                </div>
+              </DialogTrigger>
+            </div>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Change Avatar</DialogTitle>
+                <DialogDescription asChild>
+                  <Form
+                    className="space-y-6"
+                    method="POST"
+                    action={`/profile/${id}`}
+                    encType="multipart/form-data"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <Avatar className="h-24 w-24">
+                        <AvatarImage
+                          src={
+                            selectedImage ? URL.createObjectURL(selectedImage) : data.avatar.large
+                          }
+                          alt="Avatar preview"
+                        />
+                        <AvatarFallback>Avatar</AvatarFallback>
+                      </Avatar>
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="avatar-upload"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          Change Avatar
+                        </Label>
+                        <Input
+                          id="avatar-upload"
+                          name="avatar"
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            if (e.target.files?.[0]) setSelectedImage(e.target.files?.[0]);
+                          }}
+                          className="w-full max-w-xs"
+                          aria-describedby="avatar-upload-description"
+                        />
+                        <p id="avatar-upload-description" className="text-sm text-gray-500">
+                          Upload a new avatar image (max 5MB)
+                        </p>
+                      </div>
+                    </div>
+                    <Button type="submit" disabled={!selectedImage || avatarErrors.length > 0}>
+                      Update Avatar
+                    </Button>
+                    {avatarErrors.length > 0 && (
+                      <Alert variant="destructive">
+                        <ExclamationTriangleIcon className="h-4 w-4" />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription className="flex flex-col gap-1">
+                          {avatarErrors.map((error, index) => (
+                            <span key={index}>{error}</span>
+                          ))}
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </Form>
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+        ) : (
+          <img
+            src={data.avatar.large}
+            alt={data.displayName}
+            className="rounded-full h-32 w-32 object-cover"
+          />
+        )}
         <div className="flex flex-col gap-4">
           <h1 className="text-6xl font-thin">{data.displayName}</h1>
           <section
