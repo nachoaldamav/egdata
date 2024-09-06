@@ -74,7 +74,7 @@ export function FlippableCard({
         <div className="back">
           <Card className="justify-between flex flex-col h-full">
             <CardHeader className="flex flex-col w-full items-center gap-2">
-              <div className="h-16 w-16">
+              <div className="h-16 w-16 opacity-25">
                 <Image
                   src={achievement.lockedIconLink}
                   alt={achievement.lockedDisplayName}
