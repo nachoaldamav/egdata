@@ -280,7 +280,9 @@ function RareAchievement({ achievement }: { achievement: RareAchievement }) {
         className="size-24 rounded-md"
       />
       <div className="flex flex-col gap-2">
-        <h6 className="text-sm font-normal text-gray-400">{achievement.offer.title}</h6>
+        <h6 className="text-sm font-normal text-gray-400">
+          {achievement.offer?.title ?? 'Unknown'}
+        </h6>
         <h3 className="text-lg font-semibold">{achievement.unlockedDisplayName}</h3>
         <div className="flex flex-row gap-2 h-5">
           <p className="text-sm font-thin">{achievement.completedPercent}% of players unlocked</p>
