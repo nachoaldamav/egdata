@@ -22,6 +22,14 @@ export interface DiscordUser {
   epicId: string | null | undefined;
 }
 
+interface EpicProfile {
+  avatarUrl?: {
+    id: string;
+    filename: string;
+    variants: string[];
+  };
+}
+
 export interface EpicUser {
   accountId: string;
   displayName: string;
@@ -29,6 +37,7 @@ export interface EpicUser {
   accessToken: string;
   refreshToken: string;
   expires_at: string;
+  profile: EpicProfile;
 }
 
 interface EpicToken extends Record<string, unknown> {

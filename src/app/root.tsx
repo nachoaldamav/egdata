@@ -38,12 +38,12 @@ import { Button } from '~/components/ui/button';
 import { epic } from './cookies.server';
 import { AuthProvider } from '~/providers/auth';
 import { authenticator } from './services/auth.server';
+import type { EpicAccountResponse } from '~/lib/get-epic-account.server';
+import { httpClient } from '~/lib/http-client';
 import tailwindCss from '../tailwind.css?url';
 import fontCss from '../fonts.css?url';
 import '../tailwind.css';
 import '../fonts.css';
-import type { EpicAccountResponse } from '~/lib/get-epic-account.server';
-import { httpClient } from '~/lib/http-client';
 
 if (!import.meta.env.SSR) {
   Bugsnag.start({
@@ -144,7 +144,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         return redirect('/auth/epic/refresh');
       }
 
-      queryClient.fetchQuery({
+      const profile = await queryClient.fetchQuery({
         queryKey: ['epic-account', authenticatedUser.accountId],
         queryFn: async () => {
           const dbUser = await httpClient.get<EpicAccountResponse['0']>('/auth', {
@@ -155,8 +155,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
           });
           return dbUser;
         },
-        staleTime: 1000,
+        staleTime: 10_000,
       });
+
+      authenticatedUser.profile = profile;
     }
 
     return {

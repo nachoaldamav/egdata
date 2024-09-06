@@ -289,9 +289,9 @@ export default function Navbar() {
               <Avatar>
                 <AvatarImage
                   src={
-                    URL.canParse(user.avatarUrl as string)
-                      ? (user.avatarUrl as string)
-                      : `https://cdn.discordapp.com/avatars/${user.id}/${user.avatarUrl}.png`
+                    user.profile.avatarUrl?.variants.length
+                      ? user.profile.avatarUrl.variants[0]
+                      : `https://shared-static-prod.epicgames.com/epic-profile-icon/D8033C/${user.displayName[0].toUpperCase()}/icon.png?size=512`
                   }
                 />
                 <AvatarFallback>{user.displayName.slice(0, 2).toUpperCase()}</AvatarFallback>

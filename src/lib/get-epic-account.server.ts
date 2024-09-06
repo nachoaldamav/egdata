@@ -7,6 +7,11 @@ interface Root2 {
   displayName: string;
   preferredLanguage: string;
   linkedAccounts?: LinkedAccount[];
+  avatarUrl?: {
+    id: string;
+    filename: string;
+    variants: string[];
+  };
 }
 
 interface LinkedAccount {
