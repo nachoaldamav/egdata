@@ -303,9 +303,9 @@ function ProfilePage() {
         )}
         <div className="flex flex-col gap-4">
           <h1 className="text-6xl font-thin">{data.displayName}</h1>
-          <div className="flex flex-row gap-4 items-center justify-start">
+          <div className="flex flex-row gap-6 items-center justify-start">
             {data?.linkedAccounts && data.linkedAccounts.length > 0 && (
-              <div className="inline-flex gap-3 items-center h-6">
+              <div className="inline-flex gap-6 items-center h-6">
                 <TooltipProvider>
                   {data.linkedAccounts
                     ?.filter((account) => getAccountIcon(account))
@@ -325,7 +325,7 @@ function ProfilePage() {
             )}
             {data.creationDate && (
               <p className="text-sm font-medium">
-                <span className="text-gray-300">Member since </span>
+                <span className="text-gray-300">Joined </span>
                 {new Date(data.creationDate).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
