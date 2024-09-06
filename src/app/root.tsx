@@ -235,6 +235,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const { userPreferences, country, dehydratedState, authenticatedUser } =
     useLoaderData<typeof loader>() || {};
 
+  if (authenticatedUser?.profile && typeof window !== 'undefined') {
+    window?.umami?.identify({
+      authenticated: true,
+    });
+  }
+
   return (
     <html lang="en" className="dark">
       <head>

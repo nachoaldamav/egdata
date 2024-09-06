@@ -127,7 +127,7 @@ function PlayerSandboxAchievementsPage() {
     queryKey: ['player-sandbox-achievements', { id, sandbox }],
     queryFn: () => httpClient.get<Root>(`/profiles/${id}/achievements/${sandbox}`),
   });
-  const { data: offer, isLoading: isLoadingOffer } = useQuery({
+  const { data: offer } = useQuery({
     queryKey: ['sandbox:base', { id: sandbox, country: 'US' }],
     queryFn: () =>
       httpClient.get<SingleOffer>(`/sandboxes/${sandbox}/base-game`, {

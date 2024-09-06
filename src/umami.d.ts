@@ -15,5 +15,5 @@ interface Umami {
    * @param {Record<string, any>[]} data - The session data
    * @returns {void}
    */
-  identify: (data: Record<string, unknown>[]) => void;
+  identify: (data: Record<string, unknown>) => void;
 }
