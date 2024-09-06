@@ -33,6 +33,7 @@ import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import { getAccountIcon } from '~/components/app/platform-icons';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
+import { Separator } from '~/components/ui/separator';
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const queryClient = getQueryClient();
@@ -302,19 +303,35 @@ function ProfilePage() {
         )}
         <div className="flex flex-col gap-4">
           <h1 className="text-6xl font-thin">{data.displayName}</h1>
-          <div className="inline-flex gap-3 items-center">
-            <TooltipProvider>
-              {data.linkedAccounts
-                ?.filter((account) => getAccountIcon(account))
-                .map((account) => (
-                  <Tooltip key={account.identityProviderId}>
-                    <TooltipTrigger>{getAccountIcon(account)}</TooltipTrigger>
-                    <TooltipContent>
-                      <p className="text-sm font-medium">{account.displayName}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
-            </TooltipProvider>
+          <div className="flex flex-row gap-4 items-center justify-start">
+            {data?.linkedAccounts && data.linkedAccounts.length > 0 && (
+              <div className="inline-flex gap-3 items-center h-6">
+                <TooltipProvider>
+                  {data.linkedAccounts
+                    ?.filter((account) => getAccountIcon(account))
+                    .map((account) => (
+                      <Tooltip key={account.identityProviderId}>
+                        <TooltipTrigger>{getAccountIcon(account)}</TooltipTrigger>
+                        <TooltipContent>
+                          <p className="text-sm font-medium">{account.displayName}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ))}
+                </TooltipProvider>
+              </div>
+            )}
+            {data.creationDate && data?.linkedAccounts && data.linkedAccounts.length > 0 && (
+              <Separator orientation="vertical" />
+            )}
+            {data.creationDate && (
+              <p className="text-sm font-medium">
+                <span className="text-gray-300">Member since </span>
+                {new Date(data.creationDate).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                })}
+              </p>
+            )}
           </div>
           <section
             id="profile-header-achievements"

@@ -6,6 +6,7 @@ export interface Profile {
   avatar: Avatar;
   achievements: Achievements;
   linkedAccounts?: LinkedAccount[];
+  creationDate: string | null;
 }
 
 export interface LinkedAccount {
