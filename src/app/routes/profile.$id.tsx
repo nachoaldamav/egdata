@@ -9,7 +9,7 @@ import {
 } from '@remix-run/node';
 import { Form, Outlet, useLoaderData, useParams } from '@remix-run/react';
 import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
-import { LayoutGridIcon, UploadIcon } from 'lucide-react';
+import { LayoutGridIcon, MessageSquareQuoteIcon, UploadIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { getQueryClient } from '~/lib/client';
 import { getImage } from '~/lib/getImage';
@@ -379,6 +379,17 @@ function ProfilePage() {
               <p className="text-3xl font-light inline-flex items-center gap-2">
                 <LayoutGridIcon className="size-7 inline-block" fill="currentColor" />
                 {data.achievements.data?.length ?? 0}
+              </p>
+            </div>
+            <div id="player-reviews" className="flex flex-col gap-2 w-[175px]">
+              <SectionTitle title="Reviews" />
+              <p className="text-3xl font-light inline-flex items-center gap-2">
+                <MessageSquareQuoteIcon
+                  className="size-7 inline-block"
+                  stroke="transparent"
+                  fill="currentColor"
+                />
+                {data.reviews}
               </p>
             </div>
           </section>

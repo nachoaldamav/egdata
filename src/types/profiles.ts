@@ -7,6 +7,7 @@ export interface Profile {
   achievements: Achievements;
   linkedAccounts?: LinkedAccount[];
   creationDate: string | null;
+  reviews: number;
 }
 
 export interface LinkedAccount {

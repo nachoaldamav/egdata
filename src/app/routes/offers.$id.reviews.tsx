@@ -650,7 +650,9 @@ function Review({ review, full }: { review: SingleReview; full?: boolean }) {
   const [showEditForm, setShowEditForm] = useState(false);
   const [showFull, setShowFull] = useState(full);
   const { userId } = useLoaderData<typeof loader>();
-  const userAvatar = `https://shared-static-prod.epicgames.com/epic-profile-icon/D8033C/${review.user.displayName[0].toUpperCase()}/icon.png?size=512`;
+  const userAvatar =
+    review.user.avatarUrl?.variants[0] ??
+    `https://shared-static-prod.epicgames.com/epic-profile-icon/D8033C/${review.user.displayName[0].toUpperCase()}/icon.png?size=512`;
 
   return (
     <div className="p-4 bg-card text-white rounded-lg max-w-2xl mx-auto w-full h-full flex flex-col">

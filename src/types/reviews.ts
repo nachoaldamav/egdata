@@ -3,7 +3,11 @@ import type { EpicUser } from '~/app/services/auth.server';
 export interface SingleReview {
   id: string;
   userId: string;
-  user: EpicUser;
+  user: EpicUser & {
+    avatarUrl?: {
+      variants: string[];
+    };
+  };
   rating: number;
   recommended: boolean;
   content: string;
