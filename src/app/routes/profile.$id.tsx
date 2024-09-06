@@ -339,13 +339,13 @@ function ProfilePage() {
           >
             <div id="player-level" className="flex flex-col gap-2 w-fit min:w-[250px] mr-10">
               <SectionTitle title="Level" />
-              <div className="flex flex-row gap-2 items-center mb-3">
+              <div className="flex flex-row gap-4 items-center mb-3 h-10">
                 <p className="text-4xl font-light inline-flex items-center gap-1">
                   <LevelIcon className="size-7 inline-block" />
                   {userLevel}
                 </p>
-                <p className="text-4xl font-thin">|</p>
-                <p className="text-4xl font-light">{userTotalXP} XP</p>
+                <Separator orientation="vertical" />
+                <p className="text-4xl font-thin">{userTotalXP} XP</p>
               </div>
               <div className="flex flex-col gap-2 items-start">
                 <div className="w-full h-[6px] bg-gray-300/10 rounded-full">
