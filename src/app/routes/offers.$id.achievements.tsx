@@ -130,7 +130,7 @@ export default function OfferAchievements() {
   );
 }
 
-const rarities = {
+export const rarities = {
   bronze: 'bg-gradient-to-r from-bronze-start to-bronze-end shadow-glow-bronze',
   silver: 'bg-gradient-to-r from-silver-start to-silver-end shadow-glow-silver',
   gold: 'bg-gradient-to-r from-gold-start to-gold-end shadow-glow-gold',

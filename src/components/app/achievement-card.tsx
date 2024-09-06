@@ -12,6 +12,14 @@ export const rarities = {
   unknown: 'bg-gray-300',
 };
 
+export const textRarities = {
+  bronze: 'text-bronze-start',
+  silver: 'text-silver-start',
+  gold: 'text-gold-start',
+  platinum: 'text-platinum-start',
+  unknown: 'text-gray-300',
+};
+
 export function FlippableCard({
   achievement,
   flipAll,

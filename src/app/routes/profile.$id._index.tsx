@@ -7,7 +7,37 @@ import { getQueryClient } from '~/lib/client';
 import { getImage } from '~/lib/getImage';
 import { httpClient } from '~/lib/http-client';
 import { cn } from '~/lib/utils';
+import type { Achievement } from '~/queries/offer-achievements';
 import type { Profile } from '~/types/profiles';
+import {
+  Carousel,
+  type CarouselApi,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '~/components/ui/carousel';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '~/components/ui/card';
+import { Separator } from '~/components/ui/separator';
+import type { SingleOffer } from '~/types/single-offer';
+import { EpicTrophyIcon } from './profile.$id';
+import { getRarity } from '~/lib/get-rarity';
+import { rarities, textRarities } from '~/components/app/achievement-card';
+import { ArrowUpIcon } from 'lucide-react';
+
+type RareAchievement = Achievement & {
+  unlocked: boolean;
+  unlockDate: string;
+  sandboxId: string;
+  offer: SingleOffer;
+};
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const queryClient = getQueryClient();
@@ -16,10 +46,16 @@ export async function loader({ params }: LoaderFunctionArgs) {
     return redirect('/');
   }
 
-  await queryClient.prefetchQuery({
-    queryKey: ['profile', { id: params.id }],
-    queryFn: () => httpClient.get<Profile>(`/profiles/${params.id}`),
-  });
+  await Promise.all([
+    queryClient.prefetchQuery({
+      queryKey: ['profile', { id: params.id }],
+      queryFn: () => httpClient.get<Profile>(`/profiles/${params.id}`),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: ['player-rarest-achievements', { id: params.id }],
+      queryFn: () => httpClient.get<Achievement[]>(`/profiles/${params.id}/rare-achievements`),
+    }),
+  ]);
 
   return {
     id: params.id,
@@ -100,7 +136,7 @@ function ProfileInformation({ profile }: { profile: Profile }) {
       <div className="mt-4">
         {activeTab === 'overview' && (
           <div className="flex flex-col gap-4">
-            <h2 className="text-2xl font-bold">Player Summary</h2>
+            <RarestAchievements />
             <div className="flex items-center flex-col gap-4">
               {profile.achievements?.data
                 ?.sort((a, b) => b.totalUnlocked - a.totalUnlocked)
@@ -188,5 +224,85 @@ function GameAchievementsSummary({ game }: { game: Profile['achievements']['data
         </div>
       </div>
     </Link>
+  );
+}
+
+function RarestAchievements() {
+  const { id } = useLoaderData<typeof loader>();
+  const [api, setApi] = useState<CarouselApi>();
+  const { data } = useQuery({
+    queryKey: ['player-rarest-achievements', { id }],
+    queryFn: () => httpClient.get<RareAchievement[]>(`/profiles/${id}/rare-achievements`),
+  });
+
+  if (!data) {
+    return null;
+  }
+
+  const handlePreviousSlide = () => {
+    api?.scrollPrev();
+  };
+
+  const handleNextSlide = () => {
+    api?.scrollNext();
+  };
+
+  return (
+    <section className="flex flex-col gap-4 mt-4 mb-10">
+      <div className="flex flex-row items-center justify-between">
+        <h2 className="text-xl font-medium">Rarest Achievements</h2>
+        <div className="flex gap-2">
+          <button
+            onClick={handlePreviousSlide}
+            className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-card text-muted-foreground hover:bg-gray-900 focus:outline-none focus:ring focus:ring-gray-300/50 disabled:opacity-50"
+            type="button"
+          >
+            <ArrowUpIcon className="w-5 h-5 transform -rotate-90" />
+          </button>
+          <button
+            onClick={handleNextSlide}
+            className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-card text-muted-foreground hover:bg-gray-900 focus:outline-none focus:ring focus:ring-gray-300/50 disabled:opacity-50"
+            type="button"
+          >
+            <ArrowUpIcon className="w-5 h-5 transform rotate-90" />
+          </button>
+        </div>
+      </div>
+      <Carousel setApi={setApi} className="w-full">
+        <CarouselContent>
+          {data.map((achievement) => (
+            <CarouselItem key={achievement.name} className="md:basis-1/2 lg:basis-1/3">
+              <RareAchievement achievement={achievement} />
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </Carousel>
+    </section>
+  );
+}
+
+function RareAchievement({ achievement }: { achievement: RareAchievement }) {
+  return (
+    <div className="flex flex-row gap-4 items-center bg-card px-4 py-6 rounded-lg w-full select-none">
+      <img
+        src={achievement.unlockedIconLink}
+        alt={achievement.name}
+        className="size-24 rounded-md"
+      />
+      <div className="flex flex-col gap-2">
+        <h6 className="text-sm font-normal text-gray-400">{achievement.offer.title}</h6>
+        <h3 className="text-lg font-semibold">{achievement.unlockedDisplayName}</h3>
+        <div className="flex flex-row gap-2 h-5">
+          <p className="text-sm font-thin">{achievement.completedPercent}% of players unlocked</p>
+          <Separator orientation="vertical" className="bg-white/25" />
+          <p className="text-sm text-gray-400 inline-flex items-center gap-2">
+            {achievement.xp} XP
+            <EpicTrophyIcon
+              className={cn('w-4 h-4 inline-block', textRarities[getRarity(achievement.xp)])}
+            />
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
