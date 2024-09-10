@@ -3,7 +3,6 @@ import { Link, useLoaderData } from '@remix-run/react';
 import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
 import { ArrowRight } from 'lucide-react';
 import { FlippableCard } from '~/components/app/achievement-card';
-import { Button } from '~/components/ui/button';
 import { getQueryClient } from '~/lib/client';
 import { httpClient } from '~/lib/http-client';
 import type { SingleOffer } from '~/types/single-offer';
@@ -172,17 +171,15 @@ function PlayerSandboxAchievementsPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="inline-flex w-full justify-start items-center gap-4 relative">
-        <h1 className="text-2xl font-light">Achievements</h1>
+        <Link
+          to={`/profile/${id}`}
+          className="text-2xl font-light flex flex-row gap-2 items-center justify-start group"
+        >
+          <ArrowRight className="w-4 h-4 rotate-180 transform group-hover:-translate-x-1 transition-transform duration-300" />
+          My Achievements
+        </Link>
         <span className="text-gray-600 text-xl">|</span>
         {offer?.title && <h4 className="text-2xl font-extrabold">{offer.title}</h4>}
-        <span className="absolute top-0 right-0">
-          <Button asChild variant={'outline'}>
-            <Link to={`/profile/${id}`}>
-              User Profile
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </Button>
-        </span>
       </div>
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 mt-4">
         {achievements
