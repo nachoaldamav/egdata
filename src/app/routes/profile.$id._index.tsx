@@ -129,7 +129,25 @@ function ProfileInformation({ profile }: { profile: Profile }) {
             <RarestAchievements />
             <div className="flex items-center flex-col gap-4">
               {profile.achievements?.data
-                ?.sort((a, b) => b.totalUnlocked - a.totalUnlocked)
+                ?.sort((a, b) => {
+                  const aUnlocked =
+                    a.totalUnlocked - (a.productAchievements?.totalAchievements ?? 0);
+                  const bUnlocked =
+                    b.totalUnlocked - (b.productAchievements?.totalAchievements ?? 0);
+
+                  // If any of them has `totalAchievements` set to 0, sort them by unlocked
+                  if (a.productAchievements?.totalAchievements === 0) {
+                    return a.totalXP - b.totalXP;
+                  }
+
+                  if (aUnlocked === bUnlocked) {
+                    return (
+                      (b.productAchievements?.totalAchievements ?? 0) -
+                      (a.productAchievements?.totalAchievements ?? 0)
+                    );
+                  }
+                  return bUnlocked - aUnlocked;
+                })
                 ?.map((achievement) => (
                   <GameAchievementsSummary key={achievement.sandboxId} game={achievement} />
                 ))}
