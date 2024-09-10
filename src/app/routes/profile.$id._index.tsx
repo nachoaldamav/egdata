@@ -17,7 +17,7 @@ import {
 } from '~/components/ui/carousel';
 import { Separator } from '~/components/ui/separator';
 import type { SingleOffer } from '~/types/single-offer';
-import { EpicTrophyIcon } from './profile.$id';
+import { EpicPlatinumIcon, EpicTrophyIcon } from './profile.$id';
 import { getRarity } from '~/lib/get-rarity';
 import { textRarities } from '~/components/app/achievement-card';
 import { ArrowUpIcon } from 'lucide-react';
@@ -177,7 +177,10 @@ function GameAchievementsSummary({ game }: { game: Profile['achievements']['data
             <p className="text-sm text-gray-400">Achievements Progress</p>
             <div className="flex flex-col gap-2">
               <span className="inline-flex items-center gap-2 font-normal text-lg">
-                <span className="text-white">
+                <span className="text-white flex flex-row items-center gap-1">
+                  {game.totalUnlocked /
+                    (game.productAchievements?.totalAchievements ?? game.totalUnlocked) ===
+                    1 && <EpicPlatinumIcon className="w-4 h-4 text-[#6e59e6]" />}
                   {(
                     (game.totalUnlocked /
                       (game.productAchievements?.totalAchievements ?? game.totalUnlocked)) *

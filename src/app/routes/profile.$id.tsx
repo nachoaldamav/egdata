@@ -367,7 +367,17 @@ function ProfilePage() {
             <div id="player-platinum-count" className="flex flex-col gap-2 w-[175px]">
               <SectionTitle title="Platinum" />
               <p className="text-3xl font-light inline-flex items-center gap-2">
-                <EpicPlatinumIcon className="size-7 inline-block" />
+                <EpicPlatinumIcon
+                  className={cn(
+                    'size-7 inline-block',
+                    data.achievements.data?.reduce(
+                      (acc, curr) => acc + (curr.playerAwards.length ?? 0),
+                      0,
+                    ) > 0
+                      ? 'text-[#6e59e6]'
+                      : 'text-gray-400',
+                  )}
+                />
                 {data.achievements.data?.reduce(
                   (acc, curr) => acc + (curr.playerAwards.length ?? 0),
                   0,
@@ -514,7 +524,7 @@ export function EpicTrophyIcon({ className, ...props }: React.SVGProps<SVGSVGEle
   );
 }
 
-function EpicPlatinumIcon({ className, ...props }: React.SVGProps<SVGSVGElement>) {
+export function EpicPlatinumIcon({ className, ...props }: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
