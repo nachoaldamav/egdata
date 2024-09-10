@@ -5,7 +5,7 @@ import { getImage } from '~/lib/getImage';
 import { Skeleton } from '../ui/skeleton';
 import type { SingleOffer } from '~/types/single-offer';
 import { offersDictionary } from '~/lib/offers-dictionary';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useGenres } from '~/hooks/use-genres';
 import { cn } from '~/lib/utils';
 import { Badge } from '../ui/badge';
@@ -272,14 +272,32 @@ export function OfferCard({
             }}
           />
         </div>
-        {offer.prePurchase && (
-          <Badge variant={'default'} className="absolute top-2 right-2">
-            Pre-Purchase
-          </Badge>
-        )}
+        <OfferBadges offer={offer} />
       </Card>
     </Link>
   );
+}
+
+function OfferBadges({ offer }: { offer: SingleOffer }) {
+  const badges = useMemo(() => {
+    const badges: string[] = [];
+
+    if (offer.tags.find((tag) => tag.id === '1310')) {
+      badges.push('Early Access');
+    }
+
+    if (offer.prePurchase) {
+      badges.push('Pre-Purchase');
+    }
+
+    return badges;
+  }, [offer.tags, offer.prePurchase]);
+
+  return badges.length > 0 ? (
+    <Badge variant={'default'} className="absolute top-2 right-2">
+      {badges.join(' - ')}
+    </Badge>
+  ) : null;
 }
 
 function OfferPrice({

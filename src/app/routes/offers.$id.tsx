@@ -362,7 +362,7 @@ function OfferPage() {
         <div className="flex flex-col gap-1">
           <h1 className="text-4xl font-bold">{offerData.title}</h1>
           <h4
-            className="text-lg font-semibold opacity-50 inline-flex items-center gap-1"
+            className="text-lg font-semibold opacity-50 inline-flex items-center gap-2"
             aria-label={`Offered by ${offerData.seller.name}`}
           >
             {getSeller({
@@ -372,6 +372,9 @@ function OfferPage() {
               customAttributes: offerData.customAttributes,
             })}
             {offerData.prePurchase && <Badge variant="outline">Pre-Purchase</Badge>}
+            {offerData.tags.find((tag) => tag.id === '1310') && (
+              <Badge variant="outline">Early Access</Badge>
+            )}
           </h4>
 
           <div className="rounded-xl border border-gray-300/10 mt-2">
