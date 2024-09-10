@@ -375,7 +375,7 @@ function ProfilePage() {
                       0,
                     ) > 0
                       ? 'text-[#6e59e6]'
-                      : 'text-gray-400',
+                      : '',
                   )}
                 />
                 {data.achievements.data?.reduce(
