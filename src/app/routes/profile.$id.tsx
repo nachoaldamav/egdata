@@ -385,7 +385,23 @@ function ProfilePage() {
               </p>
             </div>
             <div id="player-library" className="flex flex-col gap-2 w-[175px]">
-              <SectionTitle title="Library" />
+              <TooltipProvider>
+                <Tooltip delayDuration={250}>
+                  <TooltipTrigger className="w-fit">
+                    <SectionTitle
+                      title="Library"
+                      classname="underline decoration-dotted underline-offset-4 cursor-help"
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-sm font-light max-w-[250px]">
+                      The library count only includes games that have achievements and that you've
+                      launched at least once.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
               <p className="text-3xl font-light inline-flex items-center gap-2">
                 <LayoutGridIcon className="size-7 inline-block" fill="currentColor" />
                 {data.achievements.data?.length ?? 0}
@@ -412,10 +428,10 @@ function ProfilePage() {
   );
 }
 
-function SectionTitle({ title }: { title: string }) {
+function SectionTitle({ title, classname }: { title: string; classname?: string }) {
   return (
     <h2 className="text-xs uppercase font-light">
-      <span className="text-gray-300">{title}</span>
+      <span className={cn('text-gray-300', classname)}>{title}</span>
     </h2>
   );
 }
