@@ -151,10 +151,10 @@ function GameAchievementsSummary({ game }: { game: Profile['achievements']['data
   const { id } = useLoaderData<typeof loader>();
   return (
     <Link
-      className="flex hover:bg-background bg-card text-white p-4 rounded-lg overflow-hidden transition-all duration-300 ease-in-out w-full"
+      className="flex hover:bg-background bg-card text-white p-2 rounded-lg overflow-hidden transition-all duration-300 ease-in-out w-full gap-4"
       to={`/profile/${id}/achievements/${game.sandboxId}`}
     >
-      <div className="w-1/3 mr-4">
+      <div className="w-1/4">
         <Image
           src={
             getImage(game.baseOfferForSandbox?.keyImages ?? [], [
@@ -165,12 +165,12 @@ function GameAchievementsSummary({ game }: { game: Profile['achievements']['data
             ])?.url ?? '/placeholder.webp'
           }
           alt={game.product.name ?? game.sandboxId}
-          width={640}
-          height={360}
+          width={650}
+          height={400}
           className="rounded-md"
         />
       </div>
-      <div className="w-2/3">
+      <div className="w-2/4">
         <h2 className="text-2xl font-bold mb-2">{game.product.name}</h2>
         <div className="flex flex-row gap-4">
           <div className="flex items-start flex-col gap-2">
@@ -216,7 +216,53 @@ function GameAchievementsSummary({ game }: { game: Profile['achievements']['data
           </div>
         </div>
       </div>
+      <div className="w-1/4">
+        <SandboxRareAchievements id={id} sandbox={game.sandboxId} />
+      </div>
     </Link>
+  );
+}
+
+function SandboxRareAchievements({ id, sandbox }: { id: string; sandbox: string }) {
+  const { data, isLoading } = useQuery({
+    queryKey: ['sandbox:rarest-achievements', { id, sandbox }],
+    queryFn: () =>
+      httpClient.get<RareAchievement[]>(`/profiles/${id}/rare-achievements/${sandbox}`),
+  });
+
+  if (isLoading) return null;
+
+  if (!data) return null;
+
+  if (data.length === 0) return null;
+
+  return (
+    <section className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2 h-full">
+        <h6 className="text-sm font-thin text-gray-300">Rarest Achievements</h6>
+        <div className="flex gap-2 flex-col h-full justify-between">
+          {data.slice(0, 3).map((achievement) => (
+            <div key={achievement.name} className="flex flex-row gap-2">
+              <div className="size-12 rounded-md flex-shrink-0">
+                <Image
+                  src={achievement.unlockedIconLink}
+                  alt={achievement.name}
+                  width={32}
+                  height={32}
+                  className="rounded-md size-16"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <p className="text-base font-light truncate">{achievement.unlockedDisplayName}</p>
+                <p className="text-sm font-thin text-gray-300">
+                  {achievement.completedPercent}% of players unlocked
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
