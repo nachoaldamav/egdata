@@ -7,9 +7,9 @@ import {
   unstable_createMemoryUploadHandler,
   unstable_composeUploadHandlers,
 } from '@remix-run/node';
-import { Form, Outlet, useLoaderData, useParams } from '@remix-run/react';
+import { Form, Link, Outlet, useLoaderData, useParams } from '@remix-run/react';
 import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
-import { LayoutGridIcon, MessageSquareQuoteIcon, UploadIcon } from 'lucide-react';
+import { ExternalLinkIcon, LayoutGridIcon, MessageSquareQuoteIcon, UploadIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { getQueryClient } from '~/lib/client';
 import { getImage } from '~/lib/getImage';
@@ -34,6 +34,7 @@ import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import { getAccountIcon } from '~/components/app/platform-icons';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 import { Separator } from '~/components/ui/separator';
+import { EGSIcon } from '~/components/icons/egs';
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const queryClient = getQueryClient();
@@ -332,6 +333,17 @@ function ProfilePage() {
                 })}
               </p>
             )}
+            <Separator orientation="vertical" />
+            <Link
+              to={`https://store.epicgames.com/u/${data.epicAccountId}?utm_source=egdata.app`}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="flex items-center gap-2 text-sm text-gray-300 hover:text-gray-200"
+            >
+              <EGSIcon className="w-4 h-4" />
+              <span>Epic Games Store</span>
+              <ExternalLinkIcon className="size-3 display-inline-block" />
+            </Link>
           </div>
           <section
             id="profile-header-achievements"
