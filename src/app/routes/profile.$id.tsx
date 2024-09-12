@@ -168,16 +168,6 @@ function ProfilePage() {
       image.onload = () => {
         const errors: string[] = [];
 
-        // Validate if the image is square
-        if (image.width !== image.height) {
-          errors.push('Image must be square');
-        }
-
-        // Validate the file size
-        if (selectedImage.size > 5 * 1024 * 1024) {
-          errors.push('Image size must be lower than 5MB');
-        }
-
         // Set errors if any, or clear them if there are none
         setAvatarErrors(errors);
       };
