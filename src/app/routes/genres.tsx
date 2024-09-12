@@ -1,6 +1,5 @@
-import type { LoaderFunctionArgs } from '@remix-run/node';
+import type { LoaderFunction, LoaderFunctionArgs } from '@remix-run/node';
 import { Link, type MetaFunction, useLoaderData } from '@remix-run/react';
-import { client } from '~/lib/client';
 import { httpClient } from '~/lib/http-client';
 import { cn } from '~/lib/utils';
 
@@ -45,7 +44,7 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader: LoaderFunction = async () => {
   const genres = await httpClient.get<GenresRes>('/offers/genres');
 
   return {
