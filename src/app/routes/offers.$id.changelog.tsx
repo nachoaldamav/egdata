@@ -2,7 +2,7 @@ import type { LoaderFunctionArgs } from '@remix-run/node';
 import { type ClientLoaderFunctionArgs, useLoaderData } from '@remix-run/react';
 import type { Change } from '~/components/modules/changelist';
 import { Skeleton } from '~/components/ui/skeleton';
-import { client, getQueryClient } from '~/lib/client';
+import { getQueryClient } from '~/lib/client';
 import { GitPullRequestClosedIcon, GitPullRequestIcon, PlusIcon } from '@primer/octicons-react';
 import { ArrowRightIcon } from '@radix-ui/react-icons';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '~/components/ui/tooltip'; // Ensure you have these components
