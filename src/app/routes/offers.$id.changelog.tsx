@@ -175,6 +175,47 @@ function valueToComponent(value: unknown, field: string, type: 'before' | 'after
       const typedValue = value as { pageSlug: string; pageType: string };
       return typedValue.pageSlug;
     }
+    if (field === 'asset') {
+      const typedValue = value as {
+        artifactId: string;
+        downloadSizeBytes: number;
+        installedSizeBytes: number;
+        itemId: string;
+        namespace: string;
+        platform: string;
+      };
+      return (
+        <Tooltip>
+          <TooltipTrigger>
+            <span className="underline decoration-dotted underline-offset-4">
+              {typedValue.artifactId.slice(0, 10)} ({typedValue.platform})
+            </span>
+          </TooltipTrigger>
+          <TooltipContent className="max-w-[300px]">
+            <p>
+              <span className="font-semibold">ID:</span> {typedValue.artifactId}
+            </p>
+            <p>
+              <span className="font-semibold">Item ID:</span> {typedValue.itemId}
+            </p>
+            <p>
+              <span className="font-semibold">Namespace:</span> {typedValue.namespace}
+            </p>
+            <p>
+              <span className="font-semibold">Platform:</span> {typedValue.platform}
+            </p>
+            <p>
+              <span className="font-semibold">Download Size:</span>{' '}
+              {toSize(typedValue.downloadSizeBytes)}
+            </p>
+            <p>
+              <span className="font-semibold">Installed Size:</span>{' '}
+              {toSize(typedValue.installedSizeBytes)}
+            </p>
+          </TooltipContent>
+        </Tooltip>
+      );
+    }
   }
   if (field.includes('Date'))
     return new Date(value as string).toLocaleDateString('en-UK', {
