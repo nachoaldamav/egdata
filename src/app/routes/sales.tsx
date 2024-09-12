@@ -1,6 +1,7 @@
 import type { LoaderFunction } from '@remix-run/node';
 import { Link, useLoaderData } from '@remix-run/react';
 import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
+import buildImageUrl from '~/lib/build-image-url';
 import { getQueryClient } from '~/lib/client';
 import { getImage } from '~/lib/getImage';
 import { httpClient } from '~/lib/http-client';
@@ -90,13 +91,15 @@ function SaleCard({
       {sale.offers.map((offer, index) => (
         <img
           key={offer.id}
-          src={
+          src={buildImageUrl(
             getImage(offer.keyImages, [
               'DieselGameBoxTall',
               'DieselStoreFrontTall',
               'OfferImageTall',
-            ])?.url ?? '/placeholder.webp'
-          }
+            ])?.url ?? '/placeholder.webp',
+            300,
+            'medium',
+          )}
           alt={offer.title}
           className={cn(
             'absolute w-40 h-56 object-cover rounded shadow-2xl antialiased',
