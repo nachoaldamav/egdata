@@ -173,11 +173,6 @@ function ProfilePage() {
           errors.push('Image must be square');
         }
 
-        // Validate the maximum dimensions
-        if (image.width > 1024 || image.height > 1024) {
-          errors.push('Image size must be lower than 1024x1024');
-        }
-
         // Validate the file size
         if (selectedImage.size > 5 * 1024 * 1024) {
           errors.push('Image size must be lower than 5MB');
