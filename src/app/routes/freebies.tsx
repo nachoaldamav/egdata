@@ -20,13 +20,12 @@ import {
   PaginationNextButton,
 } from '~/components/ui/pagination';
 
+interface OfferWithGiveaway extends SingleOffer {
+  giveaway: unknown;
+}
+
 const getHistoricalGiveaways = async (page: number, limit: number, country: string) => {
-  const res = await httpClient.get<
-    SingleOffer &
-      {
-        giveaway: unknown;
-      }[]
-  >('/free-games/history', {
+  const res = await httpClient.get<OfferWithGiveaway[]>('/free-games/history', {
     params: {
       country: country,
       page: page,

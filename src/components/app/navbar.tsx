@@ -52,7 +52,7 @@ const routes: Route[] = [
           <ListItem href="/search" title="Search">
             Find what you're looking for on the Epic Games Store.
           </ListItem>
-          <ListItem href="/search?categories=freegames" title="Free Games">
+          <ListItem href="/freebies" title="Free Games">
             Explore the latest free game offerings on the Epic Games Store.
           </ListItem>
           <ListItem href="/search?on_sale=true" title="With Discounts">
@@ -152,7 +152,7 @@ const routes: Route[] = [
     },
   },
   {
-    name: 'On Sale',
+    name: 'Sales',
     href: '/sales',
   },
   {
@@ -391,7 +391,7 @@ const ListItem = React.forwardRef<React.ElementRef<'a'>, ListItemProps>(
           <Link
             ref={ref}
             className={cn(
-              'block select-none rounded-md leading-none no-underline outline-none transition-colors',
+              'block select-none rounded-md leading-none no-underline outline-none transition-colors h-full',
               'hover:text-accent-foreground focus:bg-accent hover:bg-accent focus:text-accent-foreground',
               'group relative overflow-hidden',
               className,
