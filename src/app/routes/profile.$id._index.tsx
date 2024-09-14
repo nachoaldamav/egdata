@@ -1,6 +1,6 @@
 import { redirect, type LoaderFunctionArgs } from '@remix-run/node';
 import { Link, useLoaderData } from '@remix-run/react';
-import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
+import { dehydrate, HydrationBoundary, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { Image } from '~/components/app/image';
 import { getQueryClient } from '~/lib/client';
@@ -21,6 +21,7 @@ import { EpicPlatinumIcon, EpicTrophyIcon } from './profile.$id';
 import { getRarity } from '~/lib/get-rarity';
 import { FlippableCard, textRarities } from '~/components/app/achievement-card';
 import { ArrowUpIcon } from 'lucide-react';
+import { Button } from '~/components/ui/button';
 
 type RareAchievement = Achievement & {
   unlocked: boolean;
@@ -376,9 +377,21 @@ type PlayerLatestAchievements = {
 
 function AchievementsTimeline() {
   const { id } = useLoaderData<typeof loader>();
-  const { data, isLoading } = useQuery({
-    queryKey: ['profile:latest-achievements', { id, limit: 10, page: 1 }],
-    queryFn: () => httpClient.get<PlayerLatestAchievements>(`/profiles/${id}/achievements`),
+
+  const { data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteQuery({
+    queryKey: ['profile:latest-achievements', { id }],
+    queryFn: ({ pageParam = 1 }) =>
+      httpClient.get<PlayerLatestAchievements>(`/profiles/${id}/achievements`, {
+        params: {
+          limit: 25,
+          page: pageParam,
+        },
+      }),
+    getNextPageParam: (lastPage: PlayerLatestAchievements) => {
+      const totalPages = lastPage.count / lastPage.limit;
+      return lastPage.page < totalPages ? lastPage.page + 1 : undefined;
+    },
+    initialPageParam: 1,
   });
 
   if (isLoading) {
@@ -393,21 +406,32 @@ function AchievementsTimeline() {
     return null;
   }
 
+  const achievements = data.pages.flatMap((page) => page.achievements);
+
   return (
     <div className="flex flex-col items-start justify-start h-full space-y-4 p-4">
       <h1 className="text-2xl font-bold mb-4">Achievements Timeline</h1>
       <section className="flex flex-col gap-4 w-full">
-        {data.achievements.map((achievement) => (
+        {achievements.map((achievement) => (
           <SingleAchievement
             key={`${achievement.name}-${achievement.offer.namespace}`}
             achievement={achievement}
           />
         ))}
+        {hasNextPage && (
+          <Button
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
+            className="mt-4 w-fit mx-auto"
+            variant="outline"
+          >
+            {isFetchingNextPage ? 'Loading more...' : 'Load More'}
+          </Button>
+        )}
       </section>
     </div>
   );
 }
-
 function SingleAchievement({ achievement }: { achievement: Achievement & { offer: SingleOffer } }) {
   const { id } = useLoaderData<typeof loader>();
   return (
