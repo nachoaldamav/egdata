@@ -19,7 +19,7 @@ import { Separator } from '~/components/ui/separator';
 import type { SingleOffer } from '~/types/single-offer';
 import { EpicPlatinumIcon, EpicTrophyIcon } from './profile.$id';
 import { getRarity } from '~/lib/get-rarity';
-import { textRarities } from '~/components/app/achievement-card';
+import { FlippableCard, textRarities } from '~/components/app/achievement-card';
 import { ArrowUpIcon } from 'lucide-react';
 
 type RareAchievement = Achievement & {
@@ -157,11 +157,7 @@ function ProfileInformation({ profile }: { profile: Profile }) {
           </div>
         )}
 
-        {activeTab === 'achievements' && (
-          <div>
-            <h4 className="text-2xl font-bold">Detailed Achievements</h4>
-          </div>
-        )}
+        {activeTab === 'achievements' && <AchievementsTimeline />}
       </div>
     </div>
   );
@@ -361,6 +357,90 @@ function RareAchievement({ achievement }: { achievement: RareAchievement }) {
             <EpicTrophyIcon
               className={cn('w-4 h-4 inline-block', textRarities[getRarity(achievement.xp)])}
             />
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+type PlayerLatestAchievements = {
+  achievements: Achievement &
+    {
+      offer: SingleOffer;
+    }[];
+  count: number;
+  limit: number;
+  page: number;
+};
+
+function AchievementsTimeline() {
+  const { id } = useLoaderData<typeof loader>();
+  const { data, isLoading } = useQuery({
+    queryKey: ['profile:latest-achievements', { id, limit: 10, page: 1 }],
+    queryFn: () => httpClient.get<PlayerLatestAchievements>(`/profiles/${id}/achievements`),
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full">
+        <span className="text-gray-400">Loading...</span>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-col items-start justify-start h-full space-y-4 p-4">
+      <h1 className="text-2xl font-bold mb-4">Achievements Timeline</h1>
+      <section className="flex flex-col gap-4 w-full">
+        {data.achievements.map((achievement) => (
+          <SingleAchievement
+            key={`${achievement.name}-${achievement.offer.namespace}`}
+            achievement={achievement}
+          />
+        ))}
+      </section>
+    </div>
+  );
+}
+
+function SingleAchievement({ achievement }: { achievement: Achievement & { offer: SingleOffer } }) {
+  return (
+    <div className="flex flex-row gap-4 w-full h-full">
+      <div className="max-w-72 w-full h-full">
+        <FlippableCard
+          achievement={achievement}
+          flipAll={false}
+          flipped={false}
+          onCardFlip={() => {}}
+          index={0}
+        />
+      </div>
+      <Separator orientation="vertical" className="bg-white/25 h-72" />
+      <div
+        className="flex flex-col gap-4 w-full h-72 bg-opacity-20 rounded-md p-4 relative"
+        style={{
+          backgroundImage: `url(${getImage(achievement.offer.keyImages, ['DieselGameBoxWide', 'DieselStoreFrontWide', 'OfferImageWide'])?.url ?? '/placeholder.webp'})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        {/** Gradient from bg-card to transparent to the right */}
+        <div className="absolute inset-0 bg-gradient-to-l from-card/95 to-card z-0 rounded-md" />
+        <div className="flex flex-col gap-2 h-full z-10">
+          <h6 className="text-4xl">{achievement.offer.title}</h6>
+          <p className="text-lg text-gray-200 font-thin">
+            {new Date(achievement.unlockDate).toLocaleDateString('en-UK', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: 'numeric',
+            })}
           </p>
         </div>
       </div>
