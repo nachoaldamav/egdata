@@ -409,9 +409,13 @@ function AchievementsTimeline() {
 }
 
 function SingleAchievement({ achievement }: { achievement: Achievement & { offer: SingleOffer } }) {
+  const { id } = useLoaderData<typeof loader>();
   return (
     <div className="flex flex-row gap-4 w-full h-full">
-      <div className="max-w-72 w-full h-full">
+      <Link
+        className="max-w-72 w-full h-full cursor-pointer"
+        to={`/profile/${id}/achievements/${achievement.offer.namespace}`}
+      >
         <FlippableCard
           achievement={achievement}
           flipAll={false}
@@ -419,8 +423,7 @@ function SingleAchievement({ achievement }: { achievement: Achievement & { offer
           onCardFlip={() => {}}
           index={0}
         />
-      </div>
-      <Separator orientation="vertical" className="bg-white/25 h-72" />
+      </Link>
       <div
         className="flex flex-col gap-4 w-full h-72 bg-opacity-20 rounded-md p-4 relative"
         style={{
