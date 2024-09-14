@@ -12,11 +12,7 @@ import type { GiveawayOffer } from '~/types/giveaways';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 import { calculatePrice } from '~/lib/calculate-price';
 
-export function GiveawaysCarousel({
-  initialData,
-}: {
-  initialData: GiveawayOffer[];
-}) {
+export function GiveawaysCarousel({ hideTitle }: { hideTitle?: boolean }) {
   const { country } = useCountry();
   const { data, isLoading, isError } = useQuery({
     queryKey: ['giveaways'],
@@ -28,7 +24,6 @@ export function GiveawaysCarousel({
           },
         })
         .then((res) => res.data),
-    initialData,
   });
 
   if (isLoading) {
@@ -50,7 +45,7 @@ export function GiveawaysCarousel({
       id="giveaways-carousel"
       className="flex flex-col items-start justify-start w-full gap-4"
     >
-      <h2 className="text-xl font-bold">Giveaways 🎁</h2>
+      {!hideTitle && <h2 className="text-xl font-bold">Giveaways 🎁</h2>}
       <ScrollArea className="w-full">
         <div className="flex flex-row items-stretch justify-evenly gap-6 w-full">
           {data

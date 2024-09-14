@@ -56,7 +56,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userPrefsCookie = cookie.parse(cookieHeader as string).EGDATA_USER_PREFS as string;
   const userPrefs = JSON.parse(userPrefsCookie || '{}') as preferencesCookie;
 
-  const [eventsData, giveawaysData] = await Promise.allSettled([
+  const [eventsData] = await Promise.allSettled([
     queryClient.fetchQuery({
       queryKey: ['promotions'],
       queryFn: () =>
@@ -65,7 +65,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
           return { data: [] as FullTag[] };
         }),
     }),
-    queryClient.fetchQuery({
+    queryClient.prefetchQuery({
       queryKey: ['giveaways'],
       queryFn: () =>
         httpClient
@@ -103,13 +103,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   ]);
 
   const events = eventsData.status === 'fulfilled' ? eventsData.value : [];
-  const giveaways = giveawaysData.status === 'fulfilled' ? giveawaysData.value : [];
-
   const dehydratedState = dehydrate(queryClient);
 
   return {
     events: events as FullTag[],
-    giveaways: giveaways as GiveawayOffer[],
     userPrefs: userPrefs,
     dehydratedState: dehydratedState,
   };
@@ -137,13 +134,13 @@ const defaultOrder = [
 
 export default function Index() {
   const [, setCookies] = useCookies(['EGDATA_USER_PREFS']);
-  const { events, giveaways, userPrefs, dehydratedState } = useLoaderData<LoaderData>();
+  const { events, userPrefs, dehydratedState } = useLoaderData<LoaderData>();
   const [order, setOrder] = useState(userPrefs.order || defaultOrder);
 
   const sections = [
     {
       key: 'giveaways',
-      component: <GiveawaysCarousel key={'giveaways'} initialData={giveaways} />,
+      component: <GiveawaysCarousel key={'giveaways'} />,
     },
     { key: 'latest', component: <LatestOffers key={'latest'} /> },
     { key: 'featuredDiscounts', component: <FeaturedDiscounts key={'featuredDiscounts'} /> },

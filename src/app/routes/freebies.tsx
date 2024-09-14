@@ -19,6 +19,8 @@ import {
   PaginationButton,
   PaginationNextButton,
 } from '~/components/ui/pagination';
+import { GiveawaysCarousel } from '~/components/modules/giveaways';
+import { Separator } from '~/components/ui/separator';
 
 interface OfferWithGiveaway extends SingleOffer {
   giveaway: unknown;
@@ -92,9 +94,11 @@ function FreeGames() {
   };
 
   return (
-    <div className="flex flex-col items-start justify-start h-full space-y-4 p-4">
-      <h1 className="text-2xl font-bold mb-4 mt-12">Free Games</h1>
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
+    <div className="flex flex-col items-start justify-start h-full gap-4 p-4">
+      <h1 className="text-2xl font-bold mb-4">Free Games</h1>
+      <GiveawaysCarousel hideTitle={true} />
+      <Separator orientation="horizontal" className="my-4" />
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5 mt-4">
         {data?.map((game) => (
           <OfferCard key={game.id} offer={game} size="md" />
         ))}
