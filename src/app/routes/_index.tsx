@@ -68,16 +68,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     queryClient.prefetchQuery({
       queryKey: ['giveaways'],
       queryFn: () =>
-        httpClient
-          .get<GiveawayOffer[]>('/free-games', {
-            params: {
-              country,
-            },
-          })
-          .catch((error) => {
-            console.error('Failed to fetch giveaways', error);
-            return [] as GiveawayOffer[];
-          }),
+        httpClient.get<GiveawayOffer[]>('/free-games', {
+          params: {
+            country,
+          },
+        }),
     }),
     queryClient.prefetchQuery({
       queryKey: ['featuredDiscounts', { country }],
