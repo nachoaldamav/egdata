@@ -130,23 +130,25 @@ function ProfileInformation({ profile }: { profile: Profile }) {
             <div className="flex items-center flex-col gap-4">
               {profile.achievements?.data
                 ?.sort((a, b) => {
-                  const aUnlocked =
-                    a.totalUnlocked - (a.productAchievements?.totalAchievements ?? 0);
-                  const bUnlocked =
-                    b.totalUnlocked - (b.productAchievements?.totalAchievements ?? 0);
+                  const aTotalAchievements = a.productAchievements?.totalAchievements ?? 0;
+                  const bTotalAchievements = b.productAchievements?.totalAchievements ?? 0;
 
-                  // If any of them has `totalAchievements` set to 0, sort them by unlocked
-                  if (a.productAchievements?.totalAchievements === 0) {
-                    return a.totalXP - b.totalXP;
+                  // If any of them has `totalAchievements` set to 0, sort them by totalUnlocked descending
+                  if (aTotalAchievements === 0 || bTotalAchievements === 0) {
+                    return b.totalUnlocked - a.totalUnlocked;
                   }
 
-                  if (aUnlocked === bUnlocked) {
-                    return (
-                      (b.productAchievements?.totalAchievements ?? 0) -
-                      (a.productAchievements?.totalAchievements ?? 0)
-                    );
+                  // Calculate the percentage of achievements unlocked
+                  const aPercentageUnlocked = a.totalUnlocked / aTotalAchievements;
+                  const bPercentageUnlocked = b.totalUnlocked / bTotalAchievements;
+
+                  if (aPercentageUnlocked === bPercentageUnlocked) {
+                    // If percentages are equal, sort by totalAchievements descending
+                    return bTotalAchievements - aTotalAchievements;
                   }
-                  return bUnlocked - aUnlocked;
+
+                  // Sort by percentage of achievements unlocked descending
+                  return bPercentageUnlocked - aPercentageUnlocked;
                 })
                 ?.map((achievement) => (
                   <GameAchievementsSummary key={achievement.sandboxId} game={achievement} />
