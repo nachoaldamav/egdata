@@ -29,7 +29,7 @@ export const meta: MetaFunction = () => {
     },
     {
       name: 'description',
-      content: 'Checkout free games on egdata.app.',
+      content: 'Checkout the Epic Games free games list.',
     },
     {
       name: 'og:image',
@@ -45,7 +45,7 @@ export const meta: MetaFunction = () => {
     },
     {
       name: 'og:description',
-      content: 'Checkout free games on egdata.app.',
+      content: 'Checkout the Epic Games Free games list.',
     },
     {
       name: 'twitter:title',
@@ -53,7 +53,19 @@ export const meta: MetaFunction = () => {
     },
     {
       name: 'twitter:description',
-      content: 'Checkout free games on egdata.app.',
+      content: 'Checkout the Epic Games Free games list.',
+    },
+    {
+      property: 'og:type',
+      content: 'website',
+    },
+    {
+      property: 'og:site_name',
+      content: 'egdata.app',
+    },
+    {
+      property: 'og:url',
+      content: 'https://egdata.app/freebies',
     },
   ];
 };
