@@ -195,9 +195,9 @@ function GameAchievementsSummary({ game }: { game: Profile['achievements']['data
             <div className="flex flex-col gap-2">
               <span className="inline-flex items-center gap-2 font-normal text-lg">
                 <span className="text-white flex flex-row items-center gap-1">
-                  {game.totalUnlocked /
-                    (game.productAchievements?.totalAchievements ?? game.totalUnlocked) ===
-                    1 && <EpicPlatinumIcon className="w-4 h-4 text-[#6e59e6]" />}
+                  {game.playerAwards?.length > 0 && (
+                    <EpicPlatinumIcon className="w-4 h-4 text-[#6e59e6]" />
+                  )}
                   {(
                     (game.totalUnlocked /
                       (game.productAchievements?.totalAchievements ?? game.totalUnlocked)) *
@@ -432,6 +432,7 @@ function AchievementsTimeline() {
     </div>
   );
 }
+
 function SingleAchievement({ achievement }: { achievement: Achievement & { offer: SingleOffer } }) {
   const { id } = useLoaderData<typeof loader>();
   return (
