@@ -1,4 +1,4 @@
-import type { LoaderFunction } from '@remix-run/node';
+import type { LoaderFunction, MetaFunction } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import { dehydrate, HydrationBoundary, keepPreviousData, useQuery } from '@tanstack/react-query';
 import { getQueryClient } from '~/lib/client';
@@ -21,6 +21,42 @@ import {
 } from '~/components/ui/pagination';
 import { GiveawaysCarousel } from '~/components/modules/giveaways';
 import { Separator } from '~/components/ui/separator';
+
+export const meta: MetaFunction = () => {
+  return [
+    {
+      title: 'Free Games - egdata.app',
+    },
+    {
+      name: 'description',
+      content: 'Checkout free games on egdata.app.',
+    },
+    {
+      name: 'og:image',
+      content: 'https://egdata.app/300x150-egdata-placeholder.png',
+    },
+    {
+      name: 'twitter:image',
+      content: 'https://egdata.app/300x150-egdata-placeholder.png',
+    },
+    {
+      name: 'og:title',
+      content: 'Free Games - egdata.app',
+    },
+    {
+      name: 'og:description',
+      content: 'Checkout free games on egdata.app.',
+    },
+    {
+      name: 'twitter:title',
+      content: 'Free Games - egdata.app',
+    },
+    {
+      name: 'twitter:description',
+      content: 'Checkout free games on egdata.app.',
+    },
+  ];
+};
 
 interface OfferWithGiveaway extends SingleOffer {
   giveaway: unknown;
