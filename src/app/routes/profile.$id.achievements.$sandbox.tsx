@@ -192,6 +192,7 @@ function PlayerSandboxAchievementsPage() {
               index={index}
               flipped={!achievement.unlocked}
               onCardFlip={() => {}}
+              unlockDate={new Date(achievement.unlockDate)}
             />
           ))}
       </div>

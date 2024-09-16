@@ -3,6 +3,7 @@ import { cn } from '~/lib/utils';
 import type { Achievement } from '~/queries/offer-achievements';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
 import { Image } from './image';
+import { Separator } from '../ui/separator';
 
 export const rarities = {
   bronze: 'bg-gradient-to-r from-bronze-start to-bronze-end shadow-glow-bronze',
@@ -26,12 +27,14 @@ export function FlippableCard({
   index,
   flipped,
   onCardFlip,
+  unlockDate,
 }: {
   achievement: Achievement;
   flipAll: boolean;
   index: number;
   flipped: boolean;
   onCardFlip: (name: string) => void;
+  unlockDate?: Date;
 }) {
   const handleClick = () => onCardFlip(achievement.name);
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -70,11 +73,23 @@ export function FlippableCard({
               <CardTitle>{achievement.unlockedDisplayName}</CardTitle>
             </CardHeader>
             <CardContent className="h-full">
-              <CardDescription>{achievement.unlockedDescription}</CardDescription>
+              <CardDescription className="text-xs">
+                {achievement.unlockedDescription}
+              </CardDescription>
             </CardContent>
             <CardFooter>
-              <span className="border border-gray-300 rounded-full px-2 py-1 text-xs">
+              <span className="border border-gray-300 rounded-full px-2 py-1 text-xs inline-flex items-center gap-2">
                 {achievement.completedPercent}% unlocked
+                {unlockDate && <span>|</span>}
+                {unlockDate && (
+                  <span>
+                    {unlockDate.toLocaleDateString('en-UK', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                  </span>
+                )}
               </span>
             </CardFooter>
           </Card>
