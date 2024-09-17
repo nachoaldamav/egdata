@@ -6,6 +6,8 @@ import { client } from '~/lib/client';
 import { EpicGamesIcon } from '../icons/epic';
 import { EaIcon } from '../icons/ea';
 import { UbisoftIcon } from '../icons/ubisoft';
+import { httpClient } from '~/lib/http-client';
+import { useQuery } from '@tanstack/react-query';
 
 interface OfferFeatures {
   launcher: 'epic' | 'ea' | 'ubisoft';
@@ -228,7 +230,7 @@ const epicFeatures = (features: string[]) => {
         break;
       case 'Epic Online Services':
         items.push({
-          icon: <EpicGamesIcon />,
+          icon: <EpicGamesIcon className="size-4" />,
           text: 'Epic Online Services',
           key: 'eos',
         });
@@ -241,3 +243,67 @@ const epicFeatures = (features: string[]) => {
 
   return items;
 };
+
+/**
+ * Same as GameFeatures but with a different layout
+ * Each icon is in it's own bubble, no absolute positioning
+ */
+export function GameFeaturesV2({
+  id,
+}: {
+  id: string;
+}) {
+  const { data: offerFeatures } = useQuery({
+    queryKey: ['offer-features', { id }],
+    queryFn: () => httpClient.get<OfferFeatures>(`/offers/${id}/features`),
+  });
+
+  const launcher = getLauncher(offerFeatures?.launcher || '');
+  const features = gameFeatures(offerFeatures?.features || []);
+  const storeFeatures = epicFeatures(offerFeatures?.epicFeatures || []);
+
+  if (!launcher && features.length === 0 && storeFeatures.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-row gap-2 w-full justify-start items-center">
+      {launcher && (
+        <TooltipProvider>
+          <Tooltip delayDuration={50}>
+            <TooltipTrigger className="bg-gray-400/25 rounded-full p-2 text-center">
+              {launcher.icon}
+            </TooltipTrigger>
+            <TooltipContent>
+              <div className="text-center">{launcher.name}</div>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
+      {storeFeatures.map((feature) => (
+        <TooltipProvider key={feature.key}>
+          <Tooltip delayDuration={50}>
+            <TooltipTrigger className="bg-gray-400/25 rounded-full p-2 text-center">
+              {feature.icon}
+            </TooltipTrigger>
+            <TooltipContent>
+              <div className="text-center">{feature.text}</div>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ))}
+      {features.map((feature) => (
+        <TooltipProvider key={feature.key}>
+          <Tooltip delayDuration={50}>
+            <TooltipTrigger className="bg-gray-400/25 rounded-full p-2 text-center">
+              {feature.icon}
+            </TooltipTrigger>
+            <TooltipContent>
+              <div className="text-center">{feature.text}</div>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ))}
+    </div>
+  );
+}

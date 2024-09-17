@@ -1,5 +1,12 @@
 export const EpicGamesIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg width="20" height="20" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 80 80"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
     <path
       d="M36.3808 23.6616V15.9481C36.3808 14.7202 35.8046 14.1513 34.6098 14.1513H32.6621V25.4584H34.6098C35.8064 25.4584 36.3808 24.8896 36.3808 23.6616Z"
       fill="white"
