@@ -11,6 +11,7 @@ import { Link } from '@remix-run/react';
 import type { GiveawayOffer } from '~/types/giveaways';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 import { calculatePrice } from '~/lib/calculate-price';
+import { ArrowRightIcon } from 'lucide-react';
 
 export function GiveawaysCarousel({ hideTitle }: { hideTitle?: boolean }) {
   const { country } = useCountry();
@@ -45,7 +46,15 @@ export function GiveawaysCarousel({ hideTitle }: { hideTitle?: boolean }) {
       id="giveaways-carousel"
       className="flex flex-col items-start justify-start w-full gap-4"
     >
-      {!hideTitle && <h2 className="text-xl font-bold">Giveaways 🎁</h2>}
+      {!hideTitle && (
+        <Link
+          className="text-xl font-bold text-left inline-flex group items-center gap-2"
+          to="/freebies"
+        >
+          <h2 className="text-xl font-bold">Giveaways 🎁</h2>
+          <ArrowRightIcon className="w-6 h-6 inline-block group-hover:translate-x-1 transition-transform duration-300 ease-in-out" />
+        </Link>
+      )}
       <ScrollArea className="w-full">
         <div className="flex flex-row items-stretch justify-evenly gap-6 w-full">
           {data
