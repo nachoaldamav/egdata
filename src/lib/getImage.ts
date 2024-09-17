@@ -49,9 +49,17 @@ export const getImage = (keyImages: KeyImages[] | null, types: EGSImageTypes[]) 
   for (const type of types) {
     const image = (keyImages ?? []).find((image) => image.type === type);
     if (image) {
+      image.url = image.url.replaceAll(' ', '%20');
       return image;
     }
   }
 
-  return keyImages?.[0] ?? null;
+  const image = keyImages?.[0];
+
+  if (image) {
+    image.url = image.url.replaceAll(' ', '%20');
+    return image;
+  }
+
+  return null;
 };
