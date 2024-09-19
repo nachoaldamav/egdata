@@ -85,7 +85,7 @@ export function FlippableCard({
                   <span>
                     {unlockDate.toLocaleDateString('en-UK', {
                       year: 'numeric',
-                      month: 'long',
+                      month: 'short',
                       day: 'numeric',
                     })}
                   </span>
