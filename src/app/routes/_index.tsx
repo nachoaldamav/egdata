@@ -24,6 +24,8 @@ import { getTopSection } from '~/queries/top-section';
 import { getLastModified } from '~/queries/last-modified';
 import { httpClient } from '~/lib/http-client';
 import { getLatestOffers } from '~/queries/latest-offers';
+import { getLatestReleased } from '~/queries/latest-released';
+import { LatestReleased } from '~/components/modules/latest-released';
 
 export const meta: MetaFunction = () => {
   return [
@@ -95,6 +97,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       queryKey: ['latest-games'],
       queryFn: () => getLatestOffers(country),
     }),
+    queryClient.prefetchQuery({
+      queryKey: ['latest-released', { country }],
+      queryFn: () => getLatestReleased({ country }),
+    }),
   ]);
 
   const events = eventsData.status === 'fulfilled' ? eventsData.value : [];
@@ -114,6 +120,7 @@ const defaultOrder = [
   // 'featured',
   'giveaways',
   'latest',
+  'latestReleased',
   'upcomingCalendar',
   'upcomingOffers',
   'lastModified',
@@ -142,6 +149,7 @@ export default function Index() {
     { key: 'lastModified', component: <LastModifiedGames key={'lastModified'} /> },
     { key: 'upcomingCalendar', component: <UpcomingCalendar key={'upcomingCalendar'} /> },
     { key: 'upcomingOffers', component: <UpcomingOffers key={'upcomingOffers'} /> },
+    { key: 'latestReleased', component: <LatestReleased key={'latestReleased'} /> },
     {
       key: 'summerSale',
       component: <SalesModule key={'summerSale'} event="Summer Sale" eventId="16979" />,
