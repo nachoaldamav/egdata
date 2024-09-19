@@ -1,4 +1,4 @@
-import { Link } from '@remix-run/react';
+import { getLatestReleased } from '~/queries/latest-released';
 import { OfferCard } from '../app/offer-card';
 import {
   Carousel,
@@ -8,32 +8,32 @@ import {
   CarouselNext,
 } from '../ui/carousel';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowRightIcon } from 'lucide-react';
 import { useCountry } from '~/hooks/use-country';
-import { getLatestOffers } from '~/queries/latest-offers';
+import { Link } from '@remix-run/react';
+import { ArrowRightIcon } from 'lucide-react';
 
-export function LatestOffers() {
+export function LatestReleased() {
   const { country } = useCountry();
   const { data: offers, isLoading: loading } = useQuery({
-    queryKey: ['latest-games'],
-    queryFn: () => getLatestOffers(country),
+    queryKey: ['latest-released', { country }],
+    queryFn: () => getLatestReleased({ country }),
   });
 
-  if (loading || !offers) return null;
+  if (loading || !offers?.elements) return null;
 
   return (
     <section className="w-full pt-4" id="latest-games">
       <Link
         className="text-xl font-bold text-left inline-flex group items-center gap-2"
-        to="/search?sort_by=creationDate"
+        to="/search?sort_by=releaseDate"
       >
-        Latest Offers{' '}
+        Latest Released{' '}
         <ArrowRightIcon className="w-6 h-6 inline-block group-hover:translate-x-1 transition-transform duration-300 ease-in-out" />
-      </Link>{' '}
+      </Link>
       <Carousel className="mt-2 h-full p-4">
         <CarouselPrevious />
         <CarouselContent>
-          {offers.map((game) => (
+          {offers.elements.map((game) => (
             <CarouselItem key={game.id} className="basis-1/1 lg:basis-1/5">
               <OfferCard offer={game} key={game.id} size="md" />
             </CarouselItem>
