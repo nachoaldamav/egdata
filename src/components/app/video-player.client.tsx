@@ -4,15 +4,21 @@ import { MediaPlayer, type MediaPlayerInstance, MediaProvider, Poster } from '@v
 import { defaultLayoutIcons, DefaultVideoLayout } from '@vidstack/react/player/layouts/default';
 import type { SingleOffer } from '~/types/single-offer';
 import { useRef } from 'react';
+import { cn } from '~/lib/utils';
 
-export function Player({ video, offer }: { video: Media['videos'][0]; offer: SingleOffer }) {
+export function Player({
+  video,
+  offer,
+  className,
+  thumbnail,
+}: { video: Media['videos'][0]; offer: SingleOffer; className?: string; thumbnail?: string }) {
   const player = useRef<MediaPlayerInstance>(null);
 
   const manifests = video.outputs.filter((output) => output.contentType === 'application/dash+xml');
   const images = video.outputs.filter((output) => output.contentType.startsWith('image/'));
 
   return (
-    <div className="w-full max-w-[640px] mx-auto">
+    <div className={cn('w-full max-w-[640px] mx-auto', className)}>
       <MediaPlayer
         ref={player}
         className="w-full bg-slate-900 text-white font-sans overflow-hidden rounded-md ring-media-focus data-[focus]:ring-4"
@@ -25,7 +31,7 @@ export function Player({ video, offer }: { video: Media['videos'][0]; offer: Sin
         volume={0.05}
       >
         <MediaProvider>
-          <Poster className="vds-poster" />
+          <Poster className="vds-poster" src={thumbnail} />
         </MediaProvider>
         <DefaultVideoLayout icons={defaultLayoutIcons} />
       </MediaPlayer>

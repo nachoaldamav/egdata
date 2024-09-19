@@ -1,6 +1,6 @@
 import type { LinksFunction, LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import { type ClientLoaderFunctionArgs, useLoaderData, useRouteError } from '@remix-run/react';
-import { client, getQueryClient } from '~/lib/client';
+import { getQueryClient } from '~/lib/client';
 import {
   Accordion,
   AccordionContent,

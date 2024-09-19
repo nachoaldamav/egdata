@@ -1,4 +1,4 @@
-import { type LoaderFunctionArgs, redirect } from '@remix-run/node';
+import { LinksFunction, type LoaderFunctionArgs, redirect } from '@remix-run/node';
 import {
   Link,
   Outlet,
@@ -57,6 +57,17 @@ import { calculatePrice } from '~/lib/calculate-price';
 import { ArrowDown, ChevronDown } from 'lucide-react';
 import { Portal } from '@radix-ui/react-portal';
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
+import type { Media } from '~/types/media';
+import { OfferMediaSlider } from '~/components/modules/media-slider';
+import defaultPlayerTheme from '@vidstack/react/player/styles/default/theme.css?url';
+import defaultAudioPlayer from '@vidstack/react/player/styles/default/layouts/audio.css?url';
+import defaultVideoPlayer from '@vidstack/react/player/styles/default/layouts/video.css?url';
+
+export const links: LinksFunction = () => [
+  { rel: 'stylesheet', href: defaultPlayerTheme },
+  { rel: 'stylesheet', href: defaultAudioPlayer },
+  { rel: 'stylesheet', href: defaultVideoPlayer },
+];
 
 function supportedPlatforms(items: SingleItem[]): string[] {
   try {
@@ -319,6 +330,10 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
           params: { country },
         }),
     }),
+    queryClient.prefetchQuery({
+      queryKey: ['media', { id: params.id }],
+      queryFn: () => httpClient.get<Media>(`/offers/${params.id}/media`),
+    }),
   ]);
 
   const subPath = request.url.split(`/${params.id}/`)[1] as string | undefined;
@@ -397,21 +412,7 @@ function OfferPage() {
   return (
     <main className="flex flex-row gap-4 w-full">
       <section id="main-content" className="flex flex-col gap-4 w-full">
-        <Image
-          src={
-            getImage(offerData.keyImages, [
-              'DieselStoreFrontWide',
-              'OfferImageWide',
-              'DieselGameBoxWide',
-              'TakeoverWide',
-            ])?.url
-          }
-          alt={offerData.title}
-          quality="original"
-          width={1920}
-          height={1080}
-          className="rounded-xl shadow-lg transition-opacity duration-700 ease-in-out"
-        />
+        <OfferMediaSlider offer={offerData} />
       </section>
       <aside className="flex flex-col gap-2 w-full md:w-1/2 lg:w-2/5 bg-card rounded-xl p-4">
         <h4
