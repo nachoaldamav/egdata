@@ -41,42 +41,6 @@ export function OfferMediaSlider({ offer }: { offer: SingleOffer }) {
     queryFn: () => httpClient.get<Media>(`/offers/${offer.id}/media`),
   });
 
-  const [mainCarousel, mainApi] = useEmblaCarousel();
-  const [thumbCarousel, thumbApi] = useEmblaCarousel({
-    containScroll: 'keepSnaps',
-    dragFree: true,
-  });
-
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
-  const scrollTo = useCallback(
-    (index: number) => {
-      if (mainApi && thumbApi) {
-        mainApi.scrollTo(index);
-        thumbApi.scrollTo(index);
-        setSelectedIndex(index);
-      }
-    },
-    [mainApi, thumbApi],
-  );
-
-  const handlePrevious = useCallback(() => {
-    if (mainApi) mainApi.scrollPrev();
-  }, [mainApi]);
-
-  const handleNext = useCallback(() => {
-    if (mainApi) mainApi.scrollNext();
-  }, [mainApi]);
-
-  useEffect(() => {
-    if (!mainApi || !thumbApi) return;
-
-    mainApi.on('select', () => {
-      setSelectedIndex(mainApi.selectedScrollSnap());
-      thumbApi.scrollTo(mainApi.selectedScrollSnap());
-    });
-  }, [mainApi, thumbApi]);
-
   // Videos first, then images, if no images, get cover image from offer data
   const slides = useMemo<Slide[]>(() => {
     const imageToUse =
@@ -111,13 +75,79 @@ export function OfferMediaSlider({ offer }: { offer: SingleOffer }) {
     return [...videos, ...images];
   }, [data, offer]);
 
+  const [mainCarousel, mainApi] = useEmblaCarousel({
+    watchDrag: (api, event) => {
+      console.log(event);
+      // If the current slide is a video, don't allow dragging
+      const currentIndex = api.selectedScrollSnap();
+      if (slides[currentIndex].type === 'video') return false;
+      return true;
+    },
+  });
+  const [thumbCarousel, thumbApi] = useEmblaCarousel({
+    containScroll: 'keepSnaps',
+    dragFree: true,
+  });
+
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const scrollTo = useCallback(
+    (index: number) => {
+      if (mainApi && thumbApi) {
+        mainApi.scrollTo(index);
+        thumbApi.scrollTo(index);
+        setSelectedIndex(index);
+      }
+    },
+    [mainApi, thumbApi],
+  );
+
+  const handlePrevious = useCallback(() => {
+    if (mainApi) mainApi.scrollPrev();
+  }, [mainApi]);
+
+  const handleNext = useCallback(() => {
+    if (mainApi) mainApi.scrollNext();
+  }, [mainApi]);
+
+  useEffect(() => {
+    if (!mainApi || !thumbApi) return;
+
+    mainApi.on('select', () => {
+      const currentIndex = mainApi.selectedScrollSnap();
+      setSelectedIndex(currentIndex);
+      thumbApi.scrollTo(currentIndex);
+    });
+  }, [mainApi, thumbApi]);
+
   return (
     <div key={`media-slider-${offer.id}`} className="flex flex-col gap-4 w-full">
       <div className="relative">
         <div ref={mainCarousel} className="overflow-hidden">
           <div className="flex">
             {slides.map((slide, index) => (
-              <div key={`slide-${slide.id}`} className="flex-[0_0_100%] min-w-0">
+              <div
+                key={`slide-${slide.id}`}
+                className={cn(
+                  'flex-[0_0_100%] min-w-0',
+                  slide.type === 'video' && 'pointer-events-none cursor-pointer',
+                  slide.type === 'image' && 'pointer-events-auto cursor-grab',
+                )}
+                onPointerDown={(e) => {
+                  if (slide.type === 'image') {
+                    // Change pointer to grabbing
+                    e.currentTarget.style.cursor = 'grabbing';
+                    e.currentTarget.style.cursor = '-webkit-grabbing';
+                  }
+                }}
+                onPointerUp={(e) => {
+                  if (slide.type === 'image') {
+                    // Change pointer to grab
+                    e.currentTarget.style.cursor = 'grab';
+                    e.currentTarget.style.cursor = '-webkit-grab';
+                  }
+                }}
+              >
                 {slide.type === 'image' && (
                   <Image
                     src={slide.image}
@@ -142,6 +172,7 @@ export function OfferMediaSlider({ offer }: { offer: SingleOffer }) {
                         offer={offer}
                         className="w-full h-full max-w-full"
                         thumbnail={slide.thumbnail}
+                        pauseWhenInactive
                       />
                     </Suspense>
                   </SlideWithNoDrag>
@@ -173,7 +204,7 @@ export function OfferMediaSlider({ offer }: { offer: SingleOffer }) {
         <div ref={thumbCarousel} className="overflow-hidden">
           <div className="flex -mx-2">
             {slides.map((slide, index) => (
-              <div key={`thumbnail-${slide.id}`} className="flex-[0_0_25%] min-w-0 px-2">
+              <div key={`thumbnail-${slide.id}`} className="flex-[0_0_15%] min-w-0 px-2">
                 <button
                   type="button"
                   className={cn(

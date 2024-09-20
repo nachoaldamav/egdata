@@ -508,7 +508,10 @@ function HowLongToBeat() {
   const { id } = useLoaderData<typeof loader>();
   const { data, isLoading, isError } = useQuery({
     queryKey: ['hltb', { id }],
-    queryFn: () => httpClient.get<HowLongToBeat | null>(`/offers/${id}/hltb`),
+    queryFn: () =>
+      httpClient.get<HowLongToBeat | null>(`/offers/${id}/hltb`, {
+        retries: 1,
+      }),
   });
 
   if (isLoading) {
@@ -569,6 +572,7 @@ function OfferPrice({ offer }: { offer: SingleOffer }) {
         queryFn: () =>
           httpClient.get<SingleOffer[]>(`/offers/${id}/collection`, {
             params: { country },
+            retries: 1,
           }),
       },
     ],

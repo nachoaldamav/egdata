@@ -47,6 +47,7 @@
     "@tailwindcss/typography": "^0.5.14",
     "@tanstack/react-query": "5.52.2",
     "@tanstack/react-query-devtools": "5.52.2",
+    "@uidotdev/usehooks": "^2.4.1",
     "@vidstack/react": "1.11.30",
     "@vite-pwa/remix": "^0.1.0",
     "axios": "^1.7.2",
