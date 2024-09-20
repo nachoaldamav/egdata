@@ -46,35 +46,49 @@ class HttpFetch {
   }
 
   private async fetchWithRetries<T>(url: string, options: FetchOptions): Promise<T> {
-    let attempts = 0;
-    while (attempts < options.retries!) {
+    const maxAttempts = options.retries!;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), options.timeout);
         const response = await fetch(url, { ...options, signal: controller.signal });
         clearTimeout(timeoutId);
 
+        if (response.ok) {
+          const data = await response.json();
+          return data as T;
+        }
+
+        // Not OK response
+        let errorData: any;
+        try {
+          errorData = await response.json();
+        } catch (e) {
+          errorData = { message: 'Failed to parse error response as JSON' };
+        }
+        const error: any = new Error(`HTTP error! Status: ${response.status}`);
+        error.response = errorData;
+        error.status = response.status;
+
+        // If status is 404, do not retry
         if (response.status === 404) {
-          throw new Error(`HTTP error! Status: 404 - Not Found`);
-        }
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        return data as T;
-      } catch (error) {
-        if (
-          attempts < options.retries! - 1 &&
-          !(error instanceof Error && error.message.includes('Status: 404'))
-        ) {
-          await this.delay(options.retryDelay!);
-        } else {
           throw error;
         }
+
+        if (attempt === maxAttempts) {
+          // Last attempt, throw error
+          throw error;
+        }
+
+        await this.delay(options.retryDelay!);
+      } catch (error) {
+        // Handle fetch/network errors
+        if (attempt === maxAttempts) {
+          throw error;
+        } else {
+          await this.delay(options.retryDelay!);
+        }
       }
-      attempts++;
     }
     throw new Error('Max retries reached');
   }
