@@ -65,10 +65,7 @@ export function Player({
         ref={player}
         className="w-full bg-slate-900 text-white font-sans overflow-hidden rounded-md ring-media-focus data-[focus]:ring-4"
         title={offer.title}
-        src={manifests[0]?.url.replace(
-          'media-cdn.epicgames.com',
-          'epic-dash-proxy.snpm.workers.dev',
-        )}
+        src={manifests[0]?.url.replace('media-cdn.epicgames.com', 'content-proxy.egdata.app')}
         poster={images[0]?.url}
         viewType="video"
         streamType="on-demand"

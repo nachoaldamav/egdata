@@ -76,8 +76,7 @@ export function OfferMediaSlider({ offer }: { offer: SingleOffer }) {
   }, [data, offer]);
 
   const [mainCarousel, mainApi] = useEmblaCarousel({
-    watchDrag: (api, event) => {
-      console.log(event);
+    watchDrag: (api) => {
       // If the current slide is a video, don't allow dragging
       const currentIndex = api.selectedScrollSnap();
       if (slides[currentIndex].type === 'video') return false;
@@ -206,8 +205,8 @@ export function OfferMediaSlider({ offer }: { offer: SingleOffer }) {
                 <button
                   type="button"
                   className={cn(
-                    'w-full p-1 border-2 border-transparent rounded-md relative',
-                    index === selectedIndex ? 'border-primary' : '',
+                    'w-full border-2 border-transparent rounded-md relative transition-all duration-300 ease-in-out hover:opacity-100',
+                    index === selectedIndex ? 'border-primary' : 'opacity-35',
                   )}
                   onClick={() => scrollTo(index)}
                 >
