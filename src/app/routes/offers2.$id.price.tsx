@@ -62,6 +62,7 @@ import { OfferMediaSlider } from '~/components/modules/media-slider';
 import defaultPlayerTheme from '@vidstack/react/player/styles/default/theme.css?url';
 import defaultAudioPlayer from '@vidstack/react/player/styles/default/layouts/audio.css?url';
 import defaultVideoPlayer from '@vidstack/react/player/styles/default/layouts/video.css?url';
+import Markdown from 'react-markdown';
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: defaultPlayerTheme },
@@ -302,7 +303,10 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     }),
     queryClient.prefetchQuery({
       queryKey: ['hltb', { id: params.id }],
-      queryFn: () => httpClient.get<HowLongToBeat | null>(`/offers/${params.id}/hltb`),
+      queryFn: () =>
+        httpClient.get<HowLongToBeat | null>(`/offers/${params.id}/hltb`, {
+          retries: 1,
+        }),
     }),
     queryClient.prefetchQuery({
       queryKey: ['offer-features', { id: params.id }],
@@ -328,6 +332,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
       queryFn: () =>
         httpClient.get<SingleOffer[]>(`/offers/${params.id}/collection`, {
           params: { country },
+          retries: 1,
         }),
     }),
     queryClient.prefetchQuery({
@@ -409,12 +414,22 @@ function OfferPage() {
     return <div>{offerData.description}</div>;
   }
 
+  console.log(offerData.longDescription);
+
   return (
     <main className="flex flex-row gap-4 w-full">
       <section id="main-content" className="flex flex-col gap-4 w-full">
         <OfferMediaSlider offer={offerData} />
+        <h1 className="text-2xl font-bold">{offerData.title}</h1>
+        <h2 className="text-lg font-semibold">{offerData.description}</h2>
+        <hr className="my-4" />
+        {offerData.longDescription && (
+          <section className="mb-4 prose prose-lg prose-neutral dark:prose-invert max-w-none">
+            <Markdown>{offerData.longDescription}</Markdown>
+          </section>
+        )}
       </section>
-      <aside className="flex flex-col gap-2 w-full md:w-1/2 lg:w-2/5 bg-card rounded-xl p-4">
+      <aside className="flex flex-col gap-2 w-full md:w-1/2 lg:w-2/5 bg-card rounded-xl p-4 h-fit">
         <h4
           className="text-md font-semibold opacity-50 inline-flex items-center gap-2"
           aria-label={`Offered by ${offerData.seller.name}`}
@@ -478,7 +493,7 @@ function OfferPage() {
           <span className="text-sm">{offerData.publisherDisplayName}</span>
 
           <span className="text-sm text-gray-100/50">Supported Platforms</span>
-          <span className="text-sm">
+          <span className="text-sm flex flex-row gap-2">
             {offerData.tags
               .filter((tag) => tag !== null && platformIcons[tag.id])
               .map((tag) => (

@@ -6,6 +6,7 @@ export interface SingleOffer {
   namespace: string;
   title: string;
   description: string;
+  longDescription: string | null;
   offerType: string;
   effectiveDate: string;
   creationDate: string;
