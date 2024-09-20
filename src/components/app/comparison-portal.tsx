@@ -112,6 +112,7 @@ function CompareTable() {
   );
 }
 function SingleGame({ query, id }: { query: UseQueryResult<SingleOffer, Error>; id: string }) {
+  const { country } = useCountry();
   const { removeFromCompare } = useCompare();
   const { genres } = useGenres();
   const { data, isLoading, isError } = query;
@@ -225,7 +226,7 @@ function SingleGame({ query, id }: { query: UseQueryResult<SingleOffer, Error>; 
       <hr className="border-t border-gray-300/25" />
       <AgeRatings namespace={data.namespace} />
       <hr className="border-t border-gray-300/25" />
-      <Price id={data.id} />
+      <Price id={data.id} key={`compare-price-${data.id}-${country}`} />
       <div className="flex justify-center">
         <Button
           variant="outline"
@@ -552,7 +553,6 @@ function Price({ id }: { id: string }) {
                       data.currentPrice?.price.currencyCode,
                     ),
                   )}
-
                 </span>
               )}
             </div>
