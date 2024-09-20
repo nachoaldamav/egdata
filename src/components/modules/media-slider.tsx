@@ -159,23 +159,21 @@ export function OfferMediaSlider({ offer }: { offer: SingleOffer }) {
                   />
                 )}
                 {slide.type === 'video' && (
-                  <SlideWithNoDrag>
-                    <Suspense
-                      fallback={
-                        <div className="flex flex-col w-full h-full">
-                          <Skeleton className="w-full h-full" />
-                        </div>
-                      }
-                    >
-                      <Player
-                        video={slide.video}
-                        offer={offer}
-                        className="w-full h-full max-w-full"
-                        thumbnail={slide.thumbnail}
-                        pauseWhenInactive
-                      />
-                    </Suspense>
-                  </SlideWithNoDrag>
+                  <Suspense
+                    fallback={
+                      <div className="flex flex-col w-full h-full">
+                        <Skeleton className="w-full h-full" />
+                      </div>
+                    }
+                  >
+                    <Player
+                      video={slide.video}
+                      offer={offer}
+                      className="w-full h-full max-w-full"
+                      thumbnail={slide.thumbnail}
+                      pauseWhenInactive
+                    />
+                  </Suspense>
                 )}
               </div>
             ))}

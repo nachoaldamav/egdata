@@ -489,9 +489,7 @@ function OfferPage() {
           </span>
         </div>
         <Separator orientation="horizontal" className="my-4" />
-        <h2 className="text-lg font-semibold">HowLongToBeat</h2>
         <HowLongToBeat />
-        <Separator orientation="horizontal" className="my-4" />
       </aside>
     </main>
   );
@@ -515,11 +513,11 @@ function HowLongToBeat() {
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return null;
   }
 
   if (isError) {
-    return <div>Error</div>;
+    return null;
   }
 
   if (!data) {
@@ -527,14 +525,18 @@ function HowLongToBeat() {
   }
 
   return (
-    <div className="flex flex-row flex-wrap justify-between gap-2 mt-2">
-      {data.gameTimes?.map((gameTime) => (
-        <div key={gameTime.category} className="flex flex-col gap-1 items-center justify-center">
-          <span className="text-sm font-thing">{gameTime.category}</span>
-          <Separator orientation="horizontal" className="max-w-20" />
-          <span className="text-sm font-semibold">{gameTime.time}</span>
-        </div>
-      ))}
+    <div className="flex flex-col gap-2">
+      <h2 className="text-lg font-semibold">HowLongToBeat</h2>
+      <div className="flex flex-row flex-wrap justify-between gap-2 mt-2">
+        {data.gameTimes?.map((gameTime) => (
+          <div key={gameTime.category} className="flex flex-col gap-1 items-center justify-center">
+            <span className="text-sm font-thing">{gameTime.category}</span>
+            <Separator orientation="horizontal" className="max-w-20" />
+            <span className="text-sm font-semibold">{gameTime.time}</span>
+          </div>
+        ))}
+      </div>
+      <Separator orientation="horizontal" className="my-4" />
     </div>
   );
 }
