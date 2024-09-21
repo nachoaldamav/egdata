@@ -27,7 +27,7 @@ export function LatestOffers() {
         className="text-xl font-bold text-left inline-flex group items-center gap-2"
         to="/search?sort_by=creationDate"
       >
-        Latest Offers{' '}
+        Latest Added{' '}
         <ArrowRightIcon className="w-6 h-6 inline-block group-hover:translate-x-1 transition-transform duration-300 ease-in-out" />
       </Link>{' '}
       <Carousel className="mt-2 h-full p-4">

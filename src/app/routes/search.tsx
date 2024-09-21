@@ -43,20 +43,38 @@ import { OfferListItem } from '~/components/app/game-card';
 import { usePreferences } from '~/hooks/use-preferences';
 import { Label } from '~/components/ui/label';
 import { httpClient } from '~/lib/http-client';
-import * as Portal from '@radix-ui/react-portal';
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
   DrawerDescription,
-  DrawerFooter,
   DrawerHeader,
-  DrawerTitle,
   DrawerTrigger,
 } from '~/components/ui/drawer';
 import { ScrollArea } from '~/components/ui/scroll-area';
 
-export const meta: MetaFunction = () => {
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  if (!data) {
+    return [
+      { title: 'Search - egdata.app' },
+      {
+        name: 'description',
+        content: 'Search for games on egdata.app',
+      },
+    ];
+  }
+
+  const query = data.initialQuery ?? data.hash?.title;
+
+  if (query) {
+    return [
+      { title: `Results for "${query}" - egdata.app` },
+      {
+        name: 'description',
+        content: `Search for "${query}" on egdata.app`,
+      },
+    ];
+  }
+
   return [
     { title: 'Search - egdata.app' },
     {
