@@ -532,233 +532,226 @@ export default function SearchPage() {
           setFetching={setFetching}
         />
       </main>
-      <Portal.Root>
-        <section className="fixed bottom-0 left-0 right-0 z-10 mx-auto w-full p-4 block sm:hidden">
-          <Drawer>
-            <DrawerTrigger asChild>
-              <Button variant="outline" className="mx-auto rounded-full">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="size-6"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75"
-                  />
-                </svg>
+      <Drawer>
+        <DrawerTrigger
+          asChild
+          className="fixed bottom-0 left-0 right-0 z-10 w-full p-4 sm:hidden flex items-center justify-center mb-2"
+        >
+          <Button variant="outline" className="mx-auto rounded-full w-fit">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="size-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75"
+              />
+            </svg>
+          </Button>
+        </DrawerTrigger>
+        <DrawerContent className="px-3">
+          <DrawerHeader>
+            <div className="flex flex-row justify-between items-center gap-1">
+              <h2>Search</h2>
+              <Button
+                variant="link"
+                className="py-1"
+                onClick={() => {
+                  setQuery('');
+                  setSelectedTags([]);
+                  setSortBy('creationDate');
+                  setIsCodeRedemptionOnly(undefined);
+                  setSelectedOfferType(undefined);
+                  setIsSale(undefined);
+                  setInputValue('');
+                  setMaxPrice(undefined);
+                  setMinPrice(undefined);
+                  setSortDir('desc');
+                }}
+              >
+                Clear
               </Button>
-            </DrawerTrigger>
-            <DrawerContent className="px-3">
-              <DrawerHeader>
-                <div className="flex flex-row justify-between items-center gap-1">
-                  <h2>Search</h2>
-                  <Button
-                    variant="link"
-                    className="py-1"
-                    onClick={() => {
-                      setQuery('');
-                      setSelectedTags([]);
-                      setSortBy('creationDate');
-                      setIsCodeRedemptionOnly(undefined);
-                      setSelectedOfferType(undefined);
-                      setIsSale(undefined);
-                      setInputValue('');
-                      setMaxPrice(undefined);
-                      setMinPrice(undefined);
-                      setSortDir('desc');
-                    }}
-                  >
-                    Clear
-                  </Button>
-                </div>
-                <Input
-                  type="search"
-                  placeholder="Search for games"
-                  className="mb-4"
-                  onChange={(e) => setInputValue(e.target.value)}
-                  value={inputValue}
+            </div>
+            <Input
+              type="search"
+              placeholder="Search for games"
+              className="mb-4"
+              onChange={(e) => setInputValue(e.target.value)}
+              value={inputValue}
+            />
+            <div id="selected_filters" className="flex flex-row flex-wrap gap-2">
+              {selectedTags.map((tag) => {
+                const tagData = tags?.find((t) => t.id === tag);
+
+                return (
+                  <QuickPill
+                    key={tag}
+                    label={tagData?.name ?? tag}
+                    onRemove={() => setSelectedTags((prev) => prev.filter((t) => t !== tag))}
+                  />
+                );
+              })}
+              {selectedOfferType && (
+                <QuickPill
+                  label={offersDictionary[selectedOfferType] ?? selectedOfferType}
+                  onRemove={() => setSelectedOfferType(undefined)}
                 />
-                <div id="selected_filters" className="flex flex-row flex-wrap gap-2">
-                  {selectedTags.map((tag) => {
-                    const tagData = tags?.find((t) => t.id === tag);
-
-                    return (
-                      <QuickPill
-                        key={tag}
-                        label={tagData?.name ?? tag}
-                        onRemove={() => setSelectedTags((prev) => prev.filter((t) => t !== tag))}
-                      />
-                    );
-                  })}
-                  {selectedOfferType && (
-                    <QuickPill
-                      label={offersDictionary[selectedOfferType] ?? selectedOfferType}
-                      onRemove={() => setSelectedOfferType(undefined)}
-                    />
-                  )}
-                  {isCodeRedemptionOnly && (
-                    <QuickPill
-                      label="Code Redemption Only"
-                      onRemove={() => setIsCodeRedemptionOnly(undefined)}
-                    />
-                  )}
-                  {isSale && <QuickPill label="Sale" onRemove={() => setIsSale(false)} />}
-                  {typeof minPrice === 'number' && (
-                    <QuickPill
-                      label={`> $${minPrice / 100}`}
-                      onRemove={() => setMinPrice(undefined)}
-                    />
-                  )}
-                  {typeof maxPrice === 'number' && (
-                    <QuickPill
-                      label={`< $${maxPrice / 100}`}
-                      onRemove={() => setMaxPrice(undefined)}
-                    />
-                  )}
-                  {categories.length > 0 && (
-                    <QuickPill
-                      label={categories.map((c) => offersDictionary[c] ?? c).join(', ')}
-                      onRemove={() => setCategories([])}
-                    />
-                  )}
+              )}
+              {isCodeRedemptionOnly && (
+                <QuickPill
+                  label="Code Redemption Only"
+                  onRemove={() => setIsCodeRedemptionOnly(undefined)}
+                />
+              )}
+              {isSale && <QuickPill label="Sale" onRemove={() => setIsSale(false)} />}
+              {typeof minPrice === 'number' && (
+                <QuickPill label={`> $${minPrice / 100}`} onRemove={() => setMinPrice(undefined)} />
+              )}
+              {typeof maxPrice === 'number' && (
+                <QuickPill label={`< $${maxPrice / 100}`} onRemove={() => setMaxPrice(undefined)} />
+              )}
+              {categories.length > 0 && (
+                <QuickPill
+                  label={categories.map((c) => offersDictionary[c] ?? c).join(', ')}
+                  onRemove={() => setCategories([])}
+                />
+              )}
+            </div>
+          </DrawerHeader>
+          <ScrollArea>
+            <DrawerDescription className="max-h-56 w-full">
+              <div className="flex flex-col justify-between items-start gap-2 mt-4">
+                <Label>Price</Label>
+                <div className="flex flex-row gap-2">
+                  <Input
+                    type="number"
+                    placeholder="Min"
+                    className="w-[100px]"
+                    onChange={(e) => setMinPrice(Number.parseInt(e.target.value) * 100)}
+                    value={typeof minPrice === 'number' ? minPrice / 100 : undefined}
+                  />
+                  <Input
+                    type="number"
+                    placeholder="Max"
+                    className="w-[100px]"
+                    onChange={(e) => setMaxPrice(Number.parseInt(e.target.value) * 100)}
+                    value={typeof maxPrice === 'number' ? maxPrice / 100 : undefined}
+                  />
                 </div>
-              </DrawerHeader>
-              <ScrollArea>
-                <DrawerDescription className="max-h-56 w-full">
-                  <div className="flex flex-col justify-between items-start gap-2 mt-4">
-                    <Label>Price</Label>
-                    <div className="flex flex-row gap-2">
-                      <Input
-                        type="number"
-                        placeholder="Min"
-                        className="w-[100px]"
-                        onChange={(e) => setMinPrice(Number.parseInt(e.target.value) * 100)}
-                        value={typeof minPrice === 'number' ? minPrice / 100 : undefined}
-                      />
-                      <Input
-                        type="number"
-                        placeholder="Max"
-                        className="w-[100px]"
-                        onChange={(e) => setMaxPrice(Number.parseInt(e.target.value) * 100)}
-                        value={typeof maxPrice === 'number' ? maxPrice / 100 : undefined}
-                      />
-                    </div>
-                  </div>
-                  <Accordion type="single" collapsible className="w-full gap-2">
-                    <AccordionItem value="offerType">
-                      <AccordionTrigger>Offer Type</AccordionTrigger>
-                      <AccordionContent className="flex flex-col gap-2 w-full mt-2">
-                        {offerTypes
-                          .filter((type) => offersDictionary[type._id] !== undefined)
-                          .filter((type) => {
-                            // If there is a tag count, we need to filter the tags with 0 count
-                            if (offerTypeCount.length > 0) {
-                              return offerTypeCount.find((t) => t._id === type._id) !== undefined;
-                            }
+              </div>
+              <Accordion type="single" collapsible className="w-full gap-2">
+                <AccordionItem value="offerType">
+                  <AccordionTrigger>Offer Type</AccordionTrigger>
+                  <AccordionContent className="flex flex-col gap-2 w-full mt-2">
+                    {offerTypes
+                      .filter((type) => offersDictionary[type._id] !== undefined)
+                      .filter((type) => {
+                        // If there is a tag count, we need to filter the tags with 0 count
+                        if (offerTypeCount.length > 0) {
+                          return offerTypeCount.find((t) => t._id === type._id) !== undefined;
+                        }
 
-                            return true;
-                          })
-                          .sort((a, b) => {
-                            const aName = offersDictionary[a._id] ?? a._id;
-                            const bName = offersDictionary[b._id] ?? b._id;
+                        return true;
+                      })
+                      .sort((a, b) => {
+                        const aName = offersDictionary[a._id] ?? a._id;
+                        const bName = offersDictionary[b._id] ?? b._id;
 
-                            return aName.localeCompare(bName);
-                          })
-                          .map((type) => (
-                            <TagSelect
-                              key={type._id}
-                              isSelected={selectedOfferType === type._id}
-                              handleSelect={handleSelectOfferType}
-                              tag={{
-                                id: type._id,
-                                name: offersDictionary[type._id] ?? type._id,
-                                aliases: [],
-                                groupName: 'OFFER_TYPE',
-                                status: 'ACTIVE',
-                              }}
-                              count={offerTypeCount.find((t) => t._id === type._id)}
-                            />
-                          ))}
-                        {offerTypes.length === 0 && (
-                          <span className="text-gray-400 px-4">No offer types found</span>
+                        return aName.localeCompare(bName);
+                      })
+                      .map((type) => (
+                        <TagSelect
+                          key={type._id}
+                          isSelected={selectedOfferType === type._id}
+                          handleSelect={handleSelectOfferType}
+                          tag={{
+                            id: type._id,
+                            name: offersDictionary[type._id] ?? type._id,
+                            aliases: [],
+                            groupName: 'OFFER_TYPE',
+                            status: 'ACTIVE',
+                          }}
+                          count={offerTypeCount.find((t) => t._id === type._id)}
+                        />
+                      ))}
+                    {offerTypes.length === 0 && (
+                      <span className="text-gray-400 px-4">No offer types found</span>
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
+                {tagTypes.map((tagType) => {
+                  const tagTypeTags = tags
+                    ?.filter((tag) => tag.groupName === tagType.name)
+                    .filter((tag) => {
+                      // If there is a tag count, we need to filter the tags with 0 count
+                      if (tagsCount.length > 0) {
+                        return tagsCount.find((t) => t._id === tag.id) !== undefined;
+                      }
+
+                      return true;
+                    });
+
+                  return (
+                    <AccordionItem key={tagType.name} value={tagType.name ?? 'alltags'}>
+                      <AccordionTrigger>{tagType.label}</AccordionTrigger>
+                      <AccordionContent className="flex flex-col gap-2 w-[250px] mt-2">
+                        {tagTypeTags?.map((tag) => (
+                          <TagSelect
+                            key={tag.id}
+                            isSelected={selectedTags.includes(tag.id)}
+                            handleSelect={handleSelect}
+                            tag={tag}
+                            count={tagsCount.find((t) => t._id === tag.id)}
+                          />
+                        ))}
+                        {tagTypeTags?.length === 0 && (
+                          <span className="text-gray-400 px-4">No tags found</span>
                         )}
                       </AccordionContent>
                     </AccordionItem>
-                    {tagTypes.map((tagType) => {
-                      const tagTypeTags = tags
-                        ?.filter((tag) => tag.groupName === tagType.name)
-                        .filter((tag) => {
-                          // If there is a tag count, we need to filter the tags with 0 count
-                          if (tagsCount.length > 0) {
-                            return tagsCount.find((t) => t._id === tag.id) !== undefined;
-                          }
+                  );
+                })}
+              </Accordion>
 
-                          return true;
-                        });
-
-                      return (
-                        <AccordionItem key={tagType.name} value={tagType.name ?? 'alltags'}>
-                          <AccordionTrigger>{tagType.label}</AccordionTrigger>
-                          <AccordionContent className="flex flex-col gap-2 w-[250px] mt-2">
-                            {tagTypeTags?.map((tag) => (
-                              <TagSelect
-                                key={tag.id}
-                                isSelected={selectedTags.includes(tag.id)}
-                                handleSelect={handleSelect}
-                                tag={tag}
-                                count={tagsCount.find((t) => t._id === tag.id)}
-                              />
-                            ))}
-                            {tagTypeTags?.length === 0 && (
-                              <span className="text-gray-400 px-4">No tags found</span>
-                            )}
-                          </AccordionContent>
-                        </AccordionItem>
-                      );
-                    })}
-                  </Accordion>
-
-                  <div className="items-center flex space-x-2 mt-4">
-                    <Checkbox
-                      checked={isCodeRedemptionOnly ?? false}
-                      onCheckedChange={(checked: boolean) => setIsCodeRedemptionOnly(checked)}
-                      id="isCodeRedemptionOnly"
-                    />
-                    <div className="grid gap-1.5 leading-none">
-                      <label
-                        htmlFor="isCodeRedemptionOnly"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Code Redemption Only
-                      </label>
-                    </div>
-                  </div>
-                  <div className="items-center flex space-x-2">
-                    <Checkbox
-                      checked={isSale ?? false}
-                      onCheckedChange={(checked: boolean) => setIsSale(checked)}
-                      id="isSale"
-                    />
-                    <div className="grid gap-1.5 leading-none">
-                      <label
-                        htmlFor="isSale"
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Sale
-                      </label>
-                    </div>
-                  </div>
-                </DrawerDescription>
-              </ScrollArea>
-            </DrawerContent>
-          </Drawer>
-        </section>
-      </Portal.Root>
+              <div className="items-center flex space-x-2 mt-4">
+                <Checkbox
+                  checked={isCodeRedemptionOnly ?? false}
+                  onCheckedChange={(checked: boolean) => setIsCodeRedemptionOnly(checked)}
+                  id="isCodeRedemptionOnly"
+                />
+                <div className="grid gap-1.5 leading-none">
+                  <label
+                    htmlFor="isCodeRedemptionOnly"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Code Redemption Only
+                  </label>
+                </div>
+              </div>
+              <div className="items-center flex space-x-2">
+                <Checkbox
+                  checked={isSale ?? false}
+                  onCheckedChange={(checked: boolean) => setIsSale(checked)}
+                  id="isSale"
+                />
+                <div className="grid gap-1.5 leading-none">
+                  <label
+                    htmlFor="isSale"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Sale
+                  </label>
+                </div>
+              </div>
+            </DrawerDescription>
+          </ScrollArea>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }
