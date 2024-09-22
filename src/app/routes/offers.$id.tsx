@@ -76,6 +76,7 @@ export const meta: MetaFunction<typeof loader> = ({ data, params }) => {
 
   try {
     if (!data) {
+      console.error('Data not found');
       return [
         {
           title: 'Offer not found',
@@ -86,7 +87,8 @@ export const meta: MetaFunction<typeof loader> = ({ data, params }) => {
 
     const { dehydratedState } = data;
 
-    const offerData = queryClient.getQueryData(['offer', { id: params.id }]) as
+    const offerData = (queryClient.getQueryData(['offer', { id: params.id }]) ??
+      dehydratedState.queries.find((query) => query.queryKey[0] === 'offer')?.state.data) as
       | SingleOffer
       | undefined;
     const price = dehydratedState.queries.find((query) => query.queryKey[0] === 'price')?.state
@@ -95,6 +97,7 @@ export const meta: MetaFunction<typeof loader> = ({ data, params }) => {
       .data as SingleItem[] | undefined;
 
     if (!offerData || offerData.title === 'Error') {
+      console.error('Offer not found');
       return [
         {
           title: 'Offer not found',
@@ -123,7 +126,7 @@ export const meta: MetaFunction<typeof loader> = ({ data, params }) => {
           'Database',
           'Epic Database',
         ]
-          .concat(offerData.tags.filter((tag) => tag !== null)?.map((tag) => tag?.name))
+          .concat(offerData.tags?.filter((tag) => tag !== null)?.map((tag) => tag?.name))
           .join(', '),
       },
       {
@@ -259,7 +262,8 @@ export const meta: MetaFunction<typeof loader> = ({ data, params }) => {
         href: `https://api.egdata.app/base-game/${offerData.namespace}`,
       },
     ];
-  } catch {
+  } catch (error) {
+    console.error(error);
     return [
       {
         title: 'Offer not found',
