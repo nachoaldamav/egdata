@@ -1,11 +1,13 @@
 import { type LoaderFunctionArgs, redirect } from '@remix-run/node';
 import {
+  type ClientLoaderFunctionArgs,
   Link,
   Outlet,
   useLoaderData,
   useLocation,
   useNavigate,
   type MetaFunction,
+  redirect as _redirect,
 } from '@remix-run/react';
 import { getQueryClient } from '~/lib/client';
 import { getImage } from '~/lib/getImage';
@@ -69,7 +71,9 @@ function supportedPlatforms(items: SingleItem[]): string[] {
   }
 }
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
+export const meta: MetaFunction<typeof loader> = ({ data, params }) => {
+  const queryClient = getQueryClient();
+
   try {
     if (!data) {
       return [
@@ -82,8 +86,9 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 
     const { dehydratedState } = data;
 
-    const offerData = dehydratedState.queries.find((query) => query.queryKey[0] === 'offer')?.state
-      .data as SingleOffer | undefined;
+    const offerData = queryClient.getQueryData(['offer', { id: params.id }]) as
+      | SingleOffer
+      | undefined;
     const price = dehydratedState.queries.find((query) => query.queryKey[0] === 'price')?.state
       .data as Price | undefined;
     const items = dehydratedState.queries.find((query) => query.queryKey[0] === 'items')?.state
@@ -288,6 +293,29 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 
   if (!subPath) {
     return redirect(`/offers/${params.id}/price`);
+  }
+
+  return {
+    subPath,
+    id: params.id,
+    dehydratedState: dehydrate(queryClient),
+  };
+}
+
+export async function clientLoader({ params, request }: ClientLoaderFunctionArgs) {
+  const queryClient = getQueryClient();
+
+  await Promise.allSettled([
+    queryClient.prefetchQuery({
+      queryKey: ['offer', { id: params.id }],
+      queryFn: () => httpClient.get<SingleOffer>(`/offers/${params.id}`),
+    }),
+  ]);
+
+  const subPath = request.url.split(`/${params.id}/`)[1] as string | undefined;
+
+  if (!subPath) {
+    return _redirect(`/offers/${params.id}/price`);
   }
 
   return {
