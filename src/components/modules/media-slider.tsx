@@ -153,8 +153,9 @@ export function OfferMediaSlider({ offer }: { offer: SingleOffer }) {
                     alt={`Image ${index + 1}`}
                     width={1920}
                     height={1080}
-                    quality="original"
                     className="w-full h-auto object-cover"
+                    unoptimized
+                    eager
                   />
                 )}
                 {slide.type === 'video' && (
@@ -229,27 +230,6 @@ export function OfferMediaSlider({ offer }: { offer: SingleOffer }) {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function SlideWithNoDrag({ children }: { children: React.ReactNode }) {
-  const stopPropagation = (
-    e: React.PointerEvent | React.TouchEvent | React.MouseEvent<HTMLDivElement>,
-  ) => e.stopPropagation();
-  return (
-    <div
-      onPointerDown={stopPropagation}
-      onPointerMove={stopPropagation}
-      onPointerUp={stopPropagation}
-      onTouchStart={stopPropagation}
-      onTouchMove={stopPropagation}
-      onTouchEnd={stopPropagation}
-      onMouseDown={stopPropagation}
-      onMouseMove={stopPropagation}
-      onMouseUp={stopPropagation}
-    >
-      {children}
     </div>
   );
 }

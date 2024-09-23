@@ -1,71 +1,45 @@
-import { useState, useEffect, useRef, type FC, type ImgHTMLAttributes } from 'react';
+import { useState, useEffect, type FC, type ImgHTMLAttributes } from 'react';
 import { Skeleton } from '~/components/ui/skeleton';
 import buildImageUrl from '~/lib/build-image-url';
 import type { ImageQuality } from '~/lib/build-image-url';
+import { useIntersectionObserver } from '@uidotdev/usehooks';
 
 export type ImageProps = {
   quality?: ImageQuality;
   unoptimized?: boolean;
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   alt?: string;
+  eager?: boolean;
 } & ImgHTMLAttributes<HTMLImageElement>;
 
 export const Image: FC<ImageProps> = ({
   src,
-  width,
-  height,
+  width = 400,
+  height = 500,
   quality = 'medium',
   unoptimized = false,
-  alt,
+  alt = '',
+  eager = false,
   ...props
 }) => {
-  if (!src && width && height) {
-    src = `https://via.placeholder.com/${width}x${height}`;
-  } else if (!src) {
-    src = 'https://via.placeholder.com/400x500';
-  }
-
   const [loading, setLoading] = useState(true);
-  const [inView, setInView] = useState(false);
-  const imgRef = useRef<HTMLDivElement>(null);
+  const [imgRef, isIntersecting] = useIntersectionObserver<HTMLImageElement>({
+    rootMargin: '200px',
+    threshold: 0,
+  });
+
   const aspectRatio = (height / width) * 100;
 
-  const url = buildImageUrl(src as string, width, quality);
+  const imageSrc = src || `https://via.placeholder.com/${width}x${height}`;
+  const url = unoptimized ? imageSrc : buildImageUrl(imageSrc, width, quality);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: set loading to true when url changes
   useEffect(() => {
-    if (inView) {
-      setLoading(true);
-      const img = new globalThis.Image();
-      img.src = url;
-      img.onload = () => setLoading(false);
-    }
-  }, [inView, url]);
+    setLoading(true);
+  }, [url]);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true);
-          observer.disconnect();
-        }
-      },
-      {
-        rootMargin: '50px',
-        threshold: 0.1,
-      },
-    );
-
-    if (imgRef.current) {
-      observer.observe(imgRef.current);
-    }
-
-    return () => {
-      if (imgRef.current) {
-        observer.unobserve(imgRef.current);
-      }
-    };
-  }, []);
+  const shouldLoad = eager || isIntersecting;
 
   return (
     <div
@@ -89,10 +63,10 @@ export const Image: FC<ImageProps> = ({
           zIndex: loading ? 1 : -1,
         }}
       />
-      {inView && (
+      {shouldLoad && (
         <picture style={{ opacity: loading ? 0 : 1, transition: 'opacity 0.5s ease' }}>
           <img
-            src={url ?? `https://via.placeholder.com/${width}x${height}`}
+            src={url}
             width={width}
             height={height}
             style={{
@@ -104,8 +78,10 @@ export const Image: FC<ImageProps> = ({
               objectFit: 'cover',
             }}
             onLoad={() => setLoading(false)}
+            onError={() => setLoading(false)}
+            loading="lazy"
             {...props}
-            alt={alt || url}
+            alt={alt}
           />
         </picture>
       )}

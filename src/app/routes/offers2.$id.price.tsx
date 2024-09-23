@@ -63,6 +63,7 @@ import defaultPlayerTheme from '@vidstack/react/player/styles/default/theme.css?
 import defaultAudioPlayer from '@vidstack/react/player/styles/default/layouts/audio.css?url';
 import defaultVideoPlayer from '@vidstack/react/player/styles/default/layouts/video.css?url';
 import Markdown from 'react-markdown';
+import { StyledSmallCard } from '~/components/app/styled-small-card';
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: defaultPlayerTheme },
@@ -414,8 +415,6 @@ function OfferPage() {
     return <div>{offerData.description}</div>;
   }
 
-  console.log(offerData.longDescription);
-
   return (
     <main className="flex flex-row gap-4 w-full">
       <section id="main-content" className="flex flex-col gap-4 w-full">
@@ -424,22 +423,24 @@ function OfferPage() {
         <h2 className="text-lg font-semibold">{offerData.description}</h2>
         <hr className="my-4" />
         {offerData.longDescription && (
-          <section className="mb-4 prose prose-lg prose-neutral dark:prose-invert max-w-none">
+          <section className="mb-4 prose prose-invert max-w-none">
             <Markdown>{offerData.longDescription}</Markdown>
           </section>
         )}
       </section>
       <aside className="flex flex-col gap-2 w-full md:w-1/2 lg:w-2/5 bg-card rounded-xl p-4 h-fit">
         <h4
-          className="text-md font-semibold opacity-50 inline-flex items-center gap-2"
+          className="text-md font-semibold opacity-50 inline-flex items-center gap-2 w-fit"
           aria-label={`Offered by ${offerData.seller.name}`}
         >
-          {getSeller({
-            developerDisplayName: offerData.developerDisplayName as string,
-            publisherDisplayName: offerData.publisherDisplayName as string,
-            seller: offerData.seller.name,
-            customAttributes: offerData.customAttributes,
-          })}
+          <Link to={`/sellers/${offerData.seller.id}`}>
+            {getSeller({
+              developerDisplayName: offerData.developerDisplayName as string,
+              publisherDisplayName: offerData.publisherDisplayName as string,
+              seller: offerData.seller.name,
+              customAttributes: offerData.customAttributes,
+            })}
+          </Link>
 
           {offerData.prePurchase && <Badge variant="outline">Pre-Purchase</Badge>}
           {offerData.tags.find((tag) => tag.id === '1310') && (
@@ -447,7 +448,10 @@ function OfferPage() {
           )}
         </h4>
         <h1 className="text-2xl font-bold">{offerData.title}</h1>
-        <Link to={`/search?offer_type=${offerData.offerType}`} className="text-sm text-blue-200">
+        <Link
+          to={`/search?offer_type=${offerData.offerType}`}
+          className="text-sm text-blue-200 w-fit"
+        >
           {offersDictionary[offerData.offerType] || offerData.offerType}
         </Link>
         <Separator orientation="horizontal" className="my-4" />
@@ -459,38 +463,29 @@ function OfferPage() {
         <Separator orientation="horizontal" className="my-4" />
         <h2 className="text-lg font-semibold">Details</h2>
         <div className="grid grid-cols-2 gap-2">
-          <span className="text-sm text-gray-100/50">Release Date</span>
-          <span className="text-sm">
-            {new Date(offerData.releaseDate).toLocaleDateString('en-UK', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </span>
+          <TooltipProvider>
+            <InfoDate
+              label="Release Date"
+              date={new Date(offerData.releaseDate ?? offerData.effectiveDate)}
+            />
+            <InfoDate label="Last Update" date={new Date(offerData.lastModifiedDate)} />
+            <InfoDate label="Creation Date" date={new Date(offerData.creationDate)} />
+            <InfoDate label="Viewable Date" date={new Date(offerData.viewableDate)} />
+          </TooltipProvider>
 
-          <span className="text-sm text-gray-100/50">Last Update</span>
-          <span className="text-sm">
-            {new Date(offerData.lastModifiedDate).toLocaleDateString('en-UK', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </span>
+          {offerData.developerDisplayName && (
+            <>
+              <span className="text-sm text-gray-100/50">Developer</span>
+              <span className="text-sm">{offerData.developerDisplayName}</span>
+            </>
+          )}
 
-          <span className="text-sm text-gray-100/50">Creation Date</span>
-          <span className="text-sm">
-            {new Date(offerData.creationDate).toLocaleDateString('en-UK', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </span>
-
-          <span className="text-sm text-gray-100/50">Developer</span>
-          <span className="text-sm">{offerData.developerDisplayName}</span>
-
-          <span className="text-sm text-gray-100/50">Publisher</span>
-          <span className="text-sm">{offerData.publisherDisplayName}</span>
+          {offerData.publisherDisplayName && (
+            <>
+              <span className="text-sm text-gray-100/50">Publisher</span>
+              <span className="text-sm">{offerData.publisherDisplayName}</span>
+            </>
+          )}
 
           <span className="text-sm text-gray-100/50">Supported Platforms</span>
           <span className="text-sm flex flex-row gap-2">
@@ -507,6 +502,34 @@ function OfferPage() {
         <HowLongToBeat />
       </aside>
     </main>
+  );
+}
+
+function InfoDate({ label, date }: { label: string; date: Date }) {
+  return (
+    <Tooltip>
+      <span className="text-sm text-gray-100/50">{label}</span>
+      <TooltipTrigger className="text-sm text-left decoration-dotted underline-offset-4 underline decoration-gray-600">
+        {date.toLocaleDateString('en-UK', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })}
+      </TooltipTrigger>
+      <TooltipContent hideWhenDetached align="center" side="left">
+        <span>
+          {date.toLocaleDateString('en-UK', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric',
+            timeZoneName: 'short',
+          })}
+        </span>
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -592,10 +615,20 @@ function OfferPrice({ offer }: { offer: SingleOffer }) {
             retries: 1,
           }),
       },
+      {
+        queryKey: ['has-prepurchase', { id, country }],
+        queryFn: () =>
+          httpClient.get<{
+            hasPrepurchase: boolean;
+            offer: SingleOffer;
+          }>(`/offers/${id}/has-prepurchase`, {
+            params: { country },
+          }),
+      },
     ],
   });
 
-  const [priceQuery, inBundlesQuery, collectionOffersQuery] = queries;
+  const [priceQuery, inBundlesQuery, collectionOffersQuery, prepurchaseQuery] = queries;
 
   if (priceQuery.isLoading) {
     return null;
@@ -608,6 +641,7 @@ function OfferPrice({ offer }: { offer: SingleOffer }) {
   const price = priceQuery.data;
   const inBundles = inBundlesQuery.data;
   const collectionOffers = collectionOffersQuery.data;
+  const hasPrepurchase = prepurchaseQuery.data?.hasPrepurchase;
 
   if (!price) {
     return null;
@@ -637,8 +671,20 @@ function OfferPrice({ offer }: { offer: SingleOffer }) {
                 }).format(price.price.discount / 100)}
               </span>
             )}
+            {price.price.discount > 0 && (
+              <div className="text-xs inline-flex items-center rounded-xl bg-green-400 text-black px-2 py-1 font-semibold">
+                {price.price.discount &&
+                  `-${Math.round(
+                    ((price.price.originalPrice - price.price.discountPrice) /
+                      price.price.originalPrice) *
+                      100,
+                  )}%`}
+              </div>
+            )}
+
             {(inBundles && inBundles.length > 0) ||
-            (collectionOffers && collectionOffers.length > 0) ? (
+            (collectionOffers && collectionOffers.length > 0) ||
+            hasPrepurchase ? (
               <div className="w-full flex flex-col gap-1 text-right justify-center items-end">
                 <PopoverTrigger>
                   <ChevronDown
@@ -659,6 +705,13 @@ function OfferPrice({ offer }: { offer: SingleOffer }) {
           >
             <div className="bg-gray-500/10 rounded-xl p-2 flex flex-col gap-0 border-gray-300/10 border">
               <OfferInBundle offer={offer} />
+              {prepurchaseQuery.data?.offer && (
+                <StyledSmallCard
+                  offer={prepurchaseQuery.data?.offer as SingleOffer}
+                  title="Prepurchase Offer"
+                  showPrice
+                />
+              )}
             </div>
           </PopoverContent>
         </Popover>
@@ -674,62 +727,3 @@ function OfferPrice({ offer }: { offer: SingleOffer }) {
     </>
   );
 }
-
-const TimeAgo: React.FC<{
-  targetDate: string;
-}> = ({ targetDate }) => {
-  return (
-    <span className="opacity-50">
-      ({targetDate ? timeAgo(new Date(targetDate)) : 'Not available'})
-    </span>
-  );
-};
-
-const ReleaseDate: React.FC<{
-  releaseDate: string | null;
-  pcReleaseDate: string | null;
-}> = ({ releaseDate, pcReleaseDate }) => {
-  if (!releaseDate || releaseDate.includes('2099')) {
-    return <span>Not available</span>;
-  }
-
-  return (
-    <>
-      <TooltipProvider>
-        <Tooltip open={!pcReleaseDate ? false : undefined}>
-          <TooltipTrigger className="flex items-center gap-1 cursor-default">
-            <span
-              className={cn(
-                pcReleaseDate &&
-                  releaseDate !== pcReleaseDate &&
-                  'underline decoration-dotted underline-offset-4',
-              )}
-            >
-              {new Date(releaseDate).toLocaleDateString('en-UK', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: 'numeric',
-                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                timeZoneName: 'short',
-              })}
-            </span>
-          </TooltipTrigger>
-          <TooltipContent>
-            {!pcReleaseDate || releaseDate === pcReleaseDate ? (
-              'Released on Epic the same day as PC'
-            ) : (
-              <span>
-                <span>Released on PC </span>
-                <span>{compareDates(new Date(pcReleaseDate), new Date(releaseDate))}</span>
-                <span> the EGS</span>
-              </span>
-            )}
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-      <TimeAgo targetDate={releaseDate} />
-    </>
-  );
-};

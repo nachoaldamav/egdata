@@ -43,7 +43,7 @@ export const OfferInBundle: React.FC<{ offer: SingleOffer }> = ({ offer }) => {
 
   return (
     <Link
-      className="flex items-center bg-gray-800 rounded-lg shadow-lg w-full h-16 relative mt-2 overflow-hidden group"
+      className="flex items-center bg-gray-800 rounded-lg shadow-lg w-full h-16 relative overflow-hidden group"
       to={`/offers/${bundle.id}`}
       prefetch="viewport"
     >

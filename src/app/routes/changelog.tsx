@@ -5,7 +5,7 @@ import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '~/components/ui/collapsible';
 import { Input } from '~/components/ui/input';
-import { client, getQueryClient } from '~/lib/client';
+import { getQueryClient } from '~/lib/client';
 import { cn } from '~/lib/utils';
 import type { SingleItem } from '~/types/single-item';
 import type { SingleOffer } from '~/types/single-offer';
