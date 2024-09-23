@@ -1,6 +1,6 @@
 import { ArrowRightIcon, ChevronRightIcon } from '@radix-ui/react-icons';
 import { dehydrate, HydrationBoundary, keepPreviousData, useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '~/components/ui/collapsible';
@@ -13,13 +13,13 @@ import {
   Pagination,
   PaginationButton,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationNextButton,
   PaginationPreviousButton,
 } from '~/components/ui/pagination';
 import type { LoaderFunctionArgs } from '@remix-run/node';
 import { type ClientLoaderFunctionArgs, Link, useLoaderData } from '@remix-run/react';
+import { httpClient } from '~/lib/http-client';
 
 export interface Root {
   hits: (OfferHit | ItemHit | AssetHit | Hit)[];
@@ -86,14 +86,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
       },
     ],
     queryFn: () =>
-      client
-        .get<Root>('/search/changelog', {
-          params: {
-            query,
-            page,
-          },
-        })
-        .then((res) => res.data),
+      httpClient.get<Root>('/search/changelog', {
+        params: {
+          query,
+          page,
+        },
+      }),
   });
 
   return {
@@ -118,14 +116,12 @@ export async function clientLoader({ request }: ClientLoaderFunctionArgs) {
       },
     ],
     queryFn: () =>
-      client
-        .get<Root>('/search/changelog', {
-          params: {
-            query,
-            page,
-          },
-        })
-        .then((res) => res.data),
+      httpClient.get<Root>('/search/changelog', {
+        params: {
+          query,
+          page,
+        },
+      }),
   });
 
   return {
@@ -159,14 +155,12 @@ export function ChangelogPage() {
       },
     ],
     queryFn: () =>
-      client
-        .get<Root>('/search/changelog', {
-          params: {
-            query,
-            page,
-          },
-        })
-        .then((res) => res.data),
+      httpClient.get<Root>('/search/changelog', {
+        params: {
+          query,
+          page,
+        },
+      }),
     refetchOnMount: false,
     placeholderData: keepPreviousData,
   });
@@ -214,9 +208,12 @@ export function ChangelogPage() {
       <div className="grid gap-4">
         {isLoading && <div>Loading...</div>}
         {isError && <div>Error fetching data</div>}
-        {data?.hits.map((hit) => (
-          <ChangelogItem key={hit._id} hit={hit} query={query} />
-        ))}
+        {data?.hits
+          // Filter out hits without metadata
+          .filter((hit) => hit.metadata)
+          .map((hit) => (
+            <ChangelogItem key={hit._id} hit={hit} query={query} />
+          ))}
       </div>
       <Pagination>
         <PaginationContent>
