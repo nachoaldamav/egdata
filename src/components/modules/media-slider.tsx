@@ -65,12 +65,14 @@ export function OfferMediaSlider({ offer }: { offer: SingleOffer }) {
       thumbnail: image.src,
     }));
 
-    const videos = data.videos.map((video) => ({
-      id: video._id,
-      type: 'video' as const,
-      video: video,
-      thumbnail: imageToUse,
-    }));
+    const videos = data.videos
+      .filter((video) => video.outputs?.length > 0)
+      .map((video) => ({
+        id: video._id,
+        type: 'video' as const,
+        video: video,
+        thumbnail: imageToUse,
+      }));
 
     return [...videos, ...images];
   }, [data, offer]);
