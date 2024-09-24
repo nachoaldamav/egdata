@@ -1,6 +1,4 @@
-export const offersDictionary: {
-  [key: string]: string;
-} = {
+export const offersDictionary = {
   CONSUMABLE: 'Consumable',
   UNLOCKABLE: 'Unlockable',
   IN_GAME_PURCHASE: 'In-game purchase',
