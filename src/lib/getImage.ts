@@ -54,12 +54,5 @@ export const getImage = (keyImages: KeyImages[] | null, types: EGSImageTypes[]) 
     }
   }
 
-  const image = keyImages?.[0];
-
-  if (image) {
-    image.url = image.url.replaceAll(' ', '%20');
-    return image;
-  }
-
   return null;
 };
