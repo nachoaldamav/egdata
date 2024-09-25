@@ -1,13 +1,8 @@
 import { type LoaderFunctionArgs, type MetaFunction, redirect } from '@remix-run/node';
-import {
-  type ClientLoaderFunctionArgs,
-  useLoaderData,
-  redirect as clientRedirect,
-  Link,
-} from '@remix-run/react';
+import { useLoaderData, redirect as clientRedirect, Link } from '@remix-run/react';
 import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
 import { Image } from '~/components/app/image';
-import { client, getQueryClient } from '~/lib/client';
+import { getQueryClient } from '~/lib/client';
 import { getImage } from '~/lib/getImage';
 import {
   Table,
@@ -135,7 +130,9 @@ export const meta: MetaFunction<loader> = ({ data }) => {
     },
     {
       name: 'twitter:image',
-      content: getImage(itemData.keyImages, ['DieselGameBoxWide'])?.url ?? '/placeholder.webp',
+      content:
+        getImage(itemData.keyImages, ['DieselGameBoxWide', 'DieselGameBox'])?.url ??
+        '/placeholder.webp',
     },
   ];
 };
@@ -259,7 +256,10 @@ function ItemsPage({ id }: { id: string }) {
         </div>
         <div className="flex flex-col items-start justify-center gap-4">
           <Image
-            src={getImage(data.keyImages, ['DieselGameBoxWide'])?.url ?? '/placeholder.webp'}
+            src={
+              getImage(data.keyImages, ['DieselGameBoxWide', 'DieselGameBox'])?.url ??
+              '/placeholder.webp'
+            }
             alt={data.title}
             width={1920}
             height={1080}
