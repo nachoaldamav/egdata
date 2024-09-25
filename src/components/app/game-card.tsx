@@ -83,11 +83,7 @@ export function OfferListItem({
         {/* Image Section */}
         <div className="flex-shrink-0 w-72 h-auto inline-flex items-center justify-center relative">
           <Image
-            src={
-              epicImage
-                ? `${epicImage}?h=500&resize=1&quality=medium`
-                : '/300x150-egdata-placeholder.png'
-            }
+            src={epicImage ?? '/300x150-egdata-placeholder.png'}
             alt={game.title}
             className="w-full object-cover rounded-lg"
             width={350}
