@@ -33,6 +33,7 @@ import type { SingleOffer } from '~/types/single-offer';
 import type { Price } from '~/types/price';
 import { calculatePrice } from '~/lib/calculate-price';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
+import { GiveawayOffer } from '~/types/giveaways';
 
 export const meta: MetaFunction = () => {
   return [
@@ -172,6 +173,15 @@ export const loader: LoaderFunction = async ({ request }) => {
     client.prefetchQuery({
       queryKey: ['giveaways-stats', { country }],
       queryFn: () => getGiveawaysStats({ country }),
+    }),
+    client.prefetchQuery({
+      queryKey: ['giveaways'],
+      queryFn: () =>
+        httpClient.get<GiveawayOffer[]>('/free-games', {
+          params: {
+            country,
+          },
+        }),
     }),
   ]);
 
