@@ -1,5 +1,7 @@
 import type { LoaderFunction, MetaFunction } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
+import { useEffect } from 'react';
+import { useDebounce } from '@uidotdev/usehooks';
 import { dehydrate, HydrationBoundary, keepPreviousData, useQuery } from '@tanstack/react-query';
 import { getQueryClient } from '~/lib/client';
 import getCountryCode from '~/lib/get-country-code';
@@ -125,12 +127,12 @@ export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
   const page = Number.parseInt(url.searchParams.get('page') ?? '1');
   const country = getCountryCode(url, cookie.parse(request.headers.get('Cookie') || ''));
-  const query = url.searchParams.get('q') ?? '';
-  const sortBy = url.searchParams.get('sort_by') ?? 'giveawayDate';
-  const offerType = (url.searchParams.get('offer_type') ?? undefined) as
+  const query = url.searchParams.get('query') ?? '';
+  const sortBy = url.searchParams.get('sortBy') ?? 'giveawayDate';
+  const offerType = (url.searchParams.get('offerType') ?? undefined) as
     | keyof typeof offersDictionary
     | undefined;
-  const sortDir = (url.searchParams.get('sort_dir') ?? 'desc') as 'asc' | 'desc';
+  const sortDir = (url.searchParams.get('sortDir') ?? 'desc') as 'asc' | 'desc';
   const year = url.searchParams.get('year') ?? undefined;
 
   await client.prefetchQuery({
@@ -153,6 +155,11 @@ export const loader: LoaderFunction = async ({ request }) => {
   return {
     dehydratedState: dehydrate(client),
     page,
+    query,
+    sortBy,
+    offerType,
+    sortDir,
+    year,
   };
 };
 
@@ -185,21 +192,28 @@ function getYearsFrom2018ToCurrent(): number[] {
 
   return years;
 }
-import { useEffect } from 'react';
-import { useDebounce } from '@uidotdev/usehooks';
 
 function FreeGames() {
-  const { page: serverPage } = useLoaderData<typeof loader>();
+  const {
+    page: serverPage,
+    query: serverQuery,
+    sortBy: serverSortBy,
+    offerType: serverOfferType,
+    sortDir: serverSortDir,
+    year: serverYear,
+  } = useLoaderData<typeof loader>();
   const { view, setView } = usePreferences();
   const { country } = useCountry();
   const years = useMemo(() => getYearsFrom2018ToCurrent(), []);
 
   const [page, setPage] = useState(serverPage);
-  const [query, setQuery] = useState<string>('');
-  const [sortBy, setSortBy] = useState<keyof typeof sortByList>('giveawayDate');
-  const [offerType, setOfferType] = useState<keyof typeof offersDictionary | undefined>(undefined);
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
-  const [year, setYear] = useState<string | undefined>(undefined);
+  const [query, setQuery] = useState<string>(serverQuery ?? '');
+  const [sortBy, setSortBy] = useState<keyof typeof sortByList>(serverSortBy ?? 'giveawayDate');
+  const [offerType, setOfferType] = useState<keyof typeof offersDictionary | undefined>(
+    serverOfferType ?? undefined,
+  );
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>(serverSortDir ?? 'desc');
+  const [year, setYear] = useState<string | undefined>(serverYear ?? undefined);
 
   // Debounce the query, sortBy, offerType, sortDir, and year values
   const debouncedQuery = useDebounce(query, 300);
@@ -238,11 +252,32 @@ function FreeGames() {
   // Update the URL whenever query, sortBy, offerType, sortDir, or year changes
   useEffect(() => {
     const url = new URL(window.location.href);
-    if (debouncedQuery) url.searchParams.set('query', debouncedQuery);
-    if (debouncedSortBy) url.searchParams.set('sortBy', debouncedSortBy);
-    if (debouncedOfferType) url.searchParams.set('offerType', debouncedOfferType ?? '');
-    if (debouncedSortDir) url.searchParams.set('sortDir', debouncedSortDir);
-    if (debouncedYear) url.searchParams.set('year', debouncedYear ?? '');
+    if (debouncedQuery) {
+      url.searchParams.set('query', debouncedQuery);
+    } else {
+      url.searchParams.delete('query');
+    }
+    if (debouncedSortBy) {
+      url.searchParams.set('sortBy', debouncedSortBy);
+    } else {
+      url.searchParams.delete('sortBy');
+    }
+    if (debouncedOfferType) {
+      url.searchParams.set('offerType', debouncedOfferType ?? '');
+    } else {
+      url.searchParams.delete('offerType');
+    }
+    if (debouncedSortDir) {
+      url.searchParams.set('sortDir', debouncedSortDir);
+    } else {
+      url.searchParams.delete('sortDir');
+    }
+    if (debouncedYear) {
+      url.searchParams.set('year', debouncedYear ?? '');
+    } else {
+      url.searchParams.delete('year');
+    }
+
     window.history.pushState(null, '', url.href);
   }, [debouncedQuery, debouncedSortBy, debouncedOfferType, debouncedSortDir, debouncedYear]);
 
