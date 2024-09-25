@@ -185,26 +185,66 @@ function getYearsFrom2018ToCurrent(): number[] {
 
   return years;
 }
+import { useEffect } from 'react';
+import { useDebounce } from '@uidotdev/usehooks';
 
 function FreeGames() {
   const { page: serverPage } = useLoaderData<typeof loader>();
   const { view, setView } = usePreferences();
   const { country } = useCountry();
   const years = useMemo(() => getYearsFrom2018ToCurrent(), []);
+
   const [page, setPage] = useState(serverPage);
   const [query, setQuery] = useState<string>('');
   const [sortBy, setSortBy] = useState<keyof typeof sortByList>('giveawayDate');
   const [offerType, setOfferType] = useState<keyof typeof offersDictionary | undefined>(undefined);
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [year, setYear] = useState<string | undefined>(undefined);
+
+  // Debounce the query, sortBy, offerType, sortDir, and year values
+  const debouncedQuery = useDebounce(query, 300);
+  const debouncedSortBy = useDebounce(sortBy, 300);
+  const debouncedOfferType = useDebounce(offerType, 300);
+  const debouncedSortDir = useDebounce(sortDir, 300);
+  const debouncedYear = useDebounce(year, 300);
+
   const { data, isLoading } = useQuery({
     queryKey: [
       'search-giveaways',
-      { page, limit: 25, country, query, sortBy, offerType, sortDir, year },
+      {
+        page,
+        limit: 25,
+        country,
+        query: debouncedQuery,
+        sortBy: debouncedSortBy,
+        offerType: debouncedOfferType,
+        sortDir: debouncedSortDir,
+        year: debouncedYear,
+      },
     ],
-    queryFn: () => searchGiveaways({ query, sortBy, sortDir, offerType, country, page, year }),
+    queryFn: () =>
+      searchGiveaways({
+        query: debouncedQuery,
+        sortBy: debouncedSortBy,
+        sortDir: debouncedSortDir,
+        offerType: debouncedOfferType,
+        country,
+        page,
+        year: debouncedYear,
+      }),
     placeholderData: keepPreviousData,
   });
+
+  // Update the URL whenever query, sortBy, offerType, sortDir, or year changes
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (debouncedQuery) url.searchParams.set('query', debouncedQuery);
+    if (debouncedSortBy) url.searchParams.set('sortBy', debouncedSortBy);
+    if (debouncedOfferType) url.searchParams.set('offerType', debouncedOfferType ?? '');
+    if (debouncedSortDir) url.searchParams.set('sortDir', debouncedSortDir);
+    if (debouncedYear) url.searchParams.set('year', debouncedYear ?? '');
+    window.history.pushState(null, '', url.href);
+  }, [debouncedQuery, debouncedSortBy, debouncedOfferType, debouncedSortDir, debouncedYear]);
 
   if (isLoading) {
     return <p>Loading...</p>;
