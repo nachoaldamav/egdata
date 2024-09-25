@@ -30,6 +30,9 @@ import { ListBulletIcon } from '@radix-ui/react-icons';
 import { usePreferences } from '~/hooks/use-preferences';
 import { OfferListItem } from '~/components/app/game-card';
 import type { SingleOffer } from '~/types/single-offer';
+import type { Price } from '~/types/price';
+import { calculatePrice } from '~/lib/calculate-price';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 
 export const meta: MetaFunction = () => {
   return [
@@ -122,6 +125,20 @@ const searchGiveaways = async ({
   return res;
 };
 
+const getGiveawaysStats = async ({ country }: { country: string }) => {
+  const res = await httpClient.get<{
+    totalValue: Price['price'];
+    totalOffers: number;
+    totalGiveaways: number;
+  }>('/free-games/stats', {
+    params: {
+      country,
+    },
+  });
+
+  return res;
+};
+
 export const loader: LoaderFunction = async ({ request }) => {
   const client = getQueryClient();
   const url = new URL(request.url);
@@ -135,22 +152,28 @@ export const loader: LoaderFunction = async ({ request }) => {
   const sortDir = (url.searchParams.get('sortDir') ?? 'desc') as 'asc' | 'desc';
   const year = url.searchParams.get('year') ?? undefined;
 
-  await client.prefetchQuery({
-    queryKey: [
-      'search-giveaways',
-      { page, limit: 25, country, query, sortBy, offerType, sortDir, year },
-    ],
-    queryFn: () =>
-      searchGiveaways({
-        query,
-        sortBy,
-        sortDir,
-        offerType,
-        country,
-        page,
-        year,
-      }),
-  });
+  await Promise.all([
+    client.prefetchQuery({
+      queryKey: [
+        'search-giveaways',
+        { page, limit: 25, country, query, sortBy, offerType, sortDir, year },
+      ],
+      queryFn: () =>
+        searchGiveaways({
+          query,
+          sortBy,
+          sortDir,
+          offerType,
+          country,
+          page,
+          year,
+        }),
+    }),
+    client.prefetchQuery({
+      queryKey: ['giveaways-stats', { country }],
+      queryFn: () => getGiveawaysStats({ country }),
+    }),
+  ]);
 
   return {
     dehydratedState: dehydrate(client),
@@ -308,6 +331,7 @@ function FreeGames() {
 
   return (
     <div className="flex flex-col items-start justify-start h-full gap-4 p-4">
+      <GiveawaysStats />
       <h2 className="text-2xl font-bold mb-4">Current Free Games</h2>
       <GiveawaysCarousel hideTitle={true} />
       <Separator orientation="horizontal" className="my-4" />
@@ -411,6 +435,76 @@ function FreeGames() {
         })}
       </section>
       <DynamicPagination currentPage={page} setPage={handlePageChange} totalPages={totalPages} />
+    </div>
+  );
+}
+
+function GiveawaysStats() {
+  const { country } = useCountry();
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['giveaways-stats', { country }],
+    queryFn: () => getGiveawaysStats({ country }),
+  });
+
+  if (isLoading) {
+    return <p>Loading...</p>;
+  }
+
+  if (isError || !data) {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-col items-start justify-start gap-4 w-full">
+      <h2 className="text-2xl font-bold">Giveaways in numbers</h2>
+      <div className="flex flex-row items-center justify-center gap-10 bg-card rounded-lg p-4 w-full">
+        <TooltipProvider>
+          <Tooltip>
+            <div className="flex flex-col items-center justify-center gap-2">
+              <span className="text-4xl font-semibold">
+                {calculatePrice(
+                  data.totalValue.originalPrice,
+                  data.totalValue.currencyCode,
+                ).toLocaleString(undefined, {
+                  style: 'currency',
+                  currency: data.totalValue.currencyCode,
+                })}
+              </span>
+              <TooltipTrigger>
+                <span className="text-lg font-medium text-gray-400 decoration-dotted decoration-gray-400/50 underline underline-offset-4">
+                  Total Value
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className="flex flex-row items-center gap-1">
+                  <span className="text-xs font-medium">
+                    {calculatePrice(
+                      data.totalValue.discountPrice,
+                      data.totalValue.currencyCode,
+                    ).toLocaleString(undefined, {
+                      style: 'currency',
+                      currency: data.totalValue.currencyCode,
+                    })}
+                  </span>
+                  <span className="text-xs font-medium">With current discounts</span>
+                </div>
+              </TooltipContent>
+            </div>
+          </Tooltip>
+        </TooltipProvider>
+
+        <div className="flex flex-col items-center justify-center gap-2">
+          <span className="text-4xl font-semibold">
+            {data.totalGiveaways.toLocaleString('en-UK')}
+          </span>
+          <span className="text-lg font-medium text-gray-400">Giveaways</span>
+        </div>
+
+        <div className="flex flex-col items-center justify-center gap-2">
+          <span className="text-4xl font-semibold">{data.totalOffers.toLocaleString('en-UK')}</span>
+          <span className="text-lg font-medium text-gray-400">Offers</span>
+        </div>
+      </div>
     </div>
   );
 }
