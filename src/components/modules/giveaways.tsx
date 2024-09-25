@@ -12,6 +12,7 @@ import type { GiveawayOffer } from '~/types/giveaways';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 import { calculatePrice } from '~/lib/calculate-price';
 import { ArrowRightIcon } from 'lucide-react';
+import { cn } from '~/lib/utils';
 
 export function GiveawaysCarousel({ hideTitle }: { hideTitle?: boolean }) {
   const { country } = useCountry();
@@ -98,12 +99,8 @@ function GiveawayCard({ offer }: { offer: GiveawayOffer }) {
           width={400}
           height={225}
         />
-        {isUpcoming && (
-          <div className="absolute bottom-0 left-0 bg-blue-700 text-white text-sm p-1 w-full text-center">
-            starts in <Countdown targetDate={startDate} />
-          </div>
-        )}
       </div>
+      {(isUpcoming || isOnGoing) && <Countdown targetDate={startDate} />}
       <div className="flex flex-col flex-grow p-4 bg-card">
         <h3 className="text-lg font-medium mb-2">{offer.title}</h3>
         <div className="flex justify-between items-baseline mt-auto">
@@ -213,15 +210,27 @@ function Countdown({ targetDate }: { targetDate: Date }) {
     return () => clearInterval(interval);
   }, [targetDate]);
 
-  if (timeLeft.days < 0 && timeLeft.hours < 0 && timeLeft.minutes < 0 && timeLeft.seconds < 0) {
-    return '00:00:00';
-  }
+  const isFinised =
+    timeLeft.days < 0 && timeLeft.hours < 0 && timeLeft.minutes < 0 && timeLeft.seconds < 0;
 
   return (
-    <span className="font-semibold">
-      {timeLeft.days > 0 && `${timeLeft.days}d `}
-      {timeLeft.hours.toString().padStart(2, '0')}:{timeLeft.minutes.toString().padStart(2, '0')}:
-      {timeLeft.seconds.toString().padStart(2, '0')}
-    </span>
+    <div
+      className={cn(
+        'flex flex-row items-center justify-center gap-2 text-sm font-semibold text-white py-1',
+        isFinised && 'bg-blue-700',
+        !isFinised && 'bg-gray-900',
+      )}
+    >
+      {!isFinised ? (
+        <span className="font-semibold">
+          Starts in {timeLeft.days > 0 && `${timeLeft.days}d `}
+          {timeLeft.hours.toString().padStart(2, '0')}:
+          {timeLeft.minutes.toString().padStart(2, '0')}:
+          {timeLeft.seconds.toString().padStart(2, '0')}
+        </span>
+      ) : (
+        <span className="font-semibold">Free Now</span>
+      )}
+    </div>
   );
 }

@@ -254,6 +254,7 @@ function FreeGames() {
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value={undefined as unknown as string}>All</SelectItem>
               {Object.entries(offersDictionary)
                 .sort((a, b) => a[1].localeCompare(b[1]))
                 .filter(([key]) => key !== 'null' && key !== 'undefined')
@@ -281,9 +282,10 @@ function FreeGames() {
           </Select>
           <Select value={year} onValueChange={(value) => setYear(value)}>
             <SelectTrigger className="w-[180px]">
-              <SelectValue className="text-sm" placeholder="Select Year" />
+              <SelectValue className="text-sm" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value={undefined as unknown as string}>All Years</SelectItem>
               {years
                 .sort((a, b) => b - a)
                 .map((year) => (
