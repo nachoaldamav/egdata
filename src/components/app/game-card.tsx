@@ -47,11 +47,6 @@ export function GameCard({
   );
 }
 
-/**
- * List type offer item (for list view)
- * @param param0
- * @returns
- */
 export function OfferListItem({
   game,
 }: {
@@ -84,8 +79,9 @@ export function OfferListItem({
 
   return (
     <Link to={`/offers/${game.id}`} className="w-full" prefetch="viewport">
-      <Card className="flex flex-row w-full bg-card text-white p-1 rounded-lg h-44 relative">
-        <div className="flex-shrink-0 w-72 h-full inline-flex items-center justify-center relative">
+      <Card className="flex flex-row w-full bg-card text-white p-2 rounded-lg h-fit relative">
+        {/* Image Section */}
+        <div className="flex-shrink-0 w-72 h-auto inline-flex items-center justify-center relative">
           <Image
             src={
               epicImage
@@ -93,9 +89,9 @@ export function OfferListItem({
                 : '/300x150-egdata-placeholder.png'
             }
             alt={game.title}
-            className="w-full h-full object-cover rounded-lg"
-            width={300}
-            height={170}
+            className="w-full object-cover rounded-lg"
+            width={350}
+            height={200}
           />
           {game.prePurchase && (
             <Badge variant="default" className="absolute top-2 left-2 text-sm">
@@ -103,13 +99,16 @@ export function OfferListItem({
             </Badge>
           )}
         </div>
-        <div className="flex flex-col flex-grow ml-2 p-2 w-full justify-between">
+
+        {/* Content Section */}
+        <div className="flex flex-col flex-grow ml-4 p-2 w-full justify-between">
+          {/* Title and Tags */}
           <div className="flex items-start justify-between">
             <div className="flex flex-col">
-              <div className="flex items-center jusitfy-start space-x-2">
+              <div className="flex items-center space-x-2">
                 <h2 className="text-xl font-bold truncate">{game.title}</h2>
-                <span className="text-sm text-muted-foreground inline-flex items-center">-</span>
-                <span className="text-sm text-muted-foreground inline-flex items-center">
+                <span className="text-sm text-muted-foreground">-</span>
+                <span className="text-sm text-muted-foreground">
                   {offersDictionary[game.offerType as keyof typeof offersDictionary] ||
                     game.offerType}
                 </span>
@@ -126,13 +125,15 @@ export function OfferListItem({
               </div>
             </div>
           </div>
+
+          {/* Seller Info */}
           <div className="inline-flex gap-2 items-center justify-start my-2">
-            <span className="text-sm text-muted-foreground inline-flex items-center">
-              {game.seller.name}
-            </span>
+            <span className="text-sm text-muted-foreground">{game.seller.name}</span>
           </div>
+
+          {/* Release Date */}
           <div className="inline-flex gap-2 items-center justify-start">
-            <span className="text-sm text-muted-foreground inline-flex items-center">
+            <span className="text-sm text-muted-foreground">
               Release date:{' '}
               {new Date(game.releaseDate).toLocaleString('en-UK', {
                 month: 'long',
@@ -141,8 +142,30 @@ export function OfferListItem({
               })}
             </span>
           </div>
+
+          {/* Giveaway Info */}
+          {game.giveaway && (
+            <div className="inline-flex gap-2 items-center justify-start mt-2">
+              <span className="text-sm text-muted-foreground">
+                Giveaway period:{' '}
+                {new Date(game.giveaway.startDate).toLocaleString('en-UK', {
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}{' '}
+                -{' '}
+                {new Date(game.giveaway.endDate).toLocaleString('en-UK', {
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+              </span>
+            </div>
+          )}
+
+          {/* Price and Sale Info */}
           {game.price && (
-            <div className="flex items-end justify-end space-x-4">
+            <div className="flex items-end justify-end space-x-4 mt-4">
               {game.price.appliedRules.length > 0 && <SaleModule game={game} />}
               {game.price.price.originalPrice !== game.price.price.discountPrice && (
                 <span className="line-through text-muted-foreground">
@@ -166,6 +189,8 @@ export function OfferListItem({
             </div>
           )}
         </div>
+
+        {/* Platform Tags */}
         <span className="absolute top-0 right-0 p-3">
           {game.tags
             .filter((tag) => textPlatformIcons[tag?.name])
@@ -184,7 +209,7 @@ export function OfferListItem({
  * Shows the 1st applied rule of the offer that the end date is not passed
  */
 function SaleModule({ game }: { game: Pick<SingleOffer, 'price'> }) {
-  const sale = game.price.appliedRules.find((rule) => {
+  const sale = game.price?.appliedRules.find((rule) => {
     return new Date(rule.endDate) > new Date();
   });
 
