@@ -249,7 +249,6 @@ function FreeGames() {
     placeholderData: keepPreviousData,
   });
 
-  // Update the URL whenever query, sortBy, offerType, sortDir, or year changes
   useEffect(() => {
     const url = new URL(window.location.href);
     if (debouncedQuery) {
@@ -278,6 +277,10 @@ function FreeGames() {
       url.searchParams.delete('year');
     }
 
+    setPage(1);
+
+    url.searchParams.set('page', '1');
+
     window.history.pushState(null, '', url.href);
   }, [debouncedQuery, debouncedSortBy, debouncedOfferType, debouncedSortDir, debouncedYear]);
 
@@ -289,7 +292,10 @@ function FreeGames() {
     return <p>No data</p>;
   }
 
-  const totalPages = Math.ceil(data.total / data.limit);
+  const totalPages = useMemo(
+    () => Math.ceil((data?.total ?? 0) / (data?.limit ?? 0)),
+    [data?.total, data?.limit],
+  );
 
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || newPage > totalPages) return;
