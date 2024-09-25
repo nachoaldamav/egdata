@@ -40,6 +40,7 @@ export interface SingleOffer {
     pageType: string;
   }> | null;
   price: Price | null;
+  giveaway: Giveaway | null;
 }
 
 export interface KeyImage {
@@ -67,4 +68,11 @@ export interface Item {
 export interface CustomAttribute {
   key: string;
   value: string;
+}
+
+export interface Giveaway {
+  id: string;
+  namespace: string;
+  startDate: string;
+  endDate: string;
 }

@@ -16,7 +16,7 @@ export const offersDictionary = {
   undefined: 'Unknown',
   WALLET: 'Wallet',
   BUNDLE: 'Bundle',
-};
+} as const;
 
 const offerTypeRanks: {
   [key: string]: number;

@@ -68,6 +68,7 @@ export function OfferListItem({
     | 'price'
     | 'offerType'
     | 'prePurchase'
+    | 'giveaway'
   >;
 }) {
   const epicImage = getImage(game.keyImages, [
@@ -109,7 +110,8 @@ export function OfferListItem({
                 <h2 className="text-xl font-bold truncate">{game.title}</h2>
                 <span className="text-sm text-muted-foreground inline-flex items-center">-</span>
                 <span className="text-sm text-muted-foreground inline-flex items-center">
-                  {offersDictionary[game.offerType] || game.offerType}
+                  {offersDictionary[game.offerType as keyof typeof offersDictionary] ||
+                    game.offerType}
                 </span>
               </div>
               <div className="flex flex-wrap mt-1 space-x-2">

@@ -9,7 +9,6 @@ import type { SingleOffer } from '~/types/single-offer';
 import { OfferCard } from '~/components/app/offer-card';
 import { useCountry } from '~/hooks/use-country';
 import { useMemo, useState } from 'react';
-
 import { GiveawaysCarousel } from '~/components/modules/giveaways';
 import { Separator } from '~/components/ui/separator';
 import { Input } from '~/components/ui/input';
