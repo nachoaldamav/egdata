@@ -5,7 +5,6 @@ import { getQueryClient } from '~/lib/client';
 import getCountryCode from '~/lib/get-country-code';
 import { httpClient } from '~/lib/http-client';
 import cookie from 'cookie';
-import type { SingleOffer } from '~/types/single-offer';
 import { OfferCard } from '~/components/app/offer-card';
 import { useCountry } from '~/hooks/use-country';
 import { useMemo, useState } from 'react';
@@ -28,6 +27,7 @@ import { DynamicPagination } from '~/components/app/dynamic-pagination';
 import { ListBulletIcon } from '@radix-ui/react-icons';
 import { usePreferences } from '~/hooks/use-preferences';
 import { OfferListItem } from '~/components/app/game-card';
+import type { SingleOffer } from '~/types/single-offer';
 
 export const meta: MetaFunction = () => {
   return [
@@ -77,10 +77,6 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-interface OfferWithGiveaway extends SingleOffer {
-  giveaway: unknown;
-}
-
 const searchGiveaways = async ({
   query,
   sortBy,
@@ -98,13 +94,13 @@ const searchGiveaways = async ({
   page: number;
   year: string | undefined;
 }): Promise<{
-  elements: OfferWithGiveaway[];
+  elements: SingleOffer[];
   page: number;
   limit: number;
   total: number;
 }> => {
   const res = await httpClient.get<{
-    elements: OfferWithGiveaway[];
+    elements: SingleOffer[];
     page: number;
     limit: number;
     total: number;
