@@ -438,10 +438,10 @@ function FreeGames() {
       >
         {data.elements?.map((game) => {
           if (view === 'grid') {
-            return <OfferCard key={game.id} offer={game} size="md" />;
+            return <OfferCard key={game._id} offer={game} size="md" />;
           }
 
-          return <OfferListItem key={game.id} game={game} />;
+          return <OfferListItem key={game._id} game={game} />;
         })}
       </section>
       <DynamicPagination currentPage={page} setPage={handlePageChange} totalPages={totalPages} />
