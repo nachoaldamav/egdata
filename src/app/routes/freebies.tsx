@@ -342,11 +342,11 @@ function FreeGames() {
   return (
     <div className="flex flex-col items-start justify-start h-full gap-4 p-4">
       <GiveawaysStats />
-      <h2 className="text-2xl font-bold mb-4">Current Free Games</h2>
+      <h2 className="text-2xl font-semibold mb-4">Current Free Games</h2>
       <GiveawaysCarousel hideTitle={true} />
       <Separator orientation="horizontal" className="my-4" />
       <header className="flex flex-row justify-between items-center gap-4 w-full">
-        <h2 className="text-xl font-bold">Past Free Games</h2>
+        <h2 className="text-xl font-semibold">Past Free Games</h2>
         <div id="filters" className="flex flex-row gap-2 items-center">
           <Input
             type="search"
@@ -466,7 +466,7 @@ function GiveawaysStats() {
 
   return (
     <div className="flex flex-col items-start justify-start gap-4 w-full">
-      <h2 className="text-2xl font-bold">Giveaways in numbers</h2>
+      <h2 className="text-2xl font-semibold">Giveaways in numbers</h2>
       <div className="flex flex-row items-center justify-center gap-10 bg-card rounded-lg p-4 w-full">
         <TooltipProvider>
           <Tooltip>
