@@ -63,10 +63,36 @@ export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.gstatic.com/', crossOrigin: 'anonymous' },
   ...(import.meta.env.DEV
     ? [
-        { rel: 'stylesheet', href: tailwindCss, preload: 'true' },
-        { rel: 'stylesheet', href: fontCss, preload: 'true' },
+        { rel: 'stylesheet', href: tailwindCss },
+        { rel: 'stylesheet', href: fontCss },
       ]
     : []),
+  {
+    rel: 'icon',
+    type: 'image/png',
+    sizes: '32x32',
+    href: '/favicon-32x32.png',
+  },
+  {
+    rel: 'icon',
+    type: 'image/png',
+    sizes: '16x16',
+    href: '/favicon-16x16.png',
+  },
+  {
+    rel: 'apple-touch-icon',
+    sizes: '180x180',
+    href: '/apple-touch-icon.png',
+  },
+  {
+    rel: 'manifest',
+    href: '/site.webmanifest',
+  },
+  {
+    rel: 'mask-icon',
+    href: '/safari-pinned-tab.svg',
+    color: '#5bbad5',
+  },
 ];
 
 export const meta: MetaFunction = () => {
@@ -87,19 +113,6 @@ export const meta: MetaFunction = () => {
       rel: 'canonical',
       href: 'https://egdata.app',
     },
-    {
-      rel: 'icon',
-      type: 'image/png',
-      sizes: '32x32 32',
-      href: '/favicon-32x32.png',
-    },
-    { rel: 'icon', type: 'image/png', sizes: '16x16 16', href: '/favicon-16x16.png' },
-    { rel: 'manifest', href: '/site.webmanifest' },
-    { rel: 'mask-icon', href: '/safari-pinned-tab.svg', color: '#5bbad5' },
-    { name: 'msapplication-TileColor', content: '#333333' },
-    { name: 'theme-color', content: '#ffffff' },
-    { name: 'apple-mobile-web-app-title', content: 'egdata.app' },
-    { name: 'application-name', content: 'egdata.app' },
   ];
 };
 
