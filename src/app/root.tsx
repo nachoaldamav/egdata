@@ -108,11 +108,6 @@ export const meta: MetaFunction = () => {
       content:
         'epic games, fortnite, database, api, epic games api, egdata, epic games store, egstore, epic online services, eos',
     },
-    {
-      tagName: 'link',
-      rel: 'canonical',
-      href: 'https://egdata.app',
-    },
   ];
 };
 

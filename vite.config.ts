@@ -2,6 +2,8 @@ import { vitePlugin as remix } from '@remix-run/dev';
 import { defineConfig } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { RemixVitePWA } from '@vite-pwa/remix';
+import { glob } from 'glob';
+
 const { RemixVitePWAPlugin, RemixPWAPreset } = RemixVitePWA();
 
 export default defineConfig({
@@ -35,5 +37,8 @@ export default defineConfig({
   ],
   build: {
     sourcemap: true,
+  },
+  ssr: {
+    noExternal: ['@adobe/react-spectrum', /^@react-spectrum\/.*/, /^@spectrum-icons\/.*/],
   },
 });
