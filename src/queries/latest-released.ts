@@ -7,6 +7,7 @@ export async function getLatestReleased({ country }: { country: string }) {
   }>('/offers/latest-released', {
     params: {
       country,
+      limit: 25,
     },
   });
 }
