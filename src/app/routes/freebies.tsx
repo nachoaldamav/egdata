@@ -33,7 +33,7 @@ import type { SingleOffer } from '~/types/single-offer';
 import type { Price } from '~/types/price';
 import { calculatePrice } from '~/lib/calculate-price';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
-import { GiveawayOffer } from '~/types/giveaways';
+import type { GiveawayOffer } from '~/types/giveaways';
 
 export const meta: MetaFunction = () => {
   return [
@@ -129,8 +129,10 @@ const searchGiveaways = async ({
 const getGiveawaysStats = async ({ country }: { country: string }) => {
   const res = await httpClient.get<{
     totalValue: Price['price'];
-    totalOffers: number;
     totalGiveaways: number;
+    totalOffers: number;
+    repeated: number;
+    sellers: number;
   }>('/free-games/stats', {
     params: {
       country,
@@ -501,19 +503,69 @@ function GiveawaysStats() {
               </TooltipContent>
             </div>
           </Tooltip>
+
+          <Tooltip>
+            <div className="flex flex-col items-center justify-center gap-2">
+              <span className="text-4xl font-semibold">
+                {data.totalGiveaways.toLocaleString('en-UK')}
+              </span>
+              <TooltipTrigger>
+                <span className="text-lg font-medium text-gray-400 decoration-dotted decoration-gray-400/50 underline underline-offset-4">
+                  Giveaways
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <span className="text-xs font-medium">Total number of giveaways</span>
+              </TooltipContent>
+            </div>
+          </Tooltip>
+
+          <Tooltip>
+            <div className="flex flex-col items-center justify-center gap-2">
+              <span className="text-4xl font-semibold">
+                {data.totalOffers.toLocaleString('en-UK')}
+              </span>
+              <TooltipTrigger>
+                <span className="text-lg font-medium text-gray-400 decoration-dotted decoration-gray-400/50 underline underline-offset-4">
+                  Offers
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <span className="text-xs font-medium">Total number of offers</span>
+              </TooltipContent>
+            </div>
+          </Tooltip>
+
+          <Tooltip>
+            <div className="flex flex-col items-center justify-center gap-2">
+              <span className="text-4xl font-semibold">
+                {data.repeated.toLocaleString('en-UK')}
+              </span>
+              <TooltipTrigger>
+                <span className="text-lg font-medium text-gray-400 decoration-dotted decoration-gray-400/50 underline underline-offset-4">
+                  Repeated
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <span className="text-xs font-medium">Number of repeated giveaways</span>
+              </TooltipContent>
+            </div>
+          </Tooltip>
+
+          <Tooltip>
+            <div className="flex flex-col items-center justify-center gap-2">
+              <span className="text-4xl font-semibold">{data.sellers.toLocaleString('en-UK')}</span>
+              <TooltipTrigger>
+                <span className="text-lg font-medium text-gray-400 decoration-dotted decoration-gray-400/50 underline underline-offset-4">
+                  Sellers
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                <span className="text-xs font-medium">Total number of sellers</span>
+              </TooltipContent>
+            </div>
+          </Tooltip>
         </TooltipProvider>
-
-        <div className="flex flex-col items-center justify-center gap-2">
-          <span className="text-4xl font-semibold">
-            {data.totalGiveaways.toLocaleString('en-UK')}
-          </span>
-          <span className="text-lg font-medium text-gray-400">Giveaways</span>
-        </div>
-
-        <div className="flex flex-col items-center justify-center gap-2">
-          <span className="text-4xl font-semibold">{data.totalOffers.toLocaleString('en-UK')}</span>
-          <span className="text-lg font-medium text-gray-400">Offers</span>
-        </div>
       </div>
     </div>
   );
