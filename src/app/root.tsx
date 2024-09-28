@@ -102,6 +102,13 @@ export const links: LinksFunction = () => [
     type: 'font/ttf',
     crossOrigin: 'anonymous',
   },
+  {
+    rel: 'preload',
+    href: 'https://cdn.egdata.app/Montserrat/Montserrat-VariableFont_wght.ttf',
+    as: 'font',
+    type: 'font/ttf',
+    crossOrigin: 'anonymous',
+  },
 ];
 
 export const meta: MetaFunction = () => {

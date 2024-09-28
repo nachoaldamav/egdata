@@ -65,8 +65,10 @@
 
 @font-face {
   font-family: 'Montserrat';
-  src: url('/fonts/Montserrat-Bold.ttf') format('truetype');
-  font-weight: bold;
+  src: url('https://cdn.egdata.app/Montserrat/Montserrat-VariableFont_wght.ttf')
+    format('truetype');
+  font-weight: 100 900;
+  font-display: swap;
   font-style: normal;
 }
 
