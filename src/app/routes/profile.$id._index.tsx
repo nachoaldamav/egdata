@@ -22,6 +22,7 @@ import { getRarity } from '~/lib/get-rarity';
 import { FlippableCard, textRarities } from '~/components/app/achievement-card';
 import { ArrowUpIcon } from 'lucide-react';
 import { Button } from '~/components/ui/button';
+import { getUserGames } from '~/queries/profiles';
 
 type RareAchievement = Achievement & {
   unlocked: boolean;
@@ -37,16 +38,10 @@ export async function loader({ params }: LoaderFunctionArgs) {
     return redirect('/');
   }
 
-  await Promise.all([
-    queryClient.prefetchQuery({
-      queryKey: ['profile', { id: params.id }],
-      queryFn: () => httpClient.get<Profile>(`/profiles/${params.id}`),
-    }),
-    queryClient.prefetchQuery({
-      queryKey: ['player-rarest-achievements', { id: params.id }],
-      queryFn: () => httpClient.get<Achievement[]>(`/profiles/${params.id}/rare-achievements`),
-    }),
-  ]);
+  await queryClient.prefetchQuery({
+    queryKey: ['player-rarest-achievements', { id: params.id }],
+    queryFn: () => httpClient.get<Achievement[]>(`/profiles/${params.id}/rare-achievements`),
+  });
 
   return {
     id: params.id,
@@ -65,24 +60,10 @@ export default function Index() {
 }
 
 function ProfilePage() {
-  const { id } = useLoaderData<typeof loader>();
-  const { data, isLoading } = useQuery({
-    queryKey: ['profile', { id }],
-    queryFn: () => httpClient.get<Profile>(`/profiles/${id}`),
-  });
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!data) {
-    return <div>Profile not found</div>;
-  }
-
-  return <ProfileInformation profile={data} />;
+  return <ProfileInformation />;
 }
 
-function ProfileInformation({ profile }: { profile: Profile }) {
+function ProfileInformation() {
   const [activeTab, setActiveTab] = useState('overview');
   const [underlineStyle, setUnderlineStyle] = useState({});
   const tabRefs = useRef({});
@@ -125,38 +106,7 @@ function ProfileInformation({ profile }: { profile: Profile }) {
         />
       </div>
       <div className="mt-4">
-        {activeTab === 'overview' && (
-          <div className="flex flex-col gap-4">
-            <RarestAchievements />
-            <div className="flex items-center flex-col gap-4">
-              {profile.achievements?.data
-                ?.sort((a, b) => {
-                  const aTotalAchievements = a.productAchievements?.totalAchievements ?? 0;
-                  const bTotalAchievements = b.productAchievements?.totalAchievements ?? 0;
-
-                  // If any of them has `totalAchievements` set to 0, sort them by totalUnlocked descending
-                  if (aTotalAchievements === 0 || bTotalAchievements === 0) {
-                    return b.totalUnlocked - a.totalUnlocked;
-                  }
-
-                  // Calculate the percentage of achievements unlocked
-                  const aPercentageUnlocked = a.totalUnlocked / aTotalAchievements;
-                  const bPercentageUnlocked = b.totalUnlocked / bTotalAchievements;
-
-                  if (aPercentageUnlocked === bPercentageUnlocked) {
-                    // If percentages are equal, sort by totalAchievements descending
-                    return bTotalAchievements - aTotalAchievements;
-                  }
-
-                  // Sort by percentage of achievements unlocked descending
-                  return bPercentageUnlocked - aPercentageUnlocked;
-                })
-                ?.map((achievement) => (
-                  <GameAchievementsSummary key={achievement.sandboxId} game={achievement} />
-                ))}
-            </div>
-          </div>
-        )}
+        {activeTab === 'overview' && <AchievementsOverview />}
 
         {activeTab === 'achievements' && <AchievementsTimeline />}
       </div>
@@ -472,6 +422,57 @@ function SingleAchievement({ achievement }: { achievement: Achievement & { offer
           </p>
         </div>
       </div>
+    </div>
+  );
+}
+
+function AchievementsOverview() {
+  const { id } = useLoaderData<typeof loader>();
+  const {
+    data: games,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['profile-games', { id, limit: 20 }],
+    queryFn: ({ pageParam }) => getUserGames(id as string, pageParam, 20),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage: {
+      pagination: { totalPages: number; page: number };
+    }) => {
+      if (lastPage.pagination.totalPages === lastPage.pagination.page) return undefined;
+      return lastPage.pagination.page + 1;
+    },
+  });
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError || !games) {
+    return <div>Error</div>;
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <RarestAchievements />
+      <div className="flex items-center flex-col gap-4">
+        {games.pages
+          .flatMap((page) => page.achievements)
+          .map((achievement) => (
+            <GameAchievementsSummary key={achievement.sandboxId} game={achievement} />
+          ))}
+      </div>
+      <Button
+        onClick={() => fetchNextPage()}
+        className="mt-4 w-fit mx-auto"
+        variant="outline"
+        disabled={!hasNextPage || isFetchingNextPage}
+      >
+        {isFetchingNextPage ? 'Loading more...' : 'Load More'}
+      </Button>
     </div>
   );
 }

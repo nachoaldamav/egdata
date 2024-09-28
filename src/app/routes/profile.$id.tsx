@@ -6,16 +6,21 @@ import {
   unstable_parseMultipartFormData,
   unstable_createMemoryUploadHandler,
   unstable_composeUploadHandlers,
+  MetaFunction,
 } from '@remix-run/node';
 import { Form, Link, Outlet, useLoaderData, useParams } from '@remix-run/react';
-import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
+import {
+  dehydrate,
+  DehydratedState,
+  HydrationBoundary,
+  keepPreviousData,
+  useQuery,
+} from '@tanstack/react-query';
 import { ExternalLinkIcon, LayoutGridIcon, MessageSquareQuoteIcon, UploadIcon } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getQueryClient } from '~/lib/client';
 import { getImage } from '~/lib/getImage';
-import { httpClient } from '~/lib/http-client';
 import { cn } from '~/lib/utils';
-import type { Profile } from '~/types/profiles';
 import { authenticator } from '../services/auth.server';
 import {
   Dialog,
@@ -35,6 +40,10 @@ import { getAccountIcon } from '~/components/app/platform-icons';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 import { Separator } from '~/components/ui/separator';
 import { EGSIcon } from '~/components/icons/egs';
+import { getUserGames, getUserInformation } from '~/queries/profiles';
+import { httpClient } from '~/lib/http-client';
+import type { SingleOffer } from '~/types/single-offer';
+import { getFetchedQuery } from '~/lib/get-fetched-query';
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const queryClient = getQueryClient();
@@ -44,10 +53,23 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     return redirect('/');
   }
 
-  await queryClient.prefetchQuery({
-    queryKey: ['profile', { id: params.id }],
-    queryFn: () => httpClient.get<Profile>(`/profiles/${params.id}`),
-  });
+  await Promise.all([
+    queryClient.prefetchQuery({
+      queryKey: ['profile-information', { id: params.id }],
+      queryFn: () => getUserInformation(params.id as string),
+    }),
+    queryClient.prefetchInfiniteQuery({
+      queryKey: ['profile-games', { id: params.id, limit: 20 }],
+      queryFn: ({ pageParam }) => getUserGames(params.id as string, pageParam, 20),
+      initialPageParam: 1,
+      getNextPageParam: (lastPage: {
+        pagination: { totalPages: number; page: number };
+      }) => {
+        if (lastPage.pagination.totalPages === lastPage.pagination.page) return undefined;
+        return lastPage.pagination.page + 1;
+      },
+    }),
+  ]);
 
   return {
     id: params.id,
@@ -56,6 +78,50 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     dehydratedState: dehydrate(queryClient),
   };
 }
+
+type Profile = {
+  epicAccountId: string;
+  displayName: string;
+  avatar: {
+    small: string;
+    medium: string;
+    large: string;
+  };
+  stats: {
+    totalGames: number;
+    totalAchievements: number;
+    totalPlayerAwards: number;
+    totalXP: number;
+    reviewsCount: number;
+  };
+  linkedAccounts: Array<{
+    identityProviderId: string;
+    displayName: string;
+  }>;
+  creationDate: string;
+};
+
+export const meta: MetaFunction<typeof loader> = ({ data, params }) => {
+  if (!data) return [];
+  const client = getQueryClient();
+
+  const profile = getFetchedQuery<Profile>(client, data.dehydratedState as DehydratedState, [
+    'profile-information',
+    { id: params.id },
+  ]);
+
+  if (!profile) {
+    console.log('no profile', data.dehydratedState);
+    return [];
+  }
+
+  return [
+    {
+      title: `${profile.displayName} | egdata.app`,
+      description: `Check out ${profile.displayName}'s achievements and games on egdata.app`,
+    },
+  ];
+};
 
 async function uploadImageToAPI(
   data: AsyncIterable<Uint8Array>,
@@ -155,9 +221,9 @@ function ProfilePage() {
   const { id, userId } = useLoaderData<typeof loader>();
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [avatarErrors, setAvatarErrors] = useState<string[]>([]);
-  const { data, isLoading } = useQuery({
-    queryKey: ['profile', { id }],
-    queryFn: () => httpClient.get<Profile>(`/profiles/${id}`),
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['profile-information', { id: id }],
+    queryFn: () => getUserInformation(id),
   });
 
   useEffect(() => {
@@ -185,11 +251,11 @@ function ProfilePage() {
     return <div>Loading...</div>;
   }
 
-  if (!data) {
+  if (!data || isError) {
     return <div>Profile not found</div>;
   }
 
-  const userTotalXP = data.achievements.data?.reduce((acc, curr) => acc + curr.totalXP, 0);
+  const userTotalXP = data.stats.totalXP;
 
   // Each level is 250 XP
   const userLevel = Math.floor(userTotalXP / 250);
@@ -198,7 +264,7 @@ function ProfilePage() {
 
   return (
     <main className="flex flex-col items-start justify-start w-full min-h-screen gap-4 mt-10">
-      <BackgroundImage profile={data} />
+      <BackgroundImage id={data.epicAccountId} />
       <section id="profile-header" className="flex flex-row gap-10 w-full">
         {userId === data.epicAccountId ? (
           <Dialog>
@@ -358,7 +424,7 @@ function ProfilePage() {
               <SectionTitle title="Achievements" />
               <p className="text-3xl font-light inline-flex items-center gap-2">
                 <EpicTrophyIcon className="size-7 inline-block" />
-                {data.achievements.data?.reduce((acc, curr) => acc + curr.totalUnlocked, 0)}
+                {data.stats.totalAchievements}
               </p>
             </div>
             <div id="player-platinum-count" className="flex flex-col gap-2 w-[175px]">
@@ -367,18 +433,10 @@ function ProfilePage() {
                 <EpicPlatinumIcon
                   className={cn(
                     'size-7 inline-block',
-                    data.achievements.data?.reduce(
-                      (acc, curr) => acc + (curr.playerAwards.length ?? 0),
-                      0,
-                    ) > 0
-                      ? 'text-[#6e59e6]'
-                      : '',
+                    data.stats.totalPlayerAwards > 0 ? 'text-[#6e59e6]' : '',
                   )}
                 />
-                {data.achievements.data?.reduce(
-                  (acc, curr) => acc + (curr.playerAwards.length ?? 0),
-                  0,
-                )}
+                {data.stats.totalPlayerAwards}
               </p>
             </div>
             <div id="player-library" className="flex flex-col gap-2 w-[175px]">
@@ -401,7 +459,7 @@ function ProfilePage() {
 
               <p className="text-3xl font-light inline-flex items-center gap-2">
                 <LayoutGridIcon className="size-7 inline-block" fill="currentColor" />
-                {data.achievements.data?.length ?? 0}
+                {data.stats.totalGames}
               </p>
             </div>
             <div id="player-reviews" className="flex flex-col gap-2 w-[175px]">
@@ -412,7 +470,7 @@ function ProfilePage() {
                   stroke="transparent"
                   fill="currentColor"
                 />
-                {data.reviews}
+                {data.stats.reviewsCount}
               </p>
             </div>
           </section>
@@ -433,21 +491,18 @@ function SectionTitle({ title, classname }: { title: string; classname?: string 
   );
 }
 
-function BackgroundImage({ profile }: { profile: Profile }) {
+function BackgroundImage({ id }: { id: string }) {
   const { sandbox } = useParams();
-  const offers = useMemo(
-    () => profile.achievements.data?.map((achievement) => achievement.baseOfferForSandbox),
-    [profile.achievements.data],
-  );
-  const randomOffer = useMemo(
-    () => offers[Math.floor(Math.random() * (offers?.length ?? 0))],
-    [offers],
-  );
+  const { data: offer, isLoading } = useQuery({
+    queryKey: ['profile-background', { id, sandbox }],
+    queryFn: () =>
+      httpClient.get<SingleOffer>(`/profiles/${id}/random-game`, {
+        params: { sandbox },
+      }),
+    placeholderData: keepPreviousData,
+  });
 
-  const sandboxOffer = useMemo(
-    () => profile.achievements.data?.find((achievement) => achievement.sandboxId === sandbox),
-    [profile.achievements.data, sandbox],
-  );
+  if (isLoading || !offer) return null;
 
   return (
     <div
@@ -463,19 +518,13 @@ function BackgroundImage({ profile }: { profile: Profile }) {
         }}
       />
       <img
-        src={
-          getImage(sandboxOffer?.baseOfferForSandbox.keyImages ?? randomOffer?.keyImages ?? [], [
-            'DieselStoreFrontWide',
-            'OfferImageWide',
-          ])?.url
-        }
-        alt={sandboxOffer?.baseOfferForSandbox.id ?? randomOffer?.id ?? ''}
-        className="absolute inset-0 opacity-[0.25] z-0 w-full h-[50vh]"
+        src={getImage(offer.keyImages ?? [], ['DieselStoreFrontWide', 'OfferImageWide'])?.url}
+        alt={offer.id ?? ''}
+        className="absolute inset-0 opacity-[0.25] z-0 w-full h-[50vh] transition-opacity duration-500 ease-in-out"
         loading="lazy"
         style={{
           zIndex: -2,
           objectFit: 'cover',
-          // Place the image as the top
           objectPosition: 'top',
         }}
       />
