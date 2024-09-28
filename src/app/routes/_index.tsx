@@ -126,12 +126,12 @@ const defaultOrder = [
   'lastModified',
   'topWishlisted',
   // 'summerSale',
-  'statsCombined',
   'achievements',
   'topSeller',
   'event1',
   'event2',
   'event3',
+  'statsCombined',
 ];
 
 export default function Index() {
@@ -153,18 +153,6 @@ export default function Index() {
     {
       key: 'summerSale',
       component: <SalesModule key={'summerSale'} event="Summer Sale" eventId="16979" />,
-    },
-    {
-      key: 'statsCombined',
-      component: (
-        <section
-          key={'statsCombined'}
-          className="w-full flex md:flex-row justify-between gap-10 flex-col"
-        >
-          <StatsModule />
-          <ChangelistModule />
-        </section>
-      ),
     },
     {
       key: 'topWishlisted',
@@ -189,6 +177,18 @@ export default function Index() {
     {
       key: 'event3',
       component: <SalesModule key={'event3'} event={events[2].name} eventId={events[2].id} />,
+    },
+    {
+      key: 'statsCombined',
+      component: (
+        <section
+          key={'statsCombined'}
+          className="w-full flex md:flex-row justify-between gap-10 flex-col"
+        >
+          <StatsModule />
+          <ChangelistModule />
+        </section>
+      ),
     },
   ];
 
