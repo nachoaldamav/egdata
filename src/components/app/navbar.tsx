@@ -208,7 +208,12 @@ export default function Navbar() {
         <SheetContent>
           <SheetHeader>
             <Link to="/" className="mr-6 flex items-center gap-2">
-              <img src="/logo_simple_white.png" alt="GameDB Logo" width={40} height={40} />
+              <img
+                src="https://cdn.egdata.app/logo_simple_white_clean.png"
+                alt="GameDB Logo"
+                width={40}
+                height={40}
+              />
               <span className="text-xl text-white font-montserrat font-bold">EGDATA</span>
             </Link>
           </SheetHeader>
@@ -226,7 +231,12 @@ export default function Navbar() {
         </SheetContent>
       </Sheet>
       <Link to="/" className="hidden lg:flex justify-center items-center" prefetch="render">
-        <img src="/logo_simple_white.png" alt="EGDATA Logo" width={40} height={40} />
+        <img
+          src="https://cdn.egdata.app/logo_simple_white_clean.png"
+          alt="EGDATA Logo"
+          width={40}
+          height={40}
+        />
         <span className="text-xl text-white font-montserrat ml-2 font-bold">EGDATA</span>
       </Link>
       <NavigationMenu className="hidden lg:flex">
