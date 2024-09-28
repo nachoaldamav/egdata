@@ -342,8 +342,10 @@ function SearchPortal({ searchState, setSearchState, inputRef }: SearchPortalPro
                           <Image
                             src={
                               getImage(offer.keyImages, [
-                                'DieselGameBoxWide',
                                 'DieselStoreFrontWide',
+                                'OfferImageWide',
+                                'DieselGameBoxWide',
+                                'TakeoverWide',
                               ])?.url ?? '/placeholder.webp'
                             }
                             alt={offer.title}
@@ -395,10 +397,8 @@ function SearchPortal({ searchState, setSearchState, inputRef }: SearchPortalPro
                         <div className="w-12 h-12 rounded">
                           <Image
                             src={
-                              getImage(item.keyImages, [
-                                'DieselGameBoxWide',
-                                'DieselStoreFrontWide',
-                              ])?.url ?? '/placeholder.webp'
+                              getImage(item.keyImages, ['DieselGameBoxWide', 'DieselGameBox'])
+                                ?.url ?? '/placeholder.webp'
                             }
                             alt={item.title}
                             height={300}
