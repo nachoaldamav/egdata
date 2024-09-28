@@ -40,11 +40,9 @@ import { AuthProvider } from '~/providers/auth';
 import { authenticator } from './services/auth.server';
 import type { EpicAccountResponse } from '~/lib/get-epic-account.server';
 import { httpClient } from '~/lib/http-client';
+import { getSession, sessionStorage } from './sessions.server';
 import tailwindCss from '../tailwind.css?url';
 import fontCss from '../fonts.css?url';
-import '../tailwind.css';
-import '../fonts.css';
-import { getSession, sessionStorage } from './sessions.server';
 
 if (!import.meta.env.SSR) {
   Bugsnag.start({
@@ -61,12 +59,9 @@ export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://api.egdata.app/' },
   { rel: 'preconnect', href: 'https://fonts.googleapis.com/' },
   { rel: 'preconnect', href: 'https://fonts.gstatic.com/', crossOrigin: 'anonymous' },
-  ...(import.meta.env.DEV
-    ? [
-        { rel: 'stylesheet', href: tailwindCss },
-        { rel: 'stylesheet', href: fontCss },
-      ]
-    : []),
+  { rel: 'preconnect', href: 'https://cdn.egdata.app/' },
+  { rel: 'stylesheet', href: tailwindCss },
+  { rel: 'stylesheet', href: fontCss },
   {
     rel: 'icon',
     type: 'image/png',
@@ -92,6 +87,20 @@ export const links: LinksFunction = () => [
     rel: 'mask-icon',
     href: '/safari-pinned-tab.svg',
     color: '#5bbad5',
+  },
+  {
+    rel: 'preload',
+    href: 'https://cdn.egdata.app/Nunito/Nunito-VariableFont_wght.ttf',
+    as: 'font',
+    type: 'font/ttf',
+    crossOrigin: 'anonymous',
+  },
+  {
+    rel: 'preload',
+    href: 'https://cdn.egdata.app/Nunito/Nunito-Italic-VariableFont_wght.ttf',
+    as: 'font',
+    type: 'font/ttf',
+    crossOrigin: 'anonymous',
   },
 ];
 

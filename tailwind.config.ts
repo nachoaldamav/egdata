@@ -121,8 +121,8 @@ const config = {
         bg: 'background-color, transform',
       },
       fontFamily: {
-        sans: ['Nunito Sans', 'sans-serif'],
-        montserrat: ['Montserrat', 'sans-serif'],
+        sans: ['Nunito', 'system-ui', 'sans-serif'],
+        montserrat: ['Montserrat', 'system-ui', 'sans-serif'],
       },
     },
   },
