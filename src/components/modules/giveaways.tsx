@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { client } from '~/lib/client';
 import { Skeleton } from '../ui/skeleton';
 import { Image } from '../app/image';
 import { getImage } from '~/lib/getImage';
@@ -13,19 +12,20 @@ import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 import { calculatePrice } from '~/lib/calculate-price';
 import { ArrowRightIcon } from 'lucide-react';
 import { cn } from '~/lib/utils';
+import { httpClient } from '~/lib/http-client';
 
 export function GiveawaysCarousel({ hideTitle }: { hideTitle?: boolean }) {
   const { country } = useCountry();
   const { data, isLoading, isError } = useQuery({
     queryKey: ['giveaways'],
     queryFn: () =>
-      client
-        .get<GiveawayOffer[]>('/free-games', {
-          params: {
-            country,
-          },
-        })
-        .then((res) => res.data),
+      httpClient.get<GiveawayOffer[]>('/free-games', {
+        params: {
+          country,
+        },
+      }),
+    refetchInterval: 60 * 1000,
+    refetchIntervalInBackground: true,
   });
 
   if (isLoading) {
