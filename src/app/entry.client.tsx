@@ -7,7 +7,7 @@
 import Bugsnag from '@bugsnag/js';
 import type { BugsnagErrorBoundary } from '@bugsnag/plugin-react';
 import { RemixBrowser } from '@remix-run/react';
-import React, { startTransition, StrictMode } from 'react';
+import React, { startTransition } from 'react';
 import { hydrateRoot } from 'react-dom/client';
 
 const ErrorBoundary = Bugsnag.getPlugin('react')?.createErrorBoundary(
@@ -17,10 +17,8 @@ const ErrorBoundary = Bugsnag.getPlugin('react')?.createErrorBoundary(
 startTransition(() => {
   hydrateRoot(
     document,
-    <StrictMode>
-      <ErrorBoundary>
-        <RemixBrowser />
-      </ErrorBoundary>
-    </StrictMode>,
+    <ErrorBoundary>
+      <RemixBrowser />
+    </ErrorBoundary>,
   );
 });

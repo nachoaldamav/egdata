@@ -24,6 +24,7 @@ import {
 import { Button } from '~/components/ui/button';
 import { ArrowDown } from 'lucide-react';
 import { GridIcon } from '@radix-ui/react-icons';
+import { default as Motion, type MotionNumberProps } from 'motion-number';
 import { cn } from '~/lib/utils';
 import { DynamicPagination } from '~/components/app/dynamic-pagination';
 import { ListBulletIcon } from '@radix-ui/react-icons';
@@ -456,6 +457,8 @@ function GiveawaysStats() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['giveaways-stats', { country }],
     queryFn: () => getGiveawaysStats({ country }),
+    refetchInterval: 60 * 1000,
+    refetchIntervalInBackground: true,
   });
 
   if (isLoading) {
@@ -473,15 +476,14 @@ function GiveawaysStats() {
         <TooltipProvider>
           <Tooltip>
             <div className="flex flex-col items-center justify-center gap-2">
-              <span className="text-4xl font-semibold">
-                {calculatePrice(
-                  data.totalValue.originalPrice,
-                  data.totalValue.currencyCode,
-                ).toLocaleString(undefined, {
+              <MotionNumber
+                value={calculatePrice(data.totalValue.originalPrice, data.totalValue.currencyCode)}
+                format={{
                   style: 'currency',
                   currency: data.totalValue.currencyCode,
-                })}
-              </span>
+                }}
+                className="text-4xl font-semibold"
+              />
               <TooltipTrigger>
                 <span className="text-lg font-medium text-gray-400 decoration-dotted decoration-gray-400/50 underline underline-offset-4">
                   Total Value
@@ -506,9 +508,7 @@ function GiveawaysStats() {
 
           <Tooltip>
             <div className="flex flex-col items-center justify-center gap-2">
-              <span className="text-4xl font-semibold">
-                {data.totalGiveaways.toLocaleString('en-UK')}
-              </span>
+              <MotionNumber value={data.totalGiveaways} className="text-4xl font-semibold" />
               <TooltipTrigger>
                 <span className="text-lg font-medium text-gray-400 decoration-dotted decoration-gray-400/50 underline underline-offset-4">
                   Giveaways
@@ -522,9 +522,7 @@ function GiveawaysStats() {
 
           <Tooltip>
             <div className="flex flex-col items-center justify-center gap-2">
-              <span className="text-4xl font-semibold">
-                {data.totalOffers.toLocaleString('en-UK')}
-              </span>
+              <MotionNumber value={data.totalOffers} className="text-4xl font-semibold" />
               <TooltipTrigger>
                 <span className="text-lg font-medium text-gray-400 decoration-dotted decoration-gray-400/50 underline underline-offset-4">
                   Offers
@@ -538,9 +536,7 @@ function GiveawaysStats() {
 
           <Tooltip>
             <div className="flex flex-col items-center justify-center gap-2">
-              <span className="text-4xl font-semibold">
-                {data.repeated.toLocaleString('en-UK')}
-              </span>
+              <MotionNumber value={data.repeated} className="text-4xl font-semibold" />
               <TooltipTrigger>
                 <span className="text-lg font-medium text-gray-400 decoration-dotted decoration-gray-400/50 underline underline-offset-4">
                   Repeated
@@ -554,7 +550,7 @@ function GiveawaysStats() {
 
           <Tooltip>
             <div className="flex flex-col items-center justify-center gap-2">
-              <span className="text-4xl font-semibold">{data.sellers.toLocaleString('en-UK')}</span>
+              <MotionNumber value={data.sellers} className="text-4xl font-semibold" />
               <TooltipTrigger>
                 <span className="text-lg font-medium text-gray-400 decoration-dotted decoration-gray-400/50 underline underline-offset-4">
                   Sellers
@@ -569,4 +565,14 @@ function GiveawaysStats() {
       </div>
     </div>
   );
+}
+
+function MotionNumber({ value, format, className, ...props }: MotionNumberProps) {
+  const [v, setV] = useState(0);
+
+  useEffect(() => {
+    setV(value as number);
+  }, [value]);
+
+  return <Motion value={v} format={format} className={className} {...props} />;
 }
