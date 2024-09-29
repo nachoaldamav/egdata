@@ -26,7 +26,7 @@ import type { Price as OfferPrice } from '~/types/price';
 import { httpClient } from '~/lib/http-client';
 import { calculatePrice } from '~/lib/calculate-price';
 
-const SLIDE_DELAY = 100_000;
+const SLIDE_DELAY = 15_000;
 
 export function FeaturedDiscounts() {
   const { country } = useCountry();

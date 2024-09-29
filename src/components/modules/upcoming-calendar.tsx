@@ -7,6 +7,7 @@ import { useCountry } from '~/hooks/use-country';
 import { Link } from '@remix-run/react';
 import { ArrowRightIcon } from '@radix-ui/react-icons';
 import { useEffect, useState } from 'react';
+import { httpClient } from '~/lib/http-client';
 
 interface UpcomingRes {
   elements: SingleOffer[];
@@ -27,14 +28,12 @@ export function UpcomingCalendar() {
       },
     ],
     queryFn: () =>
-      client
-        .get<UpcomingRes>('/offers/upcoming', {
-          params: {
-            country,
-            page: 1,
-          },
-        })
-        .then((res) => res.data),
+      httpClient.get<UpcomingRes>('/offers/upcoming', {
+        params: {
+          country,
+          page: 1,
+        },
+      }),
   });
 
   if (isLoading) {
@@ -62,6 +61,8 @@ export function UpcomingCalendar() {
   const startOfToday = new Date(now);
   startOfToday.setHours(0, 0, 0, 0);
 
+  console.log(groupedOffersByDay);
+
   return (
     <section id="upcoming-calendar" className="mb-2 w-full">
       <Link
@@ -71,7 +72,12 @@ export function UpcomingCalendar() {
         Upcoming Offers{' '}
         <ArrowRightIcon className="w-6 h-6 inline-block group-hover:translate-x-1 transition-transform duration-300 ease-in-out" />
       </Link>
-      <Carousel className="mt-2 h-full p-4 select-none">
+      <Carousel
+        className="mt-2 h-full p-4 select-none"
+        opts={{
+          dragFree: true,
+        }}
+      >
         <CarouselContent className="gap-4 ml-0">
           {groupedOffersByDay &&
             Object.entries(groupedOffersByDay)
