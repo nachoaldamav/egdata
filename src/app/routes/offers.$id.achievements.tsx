@@ -14,6 +14,7 @@ import {
   CardFooter,
 } from '~/components/ui/card';
 import { Skeleton } from '~/components/ui/skeleton';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 import { getQueryClient } from '~/lib/client';
 import { getRarity } from '~/lib/get-rarity';
 import { httpClient } from '~/lib/http-client';
@@ -106,6 +107,22 @@ export default function OfferAchievements() {
       </div>
       {data.map((achievementSet) => (
         <div key={achievementSet.achievementSetId}>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <h4 className="text-xl font-thin underline decoration-dotted decoration-gray-300/50 underline-offset-4">
+                  {achievementSet.isBase ? 'Base Game' : 'DLC'} Achievements
+                </h4>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>
+                  {achievementSet.isBase && 'This list of achievements are for the base game.'}
+                  {!achievementSet.isBase && 'This list of achievements are for one of the DLCs.'}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 mt-4">
             {achievementSet.achievements.map((achievement, index) => (
               <FlippableCard
