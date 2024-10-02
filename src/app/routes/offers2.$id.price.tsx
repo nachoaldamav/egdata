@@ -429,11 +429,8 @@ function OfferPage() {
         )}
       </section>
       <aside className="flex flex-col gap-2 w-full md:w-1/2 lg:w-2/5 bg-card rounded-xl p-4 h-fit">
-        <h4
-          className="text-md font-semibold opacity-50 inline-flex items-center gap-2 w-fit"
-          aria-label={`Offered by ${offerData.seller.name}`}
-        >
-          <Link to={`/sellers/${offerData.seller.id}`}>
+        <h4 className="text-md font-semibold opacity-50 inline-flex items-center gap-2 w-fit">
+          <Link to={`/sellers/${offerData.seller.id}`} className="flex-grow-0">
             {getSeller({
               developerDisplayName: offerData.developerDisplayName as string,
               publisherDisplayName: offerData.publisherDisplayName as string,
@@ -442,7 +439,11 @@ function OfferPage() {
             })}
           </Link>
 
-          {offerData.prePurchase && <Badge variant="outline">Pre-Purchase</Badge>}
+          {offerData.prePurchase && (
+            <Badge variant="outline" className="flex-shrink-0">
+              Pre-Purchase
+            </Badge>
+          )}
           {offerData.tags.find((tag) => tag.id === '1310') && (
             <Badge variant="outline">Early Access</Badge>
           )}
@@ -684,6 +685,7 @@ function OfferPrice({ offer }: { offer: SingleOffer }) {
 
             {(inBundles && inBundles.length > 0) ||
             (collectionOffers && collectionOffers.length > 0) ||
+            price.appliedRules.length > 0 ||
             hasPrepurchase ? (
               <div className="w-full flex flex-col gap-1 text-right justify-center items-end">
                 <PopoverTrigger>
@@ -704,8 +706,43 @@ function OfferPrice({ offer }: { offer: SingleOffer }) {
             className="bg-card rounded-xl p-0 border-0 w-[355px]"
           >
             <div className="bg-gray-500/10 rounded-xl p-2 flex flex-col gap-2 border-gray-300/10 border">
+              {price.appliedRules.length > 0 && (
+                <div className="flex flex-col gap-1 pt-2 px-2">
+                  <span className="text-lg font-bold">Applied Discounts</span>
+                  <Separator orientation="horizontal" />
+                </div>
+              )}
               {price.appliedRules.map((rule) => (
-                <StyledSmallCard key={rule.id} offer={offer} title={rule.name} showPrice />
+                <div key={rule.id} className="flex flex-col gap-1 px-2 pb-2">
+                  <div className="text-base font-bold">{rule.name}</div>
+                  {new Date(rule.startDate).getTime() < new Date().getTime() && (
+                    <div className="text-sm">
+                      Ends at{' '}
+                      {new Date(rule.endDate).toLocaleDateString('en-UK', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric',
+                        timeZoneName: 'short',
+                      })}
+                    </div>
+                  )}
+                  {new Date(rule.startDate).getTime() > new Date().getTime() && (
+                    <div className="text-sm">
+                      Starts at{' '}
+                      {new Date(rule.startDate).toLocaleDateString('en-UK', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric',
+                        timeZoneName: 'short',
+                      })}
+                    </div>
+                  )}
+                  <Separator orientation="horizontal" />
+                </div>
               ))}
               <OfferInBundle offer={offer} />
               {prepurchaseQuery.data?.offer && (
