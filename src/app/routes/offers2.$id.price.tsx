@@ -1,4 +1,4 @@
-import { LinksFunction, type LoaderFunctionArgs, redirect } from '@remix-run/node';
+import { type LinksFunction, type LoaderFunctionArgs, redirect } from '@remix-run/node';
 import {
   Link,
   Outlet,
@@ -703,7 +703,10 @@ function OfferPrice({ offer }: { offer: SingleOffer }) {
             align="end"
             className="bg-card rounded-xl p-0 border-0 w-[355px]"
           >
-            <div className="bg-gray-500/10 rounded-xl p-2 flex flex-col gap-0 border-gray-300/10 border">
+            <div className="bg-gray-500/10 rounded-xl p-2 flex flex-col gap-2 border-gray-300/10 border">
+              {price.appliedRules.map((rule) => (
+                <StyledSmallCard key={rule.id} offer={offer} title={rule.name} showPrice />
+              ))}
               <OfferInBundle offer={offer} />
               {prepurchaseQuery.data?.offer && (
                 <StyledSmallCard

@@ -11,6 +11,7 @@ import { Button } from '../ui/button';
 import { ChevronLeft, ChevronRight, PlayIcon } from 'lucide-react';
 import { cn } from '~/lib/utils';
 import { Skeleton } from '../ui/skeleton';
+import { DownloadIcon } from '@radix-ui/react-icons';
 
 interface SlideBase {
   id: string;
@@ -150,15 +151,20 @@ export function OfferMediaSlider({ offer }: { offer: SingleOffer }) {
                 }}
               >
                 {slide.type === 'image' && (
-                  <Image
-                    src={slide.image}
-                    alt={`Image ${index + 1}`}
-                    width={1920}
-                    height={1080}
-                    className="w-full h-auto object-cover"
-                    unoptimized
-                    eager
-                  />
+                  <div className="w-full h-full relative">
+                    <span className="absolute top-2 right-2 z-50">
+                      <DownloadImage src={slide.image} />
+                    </span>
+                    <Image
+                      src={slide.image}
+                      alt={`Image ${index + 1}`}
+                      width={1920}
+                      height={1080}
+                      className="w-full h-auto object-cover rounded-lg"
+                      unoptimized
+                      eager
+                    />
+                  </div>
                 )}
                 {slide.type === 'video' && (
                   <Suspense
@@ -171,7 +177,7 @@ export function OfferMediaSlider({ offer }: { offer: SingleOffer }) {
                     <Player
                       video={slide.video}
                       offer={offer}
-                      className="w-full h-full max-w-full"
+                      className="w-full h-full max-w-full rounded-lg"
                       thumbnail={slide.thumbnail}
                       pauseWhenInactive
                     />
@@ -224,7 +230,7 @@ export function OfferMediaSlider({ offer }: { offer: SingleOffer }) {
                     alt={`Thumbnail ${index + 1}`}
                     width={600}
                     height={350}
-                    className="w-full h-auto object-cover rounded-md"
+                    className="w-full h-auto object-cover rounded-sm"
                   />
                 </button>
               </div>
@@ -233,5 +239,34 @@ export function OfferMediaSlider({ offer }: { offer: SingleOffer }) {
         </div>
       </div>
     </div>
+  );
+}
+
+function DownloadImage({ src }: { src: string }) {
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const download = useCallback(async () => {
+    setIsDownloading(true);
+    const response = await fetch(src);
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = src.replaceAll('%2F', '/').split('/').pop();
+    a.click();
+    URL.revokeObjectURL(url);
+    setIsDownloading(false);
+  }, [src]);
+
+  return (
+    <Button
+      variant="outline"
+      className="border border-gray-300/25 text-xs gap-2 opacity-75 hover:opacity-100 transition duration-150 ease-in-out"
+      onClick={download}
+      disabled={isDownloading}
+    >
+      <DownloadIcon className="size-3" />
+      {isDownloading ? 'Downloading...' : 'Download'}
+    </Button>
   );
 }
