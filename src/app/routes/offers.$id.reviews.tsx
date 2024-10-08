@@ -486,7 +486,7 @@ function ReviewsPage({ id }: { id: string }) {
                 <div className="flex flex-col sm:flex-row items-center justify-evenly gap-4">
                   <div className="flex flex-col items-center justify-center text-center">
                     <h2 className="text-lg font-semibold mb-1">Overall Score</h2>
-                    <p className="text-4xl font-extrabold text-center">
+                    <p className="text-4xl font-bold text-center">
                       {summary?.overallScore ?? '-'} / 10
                     </p>
                   </div>

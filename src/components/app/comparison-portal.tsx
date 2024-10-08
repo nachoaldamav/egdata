@@ -352,7 +352,7 @@ function Achievements({ id }: { id: string }) {
           ))}
 
         {Object.values(rarityCount).reduce((acc, count) => acc + count, 0) > 0 && (
-          <span className="text-xs text-white font-extrabold">=</span>
+          <span className="text-xs text-white font-bold">=</span>
         )}
 
         {Object.values(rarityCount).reduce((acc, count) => acc + count, 0) > 0 && (
@@ -428,7 +428,7 @@ function AgeRatings({ namespace }: { namespace: string }) {
               />
             ) : (
               <div className="size-8 mx-auto inline-flex items-center justify-center bg-gray-900 rounded-lg">
-                <span className="text-lg font-extrabold">{rating.ageControl}</span>
+                <span className="text-lg font-bold">{rating.ageControl}</span>
               </div>
             )}
           </div>

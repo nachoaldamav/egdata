@@ -428,7 +428,7 @@ function SaleModule({ price }: { price: OfferPrice }) {
           day: 'numeric',
         })}
       </span>
-      <span className="text-lg inline-flex items-center bg-green-400 px-4 py-1 rounded-lg text-black font-extrabold">
+      <span className="text-lg inline-flex items-center bg-badge px-4 py-1 rounded-lg text-black font-bold">
         - {100 - selectedRule.discountSetting.discountPercentage}%
       </span>
     </div>

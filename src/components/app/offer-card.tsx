@@ -401,7 +401,7 @@ function OfferPrice({
         <span>Coming Soon</span>
       )}
       {offer.price.price.discount > 0 && (
-        <div className="text-xs inline-flex items-center rounded-full bg-green-400 text-black px-2 py-1 font-semibold">
+        <div className="text-xs inline-flex items-center rounded-full bg-badge text-black px-2 py-1 font-semibold">
           {offer.price.price.discount &&
             `-${Math.round(
               ((offer.price.price.originalPrice - offer.price.price.discountPrice) /

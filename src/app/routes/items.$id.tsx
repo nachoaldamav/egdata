@@ -410,7 +410,7 @@ function VerticalLauncherCard({ image, title, item }: VerticalLauncherCardProps)
       <CardFooter className="px-1 py-2">
         <div className="space-y-1 w-full">
           <div className="flex items-center justify-between w-full">
-            <h3 className="text-lg font-extrabold">{title}</h3>
+            <h3 className="text-lg font-bold">{title}</h3>
           </div>
           <span className="p-0 text-gray-400 group-hover:text-white inline-flex items-center justify-center gap-0 transition-all duration-300 ease-in-out">
             <PlayIcon className="mr-2 h-4 w-4" />

@@ -658,7 +658,7 @@ function OfferPrice({ offer }: { offer: SingleOffer }) {
           }}
         >
           <div className="bg-gray-500/10 rounded-xl px-4 py-5 flex flex-row gap-2 border-gray-300/10 border">
-            <span className="text-xl font-extrabold">
+            <span className="text-xl font-bold">
               {Intl.NumberFormat(undefined, {
                 style: 'currency',
                 currency: price.price.currencyCode,
@@ -673,7 +673,7 @@ function OfferPrice({ offer }: { offer: SingleOffer }) {
               </span>
             )}
             {price.price.discount > 0 && (
-              <div className="text-xs inline-flex items-center rounded-xl bg-green-400 text-black px-2 py-1 font-semibold">
+              <div className="text-xs inline-flex items-center rounded-xl bg-badge text-black px-2 py-1 font-semibold">
                 {price.price.discount &&
                   `-${Math.round(
                     ((price.price.originalPrice - price.price.discountPrice) /

@@ -47,7 +47,7 @@ const config = {
           foreground: 'hsl(var(--destructive-foreground))',
         },
         muted: {
-          DEFAULT: 'hsl(var(--muted))',
+          DEFAULT: 'hsla(var(--muted))',
           foreground: 'hsl(var(--muted-foreground))',
         },
         accent: {
@@ -70,6 +70,7 @@ const config = {
         'gold-end': 'rgb(255, 232, 60, 0.6)',
         'platinum-start': 'rgb(114, 91, 255)',
         'platinum-end': 'rgb(114, 91, 255, 0.6)',
+        badge: 'hsl(var(--badge))',
       },
       borderRadius: {
         lg: 'var(--radius)',
