@@ -187,7 +187,7 @@ export function Bundle({ id, offer }: { id: string; offer: SingleOffer }) {
                   className={cn(
                     'text-lg py-1 ease-in-out duration-300 transition-colors',
                     bundleIsBetter
-                      ? 'bg-badge font-bold hover:bg-green-500'
+                      ? 'bg-badge font-bold hover:bg-badge'
                       : 'bg-red-400 font-bold hover:bg-red-500',
                   )}
                 >
