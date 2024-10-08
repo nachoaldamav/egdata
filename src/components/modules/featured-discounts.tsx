@@ -306,6 +306,7 @@ function FeaturedOffer({ offer }: { offer: SingleOffer }) {
                 'w-full h-auto object-cover rounded-lg transition-opacity duration-700 ease-in-out',
                 videoUrl && isHovered ? 'opacity-0' : 'opacity-100',
               )}
+              unoptimized
             />
           </div>
           <div className="flex flex-col gap-1">
