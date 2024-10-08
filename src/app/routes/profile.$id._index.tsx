@@ -118,7 +118,7 @@ function GameAchievementsSummary({ game }: { game: Profile['achievements']['data
   const { id } = useLoaderData<typeof loader>();
   return (
     <Link
-      className="flex hover:bg-background bg-card text-white p-2 rounded-lg overflow-hidden transition-all duration-300 ease-in-out w-full gap-4"
+      className="flex hover:bg-card/25 bg-card text-white p-2 rounded-lg overflow-hidden transition-all duration-300 ease-in-out w-full gap-4"
       to={`/profile/${id}/achievements/${game.sandboxId}`}
     >
       <div className="w-1/4">
@@ -407,7 +407,6 @@ function SingleAchievement({ achievement }: { achievement: Achievement & { offer
           backgroundPosition: 'center',
         }}
       >
-        {/** Gradient from bg-card to transparent to the right */}
         <div className="absolute inset-0 bg-gradient-to-l from-card/95 to-card z-0 rounded-md" />
         <div className="flex flex-col gap-2 h-full z-10">
           <h6 className="text-4xl">{achievement.offer.title}</h6>
