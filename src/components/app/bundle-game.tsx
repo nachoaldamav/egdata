@@ -39,7 +39,7 @@ export const OfferInBundle: React.FC<{ offer: SingleOffer }> = ({ offer }) => {
 
   const imageUrl =
     getImage(bundle.keyImages, ['DieselGameBox', 'DieselGameBoxWide', 'OfferImageWide'])?.url ||
-    'https://via.placeholder.com/1920x1080';
+    'https://cdn.egdata.app/placeholder-1080.webp';
 
   return (
     <Link

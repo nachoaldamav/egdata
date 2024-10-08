@@ -70,7 +70,7 @@ export function OfferHero({ offer }: { offer: SingleOffer }) {
             'OfferImageWide',
             'DieselGameBoxWide',
             'TakeoverWide',
-          ])?.url
+          ])?.url ?? 'https://cdn.egdata.app/placeholder-1080.webp'
         }
         alt={offer.title}
         quality="original"

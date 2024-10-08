@@ -161,7 +161,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
         property: 'og:image',
         content:
           getImage(offerData.keyImages, ['OfferImageWide', 'DieselGameBoxWide', 'TakeoverWide'])
-            ?.url || 'https://via.placeholder.com/1920x1080',
+            ?.url || 'https://cdn.egdata.app/placeholder-1080.webp',
       },
       {
         property: 'og:url',
@@ -195,7 +195,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
         name: 'twitter:image',
         content:
           getImage(offerData.keyImages, ['OfferImageWide', 'DieselGameBoxWide', 'TakeoverWide'])
-            ?.url || 'https://via.placeholder.com/1920x1080',
+            ?.url || 'https://cdn.egdata.app/placeholder-1080.webp',
       },
       {
         'script:ld+json': {
@@ -262,7 +262,7 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
             : undefined,
           image:
             getImage(offerData.keyImages, ['OfferImageWide', 'DieselGameBoxWide', 'TakeoverWide'])
-              ?.url || 'https://via.placeholder.com/1920x1080',
+              ?.url || 'https://cdn.egdata.app/placeholder-1080.webp',
         },
       },
       {

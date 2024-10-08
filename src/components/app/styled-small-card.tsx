@@ -12,7 +12,7 @@ export const StyledSmallCard: React.FC<{
 }> = ({ offer, title, showPrice = false }) => {
   const imageUrl =
     getImage(offer.keyImages, ['DieselGameBox', 'DieselGameBoxWide', 'OfferImageWide'])?.url ||
-    'https://via.placeholder.com/1920x1080';
+    'https://cdn.egdata.app/placeholder-1080.webp';
 
   console.log(offer);
 
