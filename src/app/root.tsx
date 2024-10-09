@@ -113,7 +113,7 @@ export const links: LinksFunction = () => [
 
 export const meta: MetaFunction = () => {
   return [
-    { title: 'egdata.app' },
+    { title: 'Epic Games Database' },
     {
       name: 'description',
       content:
@@ -121,8 +121,72 @@ export const meta: MetaFunction = () => {
     },
     {
       name: 'keywords',
+      content: [
+        'epic games',
+        'fortnite',
+        'database',
+        'api',
+        'epic games api',
+        'egdata',
+        'epic games store',
+        'egstore',
+        'epic online services',
+        'eos',
+        'free games',
+        'free games epic games',
+      ].join(', '),
+    },
+
+    // SEO images 'https://cdn.egdata.app/placeholder-1080.webp'
+    {
+      name: 'twitter:card',
+      content: 'summary_large_image',
+    },
+    {
+      name: 'twitter:site',
+      content: '@egdataapp',
+    },
+    {
+      name: 'twitter:title',
+      content: 'Epic Games Database',
+    },
+    {
+      name: 'twitter:description',
       content:
-        'epic games, fortnite, database, api, epic games api, egdata, epic games store, egstore, epic online services, eos',
+        'Epic Games Database is a free and open source Epic Games Store API. It is a community driven project that aims to provide a comprehensive and accurate database of all the games available on the Epic Games Store.',
+    },
+    {
+      name: 'twitter:image',
+      content: 'https://cdn.egdata.app/placeholder-1080.webp',
+    },
+    {
+      name: 'twitter:image:alt',
+      content: 'Epic Games Database',
+    },
+    {
+      name: 'og:title',
+      content: 'Epic Games Database',
+    },
+    {
+      name: 'og:type',
+      content: 'website',
+    },
+    {
+      name: 'og:url',
+      content: 'https://egdata.app',
+    },
+    {
+      name: 'og:image',
+      content: 'https://cdn.egdata.app/placeholder-1080.webp',
+    },
+    {
+      name: 'og:image:alt',
+      content: 'Epic Games Database',
+    },
+    {
+      name: 'og:description',
+      content:
+        'Epic Games Database is a free and open source Epic Games Store API. It is a community driven project that aims to provide a comprehensive and accurate database of all the games available on the Epic Games Store.',
     },
   ];
 };
