@@ -27,22 +27,6 @@ import { getLatestOffers } from '~/queries/latest-offers';
 import { getLatestReleased } from '~/queries/latest-released';
 import { LatestReleased } from '~/components/modules/latest-released';
 
-export const meta: MetaFunction = () => {
-  return [
-    { title: 'egdata.app' },
-    {
-      name: 'description',
-      content:
-        'Epic Games database with all the information you need about the games, items, and events.',
-    },
-    {
-      name: 'keywords',
-      content:
-        'epic games, fortnite, database, api, epic games api, egdata, epic games store, egstore, epic online services, eos',
-    },
-  ];
-};
-
 type preferencesCookie = {
   order: string[];
 };

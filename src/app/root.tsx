@@ -136,57 +136,55 @@ export const meta: MetaFunction = () => {
         'free games epic games',
       ].join(', '),
     },
-
-    // SEO images 'https://cdn.egdata.app/placeholder-1080.webp'
     {
-      name: 'twitter:card',
+      property: 'twitter:card',
       content: 'summary_large_image',
     },
     {
-      name: 'twitter:site',
+      property: 'twitter:site',
       content: '@egdataapp',
     },
     {
-      name: 'twitter:title',
+      property: 'twitter:title',
       content: 'Epic Games Database',
     },
     {
-      name: 'twitter:description',
+      property: 'twitter:description',
       content:
-        'Epic Games Database is a free and open source Epic Games Store API. It is a community driven project that aims to provide a comprehensive and accurate database of all the games available on the Epic Games Store.',
+        'egdata.app is a free and open source Epic Games Store API. It is a community driven project that aims to provide a comprehensive and accurate database of all the games available on the Epic Games Store.',
     },
     {
-      name: 'twitter:image',
+      property: 'twitter:image',
       content: 'https://cdn.egdata.app/placeholder-1080.webp',
     },
     {
-      name: 'twitter:image:alt',
+      property: 'twitter:image:alt',
       content: 'Epic Games Database',
     },
     {
-      name: 'og:title',
+      property: 'og:title',
       content: 'Epic Games Database',
     },
     {
-      name: 'og:type',
+      property: 'og:type',
       content: 'website',
     },
     {
-      name: 'og:url',
+      property: 'og:url',
       content: 'https://egdata.app',
     },
     {
-      name: 'og:image',
+      property: 'og:image',
       content: 'https://cdn.egdata.app/placeholder-1080.webp',
     },
     {
-      name: 'og:image:alt',
+      property: 'og:image:alt',
       content: 'Epic Games Database',
     },
     {
-      name: 'og:description',
+      property: 'og:description',
       content:
-        'Epic Games Database is a free and open source Epic Games Store API. It is a community driven project that aims to provide a comprehensive and accurate database of all the games available on the Epic Games Store.',
+        'egdata.app is a free and open source Epic Games Store API. It is a community driven project that aims to provide a comprehensive and accurate database of all the games available on the Epic Games Store.',
     },
   ];
 };
