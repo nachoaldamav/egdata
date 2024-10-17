@@ -113,7 +113,7 @@ const searchGiveaways = async ({
     total: number;
   }>('/free-games/search', {
     params: {
-      title: query,
+      title: query === '' ? undefined : query,
       sortBy,
       sortDir,
       offerType,
