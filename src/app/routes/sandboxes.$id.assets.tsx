@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs } from '@remix-run/node';
-import { type ClientLoaderFunctionArgs, useLoaderData } from '@remix-run/react';
+import { type ClientLoaderFunctionArgs, useLoaderData, Link } from '@remix-run/react';
 import { Card, CardContent, CardHeader } from '~/components/ui/card';
 import { Skeleton } from '~/components/ui/skeleton';
 import {
@@ -109,7 +109,15 @@ export default function Index() {
                   <TableBody>
                     <TableRow>
                       <TableCell className="font-medium">Item</TableCell>
-                      <TableCell className="text-right font-mono">{asset.itemId}</TableCell>
+                      <TableCell className="text-right font-mono">
+                        <Link
+                          className="text-blue-200 hover:underline"
+                          to={`/items/${asset.itemId}`}
+                          prefetch="intent"
+                        >
+                          {asset.itemId}
+                        </Link>
+                      </TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell className="font-medium">Download Size</TableCell>

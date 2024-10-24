@@ -3,7 +3,6 @@ import { cn } from '~/lib/utils';
 import type { Achievement } from '~/queries/offer-achievements';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
 import { Image } from './image';
-import { Separator } from '../ui/separator';
 
 export const rarities = {
   bronze: 'bg-gradient-to-r from-bronze-start to-bronze-end shadow-glow-bronze',

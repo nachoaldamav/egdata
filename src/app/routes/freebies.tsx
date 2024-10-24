@@ -1,5 +1,5 @@
 import type { LoaderFunction, MetaFunction } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import { Link, useLoaderData } from '@remix-run/react';
 import { useEffect } from 'react';
 import { useDebounce } from '@uidotdev/usehooks';
 import { dehydrate, HydrationBoundary, keepPreviousData, useQuery } from '@tanstack/react-query';
@@ -35,6 +35,8 @@ import type { Price } from '~/types/price';
 import { calculatePrice } from '~/lib/calculate-price';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 import type { GiveawayOffer } from '~/types/giveaways';
+import { getBuyLink } from '~/lib/build-buy-link';
+import { EGSIcon } from '~/components/icons/egs';
 
 export const meta: MetaFunction = () => {
   return [
@@ -345,7 +347,36 @@ function FreeGames() {
   return (
     <div className="flex flex-col items-start justify-start h-full gap-4 p-4">
       <GiveawaysStats />
-      <h2 className="text-xl font-semibold mb-4">Current Free Games</h2>
+      <div className="flex flex-row justify-between items-center gap-4 w-full">
+        <h2 className="text-xl font-semibold mb-4">Current Free Games</h2>
+        <Button className="w-fit bg-black text-white hover:bg-card border" asChild>
+          <Link
+            to={getBuyLink({
+              // Get the offers that are available right now
+              offers: data.elements.filter((offer) => {
+                if (!offer.giveaway) return false;
+                const startDate = new Date(offer.giveaway.startDate);
+                const endDate = new Date(offer.giveaway.endDate);
+                const now = new Date();
+
+                const isOnGoing = startDate < now && endDate > now;
+
+                if (isOnGoing) {
+                  return true;
+                }
+
+                return false;
+              }),
+            })}
+            className="inline-flex items-center gap-2 w-fit"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            <EGSIcon className="w-5 h-5" />
+            <span>Redeem Now</span>
+          </Link>
+        </Button>
+      </div>
       <GiveawaysCarousel hideTitle={true} />
       <Separator orientation="horizontal" className="my-4" />
       <header className="flex flex-row justify-between items-center gap-4 w-full">

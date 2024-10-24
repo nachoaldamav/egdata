@@ -101,7 +101,6 @@ type LoaderData = ReturnType<typeof loader>;
 
 const defaultOrder = [
   'featuredDiscounts',
-  // 'featured',
   'giveaways',
   'latest',
   'latestReleased',
@@ -109,7 +108,6 @@ const defaultOrder = [
   'upcomingOffers',
   'lastModified',
   'topWishlisted',
-  // 'summerSale',
   'achievements',
   'topSeller',
   'event1',
