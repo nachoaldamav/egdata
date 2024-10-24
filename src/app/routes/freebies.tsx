@@ -349,32 +349,43 @@ function FreeGames() {
       <GiveawaysStats />
       <div className="flex flex-row justify-between items-center gap-4 w-full">
         <h2 className="text-xl font-semibold mb-4">Current Free Games</h2>
-        <Button className="w-fit bg-black text-white hover:bg-card border" asChild>
-          <Link
-            to={getBuyLink({
-              // Get the offers that are available right now
-              offers: data.elements.filter((offer) => {
-                if (!offer.giveaway) return false;
-                const startDate = new Date(offer.giveaway.startDate);
-                const endDate = new Date(offer.giveaway.endDate);
-                const now = new Date();
+        <Button
+          className="bg-black text-white hover:bg-card border inline-flex items-center gap-2 w-fit"
+          onClick={() => {
+            const proxy = window.open(
+              getBuyLink({
+                // Get the offers that are available right now
+                offers: data.elements.filter((offer) => {
+                  if (!offer.giveaway) return false;
+                  const startDate = new Date(offer.giveaway.startDate);
+                  const endDate = new Date(offer.giveaway.endDate);
+                  const now = new Date();
 
-                const isOnGoing = startDate < now && endDate > now;
+                  const isOnGoing = startDate < now && endDate > now;
 
-                if (isOnGoing) {
-                  return true;
-                }
+                  if (isOnGoing) {
+                    return true;
+                  }
 
-                return false;
+                  return false;
+                }),
               }),
-            })}
-            className="inline-flex items-center gap-2 w-fit"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            <EGSIcon className="w-5 h-5" />
-            <span>Redeem Now</span>
-          </Link>
+              '_blank',
+              'width=1000,height=700',
+            );
+
+            if (proxy) {
+              proxy.focus();
+              proxy.onclose = () => {
+                window.location.reload();
+              };
+            } else {
+              console.error('Failed to open window');
+            }
+          }}
+        >
+          <EGSIcon className="w-5 h-5" />
+          <span>Redeem Now</span>
         </Button>
       </div>
       <GiveawaysCarousel hideTitle={true} />
