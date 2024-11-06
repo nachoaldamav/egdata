@@ -149,7 +149,7 @@ function GiveawayCard({ offer }: { offer: GiveawayOffer }) {
                   </TooltipTrigger>
                   <TooltipContent className="flex flex-col gap-1">
                     <i className="text-xs font-normal">
-                      This giveaway has been repeated{' '}
+                      This offer has been gifted{' '}
                       {offer.giveaway?.historical?.length} times.
                     </i>
                     <div className="flex flex-col gap-1">
