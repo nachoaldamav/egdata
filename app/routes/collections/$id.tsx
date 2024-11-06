@@ -1,28 +1,13 @@
 import { Image } from '@/components/app/image';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useCountry } from '@/hooks/use-country';
 import { calculatePrice } from '@/lib/calculate-price';
 import { getImage } from '@/lib/get-image';
 import { cn } from '@/lib/utils';
-import {
-  type Collections,
-  getCollection,
-  type OfferWithTops,
-} from '@/queries/collection';
-import {
-  dehydrate,
-  HydrationBoundary,
-  useInfiniteQuery,
-  useQuery,
-} from '@tanstack/react-query';
+import { type Collections, getCollection, type OfferWithTops } from '@/queries/collection';
+import { dehydrate, HydrationBoundary, useInfiniteQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { ChevronDown } from 'lucide-react';
 
@@ -77,25 +62,24 @@ export const Route = createFileRoute('/collections/$id')({
 function CollectionPage() {
   const { id } = Route.useParams();
   const { country } = useCountry();
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    useInfiniteQuery({
-      queryKey: ['collection', { id, country, limit: 20 }],
-      queryFn: ({ pageParam }) =>
-        getCollection({
-          slug: id,
-          limit: 20,
-          page: pageParam as number,
-          country,
-        }),
-      initialPageParam: 1,
-      getNextPageParam: (lastPage: Collections, allPages: Collections[]) => {
-        if (lastPage.page * lastPage.limit + 20 > lastPage.total) {
-          return undefined;
-        }
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
+    queryKey: ['collection', { id, country, limit: 20 }],
+    queryFn: ({ pageParam }) =>
+      getCollection({
+        slug: id,
+        limit: 20,
+        page: pageParam as number,
+        country,
+      }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage: Collections, allPages: Collections[]) => {
+      if (lastPage.page * lastPage.limit + 20 > lastPage.total) {
+        return undefined;
+      }
 
-        return allPages?.length + 1;
-      },
-    });
+      return allPages?.length + 1;
+    },
+  });
 
   if (isLoading) {
     return (
@@ -126,8 +110,8 @@ function CollectionPage() {
               </TooltipTrigger>
               <TooltipContent className="max-w-xs">
                 <p>
-                  The difference between the current position and the previous
-                  position. Usually changes every day.
+                  The difference between the current position and the previous position. Usually
+                  changes every day.
                 </p>
               </TooltipContent>
             </Tooltip>
@@ -151,7 +135,9 @@ function CollectionPage() {
         <div className="flex flex-col gap-2 w-full">
           {data?.pages
             .flatMap((page) => page.elements)
-            .map((offer) => <OfferInTop key={offer.id} offer={offer} />)}
+            .map((offer) => (
+              <OfferInTop key={offer.id} offer={offer} />
+            ))}
         </div>
 
         {hasNextPage && (
@@ -207,9 +193,7 @@ function OfferInTop({ offer }: { offer: OfferWithTops }) {
   return (
     <Link to={`/offers/${offer.id}`} preload="intent">
       <Card className="w-full h-16 flex flex-row items-center rounded-xl overflow-hidden px-5">
-        <span className="text-xl font-bold w-10 flex-shrink-0">
-          {offer.position}
-        </span>
+        <span className="text-xl font-bold w-10 flex-shrink-0">{offer.position}</span>
 
         <div className="h-full w-24 flex-shrink-0 flex flex-col justify-center items-center">
           <Image
@@ -233,29 +217,27 @@ function OfferInTop({ offer }: { offer: OfferWithTops }) {
           <h3 className="text-xl font-light truncate">{offer.title}</h3>
         </div>
 
-        <div className="flex-shrink-0 w-32 text-right inline-flex items-end gap-2">
+        <div className="flex-shrink-0 w-40 text-right inline-flex items-center justify-end gap-2 pr-5">
           <span
             className={cn(
-              'text-lg font-medium',
-              offer.price?.price.discountPrice !==
-                offer.price?.price.originalPrice && 'text-badge'
+              'text-lg font-semibold',
+              offer.price?.price.discountPrice !== offer.price?.price.originalPrice && 'text-badge',
             )}
           >
             {fmt.format(
               calculatePrice(
                 offer.price?.price.discountPrice ?? 0,
-                offer.price?.price.currencyCode
-              )
+                offer.price?.price.currencyCode,
+              ),
             )}
           </span>
-          {offer.price?.price.discountPrice !==
-            offer.price?.price.originalPrice && (
+          {offer.price?.price.discountPrice !== offer.price?.price.originalPrice && (
             <span className="text-lg font-medium text-muted-foreground line-through">
               {fmt.format(
                 calculatePrice(
                   offer.price?.price.originalPrice ?? 0,
-                  offer.price?.price.currencyCode
-                )
+                  offer.price?.price.currencyCode,
+                ),
               )}
             </span>
           )}
@@ -264,21 +246,21 @@ function OfferInTop({ offer }: { offer: OfferWithTops }) {
         <div
           className={cn(
             'flex flex-row gap-1 items-center text-badge w-16 justify-center',
-            offer.position > offer.previousPosition ? 'text-red-500' : ''
+            offer.position > offer.previousPosition ? 'text-red-500' : '',
           )}
         >
-          {offer.position !== offer.previousPosition && (
+          {offer.position !== offer.previousPosition ? (
             <>
               <ChevronDown
                 className={cn(
                   'h-4 w-4',
-                  offer.position < offer.previousPosition ? 'rotate-180' : ''
+                  offer.position < offer.previousPosition ? 'rotate-180' : '',
                 )}
               />
-              <span className="text-md">
-                {Math.abs(offer.position - offer.previousPosition)}
-              </span>
+              <span className="text-md">{Math.abs(offer.position - offer.previousPosition)}</span>
             </>
+          ) : (
+            <span className="text-md">-</span>
           )}
         </div>
 
