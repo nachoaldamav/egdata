@@ -1,14 +1,15 @@
 import type { Config } from 'tailwindcss';
+import { fontFamily } from 'tailwindcss/defaultTheme';
 
-const config = {
+export default {
   darkMode: ['class'],
   content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
+    'app/**/*.{ts,tsx}',
+    'components/**/*.{ts,tsx}',
+    'providers/**/*.{ts,tsx}',
+    'hooks/**/*.{ts,tsx}',
+    'lib/**/*.{ts,tsx}',
   ],
-  prefix: '',
   theme: {
     container: {
       center: true,
@@ -17,16 +18,6 @@ const config = {
         '2xl': '1400px',
       },
     },
-    gridColumn: {
-      'span-6': 'span 6 / span 6',
-      'span-7': 'span 7 / span 7',
-      'span-8': 'span 8 / span 8',
-      'span-9': 'span 9 / span 9',
-      'span-10': 'span 10 / span 10',
-      'span-11': 'span 11 / span 11',
-      'span-12': 'span 12 / span 12',
-    },
-
     extend: {
       colors: {
         border: 'hsl(var(--border))',
@@ -91,11 +82,16 @@ const config = {
           '25%': { transform: 'rotate(1.5deg)' },
           '75%': { transform: 'rotate(-1.5deg)' },
         },
+        marquee: {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-100%)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         tilt: 'tilt 3s linear infinite',
+        marquee: 'marquee 10s linear infinite',
       },
       perspective: {
         '1000': '1000px',
@@ -122,14 +118,19 @@ const config = {
         bg: 'background-color, transform',
       },
       fontFamily: {
-        sans: ['Nunito', 'system-ui', 'sans-serif'],
+        sans: ['Nunito', ...fontFamily.sans],
         montserrat: ['Montserrat', 'system-ui', 'sans-serif'],
       },
-    },
-  },
-  variants: {
-    extend: {
-      backfaceVisibility: ['hidden'],
+      backgroundImage: {
+        'bronze-radial':
+          'radial-gradient(circle at bottom left, rgb(202, 81, 43), rgba(202, 81, 43, 0.6))',
+        'silver-radial':
+          'radial-gradient(circle at bottom left, rgb(175, 180, 189), rgba(175, 180, 189, 0.6))',
+        'gold-radial':
+          'radial-gradient(circle at bottom left, rgb(255, 232, 60), rgba(255, 232, 60, 0.6))',
+        'platinum-radial':
+          'radial-gradient(circle at bottom left, rgb(114, 91, 255), rgba(114, 91, 255, 0.6))',
+      },
     },
   },
   plugins: [
@@ -140,5 +141,3 @@ const config = {
     require('@tailwindcss/typography'),
   ],
 } satisfies Config;
-
-export default config;

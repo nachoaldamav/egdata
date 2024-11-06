@@ -1,38 +1,14 @@
 {
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "**/.server/**/*.ts",
-    "**/.server/**/*.tsx",
-    "**/.client/**/*.ts",
-    "**/.client/**/*.tsx"
-  ],
   "compilerOptions": {
-    "lib": ["DOM", "DOM.Iterable", "ES2022"],
-    "types": [
-      "@remix-run/node",
-      "vite/client",
-      "vite-plugin-pwa/client",
-      "@vite-pwa/remix/remix-sw",
-      "./src/umami.d.ts"
-    ],
-    "isolatedModules": true,
-    "esModuleInterop": true,
     "jsx": "react-jsx",
-    "module": "ESNext",
     "moduleResolution": "Bundler",
-    "resolveJsonModule": true,
+    "module": "ESNext",
     "target": "ES2022",
-    "strict": true,
-    "allowJs": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
+    "strictNullChecks": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["src/*"]
-    },
-
-    // Vite takes care of building everything, not tsc.
-    "noEmit": true
+      "@/*": ["./*"]
+    }
   }
 }
