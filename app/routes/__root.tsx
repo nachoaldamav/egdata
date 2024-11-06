@@ -4,14 +4,7 @@ import {
   type NotFoundRouteProps,
 } from '@tanstack/react-router';
 import { Outlet, ScrollRestoration } from '@tanstack/react-router';
-import {
-  Body,
-  createServerFn,
-  Head,
-  Html,
-  Meta,
-  Scripts,
-} from '@tanstack/start';
+import { Body, Head, Html, Meta, Scripts } from '@tanstack/start';
 import type * as React from 'react';
 import styles from '../styles.css?url';
 import Navbar from '@/components/app/navbar';
@@ -25,47 +18,6 @@ import { parseCookieString } from '@/lib/parse-cookies';
 import { decodeJwt, getCookie, saveAuthCookie } from '@/lib/cookies';
 import { SearchProvider } from '@/providers/global-search';
 import { getUserInformation } from '@/queries/profiles';
-
-const getProfile = createServerFn('GET', async (cookie: string | null) => {
-  if (!cookie) {
-    return null;
-  }
-
-  const epicToken = cookie ? await decodeJwt(cookie) : null;
-
-  if (epicToken) {
-    return await fetch(
-      `https://api.epicgames.dev/epic/id/v2/accounts?accountId=${epicToken.account_id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${epicToken.access_token}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      }
-    )
-      .then(
-        (res) =>
-          res.json() as Promise<
-            {
-              accountId: string;
-              displayName: string;
-              preferredLanguage: string;
-              linkedAccounts?: Array<{
-                identityProviderId: string;
-                displayName: string;
-              }>;
-            }[]
-          >
-      )
-      .then((data) => data[0] ?? null)
-      .catch((error) => {
-        console.error(error);
-        return null;
-      });
-  }
-
-  return null;
-});
 
 export const Route = createRootRoute({
   meta: () => [
@@ -161,6 +113,56 @@ export const Route = createRootRoute({
       href: styles,
       preload: 'true',
     },
+    { rel: 'preconnect', href: 'https://cdn1.epicgames.com/' },
+    { rel: 'preconnect', href: 'https://api.egdata.app/' },
+    { rel: 'preconnect', href: 'https://cdn.egdata.app/' },
+    {
+      rel: 'icon',
+      type: 'image/png',
+      sizes: '32x32',
+      href: '/favicon-32x32.png',
+    },
+    {
+      rel: 'icon',
+      type: 'image/png',
+      sizes: '16x16',
+      href: '/favicon-16x16.png',
+    },
+    {
+      rel: 'apple-touch-icon',
+      sizes: '180x180',
+      href: '/apple-touch-icon.png',
+    },
+    {
+      rel: 'manifest',
+      href: '/site.webmanifest',
+    },
+    {
+      rel: 'mask-icon',
+      href: '/safari-pinned-tab.svg',
+      color: '#5bbad5',
+    },
+    {
+      rel: 'preload',
+      href: 'https://cdn.egdata.app/Nunito/Nunito-VariableFont_wght.ttf',
+      as: 'font',
+      type: 'font/ttf',
+      crossOrigin: 'anonymous',
+    },
+    {
+      rel: 'preload',
+      href: 'https://cdn.egdata.app/Nunito/Nunito-Italic-VariableFont_wght.ttf',
+      as: 'font',
+      type: 'font/ttf',
+      crossOrigin: 'anonymous',
+    },
+    {
+      rel: 'preload',
+      href: 'https://cdn.egdata.app/Montserrat/Montserrat-VariableFont_wght.ttf',
+      as: 'font',
+      type: 'font/ttf',
+      crossOrigin: 'anonymous',
+    },
   ],
 
   loader: async () => {
@@ -183,7 +185,7 @@ export const Route = createRootRoute({
 
     const parsedCookies = parseCookieString(cookieHeader);
     const cookies = Object.fromEntries(
-      Object.entries(parsedCookies).map(([key, value]) => [key, value || ''])
+      Object.entries(parsedCookies).map(([key, value]) => [key, value || '']),
     );
     const country = getCountryCode(url, cookies);
 
@@ -213,7 +215,7 @@ export const Route = createRootRoute({
 
     const parsedCookies = parseCookieString(cookieHeader);
     const cookies = Object.fromEntries(
-      Object.entries(parsedCookies).map(([key, value]) => [key, value || ''])
+      Object.entries(parsedCookies).map(([key, value]) => [key, value || '']),
     );
     const country = getCountryCode(url, cookies);
 
@@ -233,7 +235,7 @@ export const Route = createRootRoute({
           headers: {
             Authorization: `Bearer ${authCookie}`,
           },
-        }
+        },
       );
 
       if (refreshResponse.ok) {
@@ -260,7 +262,7 @@ export const Route = createRootRoute({
         };
 
         await saveAuthCookie(
-          JSON.stringify({ name: 'EGDATA_AUTH', value: epicToken })
+          JSON.stringify({ name: 'EGDATA_AUTH', value: epicToken }),
         );
 
         console.log('Refreshed token', epicToken.account_id);
