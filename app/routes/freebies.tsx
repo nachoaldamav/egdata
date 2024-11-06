@@ -541,7 +541,7 @@ function GiveawaysStats() {
                     })}
                   </span>
                   <span className="text-xs font-medium">
-                    With current discounts
+                    Total value including any active discounts
                   </span>
                 </div>
               </TooltipContent>
@@ -561,7 +561,7 @@ function GiveawaysStats() {
               </TooltipTrigger>
               <TooltipContent>
                 <span className="text-xs font-medium">
-                  Total number of giveaways
+                  Total number of giveaways that appear in the database
                 </span>
               </TooltipContent>
             </div>
@@ -580,7 +580,7 @@ function GiveawaysStats() {
               </TooltipTrigger>
               <TooltipContent>
                 <span className="text-xs font-medium">
-                  Total number of offers
+                  Total number of unique offers that have appeared in giveaways
                 </span>
               </TooltipContent>
             </div>
@@ -599,7 +599,8 @@ function GiveawaysStats() {
               </TooltipTrigger>
               <TooltipContent>
                 <span className="text-xs font-medium">
-                  Number of repeated giveaways
+                  Number of unique offers that appear multiple times in
+                  giveaways
                 </span>
               </TooltipContent>
             </div>
@@ -618,7 +619,7 @@ function GiveawaysStats() {
               </TooltipTrigger>
               <TooltipContent>
                 <span className="text-xs font-medium">
-                  Total number of sellers
+                  Total number of unique sellers providing offers
                 </span>
               </TooltipContent>
             </div>
