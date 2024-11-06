@@ -34,23 +34,36 @@ export const Route = createRootRoute({
     {
       name: 'description',
       content:
-        'Epic Games database with all the information you need about the games, items, and events.',
+        'Comprehensive Epic Games Store database: game info, prices, sales history, player counts, file lists, and more. Explore free games, upcoming releases, and community insights.',
     },
     {
       name: 'keywords',
       content: [
-        'epic games',
-        'fortnite',
-        'database',
-        'api',
-        'epic games api',
-        'egdata',
-        'epic games store',
-        'egstore',
-        'epic online services',
-        'eos',
+        'Epic Games Store',
+        'EGS',
+        'Epic Games Database',
+        'EGS Database',
+        'game prices',
+        'game sales',
+        'discounts',
+        'player count',
+        'game size',
+        'system requirements',
+        'release date',
         'free games',
-        'free games epic games',
+        'upcoming releases',
+        'game files',
+        'file list',
+        'game assets',
+        'historical data',
+        'price tracker',
+        'EGS tracker',
+        'PC games',
+        'data mining',
+        'Epic Games API',
+        'egdata',
+        'egstore',
+        'eos',
       ].join(', '),
     },
     {
@@ -68,7 +81,7 @@ export const Route = createRootRoute({
     {
       name: 'twitter:description',
       content:
-        'egdata.app is a free and open source Epic Games Store API. It is a community driven project that aims to provide a comprehensive and accurate database of all the games available on the Epic Games Store.',
+        'A free and open-source Epic Games Store database with comprehensive game information, sales tracking, player counts, and more. Community-driven and constantly updated.', // Improved description
     },
     {
       name: 'twitter:image',
@@ -101,7 +114,7 @@ export const Route = createRootRoute({
     {
       name: 'og:description',
       content:
-        'egdata.app is a free and open source Epic Games Store API. It is a community driven project that aims to provide a comprehensive and accurate database of all the games available on the Epic Games Store.',
+        'A free and open-source Epic Games Store database with comprehensive game information, sales tracking, player counts, and more. Community-driven and constantly updated.', // Improved description
     },
   ],
 
