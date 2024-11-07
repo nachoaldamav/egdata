@@ -5,7 +5,7 @@ export const useRegions = () => {
   const { data } = useQuery({
     queryKey: ['regions'],
     queryFn: () =>
-      client
+      httpClient
         .get<
           Record<
             string,
