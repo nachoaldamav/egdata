@@ -1,0 +1,169 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 11.1% 7.1%;
+    --foreground: 166 33% 99%;
+    --muted: 240 3% 21%;
+    --muted-foreground: 136 8% 73%;
+    --popover: 240 7% 12%;
+    --popover-foreground: 180 39% 100%;
+    --card: 240 7% 12%;
+    --card-foreground: 180 39% 100%;
+    --border: 240 3% 19%;
+    --input: 240 3% 19%;
+    --primary: 166 67% 88%;
+    --primary-foreground: 166 67% 8%;
+    --secondary: 136 67% 88%;
+    --secondary-foreground: 136 67% 8%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 94% 49%;
+    --destructive-foreground: 0 0% 100%;
+    --ring: 166 67% 88%;
+    --radius: 0.5rem;
+    --badge: 198.8deg 100% 57.45%;
+    --chart-1: 220 70% 50%;
+    --chart-5: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-2: 340 75% 55%;
+    --bronze-start: rgb(202, 81, 43);
+    --bronze-end: rgb(202, 81, 43, 0.6);
+    --silver-start: rgb(175, 180, 189);
+    --silver-end: rgba(175, 180, 189, 0.6);
+    --gold-start: rgb(255, 232, 60);
+    --gold-end: rgb(255, 232, 60, 0.6);
+    --platinum-start: rgb(114, 91, 255);
+    --platinum-end: rgba(114, 91, 255, 0.6);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+body {
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Add this to your CSS file or inside a <style> tag in your component */
+
+.cover-section {
+  position: relative;
+  height: 60vh;
+  max-height: 600px;
+  overflow: hidden;
+}
+
+.cover-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cover-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.3));
+  border-radius: 2rem;
+}
+
+.cover-content {
+  z-index: 1;
+}
+
+.perspective {
+  perspective: 1000px;
+}
+
+.card {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+}
+
+.card.flipped {
+  transform: rotateY(180deg);
+}
+
+.front,
+.back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+}
+
+.back {
+  transform: rotateY(180deg);
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('https://cdn.egdata.app/Montserrat/Montserrat-VariableFont_wght.ttf')
+    format('truetype');
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Raleway';
+  src: url('https://cdn.egdata.app/Raleway/Raleway-VariableFont_wght.ttf')
+    format('truetype');
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Nunito';
+  src: url('https://cdn.egdata.app/Nunito/Nunito-VariableFont_wght.ttf')
+    format('truetype');
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: normal;
+}
+
+.tree,
+.tree-last {
+  position: relative;
+  padding-left: 1.5em;
+}
+.tree::before,
+.tree-last::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #d1d5db;
+}
+.tree::after,
+.tree-last::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.7em;
+  width: 1.5em;
+  height: 2px;
+  background: #d1d5db;
+}
+.tree-last::before {
+  height: 0.7em;
+}
