@@ -168,7 +168,7 @@ export const Route = createFileRoute('/tags/$id')({
         initialPageParam: page,
         getNextPageParam: (
           lastPage: { elements: SingleOffer[]; start: number; count: number },
-          allPages: { elements: SingleOffer[]; start: number; count: number }[]
+          allPages: { elements: SingleOffer[]; start: number; count: number }[],
         ) => {
           // If the start is greater than the count, we have reached the end
           if (lastPage.start + 20 > lastPage.count) {
@@ -199,8 +199,6 @@ export const Route = createFileRoute('/tags/$id')({
   validateSearch: zodSearchValidator(searchParamsSchema),
 
   meta({ params, loaderData }) {
-    const queryClient = getQueryClient();
-
     const { promotion, cover } = loaderData;
 
     if (!promotion || !cover) {
@@ -405,7 +403,7 @@ function RouteComponent() {
             (
             {promotion.pages.reduce(
               (acc, page) => acc + page.elements.length,
-              0
+              0,
             )}{' '}
             results)
           </span>
@@ -465,7 +463,7 @@ function RouteComponent() {
             <ArrowDownIcon
               className={cn(
                 'h-5 w-5 transform transition-transform',
-                sortDir === 'asc' ? '-rotate-180' : 'rotate-0'
+                sortDir === 'asc' ? '-rotate-180' : 'rotate-0',
               )}
               aria-hidden="true"
             />
@@ -488,7 +486,7 @@ function RouteComponent() {
           'mt-8 grid gap-4',
           view === 'grid'
             ? 'grid-cols-1 lg:grid-cols-3 xl:grid-cols-5'
-            : 'grid-cols-1'
+            : 'grid-cols-1',
         )}
       >
         {promotion.pages
@@ -498,7 +496,7 @@ function RouteComponent() {
               <OfferCard offer={game} key={game.id} size="md" />
             ) : (
               <OfferListItem game={game} key={game.id} />
-            )
+            ),
           )}
       </div>
       <div className="flex justify-center mt-8">
