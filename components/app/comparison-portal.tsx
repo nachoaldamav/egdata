@@ -122,6 +122,7 @@ function CompareTable() {
     </ScrollArea>
   );
 }
+
 function SingleGame({
   query,
   id,
@@ -244,7 +245,7 @@ function SingleGame({
         </div>
       </section>
       <hr className="border-t border-gray-300/25" />
-      <AgeRatings namespace={data.namespace} />
+      <AgeRatings id={data.id} />
       <hr className="border-t border-gray-300/25" />
       <Price id={data.id} key={`compare-price-${data.id}-${country}`} />
       <div className="flex justify-center">
@@ -414,15 +415,25 @@ function Achievements({ id }: { id: string }) {
   );
 }
 
-function AgeRatings({ namespace }: { namespace: string }) {
+function AgeRatings({ id }: { id: string }) {
+  const { country } = useCountry();
   const { data, isLoading, isError } = useQuery({
     queryKey: [
-      'sandbox',
+      'offer',
+      'age-rating',
       {
-        id: namespace,
+        id: id,
+        country,
+        single: true,
       },
     ],
-    queryFn: () => httpClient.get<SingleSandbox>(`/sandboxes/${namespace}`),
+    queryFn: () =>
+      httpClient.get<SingleSandbox['ageGatings']>(`/offers/${id}/age-rating`, {
+        params: {
+          country,
+          single: true,
+        },
+      }),
   });
 
   if (isLoading) {
@@ -453,7 +464,7 @@ function AgeRatings({ namespace }: { namespace: string }) {
         <span className="text-sm text-gray-500">Age Rating:</span>
       </div>
       <div className="flex flex-row gap-2 flex-wrap justify-center items-center">
-        {Object.entries(data.ageGatings || {}).map(([key, rating]) => (
+        {Object.entries(data || {}).map(([key, rating]) => (
           <div className="flex flex-row gap-2" key={key}>
             {rating.ratingImage && rating.ratingImage !== '' ? (
               <img
@@ -461,10 +472,10 @@ function AgeRatings({ namespace }: { namespace: string }) {
                 src={rating.ratingImage}
                 alt={key}
                 title={rating.title}
-                className="size-8 mx-auto"
+                className="size-16 mx-auto"
               />
             ) : (
-              <div className="size-8 mx-auto inline-flex items-center justify-center bg-gray-900 rounded-lg">
+              <div className="size-16 mx-auto inline-flex items-center justify-center bg-gray-900 rounded-lg">
                 <span className="text-lg font-bold">{rating.ageControl}</span>
               </div>
             )}

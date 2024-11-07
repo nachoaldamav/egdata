@@ -19,6 +19,8 @@ import { decodeJwt, getCookie, saveAuthCookie } from '@/lib/cookies';
 import { SearchProvider } from '@/providers/global-search';
 import { getUserInformation } from '@/queries/profiles';
 import { PreferencesProvider } from '@/providers/preferences';
+import { CompareProvider } from '@/providers/compare';
+import { ComparisonPortal } from '@/components/app/comparison-portal';
 
 export const Route = createRootRoute({
   meta: () => [
@@ -355,44 +357,46 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <div className="md:container mx-auto overflow-x-hidden">
           <QueryClientProvider client={queryClient}>
             <CountryProvider defaultCountry={country}>
-              <SearchProvider>
-                <Navbar />
-                <PreferencesProvider>{children}</PreferencesProvider>
-
-                <footer className="flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400 text-xs gap-1">
-                  <p>
-                    egdata.app is a fan-made website and is not affiliated by
-                    any means with Epic Games, Inc.
-                  </p>
-                  <p>
-                    All the logos, images, trademarks and creatives are property
-                    of their respective owners.
-                  </p>
-                  <hr className="w-1/3 my-2 border-gray-300/40" />
-                  <div className="inline-flex gap-2">
-                    <span>
-                      Countries flags by{' '}
-                      <Link
-                        href="https://flagpedia.net"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <strong>Flagpedia</strong>
-                      </Link>
-                    </span>
-                    <span>|</span>
-                    <span className="inline-flex gap-1 items-center">
-                      Made in{' '}
-                      <img
-                        src="https://flagcdn.com/16x12/eu.webp"
-                        alt="EU Flag"
-                      />
-                    </span>
-                    <span>|</span>
-                    <Link to="/privacy">Privacy Policy</Link>
-                  </div>
-                </footer>
-              </SearchProvider>
+              <CompareProvider>
+                <SearchProvider>
+                  <Navbar />
+                  <PreferencesProvider>{children}</PreferencesProvider>
+                  <ComparisonPortal />
+                  <footer className="flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400 text-xs gap-1">
+                    <p>
+                      egdata.app is a fan-made website and is not affiliated by
+                      any means with Epic Games, Inc.
+                    </p>
+                    <p>
+                      All the logos, images, trademarks and creatives are
+                      property of their respective owners.
+                    </p>
+                    <hr className="w-1/3 my-2 border-gray-300/40" />
+                    <div className="inline-flex gap-2">
+                      <span>
+                        Countries flags by{' '}
+                        <Link
+                          href="https://flagpedia.net"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <strong>Flagpedia</strong>
+                        </Link>
+                      </span>
+                      <span>|</span>
+                      <span className="inline-flex gap-1 items-center">
+                        Made in{' '}
+                        <img
+                          src="https://flagcdn.com/16x12/eu.webp"
+                          alt="EU Flag"
+                        />
+                      </span>
+                      <span>|</span>
+                      <Link to="/privacy">Privacy Policy</Link>
+                    </div>
+                  </footer>
+                </SearchProvider>
+              </CompareProvider>
             </CountryProvider>
             <ReactQueryDevtools initialIsOpen={false} />
           </QueryClientProvider>

@@ -7,11 +7,14 @@ import { OpenEgl } from '@/components/app/open-egl';
 import { OpenEgs } from '@/components/app/open-egs';
 import { OpenLauncher } from '@/components/app/open-launcher';
 import { platformIcons } from '@/components/app/platform-icons';
+import { AddIcon } from '@/components/icons/add';
+import { RemoveIcon } from '@/components/icons/remove';
 import { Bundle } from '@/components/modules/bundle';
 import { CollectionOffers } from '@/components/modules/collection-offers';
 import { SellerOffers } from '@/components/modules/seller-offers';
 import { SuggestedOffers } from '@/components/modules/suggested-offers';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -26,6 +29,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useCompare } from '@/hooks/use-compare';
 import { useCountry } from '@/hooks/use-country';
 import { getQueryClient } from '@/lib/client';
 import { generateOfferMeta } from '@/lib/generate-offer-meta';
@@ -100,7 +104,7 @@ export const Route = createFileRoute('/offers/$id')({
         queryKey: ['price', { id: params.id, country }],
         queryFn: () =>
           httpClient.get<Price>(
-            `/offers/${params.id}/price?country=${country || 'US'}`
+            `/offers/${params.id}/price?country=${country || 'US'}`,
           ),
       }),
     ]);
@@ -118,7 +122,7 @@ export const Route = createFileRoute('/offers/$id')({
     const offer = getFetchedQuery<SingleOffer>(
       queryClient,
       ctx.loaderData.dehydratedState,
-      ['offer', { id: params.id }]
+      ['offer', { id: params.id }],
     );
 
     if (!offer) {
@@ -137,6 +141,7 @@ export const Route = createFileRoute('/offers/$id')({
 function OfferPage() {
   const { id } = Route.useLoaderData();
   const { country } = useCountry();
+  const { addToCompare, removeFromCompare, compare } = useCompare();
   const navigate = useNavigate();
   const location = useLocation();
   const [offerQuery] = useQueries({
@@ -304,7 +309,7 @@ function OfferPage() {
                             day: 'numeric',
                             hour: 'numeric',
                             minute: 'numeric',
-                          }
+                          },
                         )
                       : 'Not available'}
                     {' (UTC) '}
@@ -323,7 +328,7 @@ function OfferPage() {
                             day: 'numeric',
                             hour: 'numeric',
                             minute: 'numeric',
-                          }
+                          },
                         )
                       : 'Not available'}
                     {' (UTC) '}
@@ -342,7 +347,7 @@ function OfferPage() {
             <OpenEgs offer={offer} />
             <OpenEgl offer={offer} />
             <OpenLauncher id={offer.id} />
-            {/* <Button
+            <Button
               onClick={() => {
                 if (compare.includes(offer.id)) {
                   removeFromCompare(offer.id);
@@ -354,7 +359,7 @@ function OfferPage() {
             >
               {compare.includes(offer.id) ? <RemoveIcon /> : <AddIcon />}
               <span>Compare</span>
-            </Button> */}
+            </Button>
           </div>
           <OfferHero offer={offer} />
           <p className="px-1">{offer.description}</p>
@@ -473,7 +478,7 @@ const ReleaseDate: React.FC<{
               className={cn(
                 pcReleaseDate &&
                   releaseDate !== pcReleaseDate &&
-                  'underline decoration-dotted underline-offset-4'
+                  'underline decoration-dotted underline-offset-4',
               )}
             >
               {new Date(releaseDate).toLocaleDateString('en-UK', {
