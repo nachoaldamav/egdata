@@ -18,6 +18,7 @@ import { parseCookieString } from '@/lib/parse-cookies';
 import { decodeJwt, getCookie, saveAuthCookie } from '@/lib/cookies';
 import { SearchProvider } from '@/providers/global-search';
 import { getUserInformation } from '@/queries/profiles';
+import { PreferencesProvider } from '@/providers/preferences';
 
 export const Route = createRootRoute({
   meta: () => [
@@ -356,7 +357,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             <CountryProvider defaultCountry={country}>
               <SearchProvider>
                 <Navbar />
-                {children}
+                <PreferencesProvider>{children}</PreferencesProvider>
 
                 <footer className="flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400 text-xs gap-1">
                   <p>
