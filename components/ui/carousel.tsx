@@ -60,6 +60,7 @@ const Carousel = React.forwardRef<
       {
         ...opts,
         axis: orientation === 'horizontal' ? 'x' : 'y',
+        dragFree: true,
       },
       plugins,
     );
@@ -132,16 +133,15 @@ const Carousel = React.forwardRef<
           canScrollNext,
         }}
       >
-        <div
+        <section
           ref={ref}
           onKeyDownCapture={handleKeyDown}
           className={cn('relative', className)}
-          role="region"
           aria-roledescription="carousel"
           {...props}
         >
           {children}
-        </div>
+        </section>
       </CarouselContext.Provider>
     );
   },
