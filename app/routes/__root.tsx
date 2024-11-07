@@ -37,7 +37,7 @@ export const Route = createRootRoute({
     {
       name: 'description',
       content:
-        'Comprehensive Epic Games Store database: game info, prices, sales history, player counts, file lists, and more. Explore free games, upcoming releases, and community insights.',
+        'Comprehensive Epic Games Store database: game info, prices, sales history, file lists, and more. Explore free games, upcoming releases, and community insights.',
     },
     {
       name: 'keywords',
