@@ -80,7 +80,7 @@ const searchParamsSchema = z.object({
 
 export const Route = createFileRoute('/changelog')({
   component: () => {
-    const { dehydratedState, page, query } = Route.useLoaderData();
+    const { dehydratedState } = Route.useLoaderData();
 
     return (
       <HydrationBoundary state={dehydratedState}>
@@ -119,13 +119,21 @@ export const Route = createFileRoute('/changelog')({
     };
   },
 
-  beforeLoad: ({ search }) => {
+  beforeLoad: async ({ search }) => {
     return {
       search,
     };
   },
 
   validateSearch: zodSearchValidator(searchParamsSchema),
+
+  meta() {
+    return [
+      {
+        title: 'Changelog | egdata.app',
+      },
+    ];
+  },
 });
 
 function ChangelogPage() {
@@ -165,7 +173,7 @@ function ChangelogPage() {
   };
 
   const totalPages = Math.ceil(
-    (data?.estimatedTotalHits || 0) / (data?.limit || 1)
+    (data?.estimatedTotalHits || 0) / (data?.limit || 1),
   );
 
   const handlePageChange = (newPage: number) => {
@@ -255,7 +263,7 @@ function ChangelogItem({
           <ChevronRightIcon
             className={cn(
               'w-5 h-5 text-muted-foreground transition-transform ease-in-out duration-200',
-              open ? 'transform rotate-90' : 'transform rotate-0'
+              open ? 'transform rotate-90' : 'transform rotate-0',
             )}
           />
         </div>
@@ -319,7 +327,7 @@ function ValueToString(value: unknown, query: string, field?: string) {
         <mark key={i}>{part}</mark>
       ) : (
         part
-      )
+      ),
     );
   };
 

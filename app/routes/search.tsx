@@ -211,6 +211,36 @@ export const Route = createFileRoute('/search')({
       searchParams: opts.search,
     };
   },
+
+  meta() {
+    return [
+      {
+        title: 'Search | egdata.app',
+      },
+      {
+        name: 'description',
+        content: 'Search for offers from the Epic Games Store.',
+      },
+      {
+        name: 'og:title',
+        content: 'Search | egdata.app',
+      },
+      {
+        name: 'og:description',
+        content: 'Search for offers from the Epic Games Store.',
+      },
+      {
+        property: 'twitter:title',
+        content: 'Search | egdata.app',
+        key: 'twitter:title',
+      },
+      {
+        property: 'twitter:description',
+        content: 'Search for offers from the Epic Games Store.',
+        key: 'twitter:description',
+      },
+    ];
+  },
 });
 
 function Search() {
@@ -233,10 +263,10 @@ function Search() {
   });
   const { view, setView } = usePreferences();
   const [selectedTags, setSelectedTags] = useState<string[]>(
-    (hash?.tags as string[]) ?? initialTags
+    (hash?.tags as string[]) ?? initialTags,
   );
   const [categories, setCategories] = useState<string[]>(
-    (hash?.categories as string[]) ?? initialCategories
+    (hash?.categories as string[]) ?? initialCategories,
   );
   const [selectedOfferType, setSelectedOfferType] = useState<
     string | undefined
@@ -249,10 +279,10 @@ function Search() {
     }[]
   >([]);
   const [query, setQuery] = useState<string>(
-    initialQuery ?? (hash?.title as string) ?? ''
+    initialQuery ?? (hash?.title as string) ?? '',
   );
   const [sortBy, setSortBy] = useState<SortBy>(
-    (hash?.sortBy as SortBy) ?? 'lastModifiedDate'
+    (hash?.sortBy as SortBy) ?? 'lastModifiedDate',
   );
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [isCodeRedemptionOnly, setIsCodeRedemptionOnly] = useState<
@@ -260,10 +290,10 @@ function Search() {
   >((hash?.isCodeRedemptionOnly as boolean) ?? undefined);
   const [isSale, setIsSale] = useState<boolean | undefined>(onSale);
   const [maxPrice, setMaxPrice] = useState<number | undefined>(
-    (hash?.price as { min?: number; max?: number })?.max
+    (hash?.price as { min?: number; max?: number })?.max,
   );
   const [minPrice, setMinPrice] = useState<number | undefined>(
-    (hash?.price as { min?: number; max?: number })?.min
+    (hash?.price as { min?: number; max?: number })?.min,
   );
   const [inputValue, setInputValue] = useState<string>(query);
   const [page, setPage] = useState(initialPage ?? 1);
@@ -293,7 +323,7 @@ function Search() {
     debounce((value: string) => {
       setQuery(value);
     }, 300),
-    []
+    [],
   );
 
   useEffect(() => {
@@ -575,7 +605,7 @@ function Search() {
               <ArrowDownIcon
                 className={cn(
                   'h-5 w-5 transform transition-transform',
-                  sortDir === 'asc' ? '-rotate-180' : 'rotate-0'
+                  sortDir === 'asc' ? '-rotate-180' : 'rotate-0',
                 )}
                 aria-hidden="true"
               />
@@ -755,7 +785,7 @@ function Search() {
                   <AccordionContent className="flex flex-col gap-2 w-full mt-2">
                     {offerTypes
                       .filter(
-                        (type) => offersDictionary[type._id] !== undefined
+                        (type) => offersDictionary[type._id] !== undefined,
                       )
                       .filter((type) => {
                         // If there is a tag count, we need to filter the tags with 0 count
@@ -968,7 +998,7 @@ function SearchResults({
           params: {
             country,
           },
-        }
+        },
       ),
     placeholderData: keepPreviousData,
   });
@@ -1036,7 +1066,7 @@ function SearchResults({
         className={cn(
           viewType === 'grid'
             ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'
-            : 'flex flex-col gap-4'
+            : 'flex flex-col gap-4',
         )}
       >
         {Array.from({ length: 34 }).map((_, i) => (
@@ -1065,7 +1095,7 @@ function SearchResults({
         className={cn(
           viewType === 'grid'
             ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'
-            : 'flex flex-col gap-4'
+            : 'flex flex-col gap-4',
         )}
       >
         {data.elements.map((offer) => {
