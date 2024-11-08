@@ -37,6 +37,7 @@ import { Route as AuthLoginImport } from './routes/auth/login'
 import { Route as AuthCallbackImport } from './routes/auth/callback'
 import { Route as SandboxesIdIndexImport } from './routes/sandboxes/$id/index'
 import { Route as ProfileIdIndexImport } from './routes/profile/$id/index'
+import { Route as OffersIdIndexImport } from './routes/offers/$id/index'
 import { Route as ItemsIdIndexImport } from './routes/items/$id/index'
 import { Route as SandboxesIdOffersImport } from './routes/sandboxes/$id/offers'
 import { Route as SandboxesIdItemsImport } from './routes/sandboxes/$id/items'
@@ -215,6 +216,12 @@ const ProfileIdIndexRoute = ProfileIdIndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => ProfileIdRoute,
+} as any)
+
+const OffersIdIndexRoute = OffersIdIndexImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => OffersIdRoute,
 } as any)
 
 const ItemsIdIndexRoute = ItemsIdIndexImport.update({
@@ -656,6 +663,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ItemsIdIndexImport
       parentRoute: typeof ItemsIdImport
     }
+    '/offers/$id/': {
+      id: '/offers/$id/'
+      path: '/'
+      fullPath: '/offers/$id/'
+      preLoaderRoute: typeof OffersIdIndexImport
+      parentRoute: typeof OffersIdImport
+    }
     '/profile/$id/': {
       id: '/profile/$id/'
       path: '/'
@@ -724,6 +738,7 @@ interface OffersIdRouteChildren {
   OffersIdPriceRoute: typeof OffersIdPriceRoute
   OffersIdRelatedRoute: typeof OffersIdRelatedRoute
   OffersIdReviewsRoute: typeof OffersIdReviewsRoute
+  OffersIdIndexRoute: typeof OffersIdIndexRoute
 }
 
 const OffersIdRouteChildren: OffersIdRouteChildren = {
@@ -735,6 +750,7 @@ const OffersIdRouteChildren: OffersIdRouteChildren = {
   OffersIdPriceRoute: OffersIdPriceRoute,
   OffersIdRelatedRoute: OffersIdRelatedRoute,
   OffersIdReviewsRoute: OffersIdReviewsRoute,
+  OffersIdIndexRoute: OffersIdIndexRoute,
 }
 
 const OffersIdRouteWithChildren = OffersIdRoute._addFileChildren(
@@ -822,6 +838,7 @@ export interface FileRoutesByFullPath {
   '/sandboxes/$id/items': typeof SandboxesIdItemsRoute
   '/sandboxes/$id/offers': typeof SandboxesIdOffersRoute
   '/items/$id/': typeof ItemsIdIndexRoute
+  '/offers/$id/': typeof OffersIdIndexRoute
   '/profile/$id/': typeof ProfileIdIndexRoute
   '/sandboxes/$id/': typeof SandboxesIdIndexRoute
   '/profile/$id/achievements/$sandbox': typeof ProfileIdAchievementsSandboxRoute
@@ -842,7 +859,6 @@ export interface FileRoutesByTo {
   '/auth/logout': typeof AuthLogoutRoute
   '/builds/$id': typeof BuildsIdRouteWithChildren
   '/collections/$id': typeof CollectionsIdRoute
-  '/offers/$id': typeof OffersIdRouteWithChildren
   '/promotions/$id': typeof PromotionsIdRoute
   '/sales/$id': typeof SalesIdRoute
   '/sellers/$id': typeof SellersIdRoute
@@ -869,6 +885,7 @@ export interface FileRoutesByTo {
   '/sandboxes/$id/items': typeof SandboxesIdItemsRoute
   '/sandboxes/$id/offers': typeof SandboxesIdOffersRoute
   '/items/$id': typeof ItemsIdIndexRoute
+  '/offers/$id': typeof OffersIdIndexRoute
   '/profile/$id': typeof ProfileIdIndexRoute
   '/sandboxes/$id': typeof SandboxesIdIndexRoute
   '/profile/$id/achievements/$sandbox': typeof ProfileIdAchievementsSandboxRoute
@@ -920,6 +937,7 @@ export interface FileRoutesById {
   '/sandboxes/$id/items': typeof SandboxesIdItemsRoute
   '/sandboxes/$id/offers': typeof SandboxesIdOffersRoute
   '/items/$id/': typeof ItemsIdIndexRoute
+  '/offers/$id/': typeof OffersIdIndexRoute
   '/profile/$id/': typeof ProfileIdIndexRoute
   '/sandboxes/$id/': typeof SandboxesIdIndexRoute
   '/profile/$id/achievements/$sandbox': typeof ProfileIdAchievementsSandboxRoute
@@ -972,6 +990,7 @@ export interface FileRouteTypes {
     | '/sandboxes/$id/items'
     | '/sandboxes/$id/offers'
     | '/items/$id/'
+    | '/offers/$id/'
     | '/profile/$id/'
     | '/sandboxes/$id/'
     | '/profile/$id/achievements/$sandbox'
@@ -991,7 +1010,6 @@ export interface FileRouteTypes {
     | '/auth/logout'
     | '/builds/$id'
     | '/collections/$id'
-    | '/offers/$id'
     | '/promotions/$id'
     | '/sales/$id'
     | '/sellers/$id'
@@ -1018,6 +1036,7 @@ export interface FileRouteTypes {
     | '/sandboxes/$id/items'
     | '/sandboxes/$id/offers'
     | '/items/$id'
+    | '/offers/$id'
     | '/profile/$id'
     | '/sandboxes/$id'
     | '/profile/$id/achievements/$sandbox'
@@ -1067,6 +1086,7 @@ export interface FileRouteTypes {
     | '/sandboxes/$id/items'
     | '/sandboxes/$id/offers'
     | '/items/$id/'
+    | '/offers/$id/'
     | '/profile/$id/'
     | '/sandboxes/$id/'
     | '/profile/$id/achievements/$sandbox'
@@ -1229,7 +1249,8 @@ export const routeTree = rootRoute
         "/offers/$id/metadata",
         "/offers/$id/price",
         "/offers/$id/related",
-        "/offers/$id/reviews"
+        "/offers/$id/reviews",
+        "/offers/$id/"
       ]
     },
     "/profile/$id": {
@@ -1347,6 +1368,10 @@ export const routeTree = rootRoute
     "/items/$id/": {
       "filePath": "items/$id/index.tsx",
       "parent": "/items/$id"
+    },
+    "/offers/$id/": {
+      "filePath": "offers/$id/index.tsx",
+      "parent": "/offers/$id"
     },
     "/profile/$id/": {
       "filePath": "profile/$id/index.tsx",
