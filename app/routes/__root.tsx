@@ -1,8 +1,4 @@
-import {
-  createRootRoute,
-  Link,
-  type NotFoundRouteProps,
-} from '@tanstack/react-router';
+import { createRootRoute, Link } from '@tanstack/react-router';
 import { Outlet, ScrollRestoration } from '@tanstack/react-router';
 import { Body, Head, Html, Meta, Scripts } from '@tanstack/start';
 import type * as React from 'react';
@@ -310,8 +306,8 @@ export const Route = createRootRoute({
     };
   },
 
-  notFoundComponent(props) {
-    return <NotFoundPage {...props} />;
+  notFoundComponent() {
+    return <NotFoundPage />;
   },
 
   scripts() {
@@ -329,7 +325,7 @@ export const Route = createRootRoute({
   },
 });
 
-function NotFoundPage(props: NotFoundRouteProps) {
+function NotFoundPage() {
   return (
     <div className="w-full h-full flex flex-col items-start justify-center">
       <h2>Page not found</h2>

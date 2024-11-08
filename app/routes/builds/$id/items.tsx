@@ -1,6 +1,5 @@
 import { columns } from '@/components/tables/items/columns';
 import { DataTable } from '@/components/tables/items/table';
-import { Separator } from '@/components/ui/separator';
 import { httpClient } from '@/lib/http-client';
 import type { SingleItem } from '@/types/single-item';
 import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
