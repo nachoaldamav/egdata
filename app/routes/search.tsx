@@ -73,7 +73,8 @@ type SortBy =
   | 'pcReleaseDate'
   | 'upcoming'
   | 'price'
-  | 'discount';
+  | 'discount'
+  | 'discountPercent';
 
 const sortByDisplay: Record<SortBy, string> = {
   releaseDate: 'Release Date',
@@ -85,6 +86,7 @@ const sortByDisplay: Record<SortBy, string> = {
   upcoming: 'Upcoming',
   price: 'Price',
   discount: 'Discount',
+  discountPercent: 'Discount %',
 };
 
 const searchParamsSchema = z.object({
@@ -110,6 +112,7 @@ const searchParamsSchema = z.object({
       'upcoming',
       'price',
       'discount',
+      'discountPercent',
     ])
     .optional(),
   q: z.string().optional(),
