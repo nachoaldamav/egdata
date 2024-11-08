@@ -35,13 +35,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import {
-  ChevronDown,
-  InfoIcon,
-  ThumbsDown,
-  ThumbsUp,
-  ThumbsUpIcon,
-} from 'lucide-react';
+import { ChevronDown, ThumbsDown, ThumbsUp, ThumbsUpIcon } from 'lucide-react';
 import * as Portal from '@radix-ui/react-portal';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -49,7 +43,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Input } from '@/components/ui/input';
-import { ReloadIcon } from '@radix-ui/react-icons';
+import { InfoCircledIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -75,7 +69,7 @@ type ReviewSummary = {
 type ReviewsFilter = 'all' | 'verified' | 'not-verified';
 
 const getVerificationParam = (
-  verified: ReviewsFilter
+  verified: ReviewsFilter,
 ): 'true' | 'false' | undefined => {
   if (verified === 'verified') return 'true';
   if (verified === 'not-verified') return 'false';
@@ -156,7 +150,7 @@ export const Route = createFileRoute('/offers/$id/reviews')({
               params: {
                 verified: getVerificationParam('all'),
               },
-            }
+            },
           ),
       }),
       queryClient.prefetchQuery({
@@ -169,7 +163,7 @@ export const Route = createFileRoute('/offers/$id/reviews')({
     const offer = getFetchedQuery<SingleOffer>(
       queryClient,
       dehydrate(queryClient),
-      ['offer', { id: params.id }]
+      ['offer', { id: params.id }],
     );
 
     return {
@@ -200,7 +194,7 @@ export const Route = createFileRoute('/offers/$id/reviews')({
     const offer = getFetchedQuery<SingleOffer>(
       queryClient,
       ctx.loaderData.dehydratedState,
-      ['offer', { id: params.id }]
+      ['offer', { id: params.id }],
     );
 
     if (!offer) {
@@ -314,7 +308,7 @@ function Reviews() {
                     className={cn(
                       'grid grid-rows-3 grid-flow-col gap-4',
                       poll.pollResult.length === 2 ? 'grid-rows-2' : undefined,
-                      poll.pollResult.length === 1 ? 'grid-rows-1' : undefined
+                      poll.pollResult.length === 1 ? 'grid-rows-1' : undefined,
                     )}
                   >
                     {poll.pollResult
@@ -414,7 +408,7 @@ function Reviews() {
           <div className="inline-flex items-center gap-2">
             <Tooltip>
               <TooltipTrigger className="inline-flex items-center gap-1">
-                <InfoIcon className="size-4" fill="white" />
+                <InfoCircledIcon className="size-4" fill="white" />
               </TooltipTrigger>
               <p className="text-muted-foreground inline-flex items-center gap-1">
                 <strong>Ownership verification</strong> is based on the
@@ -575,7 +569,7 @@ function Review({ review, full }: { review: SingleReview; full?: boolean }) {
                 'p-[4px] size-8',
                 review.recommended
                   ? 'fill-blue-600'
-                  : 'fill-red-600 transform rotate-180'
+                  : 'fill-red-600 transform rotate-180',
               )}
               stroke="none"
             />
@@ -637,7 +631,7 @@ function Review({ review, full }: { review: SingleReview; full?: boolean }) {
                             day: 'numeric',
                             hour: 'numeric',
                             minute: 'numeric',
-                          }
+                          },
                         )}
                       </span>
                       {review.editions && (
@@ -729,7 +723,7 @@ function FullReview({
                     'p-[4px] size-8',
                     review.recommended
                       ? 'fill-blue-600'
-                      : 'fill-red-600 transform rotate-180'
+                      : 'fill-red-600 transform rotate-180',
                   )}
                   stroke="none"
                 />
@@ -813,7 +807,7 @@ function RecommendationBar({
                 undefined,
                 {
                   maximumFractionDigits: 0,
-                }
+                },
               )}{' '}
               review
               {totalReviews === 1 ? '' : 's'}
@@ -827,7 +821,7 @@ function RecommendationBar({
                 undefined,
                 {
                   maximumFractionDigits: 0,
-                }
+                },
               )}{' '}
               review
               {totalReviews === 1 ? '' : 's'}
@@ -845,7 +839,7 @@ function RecommendationBar({
         <div
           className={cn(
             'bg-blue-600 rounded-full transition-all duration-300 ease-in-out cursor-pointer',
-            hovered === 'notRecommended' ? 'bg-opacity-50' : 'bg-opacity-100'
+            hovered === 'notRecommended' ? 'bg-opacity-50' : 'bg-opacity-100',
           )}
           style={{ width: `${(recommendedPercentage ?? 0) * 100}%` }}
           role="progressbar"
@@ -858,7 +852,7 @@ function RecommendationBar({
         <div
           className={cn(
             'bg-red-600 rounded-full transition-all duration-300 ease-in-out cursor-pointer',
-            hovered === 'recommended' ? 'bg-opacity-50' : 'bg-opacity-100'
+            hovered === 'recommended' ? 'bg-opacity-50' : 'bg-opacity-100',
           )}
           style={{ width: `${(notRecommendedPercentage ?? 0) * 100}%` }}
           role="progressbar"
