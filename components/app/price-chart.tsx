@@ -28,6 +28,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { Skeleton } from '../ui/skeleton';
 import { httpClient } from '@/lib/http-client';
 import { useRegions } from '@/hooks/use-regions';
+import { Separator } from '../ui/separator';
 
 const chartConfig = {
   price: {
@@ -393,7 +394,7 @@ export function PriceChart({ selectedRegion, id }: PriceChartProps) {
                       year: 'numeric',
                     });
                   }}
-                  formatter={(value, key) => {
+                  formatter={(value, key, entry) => {
                     const regionName =
                       regions?.[selectedRegion]?.description || selectedRegion;
                     const formatter = new Intl.NumberFormat(undefined, {
@@ -403,23 +404,37 @@ export function PriceChart({ selectedRegion, id }: PriceChartProps) {
                         : regionPricing[0].price.currencyCode,
                     });
 
+                    const saleName = regionPricing.find(
+                      (item) =>
+                        new Date(item.updatedAt).toISOString() ===
+                        entry.payload.date,
+                    )?.appliedRules[0]?.name;
+
                     return (
-                      <span className="inline-flex items-center justify-start gap-1">
-                        <span
-                          className="h-2 w-2 shrink-0 rounded-[2px]"
-                          style={{
-                            backgroundColor:
-                              chartConfig[key as 'price' | 'usd'].color,
-                          }}
-                        />
-                        <span>
-                          {chartConfig[key as 'price' | 'usd'].label ===
-                          'Region'
-                            ? regionName
-                            : 'United States'}
-                          :
+                      <span className="inline-flex flex-col gap-1">
+                        <span className="inline-flex items-center justify-start gap-1">
+                          <span
+                            className="h-2 w-2 shrink-0 rounded-[2px]"
+                            style={{
+                              backgroundColor:
+                                chartConfig[key as 'price' | 'usd'].color,
+                            }}
+                          />
+                          <span>
+                            {chartConfig[key as 'price' | 'usd'].label ===
+                            'Region'
+                              ? regionName
+                              : 'United States'}
+                            :
+                          </span>
+                          {formatter.format(value as number)}
                         </span>
-                        {formatter.format(value as number)}
+                        {saleName && <Separator orientation="horizontal" />}
+                        {saleName && (
+                          <span className="text-xs text-gray-300">
+                            {saleName}
+                          </span>
+                        )}
                       </span>
                     );
                   }}
@@ -427,6 +442,7 @@ export function PriceChart({ selectedRegion, id }: PriceChartProps) {
                 />
               }
             />
+
             <Area
               dataKey="price"
               type="step"
