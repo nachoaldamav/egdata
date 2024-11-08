@@ -80,7 +80,7 @@ export const Route = createRootRoute({
     {
       name: 'twitter:description',
       content:
-        'A free and open-source Epic Games Store database with comprehensive game information, sales tracking, player counts, and more. Community-driven and constantly updated.', // Improved description
+        'A free and open-source Epic Games Store database with comprehensive game information, sales tracking, and more. Community-driven and constantly updated.', // Improved description
     },
     {
       name: 'twitter:image',
@@ -113,7 +113,7 @@ export const Route = createRootRoute({
     {
       name: 'og:description',
       content:
-        'A free and open-source Epic Games Store database with comprehensive game information, sales tracking, player counts, and more. Community-driven and constantly updated.', // Improved description
+        'A free and open-source Epic Games Store database with comprehensive game information, sales tracking, and more. Community-driven and constantly updated.', // Improved description
     },
   ],
 
