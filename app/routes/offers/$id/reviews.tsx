@@ -579,7 +579,7 @@ function Review({ review, full }: { review: SingleReview; full?: boolean }) {
       <div className="bg-gray-900 p-4 rounded-lg h-full">
         <h3 className="font-bold mb-2">{review.title}</h3>
         <div className="relative">
-          <p className="mb-4 prose prose-sm prose-neutral dark:prose-invert max-w-none">
+          <p className="mb-4 prose prose-sm prose-invert max-w-none">
             <Markdown>
               {review.content.length <= 750
                 ? review.content
@@ -617,7 +617,7 @@ function Review({ review, full }: { review: SingleReview; full?: boolean }) {
               {review.editions?.length && review.editions.length > 0 ? (
                 <Tooltip disableHoverableContent={!review.editions}>
                   <TooltipTrigger className="inline-flex items-center gap-1 ml-2">
-                    <InfoIcon className="size-4" fill="white" />
+                    <InfoCircledIcon className="size-4" fill="white" />
                   </TooltipTrigger>
                   <TooltipContent>
                     <span className="text-xs flex flex-col gap-1">
@@ -734,7 +734,7 @@ function FullReview({
             <h3 className="font-bold mb-2">{review.title}</h3>
             <div className="relative">
               <ScrollArea className="h-[50vh]">
-                <p className="mb-4 prose prose-sm prose-neutral dark:prose-invert max-w-none mr-2">
+                <p className="mb-4 prose prose-sm prose-invert max-w-none mr-2">
                   <Markdown>{review.content}</Markdown>
                 </p>
                 <ScrollBar />
@@ -992,7 +992,7 @@ function ReviewForm({ setIsOpen, offer }: ReviewFormProps) {
                 <Suspense fallback={<p>Loading...</p>}>
                   <MDXEditor
                     markdown={content ?? ' '}
-                    contentEditableClassName="text-white border border-primary/10 px-4 rounded-lg prose prose-sm prose-neutral dark:prose-invert w-full max-w-none min-h-[200px]"
+                    contentEditableClassName="text-white border border-primary/10 px-4 rounded-lg prose prose-sm prose-invertw-full max-w-none min-h-[200px]"
                     className="dark-theme dark-editor"
                     plugins={[
                       headingsPlugin({
@@ -1193,7 +1193,7 @@ function EditReviewForm({
                   <MDXEditor
                     markdown={content ?? ' '}
                     className="dark-theme dark-editor"
-                    contentEditableClassName="text-white border border-primary/10 px-4 rounded-lg prose prose-sm prose-neutral dark:prose-invert w-full max-w-none min-h-[200px]"
+                    contentEditableClassName="text-white border border-primary/10 px-4 rounded-lg prose prose-sm prose-invert w-full max-w-none min-h-[200px]"
                     plugins={[
                       headingsPlugin({
                         allowedHeadingLevels: [2, 3, 4],
