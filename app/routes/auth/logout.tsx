@@ -5,7 +5,12 @@ export const Route = createFileRoute('/auth/logout')({
   component: () => <div>Hello /auth/logout!</div>,
 
   beforeLoad: async () => {
-    await deleteCookie('EGDATA_AUTH');
+    if (import.meta.env.SSR) {
+      const { deleteCookie } = await import('vinxi/http');
+      deleteCookie('EGDATA_AUTH');
+    } else {
+      await deleteCookie('EGDATA_AUTH');
+    }
 
     throw redirect({
       to: '/',
