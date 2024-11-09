@@ -214,7 +214,7 @@ function RouteComponent() {
                             {rating.ratingSystem} {rating.ageControl}
                           </span>
                           <span className="text-xs text-left text-gray-300">
-                            {rating.descriptor.split(',').join(', ')}
+                            {rating.descriptor?.split(',').join(', ')}
                           </span>
                         </div>
                       </div>
