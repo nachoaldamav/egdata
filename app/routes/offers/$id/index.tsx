@@ -195,6 +195,15 @@ function RouteComponent() {
     return achievements?.some((set) => !set.isBase);
   }, [achievements]);
 
+  const totalXP = useMemo(() => {
+    return achievements
+      ?.flatMap((set) => set.achievements)
+      .reduce(
+        (acc, achievement) => acc + achievement.xp,
+        !isNotBaseGame ? 250 : 0,
+      );
+  }, [achievements, isNotBaseGame]);
+
   return (
     <div className="flex flex-col items-start justify-start h-full gap-1 px-4 w-full">
       <div className="grid gap-8 grid-cols-1 md:grid-cols-2 mt-4 w-full">
@@ -339,25 +348,23 @@ function RouteComponent() {
                     </>
                   )}
                 </div>
-                <Separator orientation="horizontal" />
-                <div className="flex flex-row items-center justify-center gap-10">
-                  {/** Sum XP of all achievements */}
-                  <div
-                    className={cn(
-                      'flex flex-col items-center justify-center gap-2 rounded-md px-4 text-center',
-                    )}
-                  >
-                    <span className="text-xl font-semibold">
-                      {achievements
-                        ?.flatMap((set) => set.achievements)
-                        .reduce(
-                          (acc, achievement) => acc + achievement.xp,
-                          !isNotBaseGame ? 250 : 0,
-                        )}{' '}
-                      XP
-                    </span>
-                  </div>
-                </div>
+                {(totalXP ?? 0) > 250 && (
+                  <>
+                    <Separator orientation="horizontal" />
+                    <div className="flex flex-row items-center justify-center gap-10">
+                      {/** Sum XP of all achievements */}
+                      <div
+                        className={cn(
+                          'flex flex-col items-center justify-center gap-2 rounded-md px-4 text-center',
+                        )}
+                      >
+                        <span className="text-xl font-semibold">
+                          {totalXP} XP
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </Card>
           </OverviewSection>
