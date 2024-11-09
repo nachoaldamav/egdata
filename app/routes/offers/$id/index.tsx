@@ -16,6 +16,15 @@ import { calculatePrice } from '@/lib/calculate-price';
 import type { Price } from '@/types/price';
 import { cn } from '@/lib/utils';
 import type { Hltb } from '@/types/hltb';
+import type { SinglePoll } from '@/types/polls';
+import StarsRating from '@/components/app/stars-rating';
+import { EpicTrophyIcon } from '@/components/icons/epic-trophy';
+import {
+  type rarities,
+  raritiesTextColors,
+} from '@/components/app/achievement-card';
+import { getRarity } from '@/lib/get-rarity';
+import { Separator } from '@/components/ui/separator';
 
 export const Route = createFileRoute('/offers/$id/')({
   component: () => {
@@ -95,6 +104,7 @@ function RouteComponent() {
     achievementsQuery,
     giveawaysQuery,
     hltbQuery,
+    reviewsQuery,
   ] = useQueries({
     queries: [
       {
@@ -148,6 +158,10 @@ function RouteComponent() {
         queryKey: ['offer', 'hltb', { id }],
         queryFn: () => httpClient.get<Hltb>(`/offers/${id}/hltb`),
       },
+      {
+        queryKey: ['offer', 'reviews', { id }],
+        queryFn: () => httpClient.get<SinglePoll>(`/offers/${id}/polls`),
+      },
     ],
   });
 
@@ -158,10 +172,28 @@ function RouteComponent() {
   const { data: achievements } = achievementsQuery;
   const { data: giveaways } = giveawaysQuery;
   const { data: hltb } = hltbQuery;
+  const { data: reviews } = reviewsQuery;
 
   if (!offer) {
     return null;
   }
+
+  const noOfAchievemenentsPerRarity = useMemo(() => {
+    return achievements
+      ?.flatMap((set) => set.achievements)
+      .reduce(
+        (acc, achievement) => {
+          const rarity = getRarity(achievement.xp);
+          acc[rarity] = (acc[rarity] || 0) + 1;
+          return acc;
+        },
+        {} as { [key in keyof typeof rarities]: number },
+      );
+  }, [achievements]);
+
+  const isNotBaseGame = useMemo(() => {
+    return achievements?.some((set) => !set.isBase);
+  }, [achievements]);
 
   return (
     <div className="flex flex-col items-start justify-start h-full gap-1 px-4 w-full">
@@ -191,9 +223,12 @@ function RouteComponent() {
             <Card className="w-full">
               <CardContent className="p-6">
                 <div className="flex flex-row items-center justify-center gap-4">
-                  <div className="bg-background rounded-lg p-4 w-fit max-w-72">
-                    {Object.entries(ageRating || {}).map(([key, rating]) => (
-                      <div className="flex flex-row gap-2" key={key}>
+                  {Object.entries(ageRating || {}).map(([key, rating]) => (
+                    <div
+                      className="bg-background rounded-lg p-4 w-fit max-w-72"
+                      key={key}
+                    >
+                      <div className="flex flex-row gap-2">
                         {rating.ratingImage && rating.ratingImage !== '' ? (
                           <img
                             key={key}
@@ -218,8 +253,11 @@ function RouteComponent() {
                           </span>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
+                  {!ageRating && (
+                    <div className="text-center">No age ratings found</div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -258,6 +296,69 @@ function RouteComponent() {
                   ))}
                 </div>
               </CardContent>
+            </Card>
+          </OverviewSection>
+          <OverviewSection title="Achievements">
+            <Card className="w-full bg-card text-white p-4">
+              <div className="flex flex-col gap-4 w-full">
+                <div className="flex flex-row items-center justify-center gap-10">
+                  {Object.entries(noOfAchievemenentsPerRarity ?? {}).map(
+                    ([rarity, count]) => (
+                      <div
+                        key={rarity}
+                        className={cn(
+                          'flex flex-col items-center justify-center gap-2 rounded-md p-4 text-center',
+                        )}
+                      >
+                        <EpicTrophyIcon
+                          className={cn('size-6', raritiesTextColors[rarity])}
+                        />
+                        <span className="text-xl font-bold">{count}</span>
+                      </div>
+                    ),
+                  )}
+                  {!isNotBaseGame && (
+                    <>
+                      <span className="text-2xl font-bold">{'='}</span>
+                      <div
+                        className={cn(
+                          'flex flex-col items-center justify-center gap-2 rounded-md p-4 text-center',
+                        )}
+                      >
+                        <EpicTrophyIcon
+                          className={cn('size-8', raritiesTextColors.platinum)}
+                        />
+                        <span className="text-2xl font-bold">
+                          {
+                            achievements
+                              ?.filter((set) => set.isBase)
+                              .flatMap((set) => set.achievements).length
+                          }
+                        </span>
+                      </div>
+                    </>
+                  )}
+                </div>
+                <Separator orientation="horizontal" />
+                <div className="flex flex-row items-center justify-center gap-10">
+                  {/** Sum XP of all achievements */}
+                  <div
+                    className={cn(
+                      'flex flex-col items-center justify-center gap-2 rounded-md px-4 text-center',
+                    )}
+                  >
+                    <span className="text-xl font-semibold">
+                      {achievements
+                        ?.flatMap((set) => set.achievements)
+                        .reduce(
+                          (acc, achievement) => acc + achievement.xp,
+                          !isNotBaseGame ? 250 : 0,
+                        )}{' '}
+                      XP
+                    </span>
+                  </div>
+                </div>
+              </div>
             </Card>
           </OverviewSection>
         </OverviewColumn>
@@ -303,7 +404,22 @@ function RouteComponent() {
                         </div>
                       </div>
                     ))}
+                    {!hltb?.gameTimes.length && (
+                      <div className="text-center">No game times found</div>
+                    )}
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+          </OverviewSection>
+          <OverviewSection title="Epic Players Rating">
+            <Card className="w-full">
+              <CardContent className="p-6">
+                <div className="flex flex-col items-center justify-center gap-2">
+                  <span className="text-6xl font-extrabold">
+                    {reviews?.averageRating?.toFixed(1) ?? '0.0'}
+                  </span>
+                  <StarsRating rating={reviews?.averageRating ?? 0} />
                 </div>
               </CardContent>
             </Card>
@@ -338,7 +454,7 @@ function PriceText({
   showDate,
 }: { price: Price | null | undefined; showDate?: boolean }) {
   if (!price) {
-    return null;
+    return <span>-</span>;
   }
 
   const fmtr = Intl.NumberFormat(undefined, {

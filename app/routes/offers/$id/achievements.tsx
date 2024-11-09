@@ -30,7 +30,7 @@ import type { SingleOffer } from '@/types/single-offer';
 import { CardStackIcon, EyeOpenIcon } from '@radix-ui/react-icons';
 import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { EyeClosedIcon, EyeOffIcon, TrophyIcon } from 'lucide-react';
+import { EyeClosedIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 export const Route = createFileRoute('/offers/$id/achievements')({
@@ -56,7 +56,7 @@ export const Route = createFileRoute('/offers/$id/achievements')({
     const offer = getFetchedQuery<SingleOffer>(
       queryClient,
       dehydrate(queryClient),
-      ['offer', { id: params.id }]
+      ['offer', { id: params.id }],
     );
 
     return {
@@ -73,7 +73,7 @@ export const Route = createFileRoute('/offers/$id/achievements')({
     const offer = getFetchedQuery<SingleOffer>(
       queryClient,
       ctx.loaderData.dehydratedState,
-      ['offer', { id: params.id }]
+      ['offer', { id: params.id }],
     );
 
     if (!offer) {
@@ -150,7 +150,7 @@ function AchievementsPage() {
           acc[rarity] = (acc[rarity] || 0) + 1;
           return acc;
         },
-        {} as { [key in keyof typeof rarities]: number }
+        {} as { [key in keyof typeof rarities]: number },
       );
   }, [achievements]);
 
@@ -193,7 +193,7 @@ function AchievementsPage() {
               <div
                 key={rarity}
                 className={cn(
-                  'flex flex-col items-center justify-center gap-2 rounded-md p-4 text-center'
+                  'flex flex-col items-center justify-center gap-2 rounded-md p-4 text-center',
                 )}
               >
                 <EpicTrophyIcon
@@ -201,12 +201,12 @@ function AchievementsPage() {
                 />
                 <span className="text-xl font-bold">{count}</span>
               </div>
-            )
+            ),
           )}
           <span className="text-2xl font-bold">{'='}</span>
           <div
             className={cn(
-              'flex flex-col items-center justify-center gap-2 rounded-md p-4 text-center'
+              'flex flex-col items-center justify-center gap-2 rounded-md p-4 text-center',
             )}
           >
             <EpicTrophyIcon
