@@ -1,8 +1,6 @@
 interface FetchOptions extends RequestInit {
   params?: Record<string, string | number | boolean | undefined | null>;
   headers?: Record<string, string>;
-  retries?: number;
-  retryDelay?: number;
   timeout?: number;
 }
 
@@ -28,82 +26,72 @@ class HttpFetch {
         ...this.defaultOptions.headers,
         ...options.headers,
       },
-      retries: options.retries || this.defaultOptions.retries || 3,
-      retryDelay: options.retryDelay || this.defaultOptions.retryDelay || 1000,
       timeout: options.timeout || this.defaultOptions.timeout || 5000,
     };
 
     if (finalOptions.params) {
       for (const [key, value] of Object.entries(finalOptions.params)) {
-        if (value === undefined || value === null) {
-          continue;
+        if (value !== undefined && value !== null) {
+          url.searchParams.append(key, String(value));
         }
-        url.searchParams.append(key, String(value));
       }
-
-      // biome-ignore lint/performance/noDelete: This is necessary to avoid sending the params in the body
       delete finalOptions.params;
     }
 
-    return this.fetchWithRetries<T>(url.toString(), finalOptions);
-  }
+    const controller = new AbortController();
+    const timeoutId = setTimeout(
+      () => controller.abort(),
+      finalOptions.timeout,
+    );
+    const response = await fetch(url.toString(), {
+      ...finalOptions,
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
 
-  private async fetchWithRetries<T>(
-    url: string,
-    options: FetchOptions,
-  ): Promise<T> {
-    const maxAttempts = options.retries!;
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    if (!response.ok) {
+      let errorData: any;
       try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), options.timeout);
-        const response = await fetch(url, {
-          ...options,
-          signal: controller.signal,
-        });
-        clearTimeout(timeoutId);
-
-        if (response.ok) {
-          const data = await response.json();
-          return data as T;
-        }
-
-        // Not OK response
-        let errorData: any;
-        try {
-          errorData = await response.json();
-        } catch (e) {
-          errorData = { message: 'Failed to parse error response as JSON' };
-        }
-        const error: any = new Error(`HTTP error! Status: ${response.status}`);
-        error.response = errorData;
-        error.status = response.status;
-
-        // If status is 404, do not retry
-        if (response.status === 404) {
-          throw error;
-        }
-
-        if (attempt === maxAttempts) {
-          // Last attempt, throw error
-          throw error;
-        }
-
-        await this.delay(options.retryDelay!);
-      } catch (error) {
-        // Handle fetch/network errors
-        if (attempt === maxAttempts) {
-          throw error;
-        } else {
-          await this.delay(options.retryDelay!);
-        }
+        errorData = await response.json();
+      } catch (e) {
+        errorData = { message: 'Failed to parse error response as JSON' };
       }
+      const error: any = new Error(`HTTP error! Status: ${response.status}`);
+      error.response = errorData;
+      error.status = response.status;
+      throw error;
     }
-    throw new Error('Max retries reached');
+
+    const data = await response.json();
+    return data as T;
   }
 
   private delay(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  public async retry<T>(
+    fetchMethod: () => Promise<T>,
+    { retries = 3, delay = 1000 }: { retries?: number; delay?: number } = {},
+  ): Promise<T> {
+    let lastError: any;
+
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        return await fetchMethod();
+      } catch (error) {
+        lastError = error;
+
+        // If status is 404 or it's the last attempt, don't retry
+        if ((error as any).status === 404 || attempt === retries) {
+          throw lastError;
+        }
+
+        await this.delay(delay);
+      }
+    }
+
+    throw lastError || new Error('Max retries reached');
   }
 
   public get<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
@@ -178,8 +166,6 @@ export const httpClient = new HttpFetch(
         ? 'egdata.app/0.0.1 (https://egdata.app)'
         : undefined,
     },
-    retries: 3,
-    retryDelay: 1000,
     timeout: 5000,
   },
 );
