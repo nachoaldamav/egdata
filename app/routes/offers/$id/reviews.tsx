@@ -10,7 +10,7 @@ import type { SingleReview } from '@/types/reviews';
 import type { RatingsType } from '@egdata/core.schemas.ratings';
 import { getFetchedQuery } from '@/lib/get-fetched-query';
 import type { SingleOffer } from '@/types/single-offer';
-import { Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import type { SinglePoll } from '@/types/polls';
 import {
   Card,
@@ -46,13 +46,6 @@ import { Input } from '@/components/ui/input';
 import { InfoCircledIcon, ReloadIcon } from '@radix-ui/react-icons';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import {
-  MDXEditor,
-  headingsPlugin,
-  listsPlugin,
-  markdownShortcutPlugin,
-  quotePlugin,
-} from '@mdxeditor/editor';
 import StarsRating from '@/components/app/stars-rating';
 import { CircularRating } from '@/components/app/circular-rating';
 import Markdown from 'react-markdown';
@@ -877,6 +870,13 @@ function ReviewForm({ setIsOpen, offer }: ReviewFormProps) {
   const [rating, setRating] = useState(5);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [content, setContent] = useState('Please enter your review here');
+  const MDXEditor = lazy(() =>
+    import('@mdxeditor/editor').then((mod) => {
+      return {
+        default: mod.MDXEditor,
+      };
+    }),
+  );
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
