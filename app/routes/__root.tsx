@@ -1,11 +1,11 @@
-import { createRootRoute, Link } from '@tanstack/react-router';
+import { createRootRouteWithContext, Link } from '@tanstack/react-router';
 import { Outlet, ScrollRestoration } from '@tanstack/react-router';
 import { Body, Head, Html, Meta, Scripts } from '@tanstack/start';
 import type * as React from 'react';
 import styles from '../styles.css?url';
 import Navbar from '@/components/app/navbar';
 import { getQueryClient } from '@/lib/client';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { type QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CountryProvider } from '@/providers/country';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
@@ -18,7 +18,9 @@ import { PreferencesProvider } from '@/providers/preferences';
 import { CompareProvider } from '@/providers/compare';
 import { ComparisonPortal } from '@/components/app/comparison-portal';
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{
+  queryClient: QueryClient;
+}>()({
   meta: () => [
     {
       charSet: 'utf-8',
@@ -206,8 +208,8 @@ export const Route = createRootRoute({
     };
   },
 
-  beforeLoad: async ({ cause }) => {
-    const queryClient = getQueryClient();
+  beforeLoad: async ({ cause, context }) => {
+    const { queryClient } = context;
     let url: URL;
     let cookieHeader: string;
 
@@ -301,7 +303,6 @@ export const Route = createRootRoute({
       country,
       cookies,
       url,
-      queryClient,
       epicToken,
     };
   },

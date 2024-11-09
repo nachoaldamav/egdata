@@ -51,11 +51,9 @@ import {
   createFileRoute,
   Link,
   Outlet,
-  redirect,
   useLocation,
   useNavigate,
 } from '@tanstack/react-router';
-import { useEffect } from 'react';
 
 export const Route = createFileRoute('/offers/$id')({
   component: () => {
@@ -79,21 +77,9 @@ export const Route = createFileRoute('/offers/$id')({
   },
 
   beforeLoad: async (ctx) => {
-    const { params, context, cause } = ctx;
+    const { params, context } = ctx;
     const { country, queryClient } = context;
     const { id } = params;
-
-    const subPath = ctx.location.pathname
-      .toString()
-      .split(`/${params.id}/`)[1] as string | undefined;
-
-    if (!subPath && cause !== 'preload') {
-      throw redirect({
-        to: `/offers/${params.id}/price`,
-        replace: true,
-        resetScroll: true,
-      });
-    }
 
     await Promise.allSettled([
       queryClient.prefetchQuery({
@@ -160,17 +146,7 @@ function OfferPage() {
 
   const { data: offer, isLoading: offerLoading } = offerQuery;
 
-  const subPath = location.pathname.split(`/${id}/`)[1] ?? 'price';
-
-  useEffect(() => {
-    if (!subPath || subPath === '') {
-      navigate({
-        to: `/offers/${id}/price`,
-        replace: true,
-        resetScroll: true,
-      });
-    }
-  }, [subPath, id, navigate]);
+  const subPath = location.pathname.split(`/${id}/`)[1];
 
   if (offerLoading) {
     return <div>Loading...</div>;
@@ -388,6 +364,11 @@ function OfferPage() {
         <SectionsNav
           links={[
             {
+              id: '',
+              label: 'Overview',
+              href: `/offers/${offer.id}`,
+            },
+            {
               id: 'price',
               label: 'Price',
               href: `/offers/${offer.id}/price`,
@@ -428,7 +409,7 @@ function OfferPage() {
               href: `/offers/${offer.id}/reviews`,
             },
           ]}
-          activeSection={subPath ?? 'price'}
+          activeSection={subPath ?? ''}
           onSectionChange={(id) => {
             navigate({
               to: `/offers/${offer.id}/${id}`,
