@@ -8,6 +8,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { calculateSize } from '@/lib/calculate-size';
 import { getHashType } from '@/lib/get-hash-type';
 import { httpClient } from '@/lib/http-client';
@@ -146,7 +152,7 @@ function BuildPage() {
                       'text-xs text-gray-400',
                       build.downloadSizeBytes === 0
                         ? 'opacity-0'
-                        : 'opacity-100'
+                        : 'opacity-100',
                     )}
                   >
                     (
@@ -182,6 +188,59 @@ function BuildPage() {
                     hour: 'numeric',
                     minute: 'numeric',
                   })}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-medium">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <span className="underline decoration-dotted decoration-gray-300/50 underline-offset-4 cursor-help">
+                          Technologies
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-sm max-w-md">
+                          We use the{' '}
+                          <a
+                            href="https://steamdb.info/tech/"
+                            className="text-blue-700 font-semibold"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            SteamDB
+                          </a>{' '}
+                          technologies list to track the used engines and
+                          different technologies from the game files.
+                          <br />
+                          <a
+                            href="https://github.com/SteamDatabase/FileDetectionRuleSets"
+                            className="text-blue-700 font-semibold"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Source
+                          </a>
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </TableCell>
+                <TableCell className="border-l-gray-300/10 border-l">
+                  <div className="grid grid-cols-3 gap-2">
+                    {build.technologies
+                      .filter((tech) => tech.section !== 'Evidence')
+                      .map((tech) => (
+                        <span
+                          key={`${tech.section}.${tech.technology}`}
+                          className="inline-flex gap-1 items-center justify-start"
+                        >
+                          <span className="text-xs text-gray-300">
+                            {tech.section} / {tech.technology}
+                          </span>
+                        </span>
+                      ))}
+                  </div>
                 </TableCell>
               </TableRow>
             </TableBody>

@@ -9,6 +9,7 @@ export interface SingleBuild {
   installedSizeBytes: number;
   createdAt: string;
   updatedAt: string;
+  technologies: Technology[];
 }
 
 interface Metadata {
