@@ -104,7 +104,19 @@ export const columns: ColumnDef<Build>[] = [
     enableSorting: true,
     enableColumnFilter: true,
     cell: (info) => {
-      return <span className="font-mono">{info.getValue() as string}</span>;
+      const version = info.getValue() as string;
+      return (
+        <Tooltip>
+          <TooltipTrigger>
+            <span className="font-mono underline decoration-dotted underline-offset-4">
+              {version.split('+')[0]}
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="text-xs font-mono">{version}</p>
+          </TooltipContent>
+        </Tooltip>
+      );
     },
   },
   {

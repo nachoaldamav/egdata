@@ -400,7 +400,13 @@ function RouteComponent() {
             <Card className="w-full">
               <CardContent className="p-6">
                 <div className="flex flex-row items-center justify-center gap-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div
+                    className={cn(
+                      'grid grid-cols-1 md:grid-cols-2 gap-6',
+                      !hltb?.gameTimes.length && 'md:grid-cols-1',
+                      hltb?.gameTimes.length === 1 && 'md:grid-cols-1',
+                    )}
+                  >
                     {hltb?.gameTimes.map((time) => (
                       <div key={time._id} className="text-center">
                         <div className="text-2xl font-bold text-white mb-1">
