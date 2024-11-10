@@ -27,7 +27,7 @@ export const saveAuthCookie = createServerFn(
     const certificate = await readFile(
       (process.env.JWT_SIGNING_CERT as string) ||
         import.meta.env.JWT_SIGNING_CERT,
-      'utf-8'
+      'utf-8',
     );
 
     const token = jwt.sign(value, certificate, {
@@ -45,7 +45,7 @@ export const saveAuthCookie = createServerFn(
     });
 
     return token;
-  }
+  },
 );
 
 export const decodeJwt = createServerFn(
@@ -55,26 +55,26 @@ export const decodeJwt = createServerFn(
       | string
       | {
           payload: string;
-        }
+        },
   ) => {
     try {
       const certificate = await readFile(
         (process.env.JWT_SIGNING_CERT as string) ||
           import.meta.env.JWT_SIGNING_CERT,
-        'utf-8'
+        'utf-8',
       );
       return jwt.verify(
         typeof token === 'string' ? token : token.payload,
         certificate,
         {
           algorithms: ['RS256'],
-        }
+        },
       ) as EpicToken;
     } catch (error) {
       console.error(`Failed to decode JWT ${token}`, error);
       return null;
     }
-  }
+  },
 );
 
 /**

@@ -291,6 +291,7 @@ function OfferPage() {
                             day: 'numeric',
                             hour: 'numeric',
                             minute: 'numeric',
+                            timeZone: 'UTC',
                           },
                         )
                       : 'Not available'}
@@ -313,6 +314,7 @@ function OfferPage() {
                             day: 'numeric',
                             hour: 'numeric',
                             minute: 'numeric',
+                            timeZone: 'UTC',
                           },
                         )
                       : 'Not available'}
