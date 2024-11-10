@@ -266,7 +266,10 @@ function OfferPage() {
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">Release Date</TableCell>
-                  <TableCell className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l">
+                  <TableCell
+                    className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l"
+                    suppressHydrationWarning
+                  >
                     <ReleaseDate
                       releaseDate={offer.releaseDate}
                       pcReleaseDate={offer.pcReleaseDate}
@@ -275,7 +278,10 @@ function OfferPage() {
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">Last Update</TableCell>
-                  <TableCell className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l">
+                  <TableCell
+                    className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l"
+                    suppressHydrationWarning
+                  >
                     {offer.lastModifiedDate
                       ? new Date(offer.lastModifiedDate).toLocaleDateString(
                           'en-UK',
@@ -294,7 +300,10 @@ function OfferPage() {
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">Creation Date</TableCell>
-                  <TableCell className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l">
+                  <TableCell
+                    className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l"
+                    suppressHydrationWarning
+                  >
                     {offer.creationDate
                       ? new Date(offer.creationDate).toLocaleDateString(
                           'en-UK',
