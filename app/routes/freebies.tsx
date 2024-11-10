@@ -45,6 +45,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { z } from 'zod';
 import { default as Motion, type MotionNumberProps } from 'motion-number';
 import { getBuyLink } from '@/lib/get-build-link';
+import { useLocale } from '@/hooks/use-locale';
 
 const sortByList: Record<string, string> = {
   giveawayDate: 'Giveaway Date',
@@ -521,6 +522,7 @@ function FreeGames() {
 
 function GiveawaysStats() {
   const { country } = useCountry();
+  const { locale } = useLocale();
   const { data, isLoading, isError } = useQuery({
     queryKey: ['giveaways-stats', { country }],
     queryFn: () => getGiveawaysStats({ country }),
@@ -565,7 +567,7 @@ function GiveawaysStats() {
                     {calculatePrice(
                       data.totalValue.discountPrice,
                       data.totalValue.currencyCode,
-                    ).toLocaleString(undefined, {
+                    ).toLocaleString(locale, {
                       style: 'currency',
                       currency: data.totalValue.currencyCode,
                     })}
@@ -681,10 +683,11 @@ function ClientOnlyMotionNumber({
   className,
   ...props
 }: MotionNumberProps) {
+  const { locale } = useLocale();
   if (typeof window === 'undefined')
     return (
       <span className={className}>
-        {new Intl.NumberFormat(undefined, format).format(
+        {new Intl.NumberFormat(locale, format).format(
           typeof value === 'string' ? Number.parseInt(value) : value,
         )}
       </span>

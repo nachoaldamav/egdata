@@ -8,6 +8,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useCountry } from '@/hooks/use-country';
+import { useLocale } from '@/hooks/use-locale';
 import { calculatePrice } from '@/lib/calculate-price';
 import { getQueryClient } from '@/lib/client';
 import { getFetchedQuery } from '@/lib/get-fetched-query';
@@ -251,7 +252,8 @@ function CollectionPage() {
 }
 
 function OfferInTop({ offer }: { offer: OfferWithTops }) {
-  const fmt = Intl.NumberFormat(undefined, {
+  const { locale } = useLocale();
+  const fmt = Intl.NumberFormat(locale, {
     style: 'currency',
     currency: offer.price?.price.currencyCode || 'USD',
   });

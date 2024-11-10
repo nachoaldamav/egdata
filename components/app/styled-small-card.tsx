@@ -4,12 +4,14 @@ import { calculatePrice } from '@/lib/calculate-price';
 import { getImage } from '@/lib/getImage';
 import { cn } from '@/lib/utils';
 import type { SingleOffer } from '@/types/single-offer';
+import { useLocale } from '@/hooks/use-locale';
 
 export const StyledSmallCard: React.FC<{
   offer: SingleOffer;
   title: string;
   showPrice?: boolean;
 }> = ({ offer, title, showPrice = false }) => {
+  const { locale } = useLocale();
   const imageUrl =
     getImage(offer.keyImages, [
       'DieselGameBox',
@@ -23,7 +25,7 @@ export const StyledSmallCard: React.FC<{
     <Link
       className="flex items-center justify-between bg-gray-800 rounded-lg shadow-lg w-full h-16 relative overflow-hidden group"
       to={`/offers/${offer.id}`}
-      prefetch="viewport"
+      preload="intent"
     >
       <span className="text-white font-bold flex flex-col px-5 gap-1 z-10">
         <h6 className="text-xs">{title}</h6>
@@ -35,7 +37,7 @@ export const StyledSmallCard: React.FC<{
         <span className="text-white font-bold flex flex-col px-5 gap-1 z-10">
           {offer.price?.price.discount > 0 && (
             <span className="text-xs text-gray-100/50 line-through">
-              {Intl.NumberFormat(undefined, {
+              {Intl.NumberFormat(locale, {
                 style: 'currency',
                 currency: offer.price.price.currencyCode,
               }).format(
@@ -47,7 +49,7 @@ export const StyledSmallCard: React.FC<{
             </span>
           )}
           <h4 className="text-lg font-bold">
-            {Intl.NumberFormat(undefined, {
+            {Intl.NumberFormat(locale, {
               style: 'currency',
               currency: offer.price.price.currencyCode,
             }).format(

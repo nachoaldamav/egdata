@@ -29,6 +29,7 @@ import { Skeleton } from '../ui/skeleton';
 import { httpClient } from '@/lib/http-client';
 import { useRegions } from '@/hooks/use-regions';
 import { Separator } from '../ui/separator';
+import { useLocale } from '@/hooks/use-locale';
 
 const chartConfig = {
   price: {
@@ -141,6 +142,7 @@ const calculateSinceDate = (timeRange: 'all' | '3y' | '1y') => {
 
 export function PriceChart({ selectedRegion, id }: PriceChartProps) {
   const { regions } = useRegions();
+  const { locale } = useLocale();
   const [timeRange, setTimeRange] = React.useState('1y');
   const [compareUSD, setCompareUSD] = React.useState(false);
 
@@ -370,7 +372,7 @@ export function PriceChart({ selectedRegion, id }: PriceChartProps) {
               tickMargin={0}
               width={80}
               tickFormatter={(value) => {
-                const formatter = new Intl.NumberFormat(undefined, {
+                const formatter = new Intl.NumberFormat(locale, {
                   style: 'currency',
                   currency: compareUSD
                     ? 'USD'
@@ -397,7 +399,7 @@ export function PriceChart({ selectedRegion, id }: PriceChartProps) {
                   formatter={(value, key, entry) => {
                     const regionName =
                       regions?.[selectedRegion]?.description || selectedRegion;
-                    const formatter = new Intl.NumberFormat(undefined, {
+                    const formatter = new Intl.NumberFormat(locale, {
                       style: 'currency',
                       currency: compareUSD
                         ? 'USD'

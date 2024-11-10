@@ -41,7 +41,7 @@ export function SalesModule({
       <Link
         className="text-xl font-bold text-left inline-flex group items-center gap-2"
         to={`/promotions/${eventId}`}
-        preload="viewport"
+        preload="intent"
       >
         {event}{' '}
         <ArrowRightIcon className="w-6 h-6 inline-block group-hover:translate-x-1 transition-transform duration-300 ease-in-out" />

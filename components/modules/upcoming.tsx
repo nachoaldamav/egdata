@@ -15,6 +15,7 @@ import { Image } from '@/components/app/image';
 import { getImage } from '@/lib/getImage';
 import { Badge } from '../ui/badge';
 import { useNavigate } from '@tanstack/react-router';
+import { useLocale } from '@/hooks/use-locale';
 
 type UpcomingOffer = Pick<
   SingleOffer,
@@ -127,7 +128,8 @@ function TablePrice({
   price: UpcomingOffer['price'] | null;
   prePurchase: boolean | null;
 }) {
-  const fmt = Intl.NumberFormat(undefined, {
+  const { locale } = useLocale();
+  const fmt = Intl.NumberFormat(locale, {
     style: 'currency',
     currency: price?.price.currencyCode || 'USD',
   });

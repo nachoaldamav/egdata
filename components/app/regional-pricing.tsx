@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import type { Price } from '@/types/price';
 import { calculatePrice } from '@/lib/calculate-price';
 import { Badge } from '@/components/ui/badge';
+import { useLocale } from '@/hooks/use-locale';
 
 interface RegionData {
   region: Region;
@@ -48,6 +49,7 @@ const getRegionalPricing = async ({ id }: { id: string }) => {
 
 export function RegionalPricing({ id }: { id: string }) {
   const { country } = useCountry();
+  const { locale } = useLocale();
   const [selectedRegion, setSelectedRegion] = useState('EURO');
   const { regions } = useRegions();
   const {
@@ -166,12 +168,12 @@ export function RegionalPricing({ id }: { id: string }) {
               minPrice: 0,
             };
 
-            const currencyFormatter = new Intl.NumberFormat(undefined, {
+            const currencyFormatter = new Intl.NumberFormat(locale, {
               style: 'currency',
               currency: lastPrice.price.currencyCode,
             });
 
-            const usdFormatter = new Intl.NumberFormat(undefined, {
+            const usdFormatter = new Intl.NumberFormat(locale, {
               style: 'currency',
               currency: 'USD',
             });

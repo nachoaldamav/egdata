@@ -10,6 +10,7 @@ import { useCountry } from '@/hooks/use-country';
 import { getTopSection } from '@/queries/top-section';
 import { calculatePrice } from '@/lib/calculate-price';
 import { Link } from '@tanstack/react-router';
+import { useLocale } from '@/hooks/use-locale';
 
 const platforms: Record<string, string> = {
   '9547': 'Windows',
@@ -27,6 +28,7 @@ export function TopSection({
 }) {
   const { genres } = useGenres();
   const { country } = useCountry();
+  const { locale } = useLocale();
   const { data, isLoading } = useQuery({
     queryKey: ['top-section', { slug, limit: 1 }],
     queryFn: () => getTopSection(slug),
@@ -147,7 +149,7 @@ export function TopSection({
                       {price.price.discountPrice === 0 ? (
                         <span>Free</span>
                       ) : (
-                        new Intl.NumberFormat(undefined, {
+                        new Intl.NumberFormat(locale, {
                           style: 'currency',
                           currency: price.price.currencyCode,
                         }).format(
@@ -163,7 +165,7 @@ export function TopSection({
                         {price.price.originalPrice === 0 ? (
                           <span>Free</span>
                         ) : (
-                          new Intl.NumberFormat(undefined, {
+                          new Intl.NumberFormat(locale, {
                             style: 'currency',
                             currency: price.price.currencyCode,
                           }).format(

@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { offersDictionary } from '@/lib/offers-dictionary';
 import { calculatePrice } from '@/lib/calculate-price';
 import { textPlatformIcons } from './platform-icons';
+import { useLocale } from '@/hooks/use-locale';
 
 export function GameCard({
   game,
@@ -28,7 +29,7 @@ export function GameCard({
       <Link
         to={`/offers/${game.id}`}
         className="w-96 relative select-none"
-        prefetch="viewport"
+        preload="intent"
       >
         <Card className="w-72 lg:max-w-sm rounded-lg overflow-hidden shadow-lg">
           <Image
@@ -79,19 +80,20 @@ export function OfferListItem({
     | 'giveaway'
   >;
 }) {
+  const { locale } = useLocale();
   const epicImage = getImage(game.keyImages, [
     'DieselGameBoxWide',
     'OfferImageWide',
     'TakeoverWide',
   ])?.url as string | undefined;
 
-  const priceFmtd = new Intl.NumberFormat(undefined, {
+  const priceFmtd = new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: game.price?.price.currencyCode || 'USD',
   });
 
   return (
-    <Link to={`/offers/${game.id}`} className="w-full" prefetch="viewport">
+    <Link to={`/offers/${game.id}`} className="w-full" preload="intent">
       <Card className="flex flex-row w-full bg-card text-white p-2 rounded-lg h-fit relative">
         {/* Image Section */}
         <div className="flex-shrink-0 w-72 h-auto inline-flex items-center justify-center relative">

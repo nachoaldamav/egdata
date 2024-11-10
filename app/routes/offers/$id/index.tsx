@@ -25,6 +25,7 @@ import {
 } from '@/components/app/achievement-card';
 import { getRarity } from '@/lib/get-rarity';
 import { Separator } from '@/components/ui/separator';
+import { useLocale } from '@/hooks/use-locale';
 
 export const Route = createFileRoute('/offers/$id/')({
   component: () => {
@@ -466,11 +467,12 @@ function PriceText({
   price,
   showDate,
 }: { price: Price | null | undefined; showDate?: boolean }) {
+  const { locale } = useLocale();
   if (!price) {
     return <span>-</span>;
   }
 
-  const fmtr = Intl.NumberFormat(undefined, {
+  const fmtr = Intl.NumberFormat(locale, {
     style: 'currency',
     currency: price.price.currencyCode || 'USD',
   });

@@ -21,6 +21,7 @@ import { cn } from '@/lib/utils';
 import { EqualIcon } from 'lucide-react';
 import { EGSIcon } from '../icons/egs';
 import { Link } from '@tanstack/react-router';
+import { useLocale } from '@/hooks/use-locale';
 
 const trackEvent = (
   offers: { id: string; namespace: string }[],
@@ -38,6 +39,7 @@ const trackEvent = (
 
 export function Bundle({ id, offer }: { id: string; offer: SingleOffer }) {
   const { country } = useCountry();
+  const { locale } = useLocale();
   const [api, setApi] = useState<CarouselApi>();
   const {
     data: collection,
@@ -116,7 +118,7 @@ export function Bundle({ id, offer }: { id: string; offer: SingleOffer }) {
 
   if (isError) return null;
 
-  const priceFmtr = new Intl.NumberFormat(undefined, {
+  const priceFmtr = new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: collection?.bundlePrice.price.currencyCode ?? 'USD',
   });

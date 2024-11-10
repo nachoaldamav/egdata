@@ -30,6 +30,7 @@ import type { Price as OfferPrice } from '@/types/price';
 import { httpClient } from '@/lib/http-client';
 import { calculatePrice } from '@/lib/calculate-price';
 import { Link } from '@tanstack/react-router';
+import { useLocale } from '@/hooks/use-locale';
 
 const SLIDE_DELAY = 15_000;
 
@@ -392,7 +393,7 @@ function FeaturedOffer({ offer }: { offer: SingleOffer }) {
               <Price offer={offer} />
             </div>
             <Button asChild size="lg" className="w-full mt-4 h-10">
-              <Link to={`/offers/${offer.id}`} prefetch="viewport">
+              <Link to={`/offers/${offer.id}`} preload="intent">
                 Check Offer
               </Link>
             </Button>
@@ -404,7 +405,8 @@ function FeaturedOffer({ offer }: { offer: SingleOffer }) {
 }
 
 function Price({ offer }: { offer: SingleOffer }) {
-  const priceFmtd = new Intl.NumberFormat(undefined, {
+  const { locale } = useLocale();
+  const priceFmtd = new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: offer.price?.price.currencyCode || 'USD',
   });

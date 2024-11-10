@@ -18,6 +18,7 @@ import { ArrowRightIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { httpClient } from '@/lib/http-client';
 import { Link } from '@tanstack/react-router';
+import { useLocale } from '@/hooks/use-locale';
 
 export function GiveawaysCarousel({ hideTitle }: { hideTitle?: boolean }) {
   const { country } = useCountry();
@@ -76,6 +77,7 @@ export function GiveawaysCarousel({ hideTitle }: { hideTitle?: boolean }) {
 }
 
 function GiveawayCard({ offer }: { offer: GiveawayOffer }) {
+  const { locale } = useLocale();
   const startDate = new Date(offer.giveaway.startDate);
   const endDate = new Date(offer.giveaway.endDate);
   const now = new Date();
@@ -83,7 +85,7 @@ function GiveawayCard({ offer }: { offer: GiveawayOffer }) {
   const isOnGoing = startDate < now && endDate > now;
   const isUpcoming = startDate > now;
 
-  const priceFmtr = new Intl.NumberFormat(undefined, {
+  const priceFmtr = new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: offer.price?.price.currencyCode || 'USD',
   });

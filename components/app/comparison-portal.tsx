@@ -24,6 +24,7 @@ import { Button } from '../ui/button';
 import { platformIcons } from './platform-icons';
 import { GameFeatures } from './features';
 import { calculatePrice } from '@/lib/calculate-price';
+import { useLocale } from '@/hooks/use-locale';
 
 const CompareIcon = (props: JSX.IntrinsicElements['svg']) => (
   <svg
@@ -537,6 +538,7 @@ interface RegionalPrice {
 
 function Price({ id }: { id: string }) {
   const { country } = useCountry();
+  const { locale } = useLocale();
   const { data, isLoading, isError } = useQuery({
     queryKey: ['regional-price', { id, country }],
     queryFn: () =>
@@ -567,7 +569,7 @@ function Price({ id }: { id: string }) {
     );
   }
 
-  const priceFmtr = new Intl.NumberFormat(undefined, {
+  const priceFmtr = new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: data?.currentPrice?.price?.currencyCode ?? 'USD',
   });

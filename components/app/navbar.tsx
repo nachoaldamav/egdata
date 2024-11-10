@@ -256,7 +256,7 @@ export default function Navbar() {
       <Link
         to="/"
         className="hidden lg:flex justify-center items-center"
-        preload="viewport"
+        preload="intent"
       >
         <img
           src="https://cdn.egdata.app/logo_simple_white_clean.png"
@@ -282,7 +282,7 @@ export default function Navbar() {
                     }
                     className={cn(
                       'hover:text-white z-50',
-                      'active:text-white data-[active]:text-white data-[state=open]:text-white'
+                      'active:text-white data-[active]:text-white data-[state=open]:text-white',
                     )}
                   >
                     {route.name}
@@ -447,7 +447,7 @@ const ListItem = React.forwardRef<React.ElementRef<'a'>, ListItemProps>(
               'block select-none rounded-md leading-none no-underline outline-none transition-colors h-full',
               'hover:text-accent-foreground focus:bg-accent hover:bg-accent focus:text-accent-foreground',
               'group relative overflow-hidden',
-              className
+              className,
             )}
             to={href ?? '/'}
             {...props}
@@ -456,7 +456,7 @@ const ListItem = React.forwardRef<React.ElementRef<'a'>, ListItemProps>(
               <div
                 className={cn(
                   'text-sm font-medium leading-none',
-                  !children && 'text-lg font-semibold'
+                  !children && 'text-lg font-semibold',
                 )}
               >
                 {title}
@@ -481,7 +481,7 @@ const ListItem = React.forwardRef<React.ElementRef<'a'>, ListItemProps>(
         </NavigationMenuLink>
       </li>
     );
-  }
+  },
 );
 
 ListItem.displayName = 'ListItem';

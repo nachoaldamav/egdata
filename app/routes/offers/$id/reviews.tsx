@@ -51,6 +51,7 @@ import { CircularRating } from '@/components/app/circular-rating';
 import Markdown from 'react-markdown';
 import { generateOfferMeta } from '@/lib/generate-offer-meta';
 import { getQueryClient } from '@/lib/client';
+import { useLocale } from '@/hooks/use-locale';
 
 type ReviewSummary = {
   overallScore: number;
@@ -204,6 +205,7 @@ export const Route = createFileRoute('/offers/$id/reviews')({
 });
 
 function Reviews() {
+  const { locale } = useLocale();
   const { userCanReview, offer, id } = Route.useLoaderData();
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState<ReviewsFilter>('all');
@@ -291,7 +293,7 @@ function Reviews() {
                 <div className="flex flex-row items-center justify-evenly gap-4">
                   <div className="flex flex-col items-center justify-center text-center">
                     <h2 className="text-6xl font-bold mb-1">
-                      {poll?.averageRating.toLocaleString(undefined, {
+                      {poll?.averageRating.toLocaleString(locale, {
                         maximumFractionDigits: 1,
                       }) ?? '-'}
                     </h2>
@@ -354,7 +356,7 @@ function Reviews() {
                   <div className="flex flex-col items-center justify-between gap-4">
                     <span className="text-sm">
                       Based on{' '}
-                      {summary?.totalReviews.toLocaleString(undefined, {
+                      {summary?.totalReviews.toLocaleString(locale, {
                         maximumFractionDigits: 0,
                       })}{' '}
                       reviews

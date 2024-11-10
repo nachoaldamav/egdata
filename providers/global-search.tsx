@@ -31,6 +31,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { httpClient } from '@/lib/http-client';
 import { calculatePrice } from '@/lib/calculate-price';
+import { useLocale } from '@/hooks/use-locale';
 
 interface Search {
   elements: Element[];
@@ -66,7 +67,7 @@ export function SearchProvider({ children }: SearchProviderProps) {
           }));
         });
     }, 300), // 300ms debounce time
-    []
+    [],
   );
 
   useEffect(() => {
@@ -147,7 +148,7 @@ function SearchPortal({
             '/multisearch/offers',
             {
               params: { query: searchQuery },
-            }
+            },
           );
           return data;
         },
@@ -165,7 +166,7 @@ function SearchPortal({
             '/multisearch/items',
             {
               params: { query: searchQuery },
-            }
+            },
           );
           return data;
         },
@@ -183,7 +184,7 @@ function SearchPortal({
             '/multisearch/sellers',
             {
               params: { query: searchQuery },
-            }
+            },
           );
           return data;
         },
@@ -192,7 +193,7 @@ function SearchPortal({
     ],
   });
   const [selected, setSelected] = useState<{ type: string; id: string } | null>(
-    null
+    null,
   );
 
   useEffect(() => {
@@ -252,7 +253,7 @@ function SearchPortal({
   const calculateDisplayCounts = (
     offers: number,
     items: number,
-    sellers: number
+    sellers: number,
   ) => {
     const totalSlots = 9;
     let remainingSlots = totalSlots;
@@ -513,14 +514,14 @@ function SearchPortal({
                   data={
                     selected.type === 'offer'
                       ? offersData?.hits.find(
-                          (offer) => offer.id === selected.id
+                          (offer) => offer.id === selected.id,
                         )
                       : selected.type === 'item'
                         ? itemsData?.hits.find(
-                            (item) => item._id === selected.id
+                            (item) => item._id === selected.id,
                           )
                         : sellersData?.hits.find(
-                            (seller) => seller._id === selected.id
+                            (seller) => seller._id === selected.id,
                           )
                   }
                 />
@@ -659,6 +660,7 @@ function ResultItemSkeleton() {
 }
 
 function OfferPrice({ id, country }: { id: string; country: string }) {
+  const { locale } = useLocale();
   const { data, isLoading, error } = useQuery({
     queryKey: ['offer-price', { id, country }],
     queryFn: async () => {
@@ -666,7 +668,7 @@ function OfferPrice({ id, country }: { id: string; country: string }) {
         `/offers/${id}/price`,
         {
           params: { country },
-        }
+        },
       );
       return data;
     },
@@ -685,10 +687,9 @@ function OfferPrice({ id, country }: { id: string; country: string }) {
     return null;
   }
 
-  const priceFmtr = new Intl.NumberFormat(undefined, {
+  const priceFmtr = new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: data.price.currencyCode,
-    signDisplay: 'negative',
     currencySign: 'standard',
   });
 
@@ -699,30 +700,8 @@ function OfferPrice({ id, country }: { id: string; country: string }) {
   return (
     <p>
       {priceFmtr.format(
-        calculatePrice(data.price.discountPrice, data.price.currencyCode)
+        calculatePrice(data.price.discountPrice, data.price.currencyCode),
       )}
     </p>
-  );
-}
-
-function ComputerIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect width="14" height="8" x="5" y="2" rx="2" />
-      <rect width="20" height="8" x="2" y="14" rx="2" />
-      <path d="M6 18h2" />
-      <path d="M12 18h6" />
-    </svg>
   );
 }
