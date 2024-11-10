@@ -8,7 +8,6 @@ import {
   CarouselContent,
   CarouselItem,
 } from '@/components/ui/carousel';
-import { shuffle } from '@/lib/shuffle';
 import { useCountry } from '@/hooks/use-country';
 import { Skeleton } from '../ui/skeleton';
 import { ArrowUpIcon } from '@radix-ui/react-icons';
@@ -35,38 +34,14 @@ export function SellerOffers({
       },
     ],
     queryFn: () =>
-      httpClient
-        .get<SingleOffer[]>(`/sellers/${id}`, {
-          params: {
-            country,
-            offerType: 'BASE_GAME',
-            limit: 15,
-          },
-        })
-        .then((res) => shuffle(res)),
+      httpClient.get<SingleOffer[]>(`/sellers/${id}`, {
+        params: {
+          country,
+          offerType: 'BASE_GAME',
+          limit: 15,
+        },
+      }),
   });
-
-  if (isLoading) {
-    return (
-      <section className="w-full h-full">
-        <h2 className="text-xl font-bold text-left inline-flex group items-center gap-2">
-          More from {name}
-        </h2>
-        <Skeleton className="mt-2 h-[400px] p-4" />
-      </section>
-    );
-  }
-
-  if (isError) {
-    return null;
-  }
-
-  if (
-    !data?.length ||
-    data.filter((offer) => offer.id !== currentOffer).length === 0
-  ) {
-    return null;
-  }
 
   const handlePreviousSlide = () => {
     api?.scrollPrev();
@@ -80,7 +55,7 @@ export function SellerOffers({
     <section className="w-full h-full" id={`seller-offers-${id}`}>
       <div className="flex justify-between items-center mb-4">
         <Link
-          className="text-xl font-bold text-left inline-flex group items-center gap-2 group"
+          className="text-xl font-bold text-left inline-flex group items-center gap-2"
           to={`/sellers/${id}`}
         >
           More from {name}
@@ -103,17 +78,30 @@ export function SellerOffers({
           </button>
         </div>
       </div>
-      <Carousel className="mt-2 h-full p-4" setApi={setApi}>
-        <CarouselContent>
-          {data
-            ?.filter((offer) => offer.id !== currentOffer)
-            .map((game) => (
-              <CarouselItem key={game.id} className="basis-1/1 lg:basis-1/5">
-                <OfferCard offer={game} size="md" />
-              </CarouselItem>
-            ))}
-        </CarouselContent>
-      </Carousel>
+
+      {isLoading && <Skeleton className="mt-2 h-[400px] p-4" />}
+
+      {isError && !isLoading && <p>Error loading offers. Please try again.</p>}
+
+      {!isLoading &&
+        !isError &&
+        data?.length &&
+        data.filter((offer) => offer.id !== currentOffer).length > 0 && (
+          <Carousel className="mt-2 h-full p-4" setApi={setApi}>
+            <CarouselContent>
+              {data
+                .filter((offer) => offer.id !== currentOffer)
+                .map((game) => (
+                  <CarouselItem
+                    key={game.id}
+                    className="basis-1/1 lg:basis-1/5"
+                  >
+                    <OfferCard offer={game} size="md" />
+                  </CarouselItem>
+                ))}
+            </CarouselContent>
+          </Carousel>
+        )}
     </section>
   );
 }

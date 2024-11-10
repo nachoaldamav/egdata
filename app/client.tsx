@@ -6,4 +6,9 @@ import './styles.css';
 
 const router = createRouter();
 
-hydrateRoot(document.getElementById('root')!, <StartClient router={router} />);
+hydrateRoot(document.getElementById('root')!, <StartClient router={router} />, {
+  onRecoverableError(error, errorInfo) {
+    console.error(error);
+    console.error(errorInfo.componentStack);
+  },
+});

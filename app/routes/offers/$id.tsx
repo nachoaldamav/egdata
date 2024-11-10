@@ -54,6 +54,7 @@ import {
   useLocation,
   useNavigate,
 } from '@tanstack/react-router';
+import { Suspense } from 'react';
 
 export const Route = createFileRoute('/offers/$id')({
   component: () => {
@@ -433,12 +434,17 @@ function OfferPage() {
         <Outlet />
       </section>
 
-      <SellerOffers
-        id={offer.seller.id}
-        name={offer.seller.name}
-        currentOffer={offer.id}
-      />
-      <SuggestedOffers id={offer.id} />
+      <Suspense fallback={<div>Loading...</div>}>
+        <SellerOffers
+          id={offer.seller.id}
+          name={offer.seller.name}
+          currentOffer={offer.id}
+        />
+      </Suspense>
+
+      <Suspense fallback={<div>Loading...</div>}>
+        <SuggestedOffers id={offer.id} />
+      </Suspense>
     </main>
   );
 }
