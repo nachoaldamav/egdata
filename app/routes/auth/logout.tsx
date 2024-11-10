@@ -5,11 +5,8 @@ export const Route = createFileRoute('/auth/logout')({
 
   beforeLoad: async () => {
     redirect({
-      to: '/',
-      headers: {
-        'Set-Cookie':
-          'EGDATA_AUTH=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT',
-      },
+      // @ts-expect-error
+      to: '/api/logout',
       throw: true,
     });
   },
