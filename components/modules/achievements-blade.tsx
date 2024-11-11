@@ -107,8 +107,12 @@ export function GamesWithAchievements() {
           {data.map((game) => (
             <TableRow
               key={game.id}
-              onClick={() => {
-                navigate({ to: `/offers/${game.id}` });
+              onClick={(event) => {
+                if (event.ctrlKey || event.button === 1) {
+                  window.open(`/offers/${game.id}`, '_blank');
+                } else {
+                  navigate({ to: `/offers/${game.id}` });
+                }
               }}
               className="cursor-pointer hover:bg-accent/50 transition-colors duration-200"
             >
@@ -136,7 +140,7 @@ export function GamesWithAchievements() {
               <TableCell className="text-center">
                 {game.achievements.achievements.reduce(
                   (acc, ach) => acc + ach.xp,
-                  0
+                  0,
                 )}
               </TableCell>
               <NoOfAchievements

@@ -76,8 +76,12 @@ export function UpcomingOffers() {
             <TableRow
               key={offer.id}
               className="cursor-pointer hover:bg-accent/50 transition-colors duration-200"
-              onClick={() => {
-                navigate({ to: `/offers/${offer.id}` });
+              onClick={(event) => {
+                if (event.ctrlKey || event.button === 1) {
+                  window.open(`/offers/${offer.id}`, '_blank');
+                } else {
+                  navigate({ to: `/offers/${offer.id}` });
+                }
               }}
             >
               <TableCell>
