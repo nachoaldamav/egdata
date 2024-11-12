@@ -32,6 +32,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { httpClient } from '@/lib/http-client';
 import { calculatePrice } from '@/lib/calculate-price';
 import { useLocale } from '@/hooks/use-locale';
+import consola from 'consola';
 
 interface Search {
   elements: Element[];
@@ -679,7 +680,7 @@ function OfferPrice({ id, country }: { id: string; country: string }) {
   }
 
   if (error) {
-    console.error(error);
+    consola.error(error);
     return null;
   }
 

@@ -174,7 +174,4 @@ export const Route = createFileRoute('/privacy')({
       </div>
     </div>
   ),
-  loader: () => {
-    console.log(`Running from ${import.meta.env.SSR ? 'SSR' : 'CSR'}`);
-  },
 });

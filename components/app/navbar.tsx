@@ -34,6 +34,7 @@ import { CountriesSelector } from './countries-selector';
 import { useSearch } from '@/hooks/use-search';
 import { getRouteApi } from '@tanstack/react-router';
 import { getUserInformation } from '@/queries/profiles';
+import { DiscordBotPopover } from './discord-bot';
 
 type Route = {
   name: string;
@@ -296,7 +297,7 @@ export default function Navbar() {
 
             return (
               <NavigationMenuLink key={route.name} asChild>
-                <Button variant="ghost" className="hover:text-white " asChild>
+                <Button variant="ghost" className="hover:text-white" asChild>
                   <Link key={route.name} to={route.href}>
                     {route.name}
                   </Link>
@@ -304,6 +305,9 @@ export default function Navbar() {
               </NavigationMenuLink>
             );
           })}
+          <NavigationMenuLink asChild>
+            <DiscordBotPopover />
+          </NavigationMenuLink>
         </NavigationMenuList>
       </NavigationMenu>
       <div className="ml-auto flex items-center gap-4">

@@ -57,6 +57,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "1.0.0",
+    "consola": "^3.2.3",
     "cookie": "^1.0.1",
     "dashjs": "^4.7.4",
     "embla-carousel-autoplay": "^8.3.1",

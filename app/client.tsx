@@ -1,9 +1,10 @@
 /// <reference types="vinxi/types/client" />
+import { StrictMode } from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import { StartClient } from '@tanstack/start';
 import { createRouter } from './router';
 import './styles.css';
-import { StrictMode } from 'react';
+import consola from 'consola';
 
 const router = createRouter();
 
@@ -14,8 +15,8 @@ hydrateRoot(
   </StrictMode>,
   {
     onRecoverableError(error, errorInfo) {
-      console.error(error);
-      console.error(errorInfo.componentStack);
+      consola.error(error);
+      consola.error(errorInfo.componentStack);
     },
   },
 );

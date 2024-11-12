@@ -99,9 +99,8 @@ export const Route = createFileRoute('/offers/$id/reviews')({
           headers: {
             Authorization: `Bearer ${user?.access_token}`,
           },
-          retries: 1,
         })
-        .catch((error) => {
+        .catch(() => {
           return null;
         }),
       queryClient.prefetchQuery({

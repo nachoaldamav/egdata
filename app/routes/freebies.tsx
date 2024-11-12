@@ -46,6 +46,7 @@ import { z } from 'zod';
 import { default as Motion, type MotionNumberProps } from 'motion-number';
 import { getBuyLink } from '@/lib/get-build-link';
 import { useLocale } from '@/hooks/use-locale';
+import consola from 'consola';
 
 const sortByList: Record<string, string> = {
   giveawayDate: 'Giveaway Date',
@@ -389,7 +390,7 @@ function FreeGames() {
                 window.location.reload();
               };
             } else {
-              console.error('Failed to open window');
+              consola.error('Failed to open window');
             }
           }}
         >

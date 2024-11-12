@@ -17,6 +17,7 @@ import { PreferencesProvider } from '@/providers/preferences';
 import { CompareProvider } from '@/providers/compare';
 import { ComparisonPortal } from '@/components/app/comparison-portal';
 import { LocaleProvider } from '@/providers/locale';
+import consola from 'consola';
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -282,9 +283,9 @@ export const Route = createRootRouteWithContext<{
             JSON.stringify({ name: 'EGDATA_AUTH', value: epicToken }),
           );
 
-          console.log('Refreshed token', epicToken.account_id);
+          consola.log('Refreshed token', epicToken.account_id);
         } else {
-          console.error(
+          consola.error(
             'Failed to refresh token',
             await refreshResponse.json(),
           );
