@@ -15,6 +15,7 @@ import { SellerOffers } from '@/components/modules/seller-offers';
 import { SuggestedOffers } from '@/components/modules/suggested-offers';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import {
   Table,
   TableBody,
@@ -421,6 +422,8 @@ function OfferPage() {
 
         <Outlet />
       </section>
+
+      <Separator orientation="horizontal" className="my-4" />
 
       <Suspense fallback={<div>Loading...</div>}>
         <SellerOffers

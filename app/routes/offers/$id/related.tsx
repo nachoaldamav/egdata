@@ -1,5 +1,4 @@
 import { OfferCard } from '@/components/app/offer-card';
-import { Separator } from '@/components/ui/separator';
 import { useCountry } from '@/hooks/use-country';
 import { getQueryClient } from '@/lib/client';
 import { generateOfferMeta } from '@/lib/generate-offer-meta';
@@ -37,7 +36,7 @@ export const Route = createFileRoute('/offers/$id/related')({
     const offer = getFetchedQuery<SingleOffer>(
       queryClient,
       dehydrate(queryClient),
-      ['offer', { id: params.id }]
+      ['offer', { id: params.id }],
     );
 
     return {
@@ -55,7 +54,7 @@ export const Route = createFileRoute('/offers/$id/related')({
     const offer = getFetchedQuery<SingleOffer>(
       queryClient,
       ctx.loaderData.dehydratedState,
-      ['offer', { id: params.id }]
+      ['offer', { id: params.id }],
     );
 
     if (!offer) {
@@ -150,7 +149,6 @@ function RelatedOffersPage() {
             </div>
           ))}
       </div>
-      <Separator orientation="horizontal" className="my-4" />
     </section>
   );
 }

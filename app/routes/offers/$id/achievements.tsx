@@ -272,7 +272,6 @@ function AchievementsPage() {
                 />
               ))}
           </div>
-          <hr className="w-full my-4 border-gray-300/40" />
         </div>
       ))}
       {achievements.length === 0 && (

@@ -517,7 +517,6 @@ function Reviews() {
               </div>
             </Card>
           </section>
-          <hr className="border-t border-gray-200/15 my-2 w-full" />
         </div>
       )}
     </main>
