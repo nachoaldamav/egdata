@@ -25,7 +25,7 @@ export const StyledSmallCard: React.FC<{
     <Link
       className="flex items-center justify-between bg-gray-800 rounded-lg shadow-lg w-full h-16 relative overflow-hidden group"
       to={`/offers/${offer.id}`}
-      preload="intent"
+      preload="viewport"
     >
       <span className="text-white font-bold flex flex-col px-5 gap-1 z-10">
         <h6 className="text-xs">{title}</h6>

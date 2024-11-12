@@ -67,18 +67,6 @@ export const Route = createFileRoute('/offers/$id')({
   },
 
   loader: async ({ params, context }) => {
-    const { id } = params;
-    const { country, queryClient } = context;
-
-    return {
-      id,
-      dehydratedState: dehydrate(queryClient),
-      country,
-    };
-  },
-
-  beforeLoad: async (ctx) => {
-    const { params, context } = ctx;
     const { country, queryClient } = context;
     const { id } = params;
 
@@ -97,7 +85,7 @@ export const Route = createFileRoute('/offers/$id')({
     ]);
 
     return {
-      state: dehydrate(queryClient),
+      dehydratedState: dehydrate(queryClient),
       id,
     };
   },

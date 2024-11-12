@@ -244,7 +244,7 @@ export default function Navbar() {
                   className="hover:bg-accent/25 hover:text-white"
                   asChild
                 >
-                  <Link key={route.name} to={route.href} preload="intent">
+                  <Link key={route.name} to={route.href} preload="viewport">
                     {route.name}
                   </Link>
                 </Button>
@@ -256,7 +256,7 @@ export default function Navbar() {
       <Link
         to="/"
         className="hidden lg:flex justify-center items-center"
-        preload="intent"
+        preload="viewport"
       >
         <img
           src="https://cdn.egdata.app/logo_simple_white_clean.png"

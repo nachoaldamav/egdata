@@ -29,7 +29,7 @@ export function GameCard({
       <Link
         to={`/offers/${game.id}`}
         className="w-96 relative select-none"
-        preload="intent"
+        preload="viewport"
       >
         <Card className="w-72 lg:max-w-sm rounded-lg overflow-hidden shadow-lg">
           <Image
@@ -93,7 +93,7 @@ export function OfferListItem({
   });
 
   return (
-    <Link to={`/offers/${game.id}`} className="w-full" preload="intent">
+    <Link to={`/offers/${game.id}`} className="w-full" preload="viewport">
       <Card className="flex flex-row w-full bg-card text-white p-2 rounded-lg h-fit relative">
         {/* Image Section */}
         <div className="flex-shrink-0 w-72 h-auto inline-flex items-center justify-center relative">

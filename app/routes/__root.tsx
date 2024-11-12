@@ -239,66 +239,71 @@ export const Route = createRootRouteWithContext<{
     let epicToken = authCookie ? await decodeJwt(authCookie) : null;
 
     // Refresh the token if it's expired or about to expire (within 10 minutes)
-    if (
-      epicToken &&
-      new Date(epicToken.expires_at).getTime() <
-        new Date().getTime() + 10 * 60 * 1000
-    ) {
-      const refreshResponse = await fetch(
-        'https://api.egdata.app/auth/v2/refresh',
-        {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${authCookie}`,
+    if (cause !== 'preload' && epicToken) {
+      if (
+        epicToken &&
+        new Date(epicToken.expires_at).getTime() <
+          new Date().getTime() + 10 * 60 * 1000
+      ) {
+        const refreshResponse = await fetch(
+          'https://api.egdata.app/auth/v2/refresh',
+          {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${authCookie}`,
+            },
           },
-        },
-      );
-
-      if (refreshResponse.ok) {
-        const refreshData = (await refreshResponse.json()) as {
-          accessToken: string;
-          refreshToken: string;
-          expiresAt: string;
-          refreshExpiresAt: string;
-        };
-
-        epicToken = {
-          access_token: refreshData.accessToken,
-          refresh_token: refreshData.refreshToken ?? epicToken.refresh_token,
-          expires_at: refreshData.expiresAt ?? epicToken.expires_at,
-          refresh_expires_at:
-            refreshData.refreshExpiresAt ?? epicToken.refresh_expires_at,
-          account_id: epicToken.account_id,
-          application_id: epicToken.application_id,
-          scope: epicToken.scope,
-          token_type: epicToken.token_type,
-          client_id: epicToken.client_id,
-          expires_in: epicToken.expires_in,
-          refresh_expires_in: epicToken.refresh_expires_in,
-        };
-
-        await saveAuthCookie(
-          JSON.stringify({ name: 'EGDATA_AUTH', value: epicToken }),
         );
 
-        console.log('Refreshed token', epicToken.account_id);
-      } else {
-        console.error('Failed to refresh token', await refreshResponse.json());
-      }
-    }
+        if (refreshResponse.ok) {
+          const refreshData = (await refreshResponse.json()) as {
+            accessToken: string;
+            refreshToken: string;
+            expiresAt: string;
+            refreshExpiresAt: string;
+          };
 
-    if (epicToken && new Date(epicToken.expires_at).getTime() < Date.now()) {
-      if (import.meta.env.SSR) {
-        const { deleteCookie } = await import('vinxi/http');
-        deleteCookie('EGDATA_AUTH');
-      }
-    }
+          epicToken = {
+            access_token: refreshData.accessToken,
+            refresh_token: refreshData.refreshToken ?? epicToken.refresh_token,
+            expires_at: refreshData.expiresAt ?? epicToken.expires_at,
+            refresh_expires_at:
+              refreshData.refreshExpiresAt ?? epicToken.refresh_expires_at,
+            account_id: epicToken.account_id,
+            application_id: epicToken.application_id,
+            scope: epicToken.scope,
+            token_type: epicToken.token_type,
+            client_id: epicToken.client_id,
+            expires_in: epicToken.expires_in,
+            refresh_expires_in: epicToken.refresh_expires_in,
+          };
 
-    if (epicToken && cause !== 'preload') {
-      await queryClient.prefetchQuery({
-        queryKey: ['user', { id: epicToken?.account_id }],
-        queryFn: () => getUserInformation(epicToken?.account_id || null),
-      });
+          await saveAuthCookie(
+            JSON.stringify({ name: 'EGDATA_AUTH', value: epicToken }),
+          );
+
+          console.log('Refreshed token', epicToken.account_id);
+        } else {
+          console.error(
+            'Failed to refresh token',
+            await refreshResponse.json(),
+          );
+        }
+      }
+
+      if (epicToken && new Date(epicToken.expires_at).getTime() < Date.now()) {
+        if (import.meta.env.SSR) {
+          const { deleteCookie } = await import('vinxi/http');
+          deleteCookie('EGDATA_AUTH');
+        }
+      }
+
+      if (epicToken) {
+        await queryClient.prefetchQuery({
+          queryKey: ['user', { id: epicToken?.account_id }],
+          queryFn: () => getUserInformation(epicToken?.account_id || null),
+        });
+      }
     }
 
     return {

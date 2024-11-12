@@ -227,7 +227,7 @@ export function Bundle({ id, offer }: { id: string; offer: SingleOffer }) {
                     className="inline-flex items-center gap-2 w-full"
                     target="_blank"
                     rel="noreferrer noopener"
-                    preload="intent"
+                    preload="viewport"
                     onClick={() => {
                       trackEvent(
                         bundleIsBetter ? [offer] : (collection?.offers ?? []),

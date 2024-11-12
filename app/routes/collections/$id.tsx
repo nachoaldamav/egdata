@@ -261,7 +261,7 @@ function OfferInTop({ offer }: { offer: OfferWithTops }) {
   const weeksInTop100 = Math.floor(offer.metadata.timesInTop100 / 7);
 
   return (
-    <Link to={`/offers/${offer.id}`} preload="intent">
+    <Link to={`/offers/${offer.id}`} preload="viewport">
       <Card className="w-full h-16 flex flex-row items-center rounded-xl overflow-hidden px-5">
         <span className="text-xl font-bold w-10 flex-shrink-0">
           {offer.position}

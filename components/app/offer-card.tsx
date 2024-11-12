@@ -26,7 +26,7 @@ export function GameCard({ offer }: { offer: SingleOffer }) {
   const isFree = offer.price?.price.discountPrice === 0;
 
   return (
-    <Link to={`/offers/${offer.id}`} preload="intent">
+    <Link to={`/offers/${offer.id}`} preload="viewport">
       <Card className="w-full max-w-sm rounded-lg overflow-hidden shadow-lg relative">
         <CardHeader className="p-0 rounded-t-xl relative">
           <Image
@@ -238,7 +238,7 @@ export function OfferCard({
   return (
     <Link
       to={`/offers/${offer.id}`}
-      preload="intent"
+      preload="viewport"
       className="select-none group mx-auto w-fit md:w-full"
     >
       <Card className="w-64 md:w-full overflow-hidden rounded-lg border-0 relative">
