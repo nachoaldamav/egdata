@@ -5,7 +5,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
-import { Check, Globe, Server, Users } from 'lucide-react';
+import { Check, Globe } from 'lucide-react';
 
 export function DiscordBotPopover() {
   return (

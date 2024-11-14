@@ -43,9 +43,10 @@
   --admonitionNoteBg: var(--mauve-4);
   --admonitionNoteBorder: var(--mauve-8);
 
+  --textBaseContrast: white;
+
   font-family: 'Nunito Sans', sans-serif;
 
-  color: var(--primary);
   --basePageBg: black;
   background: transparent;
 }

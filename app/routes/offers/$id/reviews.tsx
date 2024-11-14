@@ -10,16 +10,9 @@ import type { SingleReview } from '@/types/reviews';
 import type { RatingsType } from '@egdata/core.schemas.ratings';
 import { getFetchedQuery } from '@/lib/get-fetched-query';
 import type { SingleOffer } from '@/types/single-offer';
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { SinglePoll } from '@/types/polls';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import {
   Select,
@@ -38,12 +31,7 @@ import {
 import { ChevronDown, ThumbsDown, ThumbsUp, ThumbsUpIcon } from 'lucide-react';
 import * as Portal from '@radix-ui/react-portal';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Input } from '@/components/ui/input';
-import { InfoCircledIcon, ReloadIcon } from '@radix-ui/react-icons';
+import { InfoCircledIcon } from '@radix-ui/react-icons';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import StarsRating from '@/components/app/stars-rating';
@@ -52,6 +40,9 @@ import Markdown from 'react-markdown';
 import { generateOfferMeta } from '@/lib/generate-offer-meta';
 import { getQueryClient } from '@/lib/client';
 import { useLocale } from '@/hooks/use-locale';
+import { ReviewForm } from '@/components/forms/add-review';
+import { Viewer } from '@/components/app/viewer';
+import { EditReviewForm } from '@/components/forms/edit-review';
 
 type ReviewSummary = {
   overallScore: number;
@@ -163,19 +154,15 @@ export const Route = createFileRoute('/offers/$id/reviews')({
       id,
       dehydratedState: dehydrate(queryClient),
       userId: user?.account_id,
-      // userCanReview: userCanReview
-      //   ? {
-      //       status: userCanReview.canReview,
-      //       label: 'Already reviewed',
-      //     }
-      //   : {
-      //       status: false,
-      //       label: 'Login to review',
-      //     },
-      userCanReview: {
-        status: false,
-        label: 'Reviews disabled',
-      },
+      userCanReview: userCanReview
+        ? {
+            status: userCanReview.canReview,
+            label: 'Already reviewed',
+          }
+        : {
+            status: false,
+            label: 'Login to review',
+          },
       offer,
     };
   },
@@ -206,7 +193,7 @@ export const Route = createFileRoute('/offers/$id/reviews')({
 function Reviews() {
   const { locale } = useLocale();
   const { userCanReview, offer, id } = Route.useLoaderData();
-  const [page, setPage] = useState(1);
+  const [page] = useState(1);
   const [filter, setFilter] = useState<ReviewsFilter>('all');
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewsQuery, summaryQuery, pollsQuery, ratingsQuery] = useQueries({
@@ -428,7 +415,7 @@ function Reviews() {
         </TooltipProvider>
       </div>
       {reviews?.elements.length ? (
-        <div className="grid gap-6 grid-cols-2">
+        <div className="grid gap-6 grid-cols-2 w-full">
           {reviews?.elements.map((review) => (
             <Review key={review.id} review={review} />
           ))}
@@ -531,7 +518,7 @@ function Review({ review, full }: { review: SingleReview; full?: boolean }) {
     `https://shared-static-prod.epicgames.com/epic-profile-icon/D8033C/${review.user.displayName[0].toUpperCase()}/icon.png?size=512`;
 
   return (
-    <div className="p-4 bg-card text-white rounded-lg max-w-2xl mx-auto w-full h-full flex flex-col">
+    <div className="p-4 bg-card text-white rounded-lg max-w-2xl min-w-1/2 mx-auto w-full h-full flex flex-col">
       <div className="flex items-center mb-4">
         <Avatar>
           <AvatarImage
@@ -572,12 +559,17 @@ function Review({ review, full }: { review: SingleReview; full?: boolean }) {
       <div className="bg-gray-900 p-4 rounded-lg h-full">
         <h3 className="font-bold mb-2">{review.title}</h3>
         <div className="relative">
-          <p className="mb-4 prose prose-sm prose-invert max-w-none">
-            <Markdown>
-              {review.content.length <= 750
-                ? review.content
-                : `${review.content.slice(0, 750)}...`}
-            </Markdown>
+          <p className="mb-4 prose prose-sm prose-invert max-w-none min-w-1/2">
+            {typeof review.content === 'string' ? (
+              <Markdown>
+                {review.content.length <= 750
+                  ? review.content
+                  : `${review.content.slice(0, 750)}...`}
+              </Markdown>
+            ) : null}
+            {typeof review.content === 'object' ? (
+              <Viewer content={review.content} />
+            ) : null}
           </p>
           {review.content.length > 750 && (
             <div className="absolute bottom-0 left-0 w-full">
@@ -672,7 +664,9 @@ function FullReview({
   review: SingleReview;
   setIsOpen: (isOpen: boolean) => void;
 }) {
-  const userAvatar = `https://shared-static-prod.epicgames.com/epic-profile-icon/D8033C/${review.user.displayName[0].toUpperCase()}/icon.png?size=512`;
+  const userAvatar =
+    review.user.avatarUrl?.variants[0] ??
+    `https://shared-static-prod.epicgames.com/epic-profile-icon/D8033C/${review.user.displayName[0].toUpperCase()}/icon.png?size=512`;
 
   return (
     <div className="fixed inset-0 h-full w-full flex items-center justify-center bg-black bg-opacity-50 z-20">
@@ -728,7 +722,11 @@ function FullReview({
             <div className="relative">
               <ScrollArea className="h-[50vh]">
                 <p className="mb-4 prose prose-sm prose-invert max-w-none mr-2">
-                  <Markdown>{review.content}</Markdown>
+                  {typeof review.content === 'string' ? (
+                    <Markdown>{review.content}</Markdown>
+                  ) : (
+                    <Viewer content={review.content} />
+                  )}
                 </p>
                 <ScrollBar />
               </ScrollArea>
@@ -829,6 +827,7 @@ function RecommendationBar({
         </div>
       </div>
       <div className="flex h-[4px] w-[300px] overflow-hidden rounded-full gap-1 relative">
+        {/* biome-ignore lint/a11y/useFocusableInteractive: <explanation> */}
         <div
           className={cn(
             'bg-blue-600 rounded-full transition-all duration-300 ease-in-out cursor-pointer',
@@ -842,6 +841,7 @@ function RecommendationBar({
           onMouseEnter={() => setHovered('recommended')}
           onMouseLeave={() => setHovered(null)}
         />
+        {/* biome-ignore lint/a11y/useFocusableInteractive: <explanation> */}
         <div
           className={cn(
             'bg-red-600 rounded-full transition-all duration-300 ease-in-out cursor-pointer',
@@ -856,392 +856,6 @@ function RecommendationBar({
           onMouseLeave={() => setHovered(null)}
         />
       </div>
-    </div>
-  );
-}
-
-interface ReviewFormProps {
-  setIsOpen: (isOpen: boolean) => void;
-  offer: SingleOffer | undefined;
-}
-
-function ReviewForm({ setIsOpen, offer }: ReviewFormProps) {
-  const actionData = useActionData<typeof action>();
-  const [rating, setRating] = useState(5);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [content, setContent] = useState('Please enter your review here');
-  const MDXEditor = lazy(() =>
-    import('@mdxeditor/editor').then((mod) => {
-      return {
-        default: mod.MDXEditor,
-      };
-    }),
-  );
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setIsOpen(false);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [setIsOpen]);
-
-  useEffect(() => {
-    if (typeof actionData?.success === 'boolean') {
-      setIsSubmitting(false);
-      if (actionData.success) {
-        window.location.reload();
-      }
-    }
-  }, [actionData]);
-
-  return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
-      {/* biome-ignore lint/a11y/useKeyWithClickEvents: already handled */}
-      <div
-        className="fixed inset-0 cursor-pointer"
-        onClick={() => setIsOpen(false)}
-      />
-      <Card className="w-full max-w-2xl z-20">
-        <ScrollArea className="h-[60vh]">
-          <CardHeader>
-            <CardTitle>Submit a Review</CardTitle>
-            <CardDescription>
-              Share your thoughts about {offer?.title ?? 'the product'}
-            </CardDescription>
-          </CardHeader>
-          <Form
-            method="POST"
-            onSubmit={() => {
-              setIsSubmitting(true);
-            }}
-          >
-            <input hidden name="website" placeholder="https://egdata.app" />
-            <CardContent className="space-y-6">
-              {actionData?.success && (
-                <Alert>
-                  <AlertDescription>
-                    Your review has been submitted successfully!
-                  </AlertDescription>
-                </Alert>
-              )}
-              {actionData?.errors?.general && (
-                <Alert variant="destructive">
-                  <AlertDescription>
-                    {actionData.errors.general}
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              <div className="space-y-2">
-                <Label htmlFor="rating">Rating</Label>
-                <Slider
-                  name="rating"
-                  min={0}
-                  max={10}
-                  step={1}
-                  value={[rating]}
-                  onValueChange={(value) => setRating(value[0])}
-                  className="w-full"
-                />
-                <div className="text-center font-bold">{rating} / 10</div>
-                {actionData?.errors?.rating && (
-                  <p className="text-sm text-red-500">
-                    {actionData.errors.rating}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label>Would you recommend this product?</Label>
-                <RadioGroup name="recommended" defaultValue="true">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="true" id="yes" />
-                    <Label htmlFor="yes">Yes</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="false" id="no" />
-                    <Label htmlFor="no">No</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  name="title"
-                  placeholder="Enter a title for your review"
-                  required
-                />
-                {actionData?.errors?.title && (
-                  <p className="text-sm text-red-500">
-                    {actionData.errors.title}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="content">Review Content</Label>
-                <Suspense fallback={<p>Loading...</p>}>
-                  <MDXEditor
-                    markdown={content ?? ' '}
-                    contentEditableClassName="text-white border border-primary/10 px-4 rounded-lg prose prose-sm prose-invertw-full max-w-none min-h-[200px]"
-                    className="dark-theme dark-editor"
-                    plugins={[
-                      headingsPlugin({
-                        allowedHeadingLevels: [2, 3, 4],
-                      }),
-                      quotePlugin(),
-                      listsPlugin(),
-                      markdownShortcutPlugin(),
-                    ]}
-                    onChange={(value) => setContent(value)}
-                  />
-                </Suspense>
-                <textarea
-                  hidden
-                  id="content"
-                  name="content"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  required
-                />
-                {actionData?.errors?.content && (
-                  <p className="text-sm text-red-500">
-                    {actionData.errors.content}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="tags">Tags (comma-separated)</Label>
-                <Input
-                  id="tags"
-                  name="tags"
-                  placeholder="e.g. quality, design, performance"
-                />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button
-                type="submit"
-                className="w-full inline-flex items-center justify-center gap-2"
-                disabled={isSubmitting}
-              >
-                {isSubmitting && <ReloadIcon className="animate-spin size-4" />}
-                {isSubmitting ? 'Submitting...' : 'Submit Review'}
-              </Button>
-            </CardFooter>
-          </Form>
-        </ScrollArea>
-      </Card>
-    </div>
-  );
-}
-
-interface EditReviewFormProps {
-  setIsOpen: (isOpen: boolean) => void;
-  previousReview: SingleReview;
-  offer: SingleOffer | undefined;
-}
-
-function EditReviewForm({
-  setIsOpen,
-  previousReview,
-  offer,
-}: EditReviewFormProps) {
-  const actionData = useActionData<typeof action>();
-  const [rating, setRating] = useState(previousReview.rating);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [content, setContent] = useState(previousReview.content);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setIsOpen(false);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [setIsOpen]);
-
-  useEffect(() => {
-    if (typeof actionData?.success === 'boolean') {
-      setIsSubmitting(false);
-
-      if (actionData.success) {
-        window.location.reload();
-      }
-    }
-  }, [actionData]);
-
-  return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
-      {/* biome-ignore lint/a11y/useKeyWithClickEvents: already handled */}
-      <div
-        className="fixed inset-0 cursor-pointer"
-        onClick={() => setIsOpen(false)}
-      />
-      <Card className="w-full max-w-2xl z-20 relative">
-        <span className="absolute top-4 right-4 z-30">
-          <Form method="DELETE" onSubmit={() => setIsSubmitting(true)}>
-            <Button
-              type="submit"
-              variant="outline"
-              className="text-sm border-destructive hover:bg-destructive hover:bg-opacity-10"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Deleting...' : 'Delete'}
-            </Button>
-          </Form>
-        </span>
-        <ScrollArea className="h-[60vh]">
-          <CardHeader>
-            <CardTitle>Edit Review</CardTitle>
-            <CardDescription>
-              Share your thoughts about {offer?.title ?? 'the product'}
-            </CardDescription>
-          </CardHeader>
-          <Form
-            method="PATCH"
-            onSubmit={() => {
-              setIsSubmitting(true);
-            }}
-          >
-            <input hidden name="website" placeholder="https://egdata.app" />
-            <CardContent className="space-y-6">
-              {actionData?.success && (
-                <Alert>
-                  <AlertDescription>
-                    Your review has been submitted successfully!
-                  </AlertDescription>
-                </Alert>
-              )}
-              {actionData?.errors?.general && (
-                <Alert variant="destructive">
-                  <AlertDescription>
-                    {actionData.errors.general}
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              <div className="space-y-2">
-                <Label htmlFor="rating">Rating</Label>
-                <Slider
-                  name="rating"
-                  min={0}
-                  max={10}
-                  step={1}
-                  value={[rating]}
-                  onValueChange={(value) => setRating(value[0])}
-                  className="w-full"
-                />
-                <div className="text-center font-bold">{rating} / 10</div>
-                {actionData?.errors?.rating && (
-                  <p className="text-sm text-red-500">
-                    {actionData.errors.rating}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label>Would you recommend this product?</Label>
-                <RadioGroup
-                  name="recommended"
-                  defaultValue={previousReview.recommended ? 'true' : 'false'}
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="true" id="yes" />
-                    <Label htmlFor="yes">Yes</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="false" id="no" />
-                    <Label htmlFor="no">No</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  name="title"
-                  defaultValue={previousReview.title}
-                  placeholder="Enter a title for your review"
-                  required
-                />
-                {actionData?.errors?.title && (
-                  <p className="text-sm text-red-500">
-                    {actionData.errors.title}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="content">Review Content</Label>
-                <Suspense fallback={<p>Loading...</p>}>
-                  <MDXEditor
-                    markdown={content ?? ' '}
-                    className="dark-theme dark-editor"
-                    contentEditableClassName="text-white border border-primary/10 px-4 rounded-lg prose prose-sm prose-invert w-full max-w-none min-h-[200px]"
-                    plugins={[
-                      headingsPlugin({
-                        allowedHeadingLevels: [2, 3, 4],
-                      }),
-                      quotePlugin(),
-                      listsPlugin(),
-                      markdownShortcutPlugin(),
-                    ]}
-                    onChange={(value) => setContent(value)}
-                  />
-                </Suspense>
-                <textarea
-                  hidden
-                  id="content"
-                  name="content"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  required
-                />
-                {actionData?.errors?.content && (
-                  <p className="text-sm text-red-500">
-                    {actionData.errors.content}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="tags">Tags (comma-separated)</Label>
-                <Input
-                  id="tags"
-                  name="tags"
-                  defaultValue={previousReview.tags.join(', ')}
-                  placeholder="e.g. quality, design, performance"
-                />
-              </div>
-            </CardContent>
-            <CardFooter className="flex flex-row justify-between gap-2">
-              <Button
-                type="submit"
-                className="w-full inline-flex items-center justify-center gap-2"
-                disabled={isSubmitting}
-              >
-                {isSubmitting && <ReloadIcon className="animate-spin size-4" />}
-                {isSubmitting ? 'Submitting...' : 'Update Review'}
-              </Button>
-            </CardFooter>
-          </Form>
-        </ScrollArea>
-      </Card>
     </div>
   );
 }

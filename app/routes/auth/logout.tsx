@@ -6,7 +6,7 @@ export const Route = createFileRoute('/auth/logout')({
   beforeLoad: async () => {
     redirect({
       // @ts-expect-error
-      to: '/api/logout',
+      to: 'https://api.egdata.app/auth/logout',
       throw: true,
     });
   },
