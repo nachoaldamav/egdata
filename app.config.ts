@@ -21,5 +21,6 @@ export default defineConfig({
   },
   tsr: {
     disableLogging: true,
+    autoCodeSplitting: true,
   },
 });

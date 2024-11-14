@@ -184,7 +184,7 @@ export const Route = createFileRoute('/sales/$id')({
         initialPageParam: page,
         getNextPageParam: (
           lastPage: { elements: SingleOffer[]; start: number; count: number },
-          allPages: { elements: SingleOffer[]; start: number; count: number }[]
+          allPages: { elements: SingleOffer[]; start: number; count: number }[],
         ) => {
           // If the start is greater than the count, we have reached the end
           if (lastPage.start + 20 > lastPage.count) {
@@ -290,7 +290,7 @@ function SalesPage() {
             (
             {promotion.pages.reduce(
               (acc, page) => acc + page.elements.length,
-              0
+              0,
             )}{' '}
             results)
           </span>
@@ -307,7 +307,7 @@ function SalesPage() {
                 cy="12"
                 r="10"
                 stroke="currentColor"
-                stroke-width="4"
+                strokeWidth="4"
               />
               <path
                 className="opacity-75"
@@ -350,7 +350,7 @@ function SalesPage() {
             <ArrowDownIcon
               className={cn(
                 'h-5 w-5 transform transition-transform',
-                sortDir === 'asc' ? '-rotate-180' : 'rotate-0'
+                sortDir === 'asc' ? '-rotate-180' : 'rotate-0',
               )}
               aria-hidden="true"
             />
@@ -373,7 +373,7 @@ function SalesPage() {
           'mt-8 grid gap-4',
           view === 'grid'
             ? 'grid-cols-1 lg:grid-cols-3 xl:grid-cols-5'
-            : 'grid-cols-1'
+            : 'grid-cols-1',
         )}
       >
         {promotion.pages
@@ -383,7 +383,7 @@ function SalesPage() {
               <OfferCard offer={game} key={game.id} size="md" />
             ) : (
               <OfferListItem game={game} key={game.id} />
-            )
+            ),
           )}
       </div>
       <div className="flex justify-center mt-8">
@@ -401,7 +401,7 @@ function SalesPage() {
                 cy="12"
                 r="10"
                 stroke="currentColor"
-                stroke-width="4"
+                strokeWidth="4"
               />
               <path
                 className="opacity-75"

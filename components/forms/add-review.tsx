@@ -23,7 +23,6 @@ import { getRouteApi, redirect } from '@tanstack/react-router';
 import { httpClient } from '@/lib/http-client';
 import consola from 'consola';
 import { Viewer } from '../app/viewer';
-import '../../app/mdx-editor.css';
 import { Loader } from 'lucide-react';
 
 interface ReviewFormProps {

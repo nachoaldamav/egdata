@@ -55,7 +55,6 @@ import {
   useLocation,
   useNavigate,
 } from '@tanstack/react-router';
-import { Suspense } from 'react';
 
 export const Route = createFileRoute('/offers/$id')({
   component: () => {
@@ -423,19 +422,15 @@ function OfferPage() {
         <Outlet />
       </section>
 
-      <Separator orientation="horizontal" className="my-4" />
+      <Separator className="my-4" />
 
-      <Suspense fallback={<div>Loading...</div>}>
-        <SellerOffers
-          id={offer.seller.id}
-          name={offer.seller.name}
-          currentOffer={offer.id}
-        />
-      </Suspense>
+      <SellerOffers
+        id={offer.seller.id}
+        name={offer.seller.name}
+        currentOffer={offer.id}
+      />
 
-      <Suspense fallback={<div>Loading...</div>}>
-        <SuggestedOffers id={offer.id} />
-      </Suspense>
+      <SuggestedOffers id={offer.id} />
     </main>
   );
 }
