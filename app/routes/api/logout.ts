@@ -3,10 +3,7 @@ import { createAPIFileRoute } from '@tanstack/start/api';
 export const Route = createAPIFileRoute('/api/logout')({
   GET: async () => {
     const headers = new Headers({
-      'Content-Type': 'application/json',
-      'Set-Cookie':
-        'EGDATA_AUTH=; Max-Age=0; Path=/; HttpOnly; SameSite=Strict',
-      Location: '/',
+      Location: 'https://api.egdata.app/auth/logout',
     });
 
     return new Response(null, {
