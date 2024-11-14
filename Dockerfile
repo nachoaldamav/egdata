@@ -20,4 +20,4 @@ COPY --from=build /app/.vinxi /app/.vinxi
 COPY --from=build /app/.output /app/.output
 
 EXPOSE 3000
-CMD ["node", ".output\server\index.mjs"]
+CMD ["pnpm", "start"]
