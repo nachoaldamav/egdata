@@ -6,38 +6,42 @@ import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const getStateFile = createServerFn('GET', async (state: string) => {
-  return existsSync(join(tmpdir(), 'egdata', state));
-});
+export const getStateFile = createServerFn({ method: 'GET' })
+  .validator((state: string) => state)
+  .handler(async (ctx) => {
+    return existsSync(join(tmpdir(), 'egdata', ctx.data));
+  });
 
-const getTokens = createServerFn('GET', async (code: string) => {
-  const ClientID = process.env.EPIC_CLIENT_ID;
-  const ClientSecret = process.env.EPIC_CLIENT_SECRET;
+export const getTokens = createServerFn({ method: 'GET' })
+  .validator((code: string) => code)
+  .handler(async (ctx) => {
+    const ClientID = process.env.EPIC_CLIENT_ID;
+    const ClientSecret = process.env.EPIC_CLIENT_SECRET;
 
-  const response = await fetch(
-    'https://api.epicgames.dev/epic/oauth/v2/token',
-    {
-      headers: {
-        Authorization: `Basic ${Buffer.from(`${ClientID}:${ClientSecret}`).toString('base64')}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
+    const response = await fetch(
+      'https://api.epicgames.dev/epic/oauth/v2/token',
+      {
+        headers: {
+          Authorization: `Basic ${Buffer.from(`${ClientID}:${ClientSecret}`).toString('base64')}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        method: 'POST',
+        body: new URLSearchParams({
+          grant_type: 'authorization_code',
+          code: ctx.data,
+          redirect_uri: process.env.EPIC_REDIRECT_URI as string,
+        }),
       },
-      method: 'POST',
-      body: new URLSearchParams({
-        grant_type: 'authorization_code',
-        code,
-        redirect_uri: process.env.EPIC_REDIRECT_URI as string,
-      }),
+    );
+
+    if (response.ok) {
+      const data = (await response.json()) as EpicToken;
+      return data;
     }
-  );
 
-  if (response.ok) {
-    const data = (await response.json()) as EpicToken;
-    return data;
-  }
-
-  console.error(response.status, await response.json());
-  throw new Error('Failed to get token');
-});
+    console.error(response.status, await response.json());
+    throw new Error('Failed to get token');
+  });
 
 export const Route = createFileRoute('/auth/callback')({
   component: () => <div>Hello /auth/callback!</div>,
@@ -54,7 +58,7 @@ export const Route = createFileRoute('/auth/callback')({
       });
     }
 
-    const stateFile = await getStateFile(state);
+    const stateFile = await getStateFile({ data: state });
 
     if (!stateFile) {
       throw redirect({
@@ -63,7 +67,7 @@ export const Route = createFileRoute('/auth/callback')({
       });
     }
 
-    const tokens = await getTokens(code).catch((error) => {
+    const tokens = await getTokens({ data: code }).catch((error) => {
       console.error(error);
       throw redirect({
         to: '/',
@@ -73,9 +77,9 @@ export const Route = createFileRoute('/auth/callback')({
 
     console.log(tokens);
 
-    const token = await saveAuthCookie(
-      JSON.stringify({ name: 'EGDATA_AUTH', value: tokens })
-    );
+    const token = await saveAuthCookie({
+      data: JSON.stringify({ name: 'EGDATA_AUTH', value: tokens }),
+    });
 
     const persistResponse = await fetch(
       'https://api.egdata.app/auth/v2/persist',
@@ -85,7 +89,7 @@ export const Route = createFileRoute('/auth/callback')({
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
 
     if (!persistResponse.ok) {
@@ -100,9 +104,9 @@ export const Route = createFileRoute('/auth/callback')({
 
     const tokenWithId = { ...tokens, id: id as string };
 
-    await saveAuthCookie(
-      JSON.stringify({ name: 'EGDATA_AUTH', value: tokenWithId })
-    );
+    await saveAuthCookie({
+      data: JSON.stringify({ name: 'EGDATA_AUTH', value: tokenWithId }),
+    });
 
     throw redirect({
       to: '/',

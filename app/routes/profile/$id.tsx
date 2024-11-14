@@ -1,11 +1,5 @@
 import * as React from 'react';
-import {
-  createFileRoute,
-  getRouteApi,
-  Link,
-  Outlet,
-  useParams,
-} from '@tanstack/react-router';
+import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
 import {
   dehydrate,
   HydrationBoundary,
@@ -75,33 +69,38 @@ type Profile = {
   creationDate: string;
 };
 
-export const uploadAvatar = createServerFn(
-  'POST',
-  async (formData: FormData) => {
-    const data = formData.get('avatar') as File;
+export const uploadAvatar = createServerFn({ method: 'GET' })
+  .validator((data) => {
+    if (!(data instanceof FormData)) {
+      throw new Error('Invalid form data');
+    }
+    const avatar = data.get('avatar');
+    if (!avatar || !(avatar instanceof File)) {
+      throw new Error('Invalid file');
+    }
+    return data;
+  })
+  .handler(async ({ data }) => {
+    const avatarFile = data.get('avatar') as File;
     const authCookie = getCookie('EGDATA_AUTH');
 
     if (!authCookie) {
       throw new Error('Unable to get cookie EGDATA_AUTH');
     }
 
-    const epicToken = authCookie ? await decodeJwt(authCookie) : null;
+    const epicToken = await decodeJwt({ data: authCookie });
     const accessToken = epicToken?.access_token;
-
-    if (!data) {
-      throw new Error('Invalid file');
-    }
 
     if (!accessToken) {
       throw new Error('Missing or invalid access token');
     }
 
     const chunks: Uint8Array[] = [];
-    for await (const chunk of data.stream()) {
+    for await (const chunk of avatarFile.stream()) {
       chunks.push(chunk);
     }
-    const blob = new Blob(chunks, { type: data.type });
-    const file = new File([blob], data.name, { type: data.type });
+    const blob = new Blob(chunks, { type: avatarFile.type });
+    const file = new File([blob], avatarFile.name, { type: avatarFile.type });
 
     const uploadForm = new FormData();
     uploadForm.append('file', file);
@@ -122,9 +121,7 @@ export const uploadAvatar = createServerFn(
     }
 
     return await response.json();
-  }
-);
-
+  });
 export const Route = createFileRoute('/profile/$id')({
   component: () => {
     const { dehydratedState } = Route.useLoaderData();
@@ -173,7 +170,7 @@ export const Route = createFileRoute('/profile/$id')({
     const user = getFetchedQuery<Profile>(
       queryClient,
       loaderData.dehydratedState,
-      ['profile-information', { id: params.id }]
+      ['profile-information', { id: params.id }],
     );
 
     if (user) {
@@ -269,7 +266,7 @@ function RouteComponent() {
                       event.preventDefault();
                       // @ts-ignore-next-line
                       const formData = new FormData(event.target);
-                      const response = await uploadAvatar(formData);
+                      const response = await uploadAvatar({ data: formData });
                       console.log(response);
 
                       window.location.reload();
@@ -440,7 +437,7 @@ function RouteComponent() {
                 <EpicPlatinumIcon
                   className={cn(
                     'size-7 inline-block',
-                    data.stats.totalPlayerAwards > 0 ? 'text-[#6e59e6]' : ''
+                    data.stats.totalPlayerAwards > 0 ? 'text-[#6e59e6]' : '',
                   )}
                 />
                 {data.stats.totalPlayerAwards}

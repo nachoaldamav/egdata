@@ -1,6 +1,6 @@
 import { createRootRouteWithContext, Link } from '@tanstack/react-router';
 import { Outlet, ScrollRestoration } from '@tanstack/react-router';
-import { Body, Head, Html, Meta, Scripts } from '@tanstack/start';
+import { Meta, Scripts } from '@tanstack/start';
 import type * as React from 'react';
 import styles from '../styles.css?url';
 import Navbar from '@/components/app/navbar';
@@ -203,7 +203,7 @@ export const Route = createRootRouteWithContext<{
       Object.entries(parsedCookies).map(([key, value]) => [key, value || '']),
     );
     const country = getCountryCode(url, cookies);
-    const locale = await getCookie('user_locale');
+    const locale = await getCookie({ data: 'user_locale' });
 
     return {
       country,
@@ -236,8 +236,8 @@ export const Route = createRootRouteWithContext<{
     );
     const country = getCountryCode(url, cookies);
 
-    const authCookie = await getCookie('EGDATA_AUTH');
-    let epicToken = authCookie ? await decodeJwt(authCookie) : null;
+    const authCookie = await getCookie({ data: 'EGDATA_AUTH' });
+    let epicToken = authCookie ? await decodeJwt({ data: authCookie }) : null;
 
     // Refresh the token if it's expired or about to expire (within 10 minutes)
     if (cause !== 'preload' && epicToken) {
@@ -279,9 +279,9 @@ export const Route = createRootRouteWithContext<{
             refresh_expires_in: epicToken.refresh_expires_in,
           };
 
-          await saveAuthCookie(
-            JSON.stringify({ name: 'EGDATA_AUTH', value: epicToken }),
-          );
+          await saveAuthCookie({
+            data: JSON.stringify({ name: 'EGDATA_AUTH', value: epicToken }),
+          });
 
           consola.log('Refreshed token', epicToken.account_id);
         } else {
@@ -350,21 +350,25 @@ function RootComponent() {
   );
 }
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
   const { country, locale } = Route.useLoaderData();
   return (
-    <Html>
-      <Head>
+    <html lang="en">
+      <head>
         <Meta />
-      </Head>
-      <Body className="antialiased ">
+      </head>
+      <body className="antialiased">
         <div className="md:container mx-auto overflow-x-hidden">
           <LocaleProvider initialLocale={locale}>
             <CountryProvider defaultCountry={country}>
               <CompareProvider>
                 <SearchProvider>
                   <Navbar />
-                  <PreferencesProvider>{children}</PreferencesProvider>
+                  <PreferencesProvider>
+                    {children}
+                    <ScrollRestoration />
+                    <Scripts />
+                  </PreferencesProvider>
                   <ComparisonPortal />
                   <footer className="flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400 text-xs gap-1">
                     <p>
@@ -404,13 +408,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             </CountryProvider>
           </LocaleProvider>
         </div>
-        <ScrollRestoration />
+
         {import.meta.env.DEV && (
           <TanStackRouterDevtools position="bottom-left" />
         )}
         <ReactQueryDevtools buttonPosition="bottom-right" />
-        <Scripts />
-      </Body>
-    </Html>
+      </body>
+    </html>
   );
 }
