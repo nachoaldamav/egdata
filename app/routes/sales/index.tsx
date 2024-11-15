@@ -1,3 +1,4 @@
+import { Separator } from '@/components/ui/separator';
 import buildImageUrl from '@/lib/build-image-url';
 import { getImage } from '@/lib/get-image';
 import { httpClient } from '@/lib/http-client';
@@ -27,6 +28,7 @@ export const Route = createFileRoute('/sales/')({
           {
             id: string;
             name: string;
+            active: boolean;
             offers: SingleOffer[];
           }[]
         >('/active-sales'),
@@ -35,6 +37,36 @@ export const Route = createFileRoute('/sales/')({
     return {
       dehydratedState: dehydrate(queryClient),
     };
+  },
+
+  meta() {
+    return [
+      {
+        title: 'Active Sales | egdata.app',
+      },
+      {
+        name: 'description',
+        content: 'Browse active sales on egdata.app',
+      },
+      {
+        name: 'og:title',
+        content: 'Active Sales | egdata.app',
+      },
+      {
+        name: 'og:description',
+        content: 'Browse active sales on egdata.app',
+      },
+      {
+        property: 'twitter:title',
+        content: 'Active Sales | egdata.app',
+        key: 'twitter:title',
+      },
+      {
+        property: 'twitter:description',
+        content: 'Browse active sales on egdata.app',
+        key: 'twitter:description',
+      },
+    ];
   },
 });
 
@@ -46,6 +78,7 @@ function SalesPageIndex() {
         {
           id: string;
           name: string;
+          active: boolean;
           offers: SingleOffer[];
         }[]
       >('/active-sales'),
@@ -60,12 +93,26 @@ function SalesPageIndex() {
   }
 
   return (
-    <div>
-      <h1>Active Sales</h1>
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {data?.map((sale) => <SaleCard key={sale.id} sale={sale} />)}
-      </section>
-    </div>
+    <main className="flex flex-col items-start justify-start min-h-screen py-2">
+      <h1 className="text-2xl font-bold">Active Sales</h1>
+      <Separator className="my-2" />
+      <div className="flex flex-wrap justify-center">
+        {data
+          .filter((sale) => sale.active)
+          .map((sale) => (
+            <SaleCard key={sale.id} sale={sale} />
+          ))}
+      </div>
+      <h1 className="text-2xl font-bold mt-10">Past / Upcoming Sales</h1>
+      <Separator className="my-2" />
+      <div className="flex flex-wrap justify-center">
+        {data
+          .filter((sale) => !sale.active)
+          .map((sale) => (
+            <SaleCard key={sale.id} sale={sale} />
+          ))}
+      </div>
+    </main>
   );
 }
 
@@ -97,7 +144,7 @@ function SaleCard({
               'OfferImageTall',
             ])?.url ?? '/placeholder.webp',
             300,
-            'medium'
+            'medium',
           )}
           alt={offer.title}
           className={cn(
@@ -107,7 +154,7 @@ function SaleCard({
             index === 0 &&
               'left-1/2 transform -translate-x-1/2 z-[9] w-44 h-60 top-2 group-hover:scale-[1.03] transition duration-200 ease-in-out',
             index === 2 &&
-              'right-2 z-0 opacity-35 backdrop-filter backdrop-blur-lg top-4'
+              'right-2 z-0 opacity-35 backdrop-filter backdrop-blur-lg top-4',
           )}
         />
       ))}
