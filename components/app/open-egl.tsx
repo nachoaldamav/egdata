@@ -17,6 +17,7 @@ export function OpenEgl({ offer }: { offer: SingleOffer }) {
   const url =
     offer.customAttributes?.['com.epicgames.app.productSlug']?.value ??
     offer.offerMappings?.[0]?.pageSlug ??
+    offer.urlSlug ??
     (urlType === 'product' ? offer.productSlug : offer.urlSlug);
 
   if (!url) {
