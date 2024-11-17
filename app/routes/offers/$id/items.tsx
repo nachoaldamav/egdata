@@ -1,11 +1,5 @@
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { columns } from '@/components/tables/items/columns';
+import { DataTable } from '@/components/tables/items/table';
 import { getQueryClient } from '@/lib/client';
 import { generateOfferMeta } from '@/lib/generate-offer-meta';
 import { getFetchedQuery } from '@/lib/get-fetched-query';
@@ -13,7 +7,7 @@ import { httpClient } from '@/lib/http-client';
 import type { SingleItem } from '@/types/single-item';
 import type { SingleOffer } from '@/types/single-offer';
 import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/offers/$id/items')({
   component: () => {
@@ -30,7 +24,7 @@ export const Route = createFileRoute('/offers/$id/items')({
     const offer = getFetchedQuery<SingleOffer>(
       queryClient,
       dehydrate(queryClient),
-      ['offer', { id: params.id }]
+      ['offer', { id: params.id }],
     );
 
     await queryClient.prefetchQuery({
@@ -52,7 +46,7 @@ export const Route = createFileRoute('/offers/$id/items')({
     const offer = getFetchedQuery<SingleOffer>(
       queryClient,
       ctx.loaderData.dehydratedState,
-      ['offer', { id: params.id }]
+      ['offer', { id: params.id }],
     );
 
     if (!offer) {
@@ -95,32 +89,7 @@ function ItemsPage() {
   return (
     <section id="offer-items" className="w-full h-full">
       <h2 className="text-2xl font-bold">Items</h2>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[300px]">Item ID</TableHead>
-            <TableHead>Item Name</TableHead>
-            <TableHead>Entitlement Type</TableHead>
-            <TableHead>Entitlement Name</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {items?.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell className="font-mono underline">
-                <Link to={`/items/${item.id}`}>{item.id}</Link>
-              </TableCell>
-              <TableCell className="text-left">{item.title}</TableCell>
-              <TableCell className="text-left">
-                {item.entitlementType}
-              </TableCell>
-              <TableCell className="text-left">
-                {item.entitlementName}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <DataTable columns={columns} data={items ?? []} />
     </section>
   );
 }
