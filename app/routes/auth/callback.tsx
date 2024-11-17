@@ -75,10 +75,16 @@ export const Route = createFileRoute('/auth/callback')({
       });
     });
 
-    console.log(tokens);
+    const id = crypto.randomUUID().replaceAll('-', '').toUpperCase();
 
     const token = await saveAuthCookie({
-      data: JSON.stringify({ name: 'EGDATA_AUTH', value: tokens }),
+      data: JSON.stringify({
+        name: 'EGDATA_AUTH',
+        value: {
+          ...tokens,
+          jti: id,
+        },
+      }),
     });
 
     const persistResponse = await fetch(
@@ -93,20 +99,12 @@ export const Route = createFileRoute('/auth/callback')({
     );
 
     if (!persistResponse.ok) {
-      console.error(await persistResponse.json());
+      console.error('Failed to persist tokens', await persistResponse.json());
       throw redirect({
         to: '/',
         search: { error: 'perist_error' },
       });
     }
-
-    const { id } = await persistResponse.json();
-
-    const tokenWithId = { ...tokens, id: id as string };
-
-    await saveAuthCookie({
-      data: JSON.stringify({ name: 'EGDATA_AUTH', value: tokenWithId }),
-    });
 
     throw redirect({
       to: '/',
