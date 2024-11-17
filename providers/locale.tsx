@@ -28,6 +28,22 @@ export const LocaleProvider: React.FC<LocaleProviderProps> = ({
         : undefined),
   );
 
+  const checkAndUpdateTimezone = () => {
+    if (typeof window === 'undefined') return;
+
+    const currentTimezone =
+      window.Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const lastCheck = Cookies.get('timezone_last_check');
+    const today = new Date().toDateString();
+
+    // Update if timezone has changed or if it's a new day
+    if (currentTimezone !== timezone || lastCheck !== today) {
+      setTimezone(currentTimezone);
+      Cookies.set('timezone_last_check', today);
+    }
+  };
+
+  // Initial timezone check and cookie setup
   useEffect(() => {
     // Save locale to cookie only if it differs from the current cookie value
     if (locale && Cookies.get('user_locale') !== locale) {
@@ -37,6 +53,23 @@ export const LocaleProvider: React.FC<LocaleProviderProps> = ({
       Cookies.set('user_timezone', timezone, { expires: 7 });
     }
   }, [locale, timezone]);
+
+  // Check timezone on page load and window focus
+  useEffect(() => {
+    // Check timezone on mount
+    checkAndUpdateTimezone();
+
+    // Add focus event listener
+    const handleFocus = () => {
+      checkAndUpdateTimezone();
+    };
+
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [timezone]);
 
   return (
     <LocaleContext.Provider
