@@ -204,10 +204,12 @@ export const Route = createRootRouteWithContext<{
     );
     const country = getCountryCode(url, cookies);
     const locale = await getCookie({ data: 'user_locale' });
+    const timezone = await getCookie({ data: 'user_timezone' });
 
     return {
       country,
       locale,
+      timezone,
     };
   },
 
@@ -351,7 +353,7 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
-  const { country, locale } = Route.useLoaderData();
+  const { country, locale, timezone } = Route.useLoaderData();
   return (
     <html lang="en">
       <head>
@@ -359,7 +361,7 @@ function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
       </head>
       <body className="antialiased">
         <div className="md:container mx-auto overflow-x-hidden">
-          <LocaleProvider initialLocale={locale}>
+          <LocaleProvider initialLocale={locale} initialTimezone={timezone}>
             <CountryProvider defaultCountry={country}>
               <CompareProvider>
                 <SearchProvider>

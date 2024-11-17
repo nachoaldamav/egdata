@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/tooltip';
 import { useCompare } from '@/hooks/use-compare';
 import { useCountry } from '@/hooks/use-country';
+import { useLocale } from '@/hooks/use-locale';
 import { getQueryClient } from '@/lib/client';
 import { generateOfferMeta } from '@/lib/generate-offer-meta';
 import { getFetchedQuery } from '@/lib/get-fetched-query';
@@ -116,6 +117,7 @@ export const Route = createFileRoute('/offers/$id')({
 function OfferPage() {
   const { id } = Route.useLoaderData();
   const { country } = useCountry();
+  const { timezone } = useLocale();
   const { addToCompare, removeFromCompare, compare } = useCompare();
   const navigate = useNavigate();
   const location = useLocation();
@@ -262,6 +264,7 @@ function OfferPage() {
                     <ReleaseDate
                       releaseDate={offer.releaseDate}
                       pcReleaseDate={offer.pcReleaseDate}
+                      timezone={timezone}
                     />
                   </TableCell>
                 </TableRow>
@@ -280,11 +283,11 @@ function OfferPage() {
                             day: 'numeric',
                             hour: 'numeric',
                             minute: 'numeric',
-                            timeZone: 'UTC',
+                            timeZone: timezone,
+                            timeZoneName: 'short',
                           },
                         )
                       : 'Not available'}
-                    {' (UTC) '}
                     <TimeAgo targetDate={offer.lastModifiedDate} />
                   </TableCell>
                 </TableRow>
@@ -303,11 +306,11 @@ function OfferPage() {
                             day: 'numeric',
                             hour: 'numeric',
                             minute: 'numeric',
-                            timeZone: 'UTC',
+                            timeZone: timezone,
+                            timeZoneName: 'short',
                           },
                         )
                       : 'Not available'}
-                    {' (UTC) '}
                     <TimeAgo targetDate={offer.creationDate} />
                   </TableCell>
                 </TableRow>
@@ -448,7 +451,8 @@ const TimeAgo: React.FC<{
 const ReleaseDate: React.FC<{
   releaseDate: string | null;
   pcReleaseDate: string | null;
-}> = ({ releaseDate, pcReleaseDate }) => {
+  timezone: string | undefined;
+}> = ({ releaseDate, pcReleaseDate, timezone }) => {
   if (!releaseDate || releaseDate.includes('2099')) {
     return <span>Not available</span>;
   }
@@ -471,7 +475,7 @@ const ReleaseDate: React.FC<{
                 day: 'numeric',
                 hour: 'numeric',
                 minute: 'numeric',
-                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                timeZone: timezone,
                 timeZoneName: 'short',
               })}
             </span>

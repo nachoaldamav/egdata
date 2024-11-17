@@ -5,11 +5,13 @@ import { LocaleContext } from '@/contexts/locale';
 interface LocaleProviderProps {
   children: ReactNode;
   initialLocale?: string | null;
+  initialTimezone?: string | null;
 }
 
 export const LocaleProvider: React.FC<LocaleProviderProps> = ({
   children,
   initialLocale,
+  initialTimezone,
 }) => {
   const [locale, setLocale] = useState<string | undefined>(
     () =>
@@ -17,16 +19,29 @@ export const LocaleProvider: React.FC<LocaleProviderProps> = ({
       Cookies.get('user_locale') ||
       (typeof window !== 'undefined' ? window.navigator.language : undefined),
   );
+  const [timezone, setTimezone] = useState<string | undefined>(
+    () =>
+      initialTimezone ||
+      Cookies.get('user_timezone') ||
+      (typeof window !== 'undefined'
+        ? window.Intl.DateTimeFormat().resolvedOptions().timeZone
+        : undefined),
+  );
 
   useEffect(() => {
     // Save locale to cookie only if it differs from the current cookie value
     if (locale && Cookies.get('user_locale') !== locale) {
       Cookies.set('user_locale', locale, { expires: 365 }); // Set cookie with a 1-year expiry
     }
-  }, [locale]);
+    if (timezone && Cookies.get('user_timezone') !== timezone) {
+      Cookies.set('user_timezone', timezone, { expires: 7 });
+    }
+  }, [locale, timezone]);
 
   return (
-    <LocaleContext.Provider value={{ locale, setLocale }}>
+    <LocaleContext.Provider
+      value={{ locale, setLocale, timezone, setTimezone }}
+    >
       {children}
     </LocaleContext.Provider>
   );
