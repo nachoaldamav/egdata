@@ -98,11 +98,10 @@ const searchParamsSchema = z.object({
       'upcoming',
       'price',
     ])
-    .optional()
-    .default('lastModifiedDate'),
-  sortDir: z.enum(['asc', 'desc']).optional().default('desc'),
-  q: z.string().optional().default(''),
-  country: z.string().optional().default('US'),
+    .optional(),
+  sortDir: z.enum(['asc', 'desc']).optional(),
+  q: z.string().optional(),
+  country: z.string().optional(),
 });
 
 export const Route = createFileRoute('/sales/$id')({
@@ -139,7 +138,11 @@ export const Route = createFileRoute('/sales/$id')({
       });
     }
 
-    const { page, sortBy, sortDir, q } = search;
+    // const { page, sortBy, sortDir, q } = search;
+    const page = search.page ?? 1;
+    const sortBy = search.sortBy ?? 'lastModifiedDate';
+    const sortDir = search.sortDir ?? 'desc';
+    const q = search.q ?? '';
 
     const [coverData, initialData] = await Promise.allSettled([
       queryClient.fetchQuery({
@@ -207,6 +210,71 @@ export const Route = createFileRoute('/sales/$id')({
   },
 
   validateSearch: zodSearchValidator(searchParamsSchema),
+
+  meta: (ctx) => {
+    const { loaderData } = ctx;
+
+    const { promotion } = loaderData;
+
+    if (!promotion) {
+      return [
+        {
+          title: 'Promotion not found',
+          description: 'Promotion not found',
+        },
+      ];
+    }
+
+    return [
+      {
+        title: `${promotion.title} | egdata.app`,
+      },
+      {
+        name: 'description',
+        content: `Check out ${promotion.title} from the Epic Games Store.`,
+      },
+      {
+        name: 'og:title',
+        content: `${promotion.title} | egdata.app`,
+      },
+      {
+        name: 'og:description',
+        content: `Check out ${promotion.title} from the Epic Games Store.`,
+      },
+      {
+        property: 'twitter:title',
+        content: `${promotion.title} | egdata.app`,
+        key: 'twitter:title',
+      },
+      {
+        property: 'twitter:description',
+        content: `Check out ${promotion.title} from the Epic Games Store.`,
+        key: 'twitter:description',
+      },
+      {
+        name: 'og:image',
+        content:
+          getImage(promotion.elements[0]?.keyImages ?? [], [
+            'OfferImageWide',
+            'DieselGameBoxWide',
+            'DieselStoreFrontWide',
+          ])?.url ?? '/placeholder.webp',
+      },
+      {
+        name: 'og:type',
+        content: 'website',
+      },
+      {
+        name: 'twitter:image',
+        content:
+          getImage(promotion.elements[0]?.keyImages ?? [], [
+            'OfferImageWide',
+            'DieselGameBoxWide',
+            'DieselStoreFrontWide',
+          ])?.url ?? '/placeholder.webp',
+      },
+    ];
+  },
 });
 
 function SalesPage() {

@@ -7,6 +7,7 @@ import { OpenEgl } from '@/components/app/open-egl';
 import { OpenEgs } from '@/components/app/open-egs';
 import { OpenLauncher } from '@/components/app/open-launcher';
 import { platformIcons } from '@/components/app/platform-icons';
+import { PrepurchasePopup } from '@/components/app/prepurchase-popup';
 import { AddIcon } from '@/components/icons/add';
 import { RemoveIcon } from '@/components/icons/remove';
 import { Bundle } from '@/components/modules/bundle';
@@ -34,6 +35,7 @@ import { useCompare } from '@/hooks/use-compare';
 import { useCountry } from '@/hooks/use-country';
 import { useLocale } from '@/hooks/use-locale';
 import { getQueryClient } from '@/lib/client';
+import { ClientOnly } from '@/lib/cllient-only';
 import { generateOfferMeta } from '@/lib/generate-offer-meta';
 import { getFetchedQuery } from '@/lib/get-fetched-query';
 import { getSeller } from '@/lib/get-seller';
@@ -153,6 +155,9 @@ function OfferPage() {
 
   return (
     <main className="flex flex-col items-start justify-start w-full min-h-screen gap-4">
+      <ClientOnly>
+        <PrepurchasePopup id={offer.id} />
+      </ClientOnly>
       <header className="grid col-span-1 gap-4 md:grid-cols-2 w-full">
         <div className="flex flex-col gap-1">
           <h1 className="text-4xl font-bold">{offer.title}</h1>

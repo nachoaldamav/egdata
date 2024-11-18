@@ -130,7 +130,7 @@ function SaleCard({
       to={`/sales/${sale.id}`}
       className="genre-card relative w-72 h-[300px] mx-auto text-white overflow-hidden rounded-lg shadow-lg m-4 bg-gray-900/40 hover:bg-gray-900/60 transition group"
     >
-      <div className="title absolute bottom-2 w-full text-center font-light text-xl z-10">
+      <div className="title absolute bottom-2 w-full text-center font-light text-xl z-10 truncate max-w-full mx-2">
         {sale.name}
       </div>
       <span className="absolute top-0 left-0 w-full h-full backdrop-blur-[1px] bg-black/10 z-[5] group-hover:opacity-0 transition duration-300 ease-in-out" />
