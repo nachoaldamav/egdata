@@ -141,12 +141,14 @@ export const Route = createFileRoute('/fair-use')({
     </div>
   ),
 
-  meta: () => {
-    return [
-      {
-        title: 'Fair Use Policy - egdata.app',
-        description: 'Fair Use Policy for egdata.app',
-      },
-    ];
+  head: () => {
+    return {
+      meta: [
+        {
+          title: 'Fair Use Policy - egdata.app',
+          description: 'Fair Use Policy for egdata.app',
+        },
+      ],
+    };
   },
 });

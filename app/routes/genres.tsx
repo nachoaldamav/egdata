@@ -37,13 +37,15 @@ export const Route = createFileRoute('/genres')({
     );
   },
 
-  meta: () => {
-    return [
-      {
-        title: 'Genres - egdata.app',
-        description: 'Genres on egdata.app',
-      },
-    ];
+  head: () => {
+    return {
+      meta: [
+        {
+          title: 'Genres - egdata.app',
+          description: 'Genres on egdata.app',
+        },
+      ],
+    };
   },
 
   loader: async ({ context }) => {
@@ -113,7 +115,7 @@ function GenreCard({ genre }: { genre: GenreResponse }) {
             index === 0 &&
               'left-1/2 transform -translate-x-1/2 z-10 w-44 h-60 top-2 group-hover:scale-[1.03] transition duration-200 ease-in-out',
             index === 2 &&
-              'right-2 z-0 opacity-35 backdrop-filter backdrop-blur-lg top-4'
+              'right-2 z-0 opacity-35 backdrop-filter backdrop-blur-lg top-4',
           )}
         />
       ))}

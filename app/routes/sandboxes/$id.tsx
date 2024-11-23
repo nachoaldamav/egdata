@@ -6,8 +6,6 @@ import { SectionsNav } from '@/components/app/offer-sections';
 import {
   Archive,
   BoxIcon,
-  Library,
-  LibraryIcon,
   LibrarySquareIcon,
   PackageIcon,
   StoreIcon,
@@ -16,7 +14,6 @@ import type { SingleOffer } from '@/types/single-offer';
 import { getFetchedQuery } from '@/lib/get-fetched-query';
 import { getQueryClient } from '@/lib/client';
 import { EpicTrophyIcon } from '@/components/icons/epic-trophy';
-import { getImage } from '@/lib/get-image';
 import { generateSandboxMeta } from '@/lib/generate-sandbox-meta';
 
 export const Route = createFileRoute('/sandboxes/$id')({
@@ -45,11 +42,11 @@ export const Route = createFileRoute('/sandboxes/$id')({
     const { queryClient } = context;
 
     await Promise.all([
-      await queryClient.prefetchQuery({
+      queryClient.prefetchQuery({
         queryKey: ['sandbox', { id }],
         queryFn: () => httpClient.get<SingleSandbox>(`/sandboxes/${id}`),
       }),
-      await queryClient.prefetchQuery({
+      queryClient.prefetchQuery({
         queryKey: ['sandbox', 'base-game', { id }],
         queryFn: () =>
           httpClient.get<SingleOffer>(`/sandboxes/${id}/base-game`),
@@ -62,33 +59,47 @@ export const Route = createFileRoute('/sandboxes/$id')({
     };
   },
 
-  meta({ params, loaderData }) {
+  head: (ctx) => {
+    const { params } = ctx;
     const queryClient = getQueryClient();
-    const { dehydratedState } = loaderData;
+
+    if (!ctx.loaderData) {
+      return {
+        meta: [
+          {
+            title: 'Sandbox not found',
+            description: 'Sandbox not found',
+          },
+        ],
+      };
+    }
+
     const { id } = params;
 
     const sandbox = getFetchedQuery<SingleSandbox>(
       queryClient,
-      dehydratedState,
-      ['sandbox', { id }]
+      ctx.loaderData?.dehydratedState,
+      ['sandbox', { id }],
+    );
+    const offer = getFetchedQuery<SingleOffer>(
+      queryClient,
+      ctx.loaderData?.dehydratedState,
+      ['sandbox', 'base-game', { id }],
     );
 
-    const offer = getFetchedQuery<SingleOffer>(queryClient, dehydratedState, [
-      'sandbox',
-      'base-game',
-      { id },
-    ]);
+    if (!sandbox)
+      return {
+        meta: [
+          {
+            title: 'Sandbox not found',
+            description: 'Sandbox not found',
+          },
+        ],
+      };
 
-    if (!sandbox) {
-      return [
-        {
-          title: 'Sandbox not found',
-          description: 'Sandbox not found',
-        },
-      ];
-    }
-
-    return generateSandboxMeta(sandbox, offer);
+    return {
+      meta: generateSandboxMeta(sandbox, offer),
+    };
   },
 });
 

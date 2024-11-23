@@ -55,33 +55,47 @@ export const Route = createFileRoute('/sandboxes/$id/achievements')({
     };
   },
 
-  meta({ params, loaderData }) {
+  head: (ctx) => {
+    const { params } = ctx;
     const queryClient = getQueryClient();
-    const { dehydratedState } = loaderData;
+
+    if (!ctx.loaderData) {
+      return {
+        meta: [
+          {
+            title: 'Sandbox not found',
+            description: 'Sandbox not found',
+          },
+        ],
+      };
+    }
+
     const { id } = params;
 
     const sandbox = getFetchedQuery<SingleSandbox>(
       queryClient,
-      dehydratedState,
-      ['sandbox', { id }]
+      ctx.loaderData?.dehydratedState,
+      ['sandbox', { id }],
+    );
+    const offer = getFetchedQuery<SingleOffer>(
+      queryClient,
+      ctx.loaderData?.dehydratedState,
+      ['sandbox', 'base-game', { id }],
     );
 
-    const offer = getFetchedQuery<SingleOffer>(queryClient, dehydratedState, [
-      'sandbox',
-      'base-game',
-      { id },
-    ]);
+    if (!sandbox)
+      return {
+        meta: [
+          {
+            title: 'Sandbox not found',
+            description: 'Sandbox not found',
+          },
+        ],
+      };
 
-    if (!sandbox) {
-      return [
-        {
-          title: 'Sandbox not found',
-          description: 'Sandbox not found',
-        },
-      ];
-    }
-
-    return generateSandboxMeta(sandbox, offer, 'Achievements');
+    return {
+      meta: generateSandboxMeta(sandbox, offer, 'Achievements'),
+    };
   },
 });
 
@@ -131,7 +145,7 @@ function SandboxAchievementsPage() {
           acc[rarity] = (acc[rarity] || 0) + 1;
           return acc;
         },
-        {} as { [key in keyof typeof rarities]: number }
+        {} as { [key in keyof typeof rarities]: number },
       );
   }, [achievements]);
 
@@ -183,7 +197,7 @@ function SandboxAchievementsPage() {
                 <div
                   key={rarity}
                   className={cn(
-                    'flex flex-col items-center justify-center gap-2 rounded-md p-4 text-center'
+                    'flex flex-col items-center justify-center gap-2 rounded-md p-4 text-center',
                   )}
                 >
                   <EpicTrophyIcon
@@ -191,12 +205,12 @@ function SandboxAchievementsPage() {
                   />
                   <span className="text-xl font-bold">{count}</span>
                 </div>
-              )
+              ),
             )}
             <span className="text-2xl font-bold">{'='}</span>
             <div
               className={cn(
-                'flex flex-col items-center justify-center gap-2 rounded-md p-4 text-center'
+                'flex flex-col items-center justify-center gap-2 rounded-md p-4 text-center',
               )}
             >
               <EpicTrophyIcon

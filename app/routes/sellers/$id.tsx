@@ -14,7 +14,6 @@ import { OfferCard } from '@/components/app/offer-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getQueryClient } from '@/lib/client';
 import { getFetchedQuery } from '@/lib/get-fetched-query';
-import type { SingleSeller } from '@/types/sellers';
 
 export const Route = createFileRoute('/sellers/$id')({
   component: () => {
@@ -51,24 +50,44 @@ export const Route = createFileRoute('/sellers/$id')({
     };
   },
 
-  meta: ({ params, loaderData }) => {
+  head: (ctx) => {
+    const { params, loaderData } = ctx;
     const queryClient = getQueryClient();
+
+    if (!loaderData) {
+      return {
+        meta: [
+          {
+            title: 'Seller not found',
+            description: 'Seller not found',
+          },
+        ],
+      };
+    }
 
     const seller = getFetchedQuery<SingleOffer[]>(
       queryClient,
-      loaderData.dehydratedState,
-      ['seller', { id: params.id, country: loaderData.country }]
+      loaderData?.dehydratedState,
+      ['seller', { id: params.id, country: loaderData.country }],
     );
 
-    if (seller) {
-      return [
+    if (!seller)
+      return {
+        meta: [
+          {
+            title: 'Seller not found',
+            description: 'Seller not found',
+          },
+        ],
+      };
+
+    return {
+      meta: [
         {
           title: `${seller[0].seller.name} | egdata.app`,
         },
-      ];
-    }
-
-    return [];
+      ],
+    };
   },
 });
 
@@ -94,7 +113,7 @@ function RouteComponent() {
 
   const randomCoverIndex = React.useMemo(
     () => Math.floor(Math.random() * 5 || 0),
-    []
+    [],
   );
 
   const { data, isLoading } = sellerData;
