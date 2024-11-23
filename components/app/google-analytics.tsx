@@ -52,8 +52,6 @@ export const GoogleAnalytics: React.FC<GoogleAnalyticsProps> = ({
       script.innerHTML = `
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', '${tagId}');
         gtag('consent', 'default', {
           ad_storage: '${consentSettings.ad_storage}',
           ad_user_data: '${consentSettings.ad_user_data}',
@@ -63,6 +61,8 @@ export const GoogleAnalytics: React.FC<GoogleAnalyticsProps> = ({
           personalization_storage: '${consentSettings.personalization_storage}',
           security_storage: '${consentSettings.security_storage}',
         });
+        gtag('js', new Date());
+        gtag('config', '${tagId}');
       `;
       document.head.appendChild(script);
       consola.info('GoogleAnalytics: Loaded inline script', tagId);
