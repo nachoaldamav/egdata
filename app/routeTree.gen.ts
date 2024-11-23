@@ -16,6 +16,7 @@ import { Route as PrivacyImport } from './routes/privacy'
 import { Route as GenresImport } from './routes/genres'
 import { Route as FreebiesImport } from './routes/freebies'
 import { Route as FairUseImport } from './routes/fair-use'
+import { Route as DonateKeyImport } from './routes/donate-key'
 import { Route as DashboardImport } from './routes/dashboard'
 import { Route as ChangelogImport } from './routes/changelog'
 import { Route as AboutImport } from './routes/about'
@@ -89,6 +90,12 @@ const FreebiesRoute = FreebiesImport.update({
 const FairUseRoute = FairUseImport.update({
   id: '/fair-use',
   path: '/fair-use',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DonateKeyRoute = DonateKeyImport.update({
+  id: '/donate-key',
+  path: '/donate-key',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -381,6 +388,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardImport
+      parentRoute: typeof rootRoute
+    }
+    '/donate-key': {
+      id: '/donate-key'
+      path: '/donate-key'
+      fullPath: '/donate-key'
+      preLoaderRoute: typeof DonateKeyImport
       parentRoute: typeof rootRoute
     }
     '/fair-use': {
@@ -798,6 +812,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/changelog': typeof ChangelogRoute
   '/dashboard': typeof DashboardRoute
+  '/donate-key': typeof DonateKeyRoute
   '/fair-use': typeof FairUseRoute
   '/freebies': typeof FreebiesRoute
   '/genres': typeof GenresRoute
@@ -849,6 +864,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/changelog': typeof ChangelogRoute
   '/dashboard': typeof DashboardRoute
+  '/donate-key': typeof DonateKeyRoute
   '/fair-use': typeof FairUseRoute
   '/freebies': typeof FreebiesRoute
   '/genres': typeof GenresRoute
@@ -897,6 +913,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/changelog': typeof ChangelogRoute
   '/dashboard': typeof DashboardRoute
+  '/donate-key': typeof DonateKeyRoute
   '/fair-use': typeof FairUseRoute
   '/freebies': typeof FreebiesRoute
   '/genres': typeof GenresRoute
@@ -950,6 +967,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/changelog'
     | '/dashboard'
+    | '/donate-key'
     | '/fair-use'
     | '/freebies'
     | '/genres'
@@ -1000,6 +1018,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/changelog'
     | '/dashboard'
+    | '/donate-key'
     | '/fair-use'
     | '/freebies'
     | '/genres'
@@ -1046,6 +1065,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/changelog'
     | '/dashboard'
+    | '/donate-key'
     | '/fair-use'
     | '/freebies'
     | '/genres'
@@ -1098,6 +1118,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   ChangelogRoute: typeof ChangelogRoute
   DashboardRoute: typeof DashboardRoute
+  DonateKeyRoute: typeof DonateKeyRoute
   FairUseRoute: typeof FairUseRoute
   FreebiesRoute: typeof FreebiesRoute
   GenresRoute: typeof GenresRoute
@@ -1125,6 +1146,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   ChangelogRoute: ChangelogRoute,
   DashboardRoute: DashboardRoute,
+  DonateKeyRoute: DonateKeyRoute,
   FairUseRoute: FairUseRoute,
   FreebiesRoute: FreebiesRoute,
   GenresRoute: GenresRoute,
@@ -1161,6 +1183,7 @@ export const routeTree = rootRoute
         "/about",
         "/changelog",
         "/dashboard",
+        "/donate-key",
         "/fair-use",
         "/freebies",
         "/genres",
@@ -1194,6 +1217,9 @@ export const routeTree = rootRoute
     },
     "/dashboard": {
       "filePath": "dashboard.tsx"
+    },
+    "/donate-key": {
+      "filePath": "donate-key.tsx"
     },
     "/fair-use": {
       "filePath": "fair-use.tsx"

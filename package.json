@@ -76,6 +76,7 @@
     "embla-carousel-autoplay": "^8.5.1",
     "embla-carousel-react": "^8.5.1",
     "h3": "^1.13.0",
+    "input-otp": "^1.4.1",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
     "lodash.debounce": "^4.0.8",

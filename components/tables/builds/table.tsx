@@ -24,6 +24,9 @@ import { useState } from 'react';
 import { DataTableToolbar } from './toolbar';
 import { DataTablePagination } from './pagination';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { DonateKeyPopup } from '@/components/forms/donate-key';
+import { Button } from '@/components/ui/button';
+import { Link } from '@tanstack/react-router';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -84,7 +87,7 @@ export function DataTable<TData, TValue>({
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                       </TableHead>
                     );
@@ -103,7 +106,7 @@ export function DataTable<TData, TValue>({
                       <TableCell key={cell.id}>
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </TableCell>
                     ))}
@@ -113,9 +116,12 @@ export function DataTable<TData, TValue>({
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-24 text-center w-full gap-2"
                   >
-                    No results.
+                    <p className="mb-4">No results.</p>
+                    <Button variant="outline" asChild>
+                      <Link to="/donate-key">Donate a Key</Link>
+                    </Button>
                   </TableCell>
                 </TableRow>
               )}
