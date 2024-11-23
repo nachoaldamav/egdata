@@ -155,10 +155,7 @@ export const Route = createFileRoute('/search')({
           | {
               [key: string]: unknown;
             };
-      }>(`/search/${hash}?country=${country}`, {
-        retries: 0,
-        retryDelay: 10,
-      }),
+      }>(`/search/${hash}?country=${country}`, {}),
       httpClient.get<
         {
           _id: string;
@@ -218,34 +215,36 @@ export const Route = createFileRoute('/search')({
     };
   },
 
-  meta() {
-    return [
-      {
-        title: 'Search | egdata.app',
-      },
-      {
-        name: 'description',
-        content: 'Search for offers from the Epic Games Store.',
-      },
-      {
-        name: 'og:title',
-        content: 'Search | egdata.app',
-      },
-      {
-        name: 'og:description',
-        content: 'Search for offers from the Epic Games Store.',
-      },
-      {
-        property: 'twitter:title',
-        content: 'Search | egdata.app',
-        key: 'twitter:title',
-      },
-      {
-        property: 'twitter:description',
-        content: 'Search for offers from the Epic Games Store.',
-        key: 'twitter:description',
-      },
-    ];
+  head() {
+    return {
+      meta: [
+        {
+          title: 'Search | egdata.app',
+        },
+        {
+          name: 'description',
+          content: 'Search for offers from the Epic Games Store.',
+        },
+        {
+          name: 'og:title',
+          content: 'Search | egdata.app',
+        },
+        {
+          name: 'og:description',
+          content: 'Search for offers from the Epic Games Store.',
+        },
+        {
+          property: 'twitter:title',
+          content: 'Search | egdata.app',
+          key: 'twitter:title',
+        },
+        {
+          property: 'twitter:description',
+          content: 'Search for offers from the Epic Games Store.',
+          key: 'twitter:description',
+        },
+      ],
+    };
   },
 });
 

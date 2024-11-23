@@ -47,26 +47,41 @@ export const Route = createFileRoute('/offers/$id/related')({
     };
   },
 
-  meta(ctx) {
+  head: (ctx) => {
     const { params } = ctx;
     const queryClient = getQueryClient();
 
+    if (!ctx.loaderData) {
+      return {
+        meta: [
+          {
+            title: 'Offer not found',
+            description: 'Offer not found',
+          },
+        ],
+      };
+    }
+
     const offer = getFetchedQuery<SingleOffer>(
       queryClient,
-      ctx.loaderData.dehydratedState,
+      ctx.loaderData?.dehydratedState,
       ['offer', { id: params.id }],
     );
 
     if (!offer) {
-      return [
-        {
-          title: 'Offer not found',
-          description: 'Offer not found',
-        },
-      ];
+      return {
+        meta: [
+          {
+            title: 'Offer not found',
+            description: 'Offer not found',
+          },
+        ],
+      };
     }
 
-    return generateOfferMeta(offer, 'Related');
+    return {
+      meta: generateOfferMeta(offer, 'Related'),
+    };
   },
 });
 

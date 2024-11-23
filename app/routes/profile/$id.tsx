@@ -164,17 +164,40 @@ export const Route = createFileRoute('/profile/$id')({
     };
   },
 
-  meta: ({ params, loaderData }) => {
+  head: (ctx) => {
+    const { params } = ctx;
     const queryClient = getQueryClient();
+
+    if (!ctx.loaderData) {
+      return {
+        meta: [
+          {
+            title: 'Profile not found',
+            description: 'Profile not found',
+          },
+        ],
+      };
+    }
 
     const user = getFetchedQuery<Profile>(
       queryClient,
-      loaderData.dehydratedState,
+      ctx.loaderData?.dehydratedState,
       ['profile-information', { id: params.id }],
     );
 
-    if (user) {
-      return [
+    if (!user) {
+      return {
+        meta: [
+          {
+            title: 'Profile not found',
+            description: 'Profile not found',
+          },
+        ],
+      };
+    }
+
+    return {
+      meta: [
         {
           title: `${user.displayName} | egdata.app`,
         },
@@ -182,10 +205,8 @@ export const Route = createFileRoute('/profile/$id')({
           name: 'description',
           content: `Check out ${user.displayName}'s achievements and games on egdata.app`,
         },
-      ];
-    }
-
-    return [];
+      ],
+    };
   },
 });
 

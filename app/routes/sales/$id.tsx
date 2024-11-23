@@ -211,69 +211,81 @@ export const Route = createFileRoute('/sales/$id')({
 
   validateSearch: zodSearchValidator(searchParamsSchema),
 
-  meta: (ctx) => {
-    const { loaderData } = ctx;
-
-    const { promotion } = loaderData;
-
-    if (!promotion) {
-      return [
-        {
-          title: 'Promotion not found',
-          description: 'Promotion not found',
-        },
-      ];
+  head: (ctx) => {
+    if (!ctx.loaderData) {
+      return {
+        meta: [
+          {
+            title: 'Promotion not found',
+            description: 'Promotion not found',
+          },
+        ],
+      };
     }
 
-    return [
-      {
-        title: `${promotion.title} | egdata.app`,
-      },
-      {
-        name: 'description',
-        content: `Check out ${promotion.title} from the Epic Games Store.`,
-      },
-      {
-        name: 'og:title',
-        content: `${promotion.title} | egdata.app`,
-      },
-      {
-        name: 'og:description',
-        content: `Check out ${promotion.title} from the Epic Games Store.`,
-      },
-      {
-        property: 'twitter:title',
-        content: `${promotion.title} | egdata.app`,
-        key: 'twitter:title',
-      },
-      {
-        property: 'twitter:description',
-        content: `Check out ${promotion.title} from the Epic Games Store.`,
-        key: 'twitter:description',
-      },
-      {
-        name: 'og:image',
-        content:
-          getImage(promotion.elements[0]?.keyImages ?? [], [
-            'OfferImageWide',
-            'DieselGameBoxWide',
-            'DieselStoreFrontWide',
-          ])?.url ?? '/placeholder.webp',
-      },
-      {
-        name: 'og:type',
-        content: 'website',
-      },
-      {
-        name: 'twitter:image',
-        content:
-          getImage(promotion.elements[0]?.keyImages ?? [], [
-            'OfferImageWide',
-            'DieselGameBoxWide',
-            'DieselStoreFrontWide',
-          ])?.url ?? '/placeholder.webp',
-      },
-    ];
+    const { promotion } = ctx.loaderData;
+
+    if (!promotion)
+      return {
+        meta: [
+          {
+            title: 'Promotion not found',
+            description: 'Promotion not found',
+          },
+        ],
+      };
+
+    return {
+      meta: [
+        {
+          title: `${promotion.title} | egdata.app`,
+        },
+        {
+          name: 'description',
+          content: `Check out ${promotion.title} from the Epic Games Store.`,
+        },
+        {
+          name: 'og:title',
+          content: `${promotion.title} | egdata.app`,
+        },
+        {
+          name: 'og:description',
+          content: `Check out ${promotion.title} from the Epic Games Store.`,
+        },
+        {
+          property: 'twitter:title',
+          content: `${promotion.title} | egdata.app`,
+          key: 'twitter:title',
+        },
+        {
+          property: 'twitter:description',
+          content: `Check out ${promotion.title} from the Epic Games Store.`,
+          key: 'twitter:description',
+        },
+        {
+          name: 'og:image',
+          content:
+            getImage(promotion.elements[0]?.keyImages ?? [], [
+              'OfferImageWide',
+              'DieselGameBoxWide',
+              'DieselStoreFrontWide',
+            ])?.url ?? '/placeholder.webp',
+        },
+        {
+          name: 'og:type',
+          content: 'website',
+        },
+        {
+          name: 'twitter:image',
+          content:
+            getImage(promotion.elements[0]?.keyImages ?? [], [
+              'OfferImageWide',
+              'DieselGameBoxWide',
+              'DieselStoreFrontWide',
+            ])?.url ?? '/placeholder.webp',
+        },
+      ],
+    };
   },
 });
 

@@ -39,34 +39,36 @@ export const Route = createFileRoute('/sales/')({
     };
   },
 
-  meta() {
-    return [
-      {
-        title: 'Active Sales | egdata.app',
-      },
-      {
-        name: 'description',
-        content: 'Browse active sales on egdata.app',
-      },
-      {
-        name: 'og:title',
-        content: 'Active Sales | egdata.app',
-      },
-      {
-        name: 'og:description',
-        content: 'Browse active sales on egdata.app',
-      },
-      {
-        property: 'twitter:title',
-        content: 'Active Sales | egdata.app',
-        key: 'twitter:title',
-      },
-      {
-        property: 'twitter:description',
-        content: 'Browse active sales on egdata.app',
-        key: 'twitter:description',
-      },
-    ];
+  head: () => {
+    return {
+      meta: [
+        {
+          title: 'Active Sales | egdata.app',
+        },
+        {
+          name: 'description',
+          content: 'Browse active sales on egdata.app',
+        },
+        {
+          name: 'og:title',
+          content: 'Active Sales | egdata.app',
+        },
+        {
+          name: 'og:description',
+          content: 'Browse active sales on egdata.app',
+        },
+        {
+          property: 'twitter:title',
+          content: 'Active Sales | egdata.app',
+          key: 'twitter:title',
+        },
+        {
+          property: 'twitter:description',
+          content: 'Browse active sales on egdata.app',
+          key: 'twitter:description',
+        },
+      ],
+    };
   },
 });
 

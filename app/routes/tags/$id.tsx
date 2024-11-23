@@ -28,7 +28,6 @@ import { cn } from '@/lib/utils';
 import { GridIcon, ListBulletIcon } from '@radix-ui/react-icons';
 import { OfferCard } from '@/components/app/offer-card';
 import { OfferListItem } from '@/components/app/game-card';
-import { getQueryClient } from '@/lib/client';
 
 type SortBy =
   | 'releaseDate'
@@ -198,16 +197,31 @@ export const Route = createFileRoute('/tags/$id')({
 
   validateSearch: zodSearchValidator(searchParamsSchema),
 
-  meta({ params, loaderData }) {
+  head: (ctx) => {
+    const { params, loaderData } = ctx;
+
+    if (!loaderData) {
+      return {
+        meta: [
+          {
+            title: 'Promotion not found',
+            description: 'Promotion not found',
+          },
+        ],
+      };
+    }
+
     const { promotion, cover } = loaderData;
 
     if (!promotion || !cover) {
-      return [
-        {
-          title: 'Promotion not found',
-          description: 'Promotion not found',
-        },
-      ];
+      return {
+        meta: [
+          {
+            title: 'Promotion not found',
+            description: 'Promotion not found',
+          },
+        ],
+      };
     }
 
     const { title, count } = promotion;
@@ -220,105 +234,107 @@ export const Route = createFileRoute('/tags/$id')({
         'DieselStoreFrontWide',
       ])?.url ?? 'https://egdata.app/placeholder.webp';
 
-    return [
-      {
-        title: `${title} | egdata.app`,
-      },
-      {
-        name: 'description',
-        content: `Checkout ${count} available offers for ${title} on egdata.app.`,
-      },
-      {
-        name: 'og:title',
-        content: `${title} - egdata.app`,
-      },
-      {
-        name: 'og:description',
-        content: `Checkout ${count} available offers for ${title} on egdata.app.`,
-      },
-      {
-        name: 'twitter:title',
-        content: `${title} - egdata.app`,
-      },
-      {
-        name: 'twitter:description',
-        content: `Checkout ${count} available offers for ${title} on egdata.app.`,
-      },
-      {
-        name: 'og:image',
-        content: coverImage,
-      },
-      {
-        name: 'twitter:image',
-        content: coverImage,
-      },
-      {
-        name: 'twitter:card',
-        content: 'summary_large_image',
-      },
-      {
-        name: 'og:type',
-        content: 'website',
-      },
-      {
-        name: 'og:site_name',
-        content: 'egdata.app',
-      },
-      {
-        name: 'og:url',
-        content: `https://egdata.app/promotions/${params.id}`,
-      },
-      //   {
-      //     'script:ld+json': {
-      //       '@context': 'https://schema.org',
-      //       '@type': 'Event',
-      //       name: title,
-      //       description: `Checkout ${count} available offers for ${title} on egdata.app.`,
-      //       image: coverImage,
-      //       url: `https://egdata.app/promotions/${params.id}`,
-      //       location: {
-      //         url: `https://egdata.app/promotions/${params.id}`,
-      //         name: title,
-      //         image: coverImage,
-      //       },
-      //       organizer: {
-      //         '@type': 'Organization',
-      //         name: 'Epic Games',
-      //         url: 'https://store.epicgames.com',
-      //       },
-      //       startDate:
-      //         promotion.elements
-      //           .find((game) =>
-      //             game.price?.appliedRules.find((rule) => rule.startDate)
-      //           )
-      //           ?.price?.appliedRules.find((rule) => rule.startDate)?.startDate ??
-      //         new Date(Date.now() - 86400000).toISOString(),
-      //       offers: {
-      //         '@type': 'AggregateOffer',
-      //         availability: 'https://schema.org/InStock',
-      //         priceCurrency:
-      //           promotion.elements[0]?.price?.price.currencyCode ?? 'USD',
-      //         lowPrice:
-      //           Math.min(
-      //             ...promotion.elements.map(
-      //               (game) => game.price?.price.originalPrice ?? 0
-      //             )
-      //           ) / 100,
-      //         highPrice:
-      //           Math.max(
-      //             ...promotion.elements.map(
-      //               (game) => game.price?.price.originalPrice ?? 0
-      //             )
-      //           ) / 100,
-      //         offerCount: count,
-      //         offers: promotion.elements.map((game) => ({
-      //           '@type': 'Offer',
-      //           url: `https://egdata.app/offers/${game.id}`,
-      //         })),
-      //       },
-      //     },
-      //   },
-    ];
+    return {
+      meta: [
+        {
+          title: `${title} | egdata.app`,
+        },
+        {
+          name: 'description',
+          content: `Checkout ${count} available offers for ${title} on egdata.app.`,
+        },
+        {
+          name: 'og:title',
+          content: `${title} - egdata.app`,
+        },
+        {
+          name: 'og:description',
+          content: `Checkout ${count} available offers for ${title} on egdata.app.`,
+        },
+        {
+          name: 'twitter:title',
+          content: `${title} - egdata.app`,
+        },
+        {
+          name: 'twitter:description',
+          content: `Checkout ${count} available offers for ${title} on egdata.app.`,
+        },
+        {
+          name: 'og:image',
+          content: coverImage,
+        },
+        {
+          name: 'twitter:image',
+          content: coverImage,
+        },
+        {
+          name: 'twitter:card',
+          content: 'summary_large_image',
+        },
+        {
+          name: 'og:type',
+          content: 'website',
+        },
+        {
+          name: 'og:site_name',
+          content: 'egdata.app',
+        },
+        {
+          name: 'og:url',
+          content: `https://egdata.app/promotions/${params.id}`,
+        },
+        //   {
+        //     'script:ld+json': {
+        //       '@context': 'https://schema.org',
+        //       '@type': 'Event',
+        //       name: title,
+        //       description: `Checkout ${count} available offers for ${title} on egdata.app.`,
+        //       image: coverImage,
+        //       url: `https://egdata.app/promotions/${params.id}`,
+        //       location: {
+        //         url: `https://egdata.app/promotions/${params.id}`,
+        //         name: title,
+        //         image: coverImage,
+        //       },
+        //       organizer: {
+        //         '@type': 'Organization',
+        //         name: 'Epic Games',
+        //         url: 'https://store.epicgames.com',
+        //       },
+        //       startDate:
+        //         promotion.elements
+        //           .find((game) =>
+        //             game.price?.appliedRules.find((rule) => rule.startDate)
+        //           )
+        //           ?.price?.appliedRules.find((rule) => rule.startDate)?.startDate ??
+        //         new Date(Date.now() - 86400000).toISOString(),
+        //       offers: {
+        //         '@type': 'AggregateOffer',
+        //         availability: 'https://schema.org/InStock',
+        //         priceCurrency:
+        //           promotion.elements[0]?.price?.price.currencyCode ?? 'USD',
+        //         lowPrice:
+        //           Math.min(
+        //             ...promotion.elements.map(
+        //               (game) => game.price?.price.originalPrice ?? 0
+        //             )
+        //           ) / 100,
+        //         highPrice:
+        //           Math.max(
+        //             ...promotion.elements.map(
+        //               (game) => game.price?.price.originalPrice ?? 0
+        //             )
+        //           ) / 100,
+        //         offerCount: count,
+        //         offers: promotion.elements.map((game) => ({
+        //           '@type': 'Offer',
+        //           url: `https://egdata.app/offers/${game.id}`,
+        //         })),
+        //       },
+        //     },
+        //   },
+      ],
+    };
   },
 });
 

@@ -127,12 +127,14 @@ export const Route = createFileRoute('/changelog')({
 
   validateSearch: zodSearchValidator(searchParamsSchema),
 
-  meta() {
-    return [
-      {
-        title: 'Changelog | egdata.app',
-      },
-    ];
+  head() {
+    return {
+      meta: [
+        {
+          title: 'Changelog | egdata.app',
+        },
+      ],
+    };
   },
 });
 

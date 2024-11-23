@@ -220,34 +220,36 @@ export const Route = createFileRoute('/freebies')({
     };
   },
 
-  meta() {
-    return [
-      {
-        title: 'Free Games | egdata.app',
-      },
-      {
-        name: 'description',
-        content: 'Browse free games from the Epic Games Store.',
-      },
-      {
-        name: 'og:title',
-        content: 'Free Games | egdata.app',
-      },
-      {
-        name: 'og:description',
-        content: 'Browse free games from the Epic Games Store.',
-      },
-      {
-        property: 'twitter:title',
-        content: 'Free Games | egdata.app',
-        key: 'twitter:title',
-      },
-      {
-        property: 'twitter:description',
-        content: 'Browse free games from the Epic Games Store.',
-        key: 'twitter:description',
-      },
-    ];
+  head: () => {
+    return {
+      meta: [
+        {
+          title: 'Free Games | egdata.app',
+        },
+        {
+          name: 'description',
+          content: 'Browse free games from the Epic Games Store.',
+        },
+        {
+          name: 'og:title',
+          content: 'Free Games | egdata.app',
+        },
+        {
+          name: 'og:description',
+          content: 'Browse free games from the Epic Games Store.',
+        },
+        {
+          property: 'twitter:title',
+          content: 'Free Games | egdata.app',
+          key: 'twitter:title',
+        },
+        {
+          property: 'twitter:description',
+          content: 'Browse free games from the Epic Games Store.',
+          key: 'twitter:description',
+        },
+      ],
+    };
   },
 });
 

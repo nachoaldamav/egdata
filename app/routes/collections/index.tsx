@@ -88,12 +88,51 @@ export const Route = createFileRoute('/collections/')({
               page: 1,
               country,
             }),
-        })
-      )
+        }),
+      ),
     );
 
     return {
       dehydratedState: dehydrate(queryClient),
+    };
+  },
+
+  head: () => {
+    return {
+      meta: [
+        {
+          title: 'Collections | egdata.app',
+          description: 'Collections on egdata.app',
+        },
+        {
+          name: 'og:title',
+          content: 'Collections | egdata.app',
+        },
+        {
+          name: 'og:description',
+          content: 'Collections on egdata.app',
+        },
+        {
+          name: 'og:image',
+          content: 'https://cdn.egdata.app/placeholder-1080.webp',
+        },
+        {
+          name: 'og:type',
+          content: 'website',
+        },
+        {
+          name: 'twitter:title',
+          content: 'Collections | egdata.app',
+        },
+        {
+          name: 'twitter:description',
+          content: 'Collections on egdata.app',
+        },
+        {
+          name: 'twitter:image',
+          content: 'https://cdn.egdata.app/placeholder-1080.webp',
+        },
+      ],
     };
   },
 });
@@ -193,7 +232,7 @@ function CollectionCard({
                   <span
                     className={cn(
                       'text-xs',
-                      game.position === 1 && 'text-xl font-bold'
+                      game.position === 1 && 'text-xl font-bold',
                     )}
                   >
                     {game.position}
@@ -201,7 +240,7 @@ function CollectionCard({
                   <h3
                     className={cn(
                       'text-sm font-semibold text-muted-foreground',
-                      game.position === 1 && 'text-2xl font-bold text-white'
+                      game.position === 1 && 'text-2xl font-bold text-white',
                     )}
                   >
                     {game.title}

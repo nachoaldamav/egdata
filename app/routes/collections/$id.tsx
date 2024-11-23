@@ -75,9 +75,20 @@ export const Route = createFileRoute('/collections/$id')({
     };
   },
 
-  meta(ctx) {
+  head: (ctx) => {
     const { params } = ctx;
     const queryClient = getQueryClient();
+
+    if (!ctx.loaderData) {
+      return {
+        meta: [
+          {
+            title: 'Collection not found',
+            description: 'Collection not found',
+          },
+        ],
+      };
+    }
 
     const collectionPages = getFetchedQuery<{
       pages: Collections[];
@@ -89,41 +100,45 @@ export const Route = createFileRoute('/collections/$id')({
     const collection = collectionPages?.pages[0];
 
     if (!collection) {
-      return [
-        {
-          title: 'Collection not found',
-          description: 'Collection not found',
-        },
-      ];
+      return {
+        meta: [
+          {
+            title: 'Collection not found',
+            description: 'Collection not found',
+          },
+        ],
+      };
     }
 
-    return [
-      {
-        title: `${collection.title} | egdata.app`,
-      },
-      {
-        name: 'description',
-        content: `Check out the ${collection.title} from the Epic Games Store.`,
-      },
-      {
-        name: 'og:title',
-        content: `${collection.title} | egdata.app`,
-      },
-      {
-        name: 'og:description',
-        content: `Check out the ${collection.title} from the Epic Games Store.`,
-      },
-      {
-        property: 'twitter:title',
-        content: `${collection.title} | egdata.app`,
-        key: 'twitter:title',
-      },
-      {
-        property: 'twitter:description',
-        content: `Check out the ${collection.title} from the Epic Games Store.`,
-        key: 'twitter:description',
-      },
-    ];
+    return {
+      meta: [
+        {
+          title: `${collection.title} | egdata.app`,
+        },
+        {
+          name: 'description',
+          content: `Check out the ${collection.title} from the Epic Games Store.`,
+        },
+        {
+          name: 'og:title',
+          content: `${collection.title} | egdata.app`,
+        },
+        {
+          name: 'og:description',
+          content: `Check out the ${collection.title} from the Epic Games Store.`,
+        },
+        {
+          property: 'twitter:title',
+          content: `${collection.title} | egdata.app`,
+          key: 'twitter:title',
+        },
+        {
+          property: 'twitter:description',
+          content: `Check out the ${collection.title} from the Epic Games Store.`,
+          key: 'twitter:description',
+        },
+      ],
+    };
   },
 });
 

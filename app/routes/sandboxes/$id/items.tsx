@@ -41,33 +41,47 @@ export const Route = createFileRoute('/sandboxes/$id/items')({
     };
   },
 
-  meta({ params, loaderData }) {
+  head: (ctx) => {
+    const { params } = ctx;
     const queryClient = getQueryClient();
-    const { dehydratedState } = loaderData;
+
+    if (!ctx.loaderData) {
+      return {
+        meta: [
+          {
+            title: 'Sandbox not found',
+            description: 'Sandbox not found',
+          },
+        ],
+      };
+    }
+
     const { id } = params;
 
     const sandbox = getFetchedQuery<SingleSandbox>(
       queryClient,
-      dehydratedState,
-      ['sandbox', { id }]
+      ctx.loaderData?.dehydratedState,
+      ['sandbox', { id }],
+    );
+    const offer = getFetchedQuery<SingleOffer>(
+      queryClient,
+      ctx.loaderData?.dehydratedState,
+      ['sandbox', 'base-game', { id }],
     );
 
-    const offer = getFetchedQuery<SingleOffer>(queryClient, dehydratedState, [
-      'sandbox',
-      'base-game',
-      { id },
-    ]);
+    if (!sandbox)
+      return {
+        meta: [
+          {
+            title: 'Sandbox not found',
+            description: 'Sandbox not found',
+          },
+        ],
+      };
 
-    if (!sandbox) {
-      return [
-        {
-          title: 'Sandbox not found',
-          description: 'Sandbox not found',
-        },
-      ];
-    }
-
-    return generateSandboxMeta(sandbox, offer, 'Items');
+    return {
+      meta: generateSandboxMeta(sandbox, offer, 'Items'),
+    };
   },
 });
 

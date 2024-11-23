@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
-import MdxEditorCss from '@mdxeditor/editor/style.css?url';
+import '@mdxeditor/editor/style.css';
 import {
   dehydrate,
   HydrationBoundary,
@@ -70,10 +70,6 @@ export const Route = createFileRoute('/offers/$id/reviews')({
         <Reviews />
       </HydrationBoundary>
     );
-  },
-
-  links() {
-    return [{ rel: 'stylesheet', href: MdxEditorCss }];
   },
 
   loader: async ({ params, context }) => {
@@ -167,9 +163,20 @@ export const Route = createFileRoute('/offers/$id/reviews')({
     };
   },
 
-  meta(ctx) {
+  head: (ctx) => {
     const { params } = ctx;
     const queryClient = getQueryClient();
+
+    if (!ctx.loaderData) {
+      return {
+        meta: [
+          {
+            title: 'Offer not found',
+            description: 'Offer not found',
+          },
+        ],
+      };
+    }
 
     const offer = getFetchedQuery<SingleOffer>(
       queryClient,
@@ -177,16 +184,19 @@ export const Route = createFileRoute('/offers/$id/reviews')({
       ['offer', { id: params.id }],
     );
 
-    if (!offer) {
-      return [
-        {
-          title: 'Offer not found',
-          description: 'Offer not found',
-        },
-      ];
-    }
+    if (!offer)
+      return {
+        meta: [
+          {
+            title: 'Offer not found',
+            description: 'Offer not found',
+          },
+        ],
+      };
 
-    return generateOfferMeta(offer, 'Reviews');
+    return {
+      meta: generateOfferMeta(offer, 'Reviews'),
+    };
   },
 });
 

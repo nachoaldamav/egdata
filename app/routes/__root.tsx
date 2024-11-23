@@ -3,6 +3,9 @@ import { Outlet, ScrollRestoration } from '@tanstack/react-router';
 import { Meta, Scripts } from '@tanstack/start';
 import type * as React from 'react';
 import styles from '../styles.css?url';
+import defaultPlayerTheme from '@vidstack/react/player/styles/default/theme.css?url';
+import defaultAudioPlayer from '@vidstack/react/player/styles/default/layouts/audio.css?url';
+import defaultVideoPlayer from '@vidstack/react/player/styles/default/layouts/video.css?url';
 import Navbar from '@/components/app/navbar';
 import type { QueryClient } from '@tanstack/react-query';
 import { CountryProvider } from '@/providers/country';
@@ -22,163 +25,7 @@ import consola from 'consola';
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
 }>()({
-  meta: () => [
-    {
-      charSet: 'utf-8',
-    },
-    {
-      name: 'viewport',
-      content: 'width=device-width, initial-scale=1',
-    },
-    {
-      title: 'Epic Games Database - egdata.app',
-    },
-    {
-      name: 'description',
-      content:
-        'Comprehensive Epic Games Store database: game info, prices, sales history, file lists, and more. Explore free games, upcoming releases, and community insights.',
-    },
-    {
-      name: 'keywords',
-      content: [
-        'Epic Games Store',
-        'EGS',
-        'Epic Games Database',
-        'EGS Database',
-        'game prices',
-        'game sales',
-        'discounts',
-        'player count',
-        'game size',
-        'system requirements',
-        'release date',
-        'free games',
-        'upcoming releases',
-        'game files',
-        'file list',
-        'game assets',
-        'historical data',
-        'price tracker',
-        'EGS tracker',
-        'PC games',
-        'data mining',
-        'Epic Games API',
-        'egdata',
-        'egstore',
-        'eos',
-      ].join(', '),
-    },
-    {
-      name: 'twitter:card',
-      content: 'summary_large_image',
-    },
-    {
-      name: 'twitter:site',
-      content: '@egdataapp',
-    },
-    {
-      name: 'twitter:title',
-      content: 'Epic Games Database',
-    },
-    {
-      name: 'twitter:description',
-      content:
-        'A free and open-source Epic Games Store database with comprehensive game information, sales tracking, and more. Community-driven and constantly updated.', // Improved description
-    },
-    {
-      name: 'twitter:image',
-      content: 'https://cdn.egdata.app/placeholder-1080.webp',
-    },
-    {
-      name: 'twitter:image:alt',
-      content: 'Epic Games Database',
-    },
-    {
-      name: 'og:title',
-      content: 'Epic Games Database',
-    },
-    {
-      name: 'og:type',
-      content: 'website',
-    },
-    {
-      name: 'og:url',
-      content: 'https://egdata.app',
-    },
-    {
-      name: 'og:image',
-      content: 'https://cdn.egdata.app/placeholder-1080.webp',
-    },
-    {
-      name: 'og:image:alt',
-      content: 'Epic Games Database',
-    },
-    {
-      name: 'og:description',
-      content:
-        'A free and open-source Epic Games Store database with comprehensive game information, sales tracking, and more. Community-driven and constantly updated.', // Improved description
-    },
-  ],
-
   component: RootComponent,
-
-  links: () => [
-    {
-      rel: 'stylesheet',
-      href: styles,
-      preload: 'true',
-    },
-    { rel: 'preconnect', href: 'https://cdn1.epicgames.com/' },
-    { rel: 'preconnect', href: 'https://api.egdata.app/' },
-    { rel: 'preconnect', href: 'https://cdn.egdata.app/' },
-    {
-      rel: 'icon',
-      type: 'image/png',
-      sizes: '32x32',
-      href: '/favicon-32x32.png',
-    },
-    {
-      rel: 'icon',
-      type: 'image/png',
-      sizes: '16x16',
-      href: '/favicon-16x16.png',
-    },
-    {
-      rel: 'apple-touch-icon',
-      sizes: '180x180',
-      href: '/apple-touch-icon.png',
-    },
-    {
-      rel: 'manifest',
-      href: '/site.webmanifest',
-    },
-    {
-      rel: 'mask-icon',
-      href: '/safari-pinned-tab.svg',
-      color: '#5bbad5',
-    },
-    {
-      rel: 'preload',
-      href: 'https://cdn.egdata.app/Nunito/Nunito-VariableFont_wght.ttf',
-      as: 'font',
-      type: 'font/ttf',
-      crossOrigin: 'anonymous',
-    },
-    {
-      rel: 'preload',
-      href: 'https://cdn.egdata.app/Nunito/Nunito-Italic-VariableFont_wght.ttf',
-      as: 'font',
-      type: 'font/ttf',
-      crossOrigin: 'anonymous',
-    },
-    {
-      rel: 'preload',
-      href: 'https://cdn.egdata.app/Montserrat/Montserrat-VariableFont_wght.ttf',
-      as: 'font',
-      type: 'font/ttf',
-      crossOrigin: 'anonymous',
-    },
-  ],
 
   loader: async () => {
     let url: URL;
@@ -321,18 +168,184 @@ export const Route = createRootRouteWithContext<{
     return <NotFoundPage />;
   },
 
-  scripts() {
-    if (import.meta.env.PROD) {
-      return [
+  head: () => {
+    return {
+      links: [
         {
-          src: 'https://analytics.egdata.app/script.js',
-          async: true,
-          'data-website-id': '931f85f9-f8b6-422c-882d-04864194435b',
+          rel: 'stylesheet',
+          href: styles,
+          preload: 'true',
         },
-      ];
-    }
-
-    return [];
+        { rel: 'preconnect', href: 'https://cdn1.epicgames.com/' },
+        { rel: 'preconnect', href: 'https://api.egdata.app/' },
+        { rel: 'preconnect', href: 'https://cdn.egdata.app/' },
+        {
+          rel: 'icon',
+          type: 'image/png',
+          sizes: '32x32',
+          href: '/favicon-32x32.png',
+        },
+        {
+          rel: 'icon',
+          type: 'image/png',
+          sizes: '16x16',
+          href: '/favicon-16x16.png',
+        },
+        {
+          rel: 'apple-touch-icon',
+          sizes: '180x180',
+          href: '/apple-touch-icon.png',
+        },
+        {
+          rel: 'manifest',
+          href: '/site.webmanifest',
+        },
+        {
+          rel: 'mask-icon',
+          href: '/safari-pinned-tab.svg',
+          color: '#5bbad5',
+        },
+        {
+          rel: 'preload',
+          href: 'https://cdn.egdata.app/Nunito/Nunito-VariableFont_wght.ttf',
+          as: 'font',
+          type: 'font/ttf',
+          crossOrigin: 'anonymous',
+        },
+        {
+          rel: 'preload',
+          href: 'https://cdn.egdata.app/Nunito/Nunito-Italic-VariableFont_wght.ttf',
+          as: 'font',
+          type: 'font/ttf',
+          crossOrigin: 'anonymous',
+        },
+        {
+          rel: 'preload',
+          href: 'https://cdn.egdata.app/Montserrat/Montserrat-VariableFont_wght.ttf',
+          as: 'font',
+          type: 'font/ttf',
+          crossOrigin: 'anonymous',
+        },
+        {
+          rel: 'stylesheet',
+          href: defaultPlayerTheme,
+        },
+        {
+          rel: 'stylesheet',
+          href: defaultAudioPlayer,
+        },
+        {
+          rel: 'stylesheet',
+          href: defaultVideoPlayer,
+        },
+      ],
+      meta: [
+        {
+          charSet: 'utf-8',
+        },
+        {
+          name: 'viewport',
+          content: 'width=device-width, initial-scale=1',
+        },
+        {
+          title: 'Epic Games Database - egdata.app',
+        },
+        {
+          name: 'description',
+          content:
+            'Comprehensive Epic Games Store database: game info, prices, sales history, file lists, and more. Explore free games, upcoming releases, and community insights.',
+        },
+        {
+          name: 'keywords',
+          content: [
+            'Epic Games Store',
+            'EGS',
+            'Epic Games Database',
+            'EGS Database',
+            'game prices',
+            'game sales',
+            'discounts',
+            'player count',
+            'game size',
+            'system requirements',
+            'release date',
+            'free games',
+            'upcoming releases',
+            'game files',
+            'file list',
+            'game assets',
+            'historical data',
+            'price tracker',
+            'EGS tracker',
+            'PC games',
+            'data mining',
+            'Epic Games API',
+            'egdata',
+            'egstore',
+            'eos',
+          ].join(', '),
+        },
+        {
+          name: 'twitter:card',
+          content: 'summary_large_image',
+        },
+        {
+          name: 'twitter:site',
+          content: '@egdataapp',
+        },
+        {
+          name: 'twitter:title',
+          content: 'Epic Games Database',
+        },
+        {
+          name: 'twitter:description',
+          content:
+            'A free and open-source Epic Games Store database with comprehensive game information, sales tracking, and more. Community-driven and constantly updated.', // Improved description
+        },
+        {
+          name: 'twitter:image',
+          content: 'https://cdn.egdata.app/placeholder-1080.webp',
+        },
+        {
+          name: 'twitter:image:alt',
+          content: 'Epic Games Database',
+        },
+        {
+          name: 'og:title',
+          content: 'Epic Games Database',
+        },
+        {
+          name: 'og:type',
+          content: 'website',
+        },
+        {
+          name: 'og:url',
+          content: 'https://egdata.app',
+        },
+        {
+          name: 'og:image',
+          content: 'https://cdn.egdata.app/placeholder-1080.webp',
+        },
+        {
+          name: 'og:image:alt',
+          content: 'Epic Games Database',
+        },
+        {
+          name: 'og:description',
+          content:
+            'A free and open-source Epic Games Store database with comprehensive game information, sales tracking, and more. Community-driven and constantly updated.', // Improved description
+        },
+      ],
+      scripts: import.meta.env.PROD
+        ? []
+        : [
+            {
+              src: 'https://analytics.egdata.app/script.js',
+              async: true,
+              'data-website-id': '931f85f9-f8b6-422c-882d-04864194435b',
+            },
+          ],
+    };
   },
 });
 

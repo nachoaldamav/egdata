@@ -15,7 +15,10 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { calculateSize } from '@/lib/calculate-size';
+import { getQueryClient } from '@/lib/client';
+import { getFetchedQuery } from '@/lib/get-fetched-query';
 import { getHashType } from '@/lib/get-hash-type';
+import { getImage } from '@/lib/get-image';
 import { httpClient } from '@/lib/http-client';
 import { cn } from '@/lib/utils';
 import type { SingleBuild } from '@/types/builds';
@@ -71,6 +74,91 @@ export const Route = createFileRoute('/builds/$id')({
         resetScroll: true,
       });
     }
+  },
+
+  head: (ctx) => {
+    const { params } = ctx;
+    const queryClient = getQueryClient();
+
+    if (!ctx.loaderData) {
+      return {
+        meta: [
+          {
+            title: 'Build not found',
+            description: 'Build not found',
+          },
+        ],
+      };
+    }
+
+    const build = getFetchedQuery<SingleBuild>(
+      queryClient,
+      ctx.loaderData?.dehydratedState,
+      ['build', { id: params.id }],
+    );
+    const items = getFetchedQuery<SingleItem[]>(
+      queryClient,
+      ctx.loaderData?.dehydratedState,
+      ['build-items', { id: params.id }],
+    );
+
+    if (!build) {
+      return {
+        meta: [
+          {
+            title: 'Build not found',
+            description: 'Build not found',
+          },
+        ],
+      };
+    }
+
+    const image = getImage(items?.[0]?.keyImages ?? [], [
+      'DieselGameBoxWide',
+      'DieselGameBox',
+    ]);
+
+    return {
+      meta: [
+        {
+          title: `${items?.[0]?.title} (${build.buildVersion}) | egdata.app`,
+        },
+        {
+          name: 'description',
+          content: `${build.buildVersion} Build for ${items?.[0]?.title} from the Epic Games Store.`,
+        },
+        {
+          name: 'og:title',
+          content: `${items?.[0]?.title} (${build.buildVersion}) | egdata.app`,
+        },
+        {
+          name: 'og:description',
+          content: `${build.buildVersion} Build for ${items?.[0]?.title} from the Epic Games Store.`,
+        },
+        {
+          property: 'twitter:title',
+          content: `${items?.[0]?.title} (${build.buildVersion}) | egdata.app`,
+          key: 'twitter:title',
+        },
+        {
+          property: 'twitter:description',
+          content: `${build.buildVersion} Build for ${items?.[0]?.title} from the Epic Games Store.`,
+          key: 'twitter:description',
+        },
+        {
+          name: 'og:image',
+          content: image?.url ?? 'https://cdn.egdata.app/placeholder-1080.webp',
+        },
+        {
+          name: 'og:type',
+          content: 'website',
+        },
+        {
+          name: 'twitter:image',
+          content: image?.url ?? 'https://cdn.egdata.app/placeholder-1080.webp',
+        },
+      ],
+    };
   },
 });
 

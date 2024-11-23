@@ -69,23 +69,33 @@ export const Route = createFileRoute('/offers/$id')({
     );
   },
 
+  beforeLoad: async ({ params, context }) => {
+    const { country, queryClient } = context;
+    const { id } = params;
+
+    await queryClient.prefetchQuery({
+      queryKey: ['offer', { id: params.id }],
+      queryFn: () => httpClient.get<SingleOffer>(`/offers/${params.id}`),
+    });
+
+    return {
+      id,
+      dehydratedState: dehydrate(queryClient),
+      country,
+    };
+  },
+
   loader: async ({ params, context }) => {
     const { country, queryClient } = context;
     const { id } = params;
 
-    await Promise.allSettled([
-      queryClient.prefetchQuery({
-        queryKey: ['offer', { id: params.id }],
-        queryFn: () => httpClient.get<SingleOffer>(`/offers/${params.id}`),
-      }),
-      queryClient.prefetchQuery({
-        queryKey: ['price', { id: params.id, country }],
-        queryFn: () =>
-          httpClient.get<Price>(
-            `/offers/${params.id}/price?country=${country || 'US'}`,
-          ),
-      }),
-    ]);
+    await queryClient.prefetchQuery({
+      queryKey: ['price', { id: params.id, country }],
+      queryFn: () =>
+        httpClient.get<Price>(
+          `/offers/${params.id}/price?country=${country || 'US'}`,
+        ),
+    });
 
     return {
       dehydratedState: dehydrate(queryClient),
@@ -93,9 +103,19 @@ export const Route = createFileRoute('/offers/$id')({
     };
   },
 
-  meta(ctx) {
+  head: (ctx) => {
     const { params } = ctx;
     const queryClient = getQueryClient();
+
+    if (!ctx.loaderData)
+      return {
+        meta: [
+          {
+            title: 'Offer not found',
+            description: 'Offer not found',
+          },
+        ],
+      };
 
     const offer = getFetchedQuery<SingleOffer>(
       queryClient,
@@ -104,15 +124,19 @@ export const Route = createFileRoute('/offers/$id')({
     );
 
     if (!offer) {
-      return [
-        {
-          title: 'Offer not found',
-          description: 'Offer not found',
-        },
-      ];
+      return {
+        meta: [
+          {
+            title: 'Offer not found',
+            description: 'Offer not found',
+          },
+        ],
+      };
     }
 
-    return generateOfferMeta(offer);
+    return {
+      meta: generateOfferMeta(offer),
+    };
   },
 });
 

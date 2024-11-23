@@ -175,12 +175,14 @@ export const Route = createFileRoute('/about')({
     </div>
   ),
 
-  meta: () => {
-    return [
-      {
-        title: 'About - egdata.app',
-        description: 'About egdata.app',
-      },
-    ];
+  head: () => {
+    return {
+      meta: [
+        {
+          title: 'About - egdata.app',
+          description: 'About egdata.app',
+        },
+      ],
+    };
   },
 });

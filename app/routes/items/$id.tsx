@@ -25,12 +25,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import type { KeyImage } from '@/types/single-offer';
-import { useEffect, useState } from 'react';
-import { buildGameLauncherURI } from '@/lib/build-game-launcher';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
-import { PlayIcon } from 'lucide-react';
 import { SectionsNav } from '@/components/app/offer-sections';
 import { generateItemMeta } from '@/lib/generate-item-meta';
 import { getFetchedQuery } from '@/lib/get-fetched-query';
@@ -62,26 +56,41 @@ export const Route = createFileRoute('/items/$id')({
     };
   },
 
-  meta({ params, loaderData }) {
+  head: (ctx) => {
+    const { params } = ctx;
     const queryClient = getQueryClient();
-    const { dehydratedState } = loaderData;
-    const { id } = params;
 
-    const item = getFetchedQuery<SingleItem>(queryClient, dehydratedState, [
-      'item',
-      { id },
-    ]);
-
-    if (!item) {
-      return [
-        {
-          title: 'Item not found',
-          description: 'Item not found',
-        },
-      ];
+    if (!ctx.loaderData) {
+      return {
+        meta: [
+          {
+            title: 'Item not found',
+            description: 'Item not found',
+          },
+        ],
+      };
     }
 
-    return generateItemMeta(item);
+    const item = getFetchedQuery<SingleItem>(
+      queryClient,
+      ctx.loaderData?.dehydratedState,
+      ['item', { id: params.id }],
+    );
+
+    if (!item) {
+      return {
+        meta: [
+          {
+            title: 'item not found',
+            description: 'item not found',
+          },
+        ],
+      };
+    }
+
+    return {
+      meta: generateItemMeta(item),
+    };
   },
 });
 
@@ -271,96 +280,5 @@ function ItemPage() {
         <Outlet />
       </div>
     </div>
-  );
-}
-
-interface VerticalLauncherCardProps {
-  image: string;
-  title: string;
-  item: SingleItem;
-}
-
-function VerticalLauncherCard({
-  image,
-  title,
-  item,
-}: VerticalLauncherCardProps) {
-  const hasAssets = item.releaseInfo.length > 0;
-  const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState(100);
-
-  const handleClick = () => {
-    if (hasAssets) {
-      setLoading(true);
-    }
-  };
-
-  useEffect(() => {
-    if (loading) {
-      const interval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev <= 0) {
-            clearInterval(interval);
-            const uri = buildGameLauncherURI({
-              namespace: item.namespace,
-              asset: {
-                assetId: item.releaseInfo[0].appId,
-                itemId: item.id,
-              },
-            });
-            open(uri, '_blank', 'noreferrer');
-            setLoading(false);
-            return 0;
-          }
-          return prev - 4;
-        });
-      }, 50);
-
-      return () => clearInterval(interval);
-    }
-  }, [loading, item]);
-
-  return (
-    <Card
-      className={cn(
-        'w-[250px] bg-transparent border-0 text-card-foreground cursor-not-allowed group',
-        hasAssets && 'cursor-pointer'
-      )}
-      onClick={handleClick}
-    >
-      <CardContent className="p-0 relative">
-        <div className="relative z-10">
-          <Image
-            src={image}
-            alt={title}
-            width={400}
-            height={550}
-            className="rounded"
-            quality="high"
-          />
-        </div>
-        {loading && progress > 0 && (
-          <div
-            className="absolute top-0 left-0 bg-white/5 transition-all duration-300 ease-in-out rounded"
-            style={{
-              width: `${100 - progress}%`,
-              height: '100%',
-              zIndex: 999,
-            }}
-          />
-        )}
-      </CardContent>
-      <CardFooter className="px-1 py-2">
-        <div className="space-y-1 w-full">
-          <div className="flex items-center justify-between w-full">
-            <h3 className="text-lg font-bold">{title}</h3>
-          </div>
-          <span className="p-0 text-gray-400 group-hover:text-white inline-flex items-center justify-center gap-0 transition-all duration-300 ease-in-out">
-            <PlayIcon className="mr-2 h-4 w-4" />
-            Launch
-          </span>
-        </div>
-      </CardFooter>
-    </Card>
   );
 }
