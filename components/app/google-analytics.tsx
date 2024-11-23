@@ -45,37 +45,26 @@ export const GoogleAnalytics: React.FC<GoogleAnalyticsProps> = ({
       document.head.appendChild(script);
     }
 
-    // Initialize gtag once the script is loaded
-    const initializeGTag = () => {
-      window.dataLayer = window.dataLayer || [];
-      function gtag(...args: unknown[]) {
-        consola.info('GoogleAnalytics: Sending event', args);
-        window.dataLayer.push(args);
-      }
-      window.gtag = gtag;
-
-      // Set up Google Analytics
-      gtag('js', new Date());
-      gtag('config', tagId);
-
-      // Configure consent settings
-      gtag('consent', 'default', {
-        ...consentSettings,
-      });
-
-      consola.info('GoogleAnalytics: Initialized', tagId, consentSettings);
-    };
-
-    if (existingScript) {
-      initializeGTag();
-    } else {
-      const checkScriptLoaded = setInterval(() => {
-        // @ts-expect-error
-        if (window.gtag) {
-          clearInterval(checkScriptLoaded);
-          initializeGTag();
-        }
-      }, 100);
+    const inlineScriptId = `google-analytics-script-${tagId}`;
+    if (!document.getElementById(inlineScriptId)) {
+      const script = document.createElement('script');
+      script.id = inlineScriptId;
+      script.innerHTML = `
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '${tagId}', {
+          ad_storage: '${consentSettings.ad_storage}',
+          ad_user_data: '${consentSettings.ad_user_data}',
+          ad_personalization: '${consentSettings.ad_personalization}',
+          analytics_storage: '${consentSettings.analytics_storage}',
+          functionality_storage: '${consentSettings.functionality_storage}',
+          personalization_storage: '${consentSettings.personalization_storage}',
+          security_storage: '${consentSettings.security_storage}',
+        });
+      `;
+      document.head.appendChild(script);
+      consola.info('GoogleAnalytics: Loaded inline script', tagId);
     }
   }, [tagId, consentSettings]);
 
