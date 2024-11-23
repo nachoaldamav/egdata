@@ -37,11 +37,7 @@ export const Route = createFileRoute('/offers/$id/metadata')({
     const { queryClient } = context;
     const { id } = params;
 
-    const offer = getFetchedQuery<SingleOffer>(
-      queryClient,
-      dehydrate(queryClient),
-      ['offer', { id: params.id }]
-    );
+    const offer = await httpClient.get<SingleOffer>(`/offers/${id}`);
 
     await Promise.all([
       queryClient.prefetchQuery({
@@ -84,7 +80,7 @@ export const Route = createFileRoute('/offers/$id/metadata')({
     const offer = getFetchedQuery<SingleOffer>(
       queryClient,
       ctx.loaderData.dehydratedState,
-      ['offer', { id: params.id }]
+      ['offer', { id: params.id }],
     );
 
     if (!offer) {
@@ -183,7 +179,6 @@ function MetadataPage() {
           <TableRow>
             <TableCell>Age Ratings</TableCell>
             <TableCell>
-              {/* @ts-ignore */}
               <AgeRatings ageRatings={sandbox?.ageGatings ?? {}} />
             </TableCell>
           </TableRow>
@@ -311,7 +306,7 @@ const bytesToSize = (bytes: number) => {
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
   if (bytes === 0) return '0 Byte';
   const i = Number.parseInt(
-    String(Math.floor(Math.log(bytes) / Math.log(1024)))
+    String(Math.floor(Math.log(bytes) / Math.log(1024))),
   );
   if (i === 0) return `${bytes} ${sizes[i]}`;
   return `${(bytes / 1024 ** i).toFixed(1)} ${sizes[i]}`;
