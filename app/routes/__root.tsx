@@ -21,6 +21,9 @@ import { CompareProvider } from '@/providers/compare';
 import { ComparisonPortal } from '@/components/app/comparison-portal';
 import { LocaleProvider } from '@/providers/locale';
 import consola from 'consola';
+import { CookiesProvider } from '@/providers/cookies';
+import { Base64Utils } from '@/lib/base-64';
+import type { CookiesSelection } from '@/contexts/cookies';
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -49,14 +52,23 @@ export const Route = createRootRouteWithContext<{
     const cookies = Object.fromEntries(
       Object.entries(parsedCookies).map(([key, value]) => [key, value || '']),
     );
-    const country = getCountryCode(url, cookies);
-    const locale = await getCookie({ data: 'user_locale' });
-    const timezone = await getCookie({ data: 'user_timezone' });
+
+    const [country, locale, timezone, analyticsCookies] = await Promise.all([
+      getCountryCode(url, cookies),
+      getCookie({ data: 'user_locale' }),
+      getCookie({ data: 'user_timezone' }),
+      getCookie({ data: 'EGDATA_COOKIES' }).then((cookie) =>
+        cookie
+          ? (JSON.parse(Base64Utils.decode(cookie)) as CookiesSelection)
+          : null,
+      ),
+    ]);
 
     return {
       country,
       locale,
       timezone,
+      analyticsCookies,
     };
   },
 
@@ -366,7 +378,7 @@ function RootComponent() {
 }
 
 function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
-  const { country, locale, timezone } = Route.useLoaderData();
+  const { country, locale, timezone, analyticsCookies } = Route.useLoaderData();
   return (
     <html lang="en">
       <head>
@@ -380,7 +392,9 @@ function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
                 <SearchProvider>
                   <Navbar />
                   <PreferencesProvider>
-                    {children}
+                    <CookiesProvider initialSelection={analyticsCookies}>
+                      {children}
+                    </CookiesProvider>
                     <ScrollRestoration />
                     <Scripts />
                   </PreferencesProvider>
