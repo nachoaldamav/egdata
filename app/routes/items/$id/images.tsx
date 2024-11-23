@@ -53,25 +53,40 @@ export const Route = createFileRoute('/items/$id/images')({
     };
   },
 
-  meta({ params, loaderData }) {
+  head: (ctx) => {
+    const { params } = ctx;
     const queryClient = getQueryClient();
-    const { dehydratedState } = loaderData;
-    const { id } = params;
 
-    const item = getFetchedQuery<SingleItem>(queryClient, dehydratedState, [
-      'item',
-      { id },
-    ]);
-
-    if (!item) {
-      return [
-        {
-          title: 'Item not found',
-          description: 'Item not found',
-        },
-      ];
+    if (!ctx.loaderData) {
+      return {
+        meta: [
+          {
+            title: 'Item not found',
+            description: 'Item not found',
+          },
+        ],
+      };
     }
 
-    return generateItemMeta(item, 'Images');
+    const item = getFetchedQuery<SingleItem>(
+      queryClient,
+      ctx.loaderData?.dehydratedState,
+      ['item', { id: params.id }],
+    );
+
+    if (!item) {
+      return {
+        meta: [
+          {
+            title: 'item not found',
+            description: 'item not found',
+          },
+        ],
+      };
+    }
+
+    return {
+      meta: generateItemMeta(item, 'Images'),
+    };
   },
 });
