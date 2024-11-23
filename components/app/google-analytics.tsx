@@ -53,7 +53,8 @@ export const GoogleAnalytics: React.FC<GoogleAnalyticsProps> = ({
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-        gtag('config', '${tagId}', {
+        gtag('config', '${tagId}');
+        gtag('consent', 'default', {
           ad_storage: '${consentSettings.ad_storage}',
           ad_user_data: '${consentSettings.ad_user_data}',
           ad_personalization: '${consentSettings.ad_personalization}',
