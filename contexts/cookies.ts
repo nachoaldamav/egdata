@@ -1,8 +1,10 @@
+import type { ConsentSettings } from '@/components/app/google-analytics';
 import { createContext } from 'react';
 
 export interface CookiesSelection {
   googleAnalytics: boolean;
   selfHostedAnalytics: boolean;
+  googleConsent: ConsentSettings;
 }
 
 export interface CookiesContextProps {

@@ -3,6 +3,7 @@ import { cookiesContext, type CookiesSelection } from '@/contexts/cookies';
 import { useCookies as useCookiesClient } from 'react-cookie';
 import { CookieBanner } from '@/components/app/cookies';
 import { Base64Utils } from '@/lib/base-64';
+import { GoogleAnalytics } from '@/components/app/google-analytics';
 
 export interface CookiesProviderProps {
   children: ReactNode;
@@ -63,6 +64,12 @@ export function CookiesProvider({
     >
       {children}
       {!selection && <CookieBanner />}
+      {selection?.googleAnalytics && (
+        <GoogleAnalytics
+          tagId="G-HB0VNVBEDQ"
+          consentSettings={selection.googleConsent}
+        />
+      )}
     </cookiesContext.Provider>
   );
 }

@@ -11,17 +11,44 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useCookies } from '@/hooks/use-cookies';
 import { Link } from '@tanstack/react-router';
+import type { ConsentSettings } from './google-analytics';
+import { Separator } from '../ui/separator';
 
 export function CookieBanner() {
   const [showCustomize, setShowCustomize] = useState(false);
   const [selfHostedAnalytics, setSelfHostedAnalytics] = useState(true);
   const [googleAnalytics, setGoogleAnalytics] = useState(false);
-  const { selection, setSelection } = useCookies();
+  const [googleConsent, setGoogleConsent] = useState<ConsentSettings>({
+    ad_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied',
+    analytics_storage: 'denied',
+    functionality_storage: 'denied',
+    personalization_storage: 'denied',
+    security_storage: 'denied',
+  });
+  const { setSelection } = useCookies();
+
+  const handleConsentChange = (key: keyof ConsentSettings, value: boolean) => {
+    setGoogleConsent((prev) => ({
+      ...prev,
+      [key]: value ? 'granted' : 'denied',
+    }));
+  };
 
   const handleAcceptAll = () => {
     setSelection({
       googleAnalytics: true,
       selfHostedAnalytics: true,
+      googleConsent: {
+        ad_storage: 'granted',
+        ad_user_data: 'granted',
+        ad_personalization: 'granted',
+        analytics_storage: 'granted',
+        functionality_storage: 'granted',
+        personalization_storage: 'granted',
+        security_storage: 'granted',
+      },
     });
   };
 
@@ -29,6 +56,15 @@ export function CookieBanner() {
     setSelection({
       googleAnalytics: false,
       selfHostedAnalytics: true,
+      googleConsent: {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        functionality_storage: 'denied',
+        personalization_storage: 'denied',
+        security_storage: 'denied',
+      },
     });
   };
 
@@ -36,6 +72,7 @@ export function CookieBanner() {
     setSelection({
       googleAnalytics,
       selfHostedAnalytics,
+      googleConsent,
     });
   };
 
@@ -83,7 +120,7 @@ export function CookieBanner() {
                 </Label>
                 <Switch
                   id="google-analytics"
-                  checked={selection?.googleAnalytics}
+                  checked={googleAnalytics}
                   onCheckedChange={(value) =>
                     setGoogleAnalytics(value as boolean)
                   }
@@ -106,6 +143,26 @@ export function CookieBanner() {
                   disabled
                 />
               </div>
+              <Separator orientation="horizontal" />
+              {Object.entries(googleConsent).map(([key, value]) => (
+                <div key={key} className="flex items-center justify-between">
+                  <Label htmlFor={key} className="flex flex-col">
+                    <span>
+                      {key[0].toUpperCase() + key.slice(1).replace(/_/g, ' ')}
+                    </span>
+                    <span className="font-normal text-sm text-muted-foreground">
+                      {`Manage ${key.replace(/_/g, ' ')} consent`}
+                    </span>
+                  </Label>
+                  <Switch
+                    id={key}
+                    checked={value === 'granted'}
+                    onCheckedChange={(checked) =>
+                      handleConsentChange(key as keyof ConsentSettings, checked)
+                    }
+                  />
+                </div>
+              ))}
             </div>
           )}
         </div>
