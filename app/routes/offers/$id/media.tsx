@@ -23,9 +23,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
-import defaultPlayerTheme from '@vidstack/react/player/styles/default/theme.css?url';
-import defaultAudioPlayer from '@vidstack/react/player/styles/default/layouts/audio.css?url';
-import defaultVideoPlayer from '@vidstack/react/player/styles/default/layouts/video.css?url';
 import { getQueryClient } from '@/lib/client';
 import { generateOfferMeta } from '@/lib/generate-offer-meta';
 
@@ -40,23 +37,6 @@ export const Route = createFileRoute('/offers/$id/media')({
     );
   },
 
-  links() {
-    return [
-      {
-        rel: 'stylesheet',
-        href: defaultPlayerTheme,
-      },
-      {
-        rel: 'stylesheet',
-        href: defaultAudioPlayer,
-      },
-      {
-        rel: 'stylesheet',
-        href: defaultVideoPlayer,
-      },
-    ];
-  },
-
   loader: async ({ context, params }) => {
     const { queryClient } = context;
     const { id } = params;
@@ -69,7 +49,7 @@ export const Route = createFileRoute('/offers/$id/media')({
     const offer = getFetchedQuery<SingleOffer>(
       queryClient,
       dehydrate(queryClient),
-      ['offer', { id: params.id }]
+      ['offer', { id: params.id }],
     );
 
     return {
@@ -79,32 +59,47 @@ export const Route = createFileRoute('/offers/$id/media')({
     };
   },
 
-  meta(ctx) {
+  head: (ctx) => {
     const { params } = ctx;
     const queryClient = getQueryClient();
 
+    if (!ctx.loaderData) {
+      return {
+        meta: [
+          {
+            title: 'Offer not found',
+            description: 'Offer not found',
+          },
+        ],
+      };
+    }
+
     const offer = getFetchedQuery<SingleOffer>(
       queryClient,
-      ctx.loaderData.dehydratedState,
-      ['offer', { id: params.id }]
+      ctx.loaderData?.dehydratedState,
+      ['offer', { id: params.id }],
     );
 
     if (!offer) {
-      return [
-        {
-          title: 'Offer not found',
-          description: 'Offer not found',
-        },
-      ];
+      return {
+        meta: [
+          {
+            title: 'Offer not found',
+            description: 'Offer not found',
+          },
+        ],
+      };
     }
 
-    return generateOfferMeta(offer, 'Media');
+    return {
+      meta: generateOfferMeta(offer, 'Media'),
+    };
   },
 });
 
 function MediaPage() {
   const params = Route.useParams();
-  const { id, offer } = Route.useLoaderData();
+  const { offer } = Route.useLoaderData();
   const { data: media, isLoading } = useQuery({
     queryKey: ['media', { id: params.id }],
     queryFn: () => httpClient.get<Media>(`/offers/${params.id}/media`),

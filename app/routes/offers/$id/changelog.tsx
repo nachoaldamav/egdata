@@ -38,7 +38,7 @@ export const Route = createFileRoute('/offers/$id/changelog')({
     const offer = getFetchedQuery<SingleOffer>(
       queryClient,
       dehydrate(queryClient),
-      ['offer', { id: params.id }]
+      ['offer', { id: params.id }],
     );
 
     await queryClient.prefetchQuery({
@@ -53,26 +53,41 @@ export const Route = createFileRoute('/offers/$id/changelog')({
     };
   },
 
-  meta(ctx) {
+  head: (ctx) => {
     const { params } = ctx;
     const queryClient = getQueryClient();
 
+    if (!ctx.loaderData) {
+      return {
+        meta: [
+          {
+            title: 'Offer not found',
+            description: 'Offer not found',
+          },
+        ],
+      };
+    }
+
     const offer = getFetchedQuery<SingleOffer>(
       queryClient,
-      ctx.loaderData.dehydratedState,
-      ['offer', { id: params.id }]
+      ctx.loaderData?.dehydratedState,
+      ['offer', { id: params.id }],
     );
 
     if (!offer) {
-      return [
-        {
-          title: 'Offer not found',
-          description: 'Offer not found',
-        },
-      ];
+      return {
+        meta: [
+          {
+            title: 'Offer not found',
+            description: 'Offer not found',
+          },
+        ],
+      };
     }
 
-    return generateOfferMeta(offer, 'Changelog');
+    return {
+      meta: generateOfferMeta(offer, 'Changelog'),
+    };
   },
 });
 
@@ -126,7 +141,7 @@ function ChangelogPage() {
             .sort(
               (a, b) =>
                 new Date(b.timestamp).getTime() -
-                new Date(a.timestamp).getTime()
+                new Date(a.timestamp).getTime(),
             )
             .map((changelist) => (
               <article
@@ -147,7 +162,7 @@ function ChangelogPage() {
                         day: 'numeric',
                         hour: 'numeric',
                         minute: 'numeric',
-                      }
+                      },
                     )}
                   </span>
                 </header>
@@ -171,7 +186,7 @@ function ChangelogPage() {
                           {valueToComponent(
                             change.oldValue,
                             change.field,
-                            'before'
+                            'before',
                           ) || 'N/A'}
                         </span>
                         <ArrowRightIcon className="text-gray-500" />
@@ -179,7 +194,7 @@ function ChangelogPage() {
                           {valueToComponent(
                             change.newValue,
                             change.field,
-                            'after'
+                            'after',
                           )}
                         </span>
                       </li>
@@ -197,7 +212,7 @@ function ChangelogPage() {
 function valueToComponent(
   value: unknown,
   field: string,
-  type: 'before' | 'after'
+  type: 'before' | 'after',
 ) {
   if (value === null) return 'N/A';
   if (typeof value === 'object') {
