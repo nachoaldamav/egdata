@@ -380,7 +380,7 @@ function RootComponent() {
 function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
   const { country, locale, timezone, analyticsCookies } = Route.useLoaderData();
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <Meta />
       </head>

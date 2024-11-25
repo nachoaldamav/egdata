@@ -40,7 +40,7 @@ export function DonateKeyForm() {
       setId(res.id);
     } catch (error) {
       consola.error(error);
-      setError(error.error ?? 'Something went wrong. Please try again.');
+      setError(error.response ?? 'Something went wrong. Please try again.');
     } finally {
       setSending(false);
     }
@@ -49,7 +49,15 @@ export function DonateKeyForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4 mx-auto">
       <div className="flex justify-center">
-        <InputOTP maxLength={20} value={key} onChange={(e) => setKey(e)}>
+        <InputOTP
+          maxLength={20}
+          value={key}
+          onChange={(e) => setKey(e)}
+          onPaste={(e) => {
+            e.preventDefault();
+            setKey(e.clipboardData.getData('text').replaceAll('-', ''));
+          }}
+        >
           <InputOTPGroup>
             <InputOTPSlot index={0} />
             <InputOTPSlot index={1} />
