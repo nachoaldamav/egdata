@@ -225,6 +225,7 @@ function Reviews() {
           }>(`/offers/${id}/reviews`, {
             params: { page, verified: getVerificationParam(filter) },
           }),
+        staleTime: 0,
       },
       {
         queryKey: [
