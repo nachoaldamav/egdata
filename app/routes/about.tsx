@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/about')({
   component: () => (
@@ -40,12 +40,12 @@ export const Route = createFileRoute('/about')({
         </p>
         <p className="mb-4">
           All the source code for egdata.app is available on{' '}
-          <Link
+          <a
             className="text-blue-500"
             href="https://github.com/nachoaldamav/egdata"
           >
             GitHub
-          </Link>
+          </a>
           .
         </p>
 
@@ -117,14 +117,14 @@ export const Route = createFileRoute('/about')({
           available information on the Epic Games Store. We do not access
           confidential or proprietary data. Publishers are responsible for
           protecting their sensitive information within the{' '}
-          <Link
+          <a
             href="https://dev.epicgames.com/portal/en-US"
             className="text-blue-500"
             target="_blank"
             rel="noopener noreferrer"
           >
             Epic Games Developer portal
-          </Link>
+          </a>
           .
         </p>
         <p className="mb-4">
@@ -166,9 +166,9 @@ export const Route = createFileRoute('/about')({
         <h2 className="text-2xl font-bold mb-2">Contact Us</h2>
         <p className="mb-4">
           You can contact us via{' '}
-          <Link className="text-blue-500" href="mailto:contact@egdata.app">
+          <a className="text-blue-500" href="mailto:contact@egdata.app">
             contact@egdata.app
-          </Link>
+          </a>
           .
         </p>
       </div>
