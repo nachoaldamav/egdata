@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vinxi dev",
     "build": "vinxi build",
-    "start": "vinxi start",
+    "start": "NODE_ENV=--enable-source-maps vinxi start",
     "format": "biome format --write app components lib queries types contexts hooks",
     "lint": "biome lint --fix app components lib queries types contexts hooks"
   },
