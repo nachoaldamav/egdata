@@ -3,6 +3,7 @@ import { httpClient } from '@/lib/http-client';
 import { Button } from '../ui/button';
 import { EpicGamesIcon } from '../icons/epic';
 import { buildGameLauncherURI } from '@/lib/build-game-launcher';
+import { PlayIcon } from 'lucide-react';
 
 type Asset = {
   artifactId: string;
@@ -31,7 +32,7 @@ export function OpenLauncher({ id }: { id: string }) {
   return (
     <Button
       variant="outline"
-      className="bg-gray-900 text-white dark:hover:text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
+      className="text-white bg-[#1d77a1] hover:bg-[#20688a] transition-all duration-300 ease-in-out"
       onClick={() =>
         open(
           buildGameLauncherURI({
@@ -45,8 +46,8 @@ export function OpenLauncher({ id }: { id: string }) {
       }
     >
       <div className="flex items-center justify-center gap-2">
-        <EpicGamesIcon className="h-6 w-6" />
-        <span className="font-semibold">Launch</span>
+        <PlayIcon className="h-6 w-6" fill="white" />
+        <span className="font-semibold">Play</span>
       </div>
     </Button>
   );

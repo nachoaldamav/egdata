@@ -3,11 +3,10 @@ import { OfferInBundle } from '@/components/app/bundle-game';
 import { InternalBanner } from '@/components/app/internal-banner';
 import { OfferHero } from '@/components/app/offer-hero';
 import { SectionsNav } from '@/components/app/offer-sections';
-import { OpenEgl } from '@/components/app/open-egl';
-import { OpenEgs } from '@/components/app/open-egs';
 import { OpenLauncher } from '@/components/app/open-launcher';
 import { platformIcons } from '@/components/app/platform-icons';
 import { PrepurchasePopup } from '@/components/app/prepurchase-popup';
+import { StoreDropdown } from '@/components/app/store-dropdown';
 import { AddIcon } from '@/components/icons/add';
 import { RemoveIcon } from '@/components/icons/remove';
 import { Bundle } from '@/components/modules/bundle';
@@ -352,8 +351,7 @@ function OfferPage() {
         </div>
         <div className="flex justify-start items-start flex-col gap-4">
           <div className="inline-flex items-center gap-2 justify-end w-full h-8">
-            <OpenEgs offer={offer} />
-            <OpenEgl offer={offer} />
+            <StoreDropdown offer={offer} />
             <OpenLauncher id={offer.id} />
             <Button
               onClick={() => {
