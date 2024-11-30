@@ -142,7 +142,13 @@ const easeInOutCubic = (t: number): number => {
   return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
 };
 
-const extractGradient = (imageSrc: string): Promise<string> => {
+const gradientCache: Record<string, string> = {};
+
+const extractGradient = async (imageSrc: string): Promise<string> => {
+  if (gradientCache[imageSrc]) {
+    return gradientCache[imageSrc];
+  }
+
   return new Promise((resolve) => {
     const imgUrl = new URL(imageSrc);
     imgUrl.searchParams.set('w', '1');
@@ -158,9 +164,10 @@ const extractGradient = (imageSrc: string): Promise<string> => {
       canvas.height = img.height;
       ctx?.drawImage(img, 0, 0, img.width, img.height);
       const imageData = ctx.getImageData(0, 0, img.width, img.height).data;
-      let r = 0;
-      let g = 0;
-      let b = 0;
+
+      let r = 0,
+        g = 0,
+        b = 0;
       const pixelCount = img.width * img.height;
 
       for (let i = 0; i < pixelCount * 4; i += 4) {
@@ -175,20 +182,23 @@ const extractGradient = (imageSrc: string): Promise<string> => {
 
       const color = { r, g, b };
       const startColor = `rgba(${color.r}, ${color.g}, ${color.b}, 1)`;
-      const endColor = 'rgba(0, 0, 0, 0)'; // Fully transparent
+      const endColor = 'rgba(0, 0, 0, 0)';
 
-      // Generate gradient steps
       let gradientSteps = `${startColor} 0%, `;
       for (let i = 1; i <= NUM_STEPS; i++) {
         const t = i / NUM_STEPS;
         const easedT = easeInOutCubic(t);
         const opacity = 1 - easedT;
-        gradientSteps += `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity}) ${GRADIENT_TRANSITION_POINT * 100 + (i * ((GRADIENT_END_POINT - GRADIENT_TRANSITION_POINT) * 100)) / NUM_STEPS}%, `;
+        gradientSteps += `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity}) ${
+          GRADIENT_TRANSITION_POINT * 100 +
+          (i * ((GRADIENT_END_POINT - GRADIENT_TRANSITION_POINT) * 100)) /
+            NUM_STEPS
+        }%, `;
       }
       gradientSteps += `${endColor} ${GRADIENT_END_POINT * 100}%, ${endColor} 100%`;
 
       const gradient = `radial-gradient(ellipse at center top, ${gradientSteps})`;
-
+      gradientCache[imageSrc] = gradient;
       resolve(gradient);
     };
   });
@@ -214,26 +224,28 @@ export function OfferCard({
   const { genres } = useGenres();
   const [gradient, setGradient] = useState<string | null>(null);
 
-  const offerGenres = genres
-    ? offer.tags
-        .filter((tag) => genres?.map((genre) => genre?.id).includes(tag?.id))
-        .map((tag) => tag.name)
-    : [];
+  const offerGenres = useMemo(() => {
+    if (!genres) return [];
+    const genreIds = genres.map((genre) => genre.id);
+    return offer.tags
+      .filter((tag) => genreIds.includes(tag.id))
+      .map((tag) => tag.name);
+  }, [genres, offer.tags]);
+
+  const gradientImage = useMemo(
+    () =>
+      getImage(offer.keyImages, [
+        'OfferImageTall',
+        'Thumbnail',
+        'DieselGameBoxTall',
+        'DieselStoreFrontTall',
+      ])?.url ?? '/placeholder.webp',
+    [offer.keyImages],
+  );
 
   useEffect(() => {
-    if ((offer.keyImages ?? [])?.length > 0) {
-      extractGradient(
-        getImage(offer.keyImages, [
-          'OfferImageTall',
-          'Thumbnail',
-          'DieselGameBoxTall',
-          'DieselStoreFrontTall',
-        ])?.url ?? '/placeholder.webp',
-      ).then((result) => {
-        setGradient(result);
-      });
-    }
-  }, [offer.keyImages]);
+    extractGradient(gradientImage).then(setGradient);
+  }, [gradientImage]);
 
   return (
     <Link
@@ -243,18 +255,12 @@ export function OfferCard({
     >
       <Card className="w-64 md:w-full overflow-hidden rounded-lg border-0 relative">
         <Image
-          src={
-            getImage(offer.keyImages, [
-              'OfferImageTall',
-              'Thumbnail',
-              'DieselGameBoxTall',
-              'DieselStoreFrontTall',
-            ])?.url ?? '/placeholder.webp'
-          }
+          src={gradientImage}
           alt="Game Cover"
           width={600}
           height={800}
           quality="high"
+          loading="lazy"
           className="w-full h-auto object-cover"
         />
         <div className="relative p-4 bg-card h-44 shadow-xl">
