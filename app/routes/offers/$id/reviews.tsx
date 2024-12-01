@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, getRouteApi, Link } from '@tanstack/react-router';
 import '@mdxeditor/editor/style.css';
 import {
   dehydrate,
@@ -43,6 +43,8 @@ import { useLocale } from '@/hooks/use-locale';
 import { ReviewForm } from '@/components/forms/add-review';
 import { Viewer } from '@/components/app/viewer';
 import { EditReviewForm } from '@/components/forms/edit-review';
+
+const routeApi = getRouteApi('__root__');
 
 type ReviewSummary = {
   overallScore: number;
@@ -201,6 +203,7 @@ export const Route = createFileRoute('/offers/$id/reviews')({
 });
 
 function Reviews() {
+  const { epicToken } = routeApi.useRouteContext();
   const { locale } = useLocale();
   const { userCanReview, offer, id } = Route.useLoaderData();
   const [page] = useState(1);
@@ -224,8 +227,11 @@ function Reviews() {
             total: number;
           }>(`/offers/${id}/reviews`, {
             params: { page, verified: getVerificationParam(filter) },
+            headers: epicToken
+              ? { Authorization: `Bearer ${epicToken.access_token}` }
+              : undefined,
           }),
-        staleTime: 0,
+        refetchOnMount: false,
       },
       {
         queryKey: [
