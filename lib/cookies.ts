@@ -38,7 +38,7 @@ export const saveAuthCookie = createServerFn({ method: 'GET' })
     });
 
     _setCookie(name, token, {
-      httpOnly: true,
+      httpOnly: false,
       secure: import.meta.env.PROD,
       sameSite: 'lax',
       path: '/',

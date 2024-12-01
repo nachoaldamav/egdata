@@ -13,7 +13,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import getCountryCode from '@/lib/get-country-code';
 import { parseCookieString } from '@/lib/parse-cookies';
-import { decodeJwt, getCookie, saveAuthCookie } from '@/lib/cookies';
+import { decodeJwt, saveAuthCookie } from '@/lib/cookies';
 import { SearchProvider } from '@/providers/global-search';
 import { getUserInformation } from '@/queries/profiles';
 import { PreferencesProvider } from '@/providers/preferences';
@@ -23,14 +23,14 @@ import { LocaleProvider } from '@/providers/locale';
 import consola from 'consola';
 import { CookiesProvider } from '@/providers/cookies';
 import { Base64Utils } from '@/lib/base-64';
-import type { CookiesSelection } from '@/contexts/cookies';
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
+  cookies: Record<string, string>;
 }>()({
   component: RootComponent,
 
-  loader: async () => {
+  loader: async ({ context }) => {
     let url: URL;
     let cookieHeader: string;
 
@@ -48,21 +48,14 @@ export const Route = createRootRouteWithContext<{
       cookieHeader = '';
     }
 
-    const parsedCookies = parseCookieString(cookieHeader);
-    const cookies = Object.fromEntries(
-      Object.entries(parsedCookies).map(([key, value]) => [key, value || '']),
-    );
+    const { cookies } = context;
 
-    const [country, locale, timezone, analyticsCookies] = await Promise.all([
-      getCountryCode(url, cookies),
-      getCookie({ data: 'user_locale' }),
-      getCookie({ data: 'user_timezone' }),
-      getCookie({ data: 'EGDATA_COOKIES' }).then((cookie) =>
-        cookie
-          ? (JSON.parse(Base64Utils.decode(cookie)) as CookiesSelection)
-          : null,
-      ),
-    ]);
+    const country = getCountryCode(url, cookies);
+    const locale = cookies.EGDATA_LOCALE;
+    const timezone = cookies.EGDATA_TIMEZONE;
+    const analyticsCookies = cookies.EGDATA_COOKIES
+      ? JSON.parse(Base64Utils.decode(cookies.EGDATA_COOKIES))
+      : null;
 
     return {
       country,
@@ -97,7 +90,7 @@ export const Route = createRootRouteWithContext<{
     );
     const country = getCountryCode(url, cookies);
 
-    const authCookie = await getCookie({ data: 'EGDATA_AUTH' });
+    const authCookie = cookies.EGDATA_AUTH;
     let epicToken = authCookie ? await decodeJwt({ data: authCookie }) : null;
 
     // Refresh the token if it's expired or about to expire (within 10 minutes)
