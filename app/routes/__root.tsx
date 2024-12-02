@@ -23,10 +23,12 @@ import { LocaleProvider } from '@/providers/locale';
 import consola from 'consola';
 import { CookiesProvider } from '@/providers/cookies';
 import { Base64Utils } from '@/lib/base-64';
+import type { EpicToken } from '@/types/epic';
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
   cookies: Record<string, string>;
+  epicToken: EpicToken | null;
 }>()({
   component: RootComponent,
 
