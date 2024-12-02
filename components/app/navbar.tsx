@@ -305,9 +305,7 @@ export default function Navbar() {
               </NavigationMenuLink>
             );
           })}
-          <NavigationMenuLink asChild>
-            <DiscordBotPopover />
-          </NavigationMenuLink>
+          <DiscordBotPopover />
         </NavigationMenuList>
       </NavigationMenu>
       <div className="ml-auto flex items-center gap-4">
