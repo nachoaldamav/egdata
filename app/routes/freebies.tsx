@@ -50,7 +50,6 @@ import {
 import { getBuyLink } from '@/lib/get-build-link';
 import { useLocale } from '@/hooks/use-locale';
 import consola from 'consola';
-import { ClientOnly } from '@/lib/cllient-only';
 
 const sortByList: Record<string, string> = {
   giveawayDate: 'Giveaway Date',
