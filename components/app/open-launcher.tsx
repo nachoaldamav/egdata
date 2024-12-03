@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
 import { httpClient } from '@/lib/http-client';
 import { Button } from '../ui/button';
-import { EpicGamesIcon } from '../icons/epic';
 import { buildGameLauncherURI } from '@/lib/build-game-launcher';
 import { PlayIcon } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 
 type Asset = {
   artifactId: string;
@@ -15,13 +14,10 @@ type Asset = {
 };
 
 export function OpenLauncher({ id }: { id: string }) {
-  const [assets, setAssets] = useState<Asset[] | null>(null);
-
-  useEffect(() => {
-    httpClient.get<Asset[]>(`/offers/${id}/assets`).then((response) => {
-      setAssets(response);
-    });
-  }, [id]);
+  const { data: assets } = useQuery({
+    queryKey: ['offer-assets', { id }],
+    queryFn: () => httpClient.get<Asset[]>(`/offers/${id}/assets`),
+  });
 
   if (!assets) return null;
 
@@ -57,6 +53,8 @@ export function OpenLauncher({ id }: { id: string }) {
  * Get the platform based on the current user agent
  */
 const getPlaform = () => {
+  if (typeof window === 'undefined') return 'Windows';
+
   const ua = navigator.userAgent;
   if (ua.includes('Windows')) return 'Windows';
   if (ua.includes('Mac')) return 'Mac';

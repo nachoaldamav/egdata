@@ -43,6 +43,7 @@ import { internalNamespaces } from '@/lib/internal-namespaces';
 import { offersDictionary } from '@/lib/offers-dictionary';
 import { compareDates, timeAgo } from '@/lib/time-ago';
 import { cn } from '@/lib/utils';
+import type { Asset } from '@/types/asset';
 import type { Price } from '@/types/price';
 import type { SingleOffer } from '@/types/single-offer';
 import {
@@ -88,13 +89,19 @@ export const Route = createFileRoute('/offers/$id')({
     const { country, queryClient } = context;
     const { id } = params;
 
-    await queryClient.prefetchQuery({
-      queryKey: ['price', { id: params.id, country }],
-      queryFn: () =>
-        httpClient.get<Price>(
-          `/offers/${params.id}/price?country=${country || 'US'}`,
-        ),
-    });
+    await Promise.all([
+      queryClient.prefetchQuery({
+        queryKey: ['price', { id: params.id, country }],
+        queryFn: () =>
+          httpClient.get<Price>(
+            `/offers/${params.id}/price?country=${country || 'US'}`,
+          ),
+      }),
+      queryClient.prefetchQuery({
+        queryKey: ['offer-assets', { id }],
+        queryFn: () => httpClient.get<Asset[]>(`/offers/${id}/assets`),
+      }),
+    ]);
 
     return {
       dehydratedState: dehydrate(queryClient),
