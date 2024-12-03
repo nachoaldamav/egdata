@@ -43,10 +43,14 @@ import { useDebounce } from '@uidotdev/usehooks';
 import { ArrowDown, GridIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { z } from 'zod';
-import { default as Motion, type MotionNumberProps } from 'motion-number';
+import {
+  default as Motion,
+  type NumberFlowProps as MotionNumberProps,
+} from '@number-flow/react';
 import { getBuyLink } from '@/lib/get-build-link';
 import { useLocale } from '@/hooks/use-locale';
 import consola from 'consola';
+import { ClientOnly } from '@/lib/cllient-only';
 
 const sortByList: Record<string, string> = {
   giveawayDate: 'Giveaway Date',
@@ -686,16 +690,6 @@ function ClientOnlyMotionNumber({
   className,
   ...props
 }: MotionNumberProps) {
-  const { locale } = useLocale();
-  if (typeof window === 'undefined')
-    return (
-      <span className={className}>
-        {new Intl.NumberFormat(locale, format).format(
-          typeof value === 'string' ? Number.parseInt(value) : value,
-        )}
-      </span>
-    );
-
   return (
     <MotionNumber
       value={value}
