@@ -15,6 +15,9 @@ export default defineConfig({
       minify: 'terser',
       sourcemap: true,
     },
+    ssr: {
+      noExternal: ['@react-spectrum/image', '@react-spectrum/provider'],
+    },
   },
   server: {
     preset: 'node-server',
