@@ -23,7 +23,7 @@ export const Image: FC<ImageProps> = ({
   eager = false,
   ...props
 }) => {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!eager);
   const [imgRef, isIntersecting] = useIntersectionObserver<HTMLImageElement>({
     rootMargin: '200px',
     threshold: 0,
@@ -36,7 +36,7 @@ export const Image: FC<ImageProps> = ({
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: set loading to true when url changes
   useEffect(() => {
-    setLoading(true);
+    setLoading(!eager);
   }, [url]);
 
   const shouldLoad = eager || isIntersecting;

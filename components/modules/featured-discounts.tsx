@@ -326,6 +326,7 @@ function FeaturedOffer({ offer }: { offer: SingleOffer }) {
                 videoUrl && isHovered ? 'opacity-0' : 'opacity-100',
               )}
               unoptimized
+              eager
             />
           </div>
           <div className="flex flex-col gap-1">

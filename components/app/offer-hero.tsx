@@ -80,6 +80,8 @@ export function OfferHero({ offer }: { offer: SingleOffer }) {
           'rounded-xl shadow-lg transition-opacity duration-700 ease-in-out',
           videoUrl && isHovered ? 'opacity-0' : 'opacity-100',
         )}
+        eager
+        key={offer.id}
       />
       <GameFeatures id={offer.id} />
     </div>
