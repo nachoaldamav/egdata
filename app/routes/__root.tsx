@@ -393,8 +393,6 @@ function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
                   <PreferencesProvider>
                     <CookiesProvider initialSelection={analyticsCookies}>
                       {children}
-                      <ScrollRestoration />
-                      <Scripts />
                     </CookiesProvider>
                   </PreferencesProvider>
                   <ComparisonPortal />
@@ -441,6 +439,8 @@ function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
           <TanStackRouterDevtools position="bottom-left" />
         )}
         <ReactQueryDevtools buttonPosition="bottom-right" />
+        <ScrollRestoration />
+        <Scripts />
       </body>
     </html>
   );

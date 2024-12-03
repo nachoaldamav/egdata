@@ -15,7 +15,7 @@ import { Button } from '../ui/button';
 import { Alert } from '../ui/alert';
 import type { SingleOffer } from '@/types/single-offer';
 import { useState } from 'react';
-import MotionNumber from 'motion-number';
+import MotionNumber from '@number-flow/react';
 import { Editor } from '../app/editor';
 import type { JSONContent } from '@tiptap/react';
 import { useMutation } from '@tanstack/react-query';
