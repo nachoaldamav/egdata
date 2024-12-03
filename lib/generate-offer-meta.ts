@@ -3,7 +3,7 @@ import { getImage } from './get-image';
 
 export const generateOfferMeta = (
   offer: SingleOffer,
-  section?: string
+  section?: string,
 ): Array<React.JSX.IntrinsicElements['meta']> => {
   return [
     {
@@ -13,7 +13,7 @@ export const generateOfferMeta = (
       name: 'description',
       content: section
         ? `Explore ${offer?.title} ${section.toLowerCase()}.`
-        : `Explore ${offer?.title} information.`,
+        : `Explore detailed information about ${offer?.title}. Discover the current and historical price, achievements, reviews and more.`,
     },
     {
       name: 'og:title',
@@ -23,7 +23,7 @@ export const generateOfferMeta = (
       name: 'og:description',
       content: section
         ? `Explore ${offer?.title} ${section.toLowerCase()}.`
-        : `Explore ${offer?.title} information.`,
+        : `Explore detailed information about ${offer?.title}. Discover the current and historical price, achievements, reviews and more.`,
     },
     {
       name: 'og:image',
@@ -50,7 +50,7 @@ export const generateOfferMeta = (
       name: 'twitter:description',
       content: section
         ? `Explore ${offer?.title} ${section.toLowerCase()}.`
-        : `Explore ${offer?.title} information.`,
+        : `Explore detailed information about ${offer?.title}. Discover the current and historical price, achievements, reviews and more.`,
     },
     {
       name: 'twitter:image',

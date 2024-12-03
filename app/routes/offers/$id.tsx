@@ -15,7 +15,6 @@ import { SellerOffers } from '@/components/modules/seller-offers';
 import { SuggestedOffers } from '@/components/modules/suggested-offers';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import {
   Table,
   TableBody,
@@ -31,12 +30,9 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useCompare } from '@/hooks/use-compare';
-import { useCountry } from '@/hooks/use-country';
 import { useLocale } from '@/hooks/use-locale';
-import { getQueryClient } from '@/lib/client';
 import { ClientOnly } from '@/lib/cllient-only';
 import { generateOfferMeta } from '@/lib/generate-offer-meta';
-import { getFetchedQuery } from '@/lib/get-fetched-query';
 import { getSeller } from '@/lib/get-seller';
 import { httpClient } from '@/lib/http-client';
 import { internalNamespaces } from '@/lib/internal-namespaces';
@@ -46,11 +42,7 @@ import { cn } from '@/lib/utils';
 import type { Asset } from '@/types/asset';
 import type { Price } from '@/types/price';
 import type { SingleOffer } from '@/types/single-offer';
-import {
-  dehydrate,
-  HydrationBoundary,
-  useQueries,
-} from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
 import {
   createFileRoute,
   Link,
@@ -61,35 +53,18 @@ import {
 
 export const Route = createFileRoute('/offers/$id')({
   component: () => {
-    const { dehydratedState } = Route.useLoaderData();
-    return (
-      <HydrationBoundary state={dehydratedState}>
-        <OfferPage />
-      </HydrationBoundary>
-    );
-  },
-
-  beforeLoad: async ({ params, context }) => {
-    const { country, queryClient } = context;
-    const { id } = params;
-
-    await queryClient.prefetchQuery({
-      queryKey: ['offer', { id: params.id }],
-      queryFn: () => httpClient.get<SingleOffer>(`/offers/${params.id}`),
-    });
-
-    return {
-      id,
-      dehydratedState: dehydrate(queryClient),
-      country,
-    };
+    return <OfferPage />;
   },
 
   loader: async ({ params, context }) => {
     const { country, queryClient } = context;
     const { id } = params;
 
-    await Promise.all([
+    const [offer] = await Promise.all([
+      queryClient.ensureQueryData({
+        queryKey: ['offer', { id: params.id }],
+        queryFn: () => httpClient.get<SingleOffer>(`/offers/${params.id}`),
+      }),
       queryClient.prefetchQuery({
         queryKey: ['price', { id: params.id, country }],
         queryFn: () =>
@@ -104,16 +79,16 @@ export const Route = createFileRoute('/offers/$id')({
     ]);
 
     return {
-      dehydratedState: dehydrate(queryClient),
       id,
+      country,
+      offer,
     };
   },
 
   head: (ctx) => {
-    const { params } = ctx;
-    const queryClient = getQueryClient();
+    const { loaderData } = ctx;
 
-    if (!ctx.loaderData)
+    if (!loaderData)
       return {
         meta: [
           {
@@ -123,11 +98,7 @@ export const Route = createFileRoute('/offers/$id')({
         ],
       };
 
-    const offer = getFetchedQuery<SingleOffer>(
-      queryClient,
-      ctx.loaderData.dehydratedState,
-      ['offer', { id: params.id }],
-    );
+    const { offer } = loaderData;
 
     if (!offer) {
       return {
@@ -148,26 +119,15 @@ export const Route = createFileRoute('/offers/$id')({
 
 function OfferPage() {
   const { id } = Route.useLoaderData();
-  const { country } = useCountry();
   const { timezone } = useLocale();
   const { addToCompare, removeFromCompare, compare } = useCompare();
   const navigate = useNavigate();
   const location = useLocation();
-  const [offerQuery] = useQueries({
-    queries: [
-      {
-        queryKey: ['offer', { id }],
-        queryFn: () =>
-          httpClient.get<SingleOffer>(`/offers/${id}`, {
-            params: {
-              country,
-            },
-          }),
-      },
-    ],
-  });
 
-  const { data: offer, isLoading: offerLoading } = offerQuery;
+  const { data: offer, isLoading: offerLoading } = useSuspenseQuery({
+    queryKey: ['offer', { id }],
+    queryFn: () => httpClient.get<SingleOffer>(`/offers/${id}`),
+  });
 
   const subPath = location.pathname.split(`/${id}/`)[1];
 
@@ -459,7 +419,7 @@ function OfferPage() {
         <Outlet />
       </section>
 
-      <Separator className="my-4" />
+      <hr className="my-4 border-gray-300/40" />
 
       <SellerOffers
         id={offer.seller.id}

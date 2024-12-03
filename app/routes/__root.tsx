@@ -29,6 +29,7 @@ export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
   cookies: Record<string, string>;
   epicToken: EpicToken | null;
+  country: string;
 }>()({
   component: RootComponent,
 
@@ -380,7 +381,10 @@ function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
         <Meta />
       </head>
       <body className="antialiased">
-        <div className="md:container mx-auto overflow-x-hidden">
+        <div
+          className="md:container mx-auto overflow-x-hidden"
+          suppressHydrationWarning={true}
+        >
           <LocaleProvider initialLocale={locale} initialTimezone={timezone}>
             <CountryProvider defaultCountry={country}>
               <CompareProvider>
@@ -389,9 +393,9 @@ function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
                   <PreferencesProvider>
                     <CookiesProvider initialSelection={analyticsCookies}>
                       {children}
+                      <ScrollRestoration />
+                      <Scripts />
                     </CookiesProvider>
-                    <ScrollRestoration />
-                    <Scripts />
                   </PreferencesProvider>
                   <ComparisonPortal />
                   <footer className="flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400 text-xs gap-1">

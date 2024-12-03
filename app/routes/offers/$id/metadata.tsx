@@ -37,7 +37,10 @@ export const Route = createFileRoute('/offers/$id/metadata')({
     const { queryClient } = context;
     const { id } = params;
 
-    const offer = await httpClient.get<SingleOffer>(`/offers/${id}`);
+    const offer = await queryClient.ensureQueryData({
+      queryKey: ['offer', { id }],
+      queryFn: () => httpClient.get<SingleOffer>(`/offers/${id}`),
+    });
 
     await Promise.all([
       queryClient.prefetchQuery({
