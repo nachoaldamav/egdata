@@ -22,6 +22,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { ArrowRightIcon, ChevronRightIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { type JsonValue, JsonVisualizer } from '@/components/app/json-tree';
+import { calculateSize } from '@/lib/calculate-size';
 
 export interface Root {
   hits: (OfferHit | ItemHit | AssetHit | Hit)[];
@@ -363,6 +365,10 @@ function ValueToString(value: unknown, query: string, field?: string) {
     return <span className="font-medium">{typedValue.name}</span>;
   }
 
+  if (field?.includes('Bytes')) {
+    return <span className="font-mono">{calculateSize(value as number)}</span>;
+  }
+
   if (typeof value === 'number') {
     return value.toLocaleString();
   }
@@ -372,11 +378,7 @@ function ValueToString(value: unknown, query: string, field?: string) {
   }
 
   if (typeof value === 'object') {
-    return (
-      <pre>
-        <code>{highlightText(JSON.stringify(value, null, 2), query)}</code>
-      </pre>
-    );
+    return <JsonVisualizer data={value as JsonValue} />;
   }
 
   return value?.toString() || 'N/A';
