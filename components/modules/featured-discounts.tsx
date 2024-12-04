@@ -332,7 +332,7 @@ function FeaturedOffer({ offer }: { offer: SingleOffer }) {
           <div className="flex flex-col gap-1">
             <h3 className="text-2xl font-bold">{offer.title}</h3>
             <p className="text-muted-foreground text-sm mt-1">
-              {offer.description.replaceAll('\n', '')}
+              {offer.description?.replaceAll('\n', '')}
             </p>
           </div>
         </div>
