@@ -53,7 +53,7 @@
     "@tanstack/router-cli": "^1.85.3",
     "@tanstack/router-devtools": "^1.85.5",
     "@tanstack/router-zod-adapter": "^1.81.5",
-    "@tanstack/start": "^1.85.5",
+    "@tanstack/start": "^1.85.7",
     "@tiptap/extension-blockquote": "^2.10.3",
     "@tiptap/extension-bullet-list": "^2.10.3",
     "@tiptap/extension-list-item": "^2.10.3",
@@ -102,7 +102,7 @@
     "autoprefixer": "^10.4.20",
     "glob": "^11.0.0",
     "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.15",
+    "tailwindcss": "^3.4.16",
     "typescript": "^5.7.2"
   },
   "packageManager": "pnpm@9.12.3"
