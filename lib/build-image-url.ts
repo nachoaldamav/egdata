@@ -13,7 +13,7 @@ export default (
   quality: ImageQuality = 'medium',
 ) => {
   const hasExtension = src.includes('.');
-  if (!hasExtension) {
+  if (!hasExtension || src[0] === '/') {
     return src;
   }
 

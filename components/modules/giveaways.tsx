@@ -102,6 +102,7 @@ function GiveawayCard({ offer }: { offer: GiveawayOffer }) {
               'DieselGameBoxWide',
               'OfferImageWide',
               'Featured',
+              'VaultClosed',
             ])?.url
           }
           alt={offer.title}
