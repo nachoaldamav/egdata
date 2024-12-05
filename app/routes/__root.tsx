@@ -54,8 +54,8 @@ export const Route = createRootRouteWithContext<{
     const { cookies } = context;
 
     const country = getCountryCode(url, cookies);
-    const locale = cookies.EGDATA_LOCALE;
-    const timezone = cookies.EGDATA_TIMEZONE;
+    const locale = cookies.user_locale;
+    const timezone = cookies.user_timezone;
     const analyticsCookies = cookies.EGDATA_COOKIES
       ? JSON.parse(Base64Utils.decode(cookies.EGDATA_COOKIES))
       : null;
@@ -375,6 +375,7 @@ function RootComponent() {
 
 function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
   const { country, locale, timezone, analyticsCookies } = Route.useLoaderData();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
