@@ -32,9 +32,13 @@ export const InternalBanner: React.FC<{
       }>(`/autocomplete?query=${title}`)
       .then((response) => {
         setResults(
-          response.elements.filter(
-            ({ namespace }) => !internalNamespaces.includes(namespace)
-          )
+          response.elements
+            .filter(({ namespace }) => !internalNamespaces.includes(namespace))
+            .filter(({ title: t }) => {
+              const similarity = compareTitleSimilarity(title, t);
+              console.log(t, similarity);
+              return similarity > 0.5;
+            }),
         );
       });
   }, [title]);
@@ -54,4 +58,16 @@ export const InternalBanner: React.FC<{
       )}
     </Alert>
   );
+};
+
+const compareTitleSimilarity = (a: string, b: string): number => {
+  const aTitle = a.toLowerCase();
+  const bTitle = b.toLowerCase();
+
+  const aTitleWords = aTitle.split(' ');
+  const bTitleWords = bTitle.split(' ');
+
+  const intersection = aTitleWords.filter((word) => bTitleWords.includes(word));
+
+  return intersection.length / Math.max(aTitleWords.length, bTitleWords.length);
 };

@@ -150,6 +150,9 @@ const extractGradient = async (imageSrc: string): Promise<string> => {
   }
 
   return new Promise((resolve) => {
+    if (imageSrc[0] === '/') {
+      imageSrc = `https://egdata.app${imageSrc}`;
+    }
     const imgUrl = new URL(imageSrc);
     imgUrl.searchParams.set('w', '1');
     imgUrl.searchParams.set('h', '1');
