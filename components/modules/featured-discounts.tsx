@@ -20,7 +20,6 @@ import {
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
-import { platformIcons } from '@/components/app/platform-icons';
 import buildImageUrl from '@/lib/build-image-url';
 import { useCountry } from '@/hooks/use-country';
 import { Skeleton } from '../ui/skeleton';
@@ -162,7 +161,7 @@ export function FeaturedDiscounts() {
         </div>
       </div>
       <Carousel
-        className="mt-2 p-4 md:h-[550px] h-full"
+        className="mt-2 p-4 h-fit"
         setApi={setApi}
         plugins={[
           Autoplay({
@@ -253,7 +252,7 @@ function ProgressIndicator({
 }
 
 function FeaturedOffer({ offer }: { offer: SingleOffer }) {
-  const [image, setImage] = useState<string | null>(null);
+  const [image] = useState<string | null>(null);
   const { data: offerMedia } = useQuery({
     queryKey: ['media', { id: offer.id }],
     queryFn: () => httpClient.get<Media>(`/offers/${offer.id}/media`),
@@ -283,117 +282,74 @@ function FeaturedOffer({ offer }: { offer: SingleOffer }) {
   }, [isHovered]);
 
   return (
-    <div className="md:w-full bg-background rounded-lg shadow-lg overflow-hidden group mx-auto select-none w-[80vw]">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
-        <div className="flex flex-col gap-2">
-          <div
-            className="relative w-full h-full"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            {videoUrl && (
-              <video
-                className={cn(
-                  'rounded-xl shadow-lg transition-opacity duration-700 absolute inset-0 ease-in-out w-full h-full object-cover',
-                  isHovered ? 'opacity-100' : 'opacity-0',
-                )}
-                autoPlay
-                loop
-                muted
-                playsInline
-                controls={false}
-                width={'100%'}
-                height={'100%'}
-                src={videoUrl}
-                ref={videoRef}
-              />
-            )}
-            <Image
-              src={
-                image ??
-                getImage(offer.keyImages, [
-                  'OfferImageWide',
-                  'DieselStoreFrontWide',
-                  'Featured',
-                ])?.url
-              }
-              alt={offer.title}
-              width={500}
-              height={300}
-              quality="original"
+    <div className="w-full mx-auto bg-background rounded-lg shadow-md">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div
+          className="relative"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          {videoUrl && (
+            <video
               className={cn(
-                'w-full h-auto object-cover rounded-lg transition-opacity duration-700 ease-in-out',
-                videoUrl && isHovered ? 'opacity-0' : 'opacity-100',
+                'rounded-xl shadow-lg transition-opacity duration-700 absolute inset-0 ease-in-out w-full h-full object-cover',
+                isHovered ? 'opacity-100' : 'opacity-0',
               )}
-              unoptimized
-              eager
+              autoPlay
+              loop
+              muted
+              playsInline
+              controls={false}
+              ref={videoRef}
             />
-          </div>
-          <div className="flex flex-col gap-1">
-            <h3 className="text-2xl font-bold">{offer.title}</h3>
-            <p className="text-muted-foreground text-sm mt-1">
+          )}
+          <Image
+            src={
+              image ||
+              getImage(offer.keyImages, [
+                'OfferImageWide',
+                'DieselStoreFrontWide',
+                'Featured',
+              ])?.url
+            }
+            alt={offer.title}
+            width={500}
+            height={300}
+            className={cn(
+              'w-full h-auto object-cover rounded-lg transition-opacity duration-700 ease-in-out',
+              videoUrl && isHovered ? 'opacity-0' : 'opacity-100',
+            )}
+            unoptimized
+          />
+        </div>
+
+        {/* Details Section */}
+        <div className="flex flex-col justify-between">
+          <div>
+            <h3 className="text-xl font-bold">{offer.title}</h3>
+            <p className="text-muted-foreground text-sm mt-2">
               {offer.description?.replaceAll('\n', '')}
             </p>
-          </div>
-        </div>
-        <div className="md:col-span-1 flex flex-col justify-between px-4 gap-1">
-          <div className="h-full hidden md:block">
-            <div className="grid grid-cols-2 gap-2 h-full">
-              {offerMedia?.images.slice(0, 4).map((image) => (
-                <div
-                  className="h-auto w-full rounded-lg inline-flex items-center justify-center opacity-50 cursor-pointer hover:opacity-100 transition-opacity"
-                  key={image._id}
-                  onClick={() => setImage(image.src)}
-                  onKeyDown={() => setImage(image.src)}
+            <div className="mt-4 flex flex-wrap gap-2">
+              {offer.tags.slice(0, 4).map((tag) => (
+                <Link
+                  key={tag.id}
+                  to="/search"
+                  search={{
+                    tags: tag.id,
+                  }}
                 >
-                  <Image
-                    src={image.src}
-                    alt={offer.title}
-                    width={1080}
-                    height={560}
-                    quality="high"
-                    className="object-cover rounded-lg mx-auto h-full w-full"
-                  />
-                </div>
+                  <Badge>{tag.name}</Badge>
+                </Link>
               ))}
-              {!offerMedia?.images.length &&
-                Array.from({ length: 4 }).map((_, index) => (
-                  <Skeleton
-                    key={`${offer.id}-image-${index}`}
-                    className="w-full h-full"
-                  />
-                ))}
+              {offer.tags.length > 4 && (
+                <Badge>+{offer.tags.length - 4} more</Badge>
+              )}
             </div>
           </div>
-          <div className="inline-flex items-center justify-start gap-2">
-            {offer.tags.slice(0, 4).map((tag) => (
-              <Badge key={tag.id}>{tag.name}</Badge>
-            ))}
-            {offer.tags.length > 4 && (
-              <Badge>
-                +{offer.tags.length - 4} <span className="sr-only">more</span>
-              </Badge>
-            )}
-          </div>
-          <div className="flex flex-col justify-end">
-            <div className="flex items-center justify-between mt-4">
-              <div className="flex items-center gap-2">
-                <span className="text-muted-foreground text-sm inline-flex gap-1 items-center justify-start">
-                  {offer.tags
-                    .filter((tag) => platformIcons[tag.id])
-                    .map((tag) => (
-                      <span
-                        key={tag.id}
-                        className="inline-flex items-center gap-1"
-                      >
-                        {platformIcons[tag.id]}
-                      </span>
-                    ))}
-                </span>
-              </div>
-              <Price offer={offer} />
-            </div>
-            <Button asChild size="lg" className="w-full mt-4 h-10">
+          <div className="mt-6">
+            <Price offer={offer} />
+            <Button asChild size="lg" className="w-full mt-4">
               <Link to={`/offers/${offer.id}`} preload="intent">
                 Check Offer
               </Link>
