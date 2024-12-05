@@ -14,6 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useLocale } from '@/hooks/use-locale';
 import { calculateSize } from '@/lib/calculate-size';
 import { getQueryClient } from '@/lib/client';
 import { getFetchedQuery } from '@/lib/get-fetched-query';
@@ -165,6 +166,7 @@ export const Route = createFileRoute('/builds/$id')({
 function BuildPage() {
   const { id } = Route.useLoaderData();
   const navigate = Route.useNavigate();
+  const { timezone } = useLocale();
   const subPath = useLocation().pathname.split(`/${id}/`)[1];
   const { data: items } = useQuery({
     queryKey: ['build-items', { id }],
@@ -262,6 +264,7 @@ function BuildPage() {
                     timeZoneName: 'short',
                     hour: 'numeric',
                     minute: 'numeric',
+                    timeZone: timezone,
                   })}
                 </TableCell>
               </TableRow>
@@ -275,6 +278,7 @@ function BuildPage() {
                     timeZoneName: 'short',
                     hour: 'numeric',
                     minute: 'numeric',
+                    timeZone: timezone,
                   })}
                 </TableCell>
               </TableRow>

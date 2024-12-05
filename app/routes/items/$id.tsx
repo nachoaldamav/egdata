@@ -29,6 +29,7 @@ import { SectionsNav } from '@/components/app/offer-sections';
 import { generateItemMeta } from '@/lib/generate-item-meta';
 import { getFetchedQuery } from '@/lib/get-fetched-query';
 import { getQueryClient } from '@/lib/client';
+import { useLocale } from '@/hooks/use-locale';
 
 export const Route = createFileRoute('/items/$id')({
   component: () => {
@@ -97,6 +98,7 @@ export const Route = createFileRoute('/items/$id')({
 function ItemPage() {
   const { id } = Route.useParams();
   const navigate = Route.useNavigate();
+  const { timezone } = useLocale();
   const subPath = useLocation().pathname.split(`/${id}/`)[1];
   const { data: item } = useQuery({
     queryKey: ['item', { id }],
@@ -178,6 +180,8 @@ function ItemPage() {
                       day: 'numeric',
                       hour: 'numeric',
                       minute: 'numeric',
+                      timeZone: timezone,
+                      timeZoneName: 'short',
                     })}
                   </TableCell>
                 </TableRow>
@@ -190,6 +194,8 @@ function ItemPage() {
                       day: 'numeric',
                       hour: 'numeric',
                       minute: 'numeric',
+                      timeZone: timezone,
+                      timeZoneName: 'short',
                     })}
                   </TableCell>
                 </TableRow>
