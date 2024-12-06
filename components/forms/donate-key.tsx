@@ -101,7 +101,9 @@ export function DonateKeyForm() {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription>
+            {typeof error === 'string' ? error : error.message}
+          </AlertDescription>
         </Alert>
       )}
       {success && (
