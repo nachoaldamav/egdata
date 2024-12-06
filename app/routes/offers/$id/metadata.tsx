@@ -299,7 +299,7 @@ function Assets({ assets }: { assets: { assets: Asset }[] }) {
     return (
       <div className="flex flex-col gap-2 items-start justify-start">
         {assets
-          .filter((a) => a)
+          .filter((a) => typeof a.assets !== 'undefined')
           .filter(({ assets: asset }) => asset.platform)
           .map(({ assets: asset }) => (
             <div className="flex flex-row gap-2 items-center" key={asset._id}>
