@@ -149,7 +149,11 @@ export const Route = createRootRouteWithContext<{
         }
       }
 
-      if (epicToken && new Date(epicToken.expires_at).getTime() < Date.now()) {
+      const isExpired = epicToken
+        ? new Date(epicToken.expires_at).getTime() < Date.now()
+        : false;
+
+      if (epicToken && isExpired) {
         if (import.meta.env.SSR) {
           const { deleteCookie } = await import('vinxi/http');
           deleteCookie('EGDATA_AUTH', {
@@ -160,7 +164,7 @@ export const Route = createRootRouteWithContext<{
         }
       }
 
-      if (epicToken) {
+      if (epicToken && !isExpired) {
         await queryClient.prefetchQuery({
           queryKey: ['user', { id: epicToken?.account_id }],
           queryFn: () => getUserInformation(epicToken?.account_id || null),
