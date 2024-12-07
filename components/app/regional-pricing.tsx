@@ -16,29 +16,10 @@ import { Skeleton } from '../ui/skeleton';
 import { useRegions } from '@/hooks/use-regions';
 import { ArrowUpIcon } from '@radix-ui/react-icons';
 import { cn } from '@/lib/utils';
-import type { Price } from '@/types/price';
 import { calculatePrice } from '@/lib/calculate-price';
 import { Badge } from '@/components/ui/badge';
 import { useLocale } from '@/hooks/use-locale';
-
-interface RegionData {
-  region: Region;
-}
-
-interface Region {
-  code: string;
-  currencyCode: string;
-  description: string;
-  countries: string[];
-}
-
-interface RegionalPrice {
-  [region: string]: {
-    currentPrice: Price;
-    maxPrice: number;
-    minPrice: number;
-  };
-}
+import type { RegionalPrice, RegionData } from '@/types/regional-pricing';
 
 const getRegionalPricing = async ({ id }: { id: string }) => {
   const response = await httpClient.get<RegionalPrice>(
@@ -124,7 +105,11 @@ export function RegionalPricing({ id }: { id: string }) {
 
   return (
     <div className="w-full mx-auto mt-2">
-      <PriceChart selectedRegion={selectedRegion} id={id} />
+      <PriceChart
+        selectedRegion={selectedRegion}
+        id={id}
+        regionStats={regionalPricing[selectedRegion]}
+      />
       <Table className="w-3/4 mx-auto mt-2">
         <TableCaption>Regional Pricing</TableCaption>
         <TableHeader>

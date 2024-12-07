@@ -24,12 +24,13 @@ import {
 } from '@/components/ui/select';
 import type { Price } from '@/types/price';
 import { Checkbox } from '@/components/ui/checkbox';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQueries } from '@tanstack/react-query';
 import { Skeleton } from '../ui/skeleton';
 import { httpClient } from '@/lib/http-client';
 import { useRegions } from '@/hooks/use-regions';
 import { Separator } from '../ui/separator';
 import { useLocale } from '@/hooks/use-locale';
+import type { SingleRegionalPrice } from '@/types/regional-pricing';
 
 const chartConfig = {
   price: {
@@ -40,11 +41,16 @@ const chartConfig = {
     label: 'US Price',
     color: 'hsl(var(--chart-2))',
   },
+  min: {
+    label: 'Lowest Price',
+    color: 'hsl(var(--chart-3))',
+  },
 } satisfies ChartConfig;
 
 interface PriceChartProps {
   selectedRegion: string;
   id: string;
+  regionStats: SingleRegionalPrice;
 }
 
 /**
@@ -140,51 +146,61 @@ const calculateSinceDate = (timeRange: 'all' | '3y' | '1y') => {
   return now;
 };
 
-export function PriceChart({ selectedRegion, id }: PriceChartProps) {
+export function PriceChart({
+  selectedRegion,
+  id,
+  regionStats,
+}: PriceChartProps) {
   const { regions } = useRegions();
   const { locale } = useLocale();
   const [timeRange, setTimeRange] = React.useState('1y');
   const [compareUSD, setCompareUSD] = React.useState(false);
 
+  const [regionQuery, usdQuery] = useQueries({
+    queries: [
+      {
+        queryKey: ['price-history', { region: selectedRegion, id, timeRange }],
+        queryFn: () =>
+          httpClient
+            .get<Price[]>(`/offers/${id}/price-history`, {
+              params: {
+                region: selectedRegion,
+                since:
+                  timeRange === 'all'
+                    ? undefined
+                    : calculateSinceDate(
+                        timeRange as 'all' | '3y' | '1y',
+                      ).toISOString(),
+              },
+            })
+            .then((res) => res),
+        placeholderData: keepPreviousData,
+      },
+      {
+        queryKey: ['price-history', { region: 'US', id, timeRange }],
+        queryFn: () =>
+          httpClient.get<Price[]>(`/offers/${id}/price-history`, {
+            params: {
+              region: 'US',
+              since:
+                timeRange === 'all'
+                  ? undefined
+                  : calculateSinceDate(
+                      timeRange as 'all' | '3y' | '1y',
+                    ).toISOString(),
+            },
+          }),
+        placeholderData: keepPreviousData,
+      },
+    ],
+  });
+
   const {
     data: regionPricing,
     isLoading: regionPricingLoading,
     isFetching,
-  } = useQuery({
-    queryKey: ['price-history', { region: selectedRegion, id, timeRange }],
-    queryFn: () =>
-      httpClient
-        .get<Price[]>(`/offers/${id}/price-history`, {
-          params: {
-            region: selectedRegion,
-            since:
-              timeRange === 'all'
-                ? undefined
-                : calculateSinceDate(
-                    timeRange as 'all' | '3y' | '1y',
-                  ).toISOString(),
-          },
-        })
-        .then((res) => res),
-    placeholderData: keepPreviousData,
-  });
-
-  const { data: usdPricing, isLoading: usdPricingLoading } = useQuery({
-    queryKey: ['price-history', { region: 'US', id, timeRange }],
-    queryFn: () =>
-      httpClient.get<Price[]>(`/offers/${id}/price-history`, {
-        params: {
-          region: 'US',
-          since:
-            timeRange === 'all'
-              ? undefined
-              : calculateSinceDate(
-                  timeRange as 'all' | '3y' | '1y',
-                ).toISOString(),
-        },
-      }),
-    placeholderData: keepPreviousData,
-  });
+  } = regionQuery;
+  const { data: usdPricing, isLoading: usdPricingLoading } = usdQuery;
 
   if (
     regionPricingLoading ||
@@ -224,6 +240,7 @@ export function PriceChart({ selectedRegion, id }: PriceChartProps) {
       return {
         date: date.toISOString(),
         price: item.price.discountPrice / 100,
+        min: regionStats.minPrice / 100,
       };
     })
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
@@ -412,6 +429,9 @@ export function PriceChart({ selectedRegion, id }: PriceChartProps) {
                         entry.payload.date,
                     )?.appliedRules[0]?.name;
 
+                    const label =
+                      chartConfig[key as 'price' | 'usd' | 'min'].label;
+
                     return (
                       <span className="inline-flex flex-col gap-1">
                         <span className="inline-flex items-center justify-start gap-1">
@@ -419,20 +439,24 @@ export function PriceChart({ selectedRegion, id }: PriceChartProps) {
                             className="h-2 w-2 shrink-0 rounded-[2px]"
                             style={{
                               backgroundColor:
-                                chartConfig[key as 'price' | 'usd'].color,
+                                chartConfig[key as 'price' | 'usd' | 'min']
+                                  .color,
                             }}
                           />
                           <span>
-                            {chartConfig[key as 'price' | 'usd'].label ===
-                            'Region'
+                            {label === 'Region'
                               ? regionName
-                              : 'United States'}
+                              : label === 'US Price'
+                                ? 'United States'
+                                : 'Lowest Price'}
                             :
                           </span>
                           {formatter.format(value as number)}
                         </span>
-                        {saleName && <Separator orientation="horizontal" />}
-                        {saleName && (
+                        {saleName && label === 'Region' && (
+                          <Separator orientation="horizontal" />
+                        )}
+                        {saleName && label === 'Region' && (
                           <span className="text-xs text-gray-300">
                             {saleName}
                           </span>
@@ -461,6 +485,15 @@ export function PriceChart({ selectedRegion, id }: PriceChartProps) {
                 stackId="b"
               />
             )}
+            <Area
+              dataKey="min"
+              type="step"
+              fill="url(#fillMin)"
+              stroke="var(--color-min)"
+              stackId="b"
+              // dashed
+              strokeDasharray="3 3"
+            />
             <ChartLegend content={<ChartLegendContent />} />
           </AreaChart>
         </ChartContainer>
