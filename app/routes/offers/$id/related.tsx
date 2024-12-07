@@ -23,6 +23,11 @@ export const Route = createFileRoute('/offers/$id/related')({
     const { queryClient, country } = context;
     const { id } = params;
 
+    const offer = await queryClient.ensureQueryData({
+      queryKey: ['offer', { id }],
+      queryFn: () => httpClient.get<SingleOffer>(`/offers/${id}`),
+    });
+
     await queryClient.prefetchQuery({
       queryKey: ['related-offers', { id, country }],
       queryFn: () =>
@@ -32,12 +37,6 @@ export const Route = createFileRoute('/offers/$id/related')({
           },
         }),
     });
-
-    const offer = getFetchedQuery<SingleOffer>(
-      queryClient,
-      dehydrate(queryClient),
-      ['offer', { id: params.id }],
-    );
 
     return {
       id,

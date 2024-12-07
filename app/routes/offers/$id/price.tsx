@@ -1,7 +1,6 @@
 import { RegionalPricing } from '@/components/app/regional-pricing';
-import { getQueryClient } from '@/lib/client';
 import { generateOfferMeta } from '@/lib/generate-offer-meta';
-import { getFetchedQuery } from '@/lib/get-fetched-query';
+import { httpClient } from '@/lib/http-client';
 import type { SingleOffer } from '@/types/single-offer';
 import { dehydrate } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
@@ -22,16 +21,19 @@ export const Route = createFileRoute('/offers/$id/price')({
     const { id } = params;
     const { queryClient } = context;
 
+    const offer = await queryClient.ensureQueryData({
+      queryKey: ['offer', { id }],
+      queryFn: () => httpClient.get<SingleOffer>(`/offers/${id}`),
+    });
+
     return {
       id,
       dehydratedState: dehydrate(queryClient),
+      offer,
     };
   },
 
   head: (ctx) => {
-    const { params } = ctx;
-    const queryClient = getQueryClient();
-
     if (!ctx.loaderData) {
       return {
         meta: [
@@ -43,11 +45,7 @@ export const Route = createFileRoute('/offers/$id/price')({
       };
     }
 
-    const offer = getFetchedQuery<SingleOffer>(
-      queryClient,
-      ctx.loaderData?.dehydratedState,
-      ['offer', { id: params.id }],
-    );
+    const { offer } = ctx.loaderData;
 
     if (!offer) {
       return {
