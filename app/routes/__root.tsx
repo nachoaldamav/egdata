@@ -152,7 +152,11 @@ export const Route = createRootRouteWithContext<{
       if (epicToken && new Date(epicToken.expires_at).getTime() < Date.now()) {
         if (import.meta.env.SSR) {
           const { deleteCookie } = await import('vinxi/http');
-          deleteCookie('EGDATA_AUTH');
+          deleteCookie('EGDATA_AUTH', {
+            secure: true,
+            path: '/',
+            domain: import.meta.env.PROD ? '.egdata.app' : 'localhost',
+          });
         }
       }
 
