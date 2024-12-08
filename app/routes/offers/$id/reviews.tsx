@@ -10,7 +10,7 @@ import type { SingleReview } from '@/types/reviews';
 import type { RatingsType } from '@egdata/core.schemas.ratings';
 import { getFetchedQuery } from '@/lib/get-fetched-query';
 import type { SingleOffer } from '@/types/single-offer';
-import { useState } from 'react';
+import { lazy, useState } from 'react';
 import type { SinglePoll } from '@/types/polls';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -40,9 +40,23 @@ import Markdown from 'react-markdown';
 import { generateOfferMeta } from '@/lib/generate-offer-meta';
 import { getQueryClient } from '@/lib/client';
 import { useLocale } from '@/hooks/use-locale';
-import { ReviewForm } from '@/components/forms/add-review';
 import { Viewer } from '@/components/app/viewer';
-import { EditReviewForm } from '@/components/forms/edit-review';
+
+const ReviewForm = lazy(() =>
+  import('@/components/forms/add-review').then((mod) => {
+    return {
+      default: mod.ReviewForm,
+    };
+  }),
+);
+
+const EditReviewForm = lazy(() =>
+  import('@/components/forms/edit-review').then((mod) => {
+    return {
+      default: mod.EditReviewForm,
+    };
+  }),
+);
 
 const routeApi = getRouteApi('__root__');
 
