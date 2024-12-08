@@ -54,7 +54,9 @@ function OpenEgl({ offer }: { offer: SingleOffer }) {
       onClick={() => {
         trackEvent(offer);
         open(
-          `com.epicgames.launcher://store/${namespace}/${url}?utm_source=egdata.app`,
+          `com.epicgames.launcher://store/${namespace}/${
+            offer.prePurchase && url.endsWith('-pp') ? url.slice(0, -3) : url
+          }?utm_source=egdata.app`,
         );
       }}
     >
