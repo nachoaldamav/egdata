@@ -87,7 +87,9 @@ function OpenEgs({ offer }: { offer: SingleOffer }) {
       className="flex items-center gap-3 px-4 py-2 hover:bg-zinc-800 cursor-pointer"
     >
       <a
-        href={`https://store.epicgames.com/${namespace}/${url}?utm_source=egdata.app`}
+        href={`https://store.epicgames.com/${namespace}/${
+          offer.prePurchase && url.endsWith('-pp') ? url.slice(0, -3) : url
+        }?utm_source=egdata.app`}
         rel="noopener noreferrer"
         referrerPolicy="no-referrer"
         target="_blank"
