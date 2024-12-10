@@ -47,6 +47,15 @@ export const Route = createFileRoute('/auth/callback')({
   component: () => <div>Hello /auth/callback!</div>,
 
   beforeLoad: async ({ context }) => {
+    let crypto: Crypto;
+
+    if (import.meta.env.SSR) {
+      // @ts-expect-error
+      crypto = await import('node:crypto');
+    } else {
+      crypto = window.crypto;
+    }
+
     const { url } = context;
     const code = url.searchParams.get('code');
     const state = url.searchParams.get('state');
