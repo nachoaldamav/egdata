@@ -13,6 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as SearchImport } from './routes/search'
 import { Route as PrivacyImport } from './routes/privacy'
+import { Route as PostsImport } from './routes/posts'
 import { Route as GenresImport } from './routes/genres'
 import { Route as FreebiesImport } from './routes/freebies'
 import { Route as FairUseImport } from './routes/fair-use'
@@ -72,6 +73,12 @@ const SearchRoute = SearchImport.update({
 const PrivacyRoute = PrivacyImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const PostsRoute = PostsImport.update({
+  id: '/posts',
+  path: '/posts',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -416,6 +423,13 @@ declare module '@tanstack/react-router' {
       path: '/genres'
       fullPath: '/genres'
       preLoaderRoute: typeof GenresImport
+      parentRoute: typeof rootRoute
+    }
+    '/posts': {
+      id: '/posts'
+      path: '/posts'
+      fullPath: '/posts'
+      preLoaderRoute: typeof PostsImport
       parentRoute: typeof rootRoute
     }
     '/privacy': {
@@ -816,6 +830,7 @@ export interface FileRoutesByFullPath {
   '/fair-use': typeof FairUseRoute
   '/freebies': typeof FreebiesRoute
   '/genres': typeof GenresRoute
+  '/posts': typeof PostsRoute
   '/privacy': typeof PrivacyRoute
   '/search': typeof SearchRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -868,6 +883,7 @@ export interface FileRoutesByTo {
   '/fair-use': typeof FairUseRoute
   '/freebies': typeof FreebiesRoute
   '/genres': typeof GenresRoute
+  '/posts': typeof PostsRoute
   '/privacy': typeof PrivacyRoute
   '/search': typeof SearchRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -917,6 +933,7 @@ export interface FileRoutesById {
   '/fair-use': typeof FairUseRoute
   '/freebies': typeof FreebiesRoute
   '/genres': typeof GenresRoute
+  '/posts': typeof PostsRoute
   '/privacy': typeof PrivacyRoute
   '/search': typeof SearchRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -971,6 +988,7 @@ export interface FileRouteTypes {
     | '/fair-use'
     | '/freebies'
     | '/genres'
+    | '/posts'
     | '/privacy'
     | '/search'
     | '/auth/callback'
@@ -1022,6 +1040,7 @@ export interface FileRouteTypes {
     | '/fair-use'
     | '/freebies'
     | '/genres'
+    | '/posts'
     | '/privacy'
     | '/search'
     | '/auth/callback'
@@ -1069,6 +1088,7 @@ export interface FileRouteTypes {
     | '/fair-use'
     | '/freebies'
     | '/genres'
+    | '/posts'
     | '/privacy'
     | '/search'
     | '/auth/callback'
@@ -1122,6 +1142,7 @@ export interface RootRouteChildren {
   FairUseRoute: typeof FairUseRoute
   FreebiesRoute: typeof FreebiesRoute
   GenresRoute: typeof GenresRoute
+  PostsRoute: typeof PostsRoute
   PrivacyRoute: typeof PrivacyRoute
   SearchRoute: typeof SearchRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
@@ -1150,6 +1171,7 @@ const rootRouteChildren: RootRouteChildren = {
   FairUseRoute: FairUseRoute,
   FreebiesRoute: FreebiesRoute,
   GenresRoute: GenresRoute,
+  PostsRoute: PostsRoute,
   PrivacyRoute: PrivacyRoute,
   SearchRoute: SearchRoute,
   AuthCallbackRoute: AuthCallbackRoute,
@@ -1187,6 +1209,7 @@ export const routeTree = rootRoute
         "/fair-use",
         "/freebies",
         "/genres",
+        "/posts",
         "/privacy",
         "/search",
         "/auth/callback",
@@ -1229,6 +1252,9 @@ export const routeTree = rootRoute
     },
     "/genres": {
       "filePath": "genres.tsx"
+    },
+    "/posts": {
+      "filePath": "posts.tsx"
     },
     "/privacy": {
       "filePath": "privacy.tsx"
