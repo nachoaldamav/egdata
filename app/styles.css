@@ -88,6 +88,10 @@ body {
   perspective: 1000px;
 }
 
+.container {
+  perspective: 1000px; /* Needed for the 3D effect */
+}
+
 .card {
   width: 100%;
   height: 100%;
@@ -106,6 +110,8 @@ body {
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: rotateY(0deg);
 }
 
 .back {
