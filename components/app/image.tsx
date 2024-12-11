@@ -80,7 +80,10 @@ export const Image: FC<ImageProps> = ({
               objectFit: 'cover',
             }}
             onLoad={() => setLoading(false)}
-            onError={() => setLoading(false)}
+            onError={(e) => {
+              setLoading(false);
+              e.currentTarget.src = imageSrc;
+            }}
             loading="lazy"
             {...props}
             alt={alt}

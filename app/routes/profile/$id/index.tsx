@@ -56,7 +56,7 @@ export const Route = createFileRoute('/profile/$id/')({
       queryKey: ['player-rarest-achievements', { id: params.id }],
       queryFn: () =>
         httpClient.get<Achievement[]>(
-          `/profiles/${params.id}/rare-achievements`
+          `/profiles/${params.id}/rare-achievements`,
         ),
     });
 
@@ -99,7 +99,7 @@ function ProfileInformation() {
               'px-4 py-2 font-medium text-sm focus:outline-none',
               activeTab === tab.id
                 ? 'text-white'
-                : 'text-gray-400 hover:text-gray-200'
+                : 'text-gray-400 hover:text-gray-200',
             )}
             onClick={() => setActiveTab(tab.id)}
           >
@@ -214,7 +214,7 @@ function SandboxRareAchievements({
     queryKey: ['sandbox:rarest-achievements', { id, sandbox }],
     queryFn: () =>
       httpClient.get<RareAchievement[]>(
-        `/profiles/${id}/rare-achievements/${sandbox}`
+        `/profiles/${id}/rare-achievements/${sandbox}`,
       ),
   });
 
@@ -235,9 +235,10 @@ function SandboxRareAchievements({
                 <Image
                   src={achievement.unlockedIconLink}
                   alt={achievement.name}
-                  width={32}
-                  height={32}
+                  width={124}
+                  height={124}
                   className="rounded-md size-16"
+                  quality="original"
                 />
               </div>
               <div className="flex flex-col gap-1">
@@ -339,7 +340,7 @@ function RareAchievement({ achievement }: { achievement: RareAchievement }) {
             <EpicTrophyIcon
               className={cn(
                 'w-4 h-4 inline-block',
-                raritiesTextColors[getRarity(achievement.xp)]
+                raritiesTextColors[getRarity(achievement.xp)],
               )}
             />
           </p>
@@ -372,7 +373,7 @@ function AchievementsTimeline() {
               limit: 25,
               page: pageParam,
             },
-          }
+          },
         ),
       getNextPageParam: (lastPage: PlayerLatestAchievements) => {
         const totalPages = lastPage.count / lastPage.limit;
