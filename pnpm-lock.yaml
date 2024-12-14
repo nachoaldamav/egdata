@@ -125,6 +125,9 @@ importers:
       '@tanstack/start':
         specifier: ^1.88.0
         version: 1.88.0(@types/node@22.10.2)(ioredis@5.4.1)(jiti@2.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(terser@5.36.0)(tsx@4.19.2)(typescript@5.7.2)(vite@6.0.3(@types/node@22.10.2)(jiti@2.4.1)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.0))(yaml@2.6.0)
+      '@tanstack/zod-form-adapter':
+        specifier: ^0.40.2
+        version: 0.40.2(zod@3.24.1)
       '@tiptap/extension-blockquote':
         specifier: ^2.10.3
         version: 2.10.3(@tiptap/core@2.10.3(@tiptap/pm@2.10.3))
@@ -2655,6 +2658,9 @@ packages:
   '@tanstack/form-core@0.35.0':
     resolution: {integrity: sha512-WNgZ/Fo8OdsqvbHe/M4a9xjL4TU2Q//I2660YA88jeDyavHQXmOuos3vEuqvIW1+CYfONOAcz9AOI2bPBVId9w==}
 
+  '@tanstack/form-core@0.40.2':
+    resolution: {integrity: sha512-ecJgr+jRKSClUzYhOixfiJTXqfCxAiWmeMTKKzV848OfCtdzWxEzSasZLDMQG5KlyL9q/GDhk1GRHQmEUxynoA==}
+
   '@tanstack/history@1.87.6':
     resolution: {integrity: sha512-5OPHcc20Ye5XR+RBkFk+64TtRJ83clrpaOcC/S8t4N0k+/xPDJpkPEPnoENb3sQeRI28y1dJaUuvXt/dv/ylaQ==}
     engines: {node: '>=12'}
@@ -2793,6 +2799,11 @@ packages:
   '@tanstack/virtual-file-routes@1.87.6':
     resolution: {integrity: sha512-PTpeM8SHL7AJM0pJOacFvHribbUODS51qe9NsMqku4mogh6BWObY1EeVmeGnp9o3VngAEsf+rJMs2zqIVz3WFA==}
     engines: {node: '>=12'}
+
+  '@tanstack/zod-form-adapter@0.40.2':
+    resolution: {integrity: sha512-450DAYAb7uN6GwEhMWQlGOvfQzj6ZtgEsZf94M1a3S/lGioKAFuidelRaErXpG4b7lvZiQmfyhlTA0RwNE2r0Q==}
+    peerDependencies:
+      zod: ^3.x
 
   '@tiptap/core@2.10.3':
     resolution: {integrity: sha512-wAG/0/UsLeZLmshWb6rtWNXKJftcmnned91/HLccHVQAuQZ1UWH+wXeQKu/mtodxEO7JcU2mVPR9mLGQkK0McQ==}
@@ -8662,6 +8673,10 @@ snapshots:
     dependencies:
       '@tanstack/store': 0.5.5
 
+  '@tanstack/form-core@0.40.2':
+    dependencies:
+      '@tanstack/store': 0.6.0
+
   '@tanstack/history@1.87.6': {}
 
   '@tanstack/query-core@5.62.7': {}
@@ -8877,6 +8892,11 @@ snapshots:
   '@tanstack/table-core@8.20.5': {}
 
   '@tanstack/virtual-file-routes@1.87.6': {}
+
+  '@tanstack/zod-form-adapter@0.40.2(zod@3.24.1)':
+    dependencies:
+      '@tanstack/form-core': 0.40.2
+      zod: 3.24.1
 
   '@tiptap/core@2.10.3(@tiptap/pm@2.10.3)':
     dependencies:

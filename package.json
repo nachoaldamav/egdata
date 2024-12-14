@@ -54,6 +54,7 @@
     "@tanstack/router-devtools": "^1.88.0",
     "@tanstack/router-zod-adapter": "^1.81.5",
     "@tanstack/start": "^1.88.0",
+    "@tanstack/zod-form-adapter": "^0.40.2",
     "@tiptap/extension-blockquote": "^2.10.3",
     "@tiptap/extension-bullet-list": "^2.10.3",
     "@tiptap/extension-list-item": "^2.10.3",
