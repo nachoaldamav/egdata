@@ -3,7 +3,9 @@ import type { FullTag } from '@/types/tags';
 import { dehydrate } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { zodSearchValidator } from '@tanstack/router-zod-adapter';
-import { z } from 'zod';
+import { type TypeOf, z } from 'zod';
+import { useForm } from '@tanstack/react-form';
+import { useMemo } from 'react';
 
 const tagTypes: {
   name: string | null;
@@ -72,6 +74,65 @@ const searchParamsSchema = z.object({
     .optional(),
   q: z.string().optional(),
   page: z.number().optional(),
+  developer: z.string().optional(),
+  publisher: z.string().optional(),
+});
+
+const formSchema = z.object({
+  title: z.string().optional(),
+  offerType: z
+    .enum([
+      'IN_GAME_PURCHASE',
+      'BASE_GAME',
+      'EXPERIENCE',
+      'UNLOCKABLE',
+      'ADD_ON',
+      'Bundle',
+      'CONSUMABLE',
+      'WALLET',
+      'OTHERS',
+      'DEMO',
+      'DLC',
+      'VIRTUAL_CURRENCY',
+      'BUNDLE',
+      'DIGITAL_EXTRA',
+      'EDITION',
+    ])
+    .optional(),
+  tags: z.string().array().optional(),
+  customAttributes: z.string().array().optional(),
+  seller: z.string().optional(),
+  sortBy: z
+    .enum([
+      'releaseDate',
+      'lastModifiedDate',
+      'effectiveDate',
+      'creationDate',
+      'viewableDate',
+      'pcReleaseDate',
+      'upcoming',
+      'priceAsc',
+      'priceDesc',
+      'price',
+      'discount',
+      'discountPercent',
+    ])
+    .optional(),
+  sortDir: z.enum(['asc', 'desc']).optional(),
+  limit: z.number().optional(),
+  page: z.number().optional(),
+  refundType: z.string().optional(),
+  isCodeRedemptionOnly: z.boolean().optional(),
+  price: z
+    .object({
+      min: z.number().optional(),
+      max: z.number().optional(),
+    })
+    .optional(),
+  onSale: z.boolean().optional(),
+  categories: z.string().array().optional(),
+  developerDisplayName: z.string().optional(),
+  publisherDisplayName: z.string().optional(),
 });
 
 export const Route = createFileRoute('/searchv2')({
@@ -195,5 +256,38 @@ export const Route = createFileRoute('/searchv2')({
 });
 
 function RouteComponent() {
-  return <div>Hello "/searchv2"!</div>;
+  const loaderData = Route.useLoaderData();
+  const form = useForm({
+    defaultValues: {
+      title: loaderData.initialQuery || '',
+      offerType: loaderData.offerTypes[0]?._id || '',
+      tags: loaderData.initialTags || [],
+      customAttributes: [],
+      seller: '',
+      sortBy: (loaderData.hash?.sortBy as string) || '',
+      sortDir: (loaderData.hash?.sortDir as string) || '',
+      limit: 25,
+      page: loaderData.page || 1,
+      refundType: undefined,
+      isCodeRedemptionOnly: false,
+      price: {
+        min: 0,
+        max: 0,
+      },
+      onSale: loaderData.onSale || false,
+      categories: [],
+      developerDisplayName: '',
+      publisherDisplayName: '',
+    } as TypeOf<typeof formSchema>,
+
+    validators: {
+      onChange: zodSearchValidator(formSchema),
+    },
+
+    asyncAlways: true,
+
+    asyncDebounceMs: 300,
+  });
+
+  return <div className="flex flex-col gap-4 min-h-screen"></div>;
 }
