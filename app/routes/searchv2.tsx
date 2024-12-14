@@ -157,20 +157,37 @@ export const Route = createFileRoute('/searchv2')({
     const onSale = search.on_sale;
 
     const [tagsData, hashData, typesData] = await Promise.allSettled([
-      httpClient.get<FullTag[]>('/search/tags?raw=true'),
-      httpClient.get<{
-        [key: string]:
-          | unknown
-          | {
-              [key: string]: unknown;
-            };
-      }>(`/search/${hash}?country=${country}`, {}),
-      httpClient.get<
-        {
-          _id: string;
-          count: number;
-        }[]
-      >('/search/offer-types'),
+      queryClient.ensureQueryData({
+        queryKey: ['tags'],
+        queryFn: () => httpClient.get<FullTag[]>('/search/tags?raw=true'),
+      }),
+      queryClient.ensureQueryData({
+        queryKey: [
+          'hash',
+          {
+            hash,
+            country,
+          },
+        ],
+        queryFn: () =>
+          httpClient.get<{
+            [key: string]:
+              | unknown
+              | {
+                  [key: string]: unknown;
+                };
+          }>(`/search/${hash}?country=${country}`, {}),
+      }),
+      queryClient.ensureQueryData({
+        queryKey: ['offerTypes'],
+        queryFn: () =>
+          httpClient.get<
+            {
+              _id: string;
+              count: number;
+            }[]
+          >('/search/offer-types'),
+      }),
     ]);
 
     const tags = tagsData.status === 'fulfilled' ? tagsData.value : [];
