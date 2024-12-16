@@ -236,12 +236,10 @@ export const Route = createFileRoute('/search')({
         {
           property: 'twitter:title',
           content: 'Search | egdata.app',
-          key: 'twitter:title',
         },
         {
           property: 'twitter:description',
           content: 'Search for offers from the Epic Games Store.',
-          key: 'twitter:description',
         },
       ],
     };
