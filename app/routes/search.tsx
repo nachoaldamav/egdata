@@ -39,6 +39,7 @@ import { ListBulletIcon } from '@radix-ui/react-icons';
 import { PriceRangeSlider } from '@/components/ui/price-range-slider';
 import { ExtendedSearch } from '@/components/app/extended-search';
 import { QuickPill } from '@/components/app/quick-pill';
+import { useDebounce } from '@uidotdev/usehooks';
 
 const tagTypes: {
   name: string | null;
@@ -759,17 +760,19 @@ function cleanBody(search: SearchResultsProps): SearchResultsProps['search'] {
 }
 
 function SearchResults({ search }: SearchResultsProps) {
+  const debouncedSearch = useDebounce(search, 300);
+
   const { setCurrentPageNumber, setHash, setIsFetching } = useSearchDispatch();
   const { totalCount: count } = useSearchState();
-
   const { country } = useCountry();
   const { view } = usePreferences();
   const navigate = useNavigate({ from: Route.fullPath });
+
   const { isPending, error, data, isFetching } = useQuery({
     queryKey: [
       'search',
       {
-        ...cleanBody({ search }),
+        ...cleanBody({ search: debouncedSearch }),
         country,
       },
     ],
@@ -779,10 +782,8 @@ function SearchResults({ search }: SearchResultsProps) {
         page: number;
         limit: number;
         query: string;
-      }>('/search', cleanBody({ search }), {
-        params: {
-          country,
-        },
+      }>('/search', cleanBody({ search: debouncedSearch }), {
+        params: { country },
       }),
     placeholderData: keepPreviousData,
   });
