@@ -40,6 +40,7 @@ import { PriceRangeSlider } from '@/components/ui/price-range-slider';
 import { ExtendedSearch } from '@/components/app/extended-search';
 import { QuickPill } from '@/components/app/quick-pill';
 import { useDebounce } from '@uidotdev/usehooks';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const tagTypes: {
   name: string | null;
@@ -613,6 +614,40 @@ function RouteComponent() {
               </AccordionContent>
             </AccordionItem>
           </Accordion>
+          <form.Field name="onSale">
+            {({ handleChange, state }) => (
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="onSale"
+                  checked={state.value}
+                  onCheckedChange={(value) => handleChange(Boolean(value))}
+                />
+                <label
+                  htmlFor="onSale"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  On Sale
+                </label>
+              </div>
+            )}
+          </form.Field>
+          <form.Field name="isCodeRedemptionOnly">
+            {({ handleChange, state }) => (
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isCodeRedemptionOnly"
+                  checked={state.value}
+                  onCheckedChange={(value) => handleChange(Boolean(value))}
+                />
+                <label
+                  htmlFor="isCodeRedemptionOnly"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Code Redemption Only
+                </label>
+              </div>
+            )}
+          </form.Field>
         </aside>
         <div className="flex flex-col gap-4 w-full justify-start items-start relative">
           <header className="inline-flex items-center justify-between w-full gap-2">
