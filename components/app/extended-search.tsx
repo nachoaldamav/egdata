@@ -73,7 +73,7 @@ export function ExtendedSearch({
           // biome-ignore lint/a11y/useSemanticElements: <explanation>
           role="combobox"
           aria-expanded={open}
-          className="w-[300px] justify-between"
+          className="w-[250px] justify-between"
         >
           {value
             ? items.find((item) => item.name === value)?.name

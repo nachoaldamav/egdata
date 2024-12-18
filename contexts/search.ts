@@ -3,28 +3,25 @@ import { createContext } from 'react';
 
 interface SearchState {
   isFetching: boolean;
+  isFetchingCounts: boolean;
   totalCount: number;
   tagCounts: Record<string, number>;
   offerTypeCounts: Record<string, number>;
   developerCounts: Record<string, number>;
   publisherCounts: Record<string, number>;
   currentPageNumber: number;
+  priceRange: {
+    min: number;
+    max: number;
+    currency: string;
+  };
+  hash: string;
 }
 
 interface SearchActions {
   setIsFetching: React.Dispatch<React.SetStateAction<boolean>>;
-  setTotalCount: React.Dispatch<React.SetStateAction<number>>;
-  setTagCounts: React.Dispatch<React.SetStateAction<Record<string, number>>>;
-  setOfferTypeCounts: React.Dispatch<
-    React.SetStateAction<Record<string, number>>
-  >;
-  setDeveloperCounts: React.Dispatch<
-    React.SetStateAction<Record<string, number>>
-  >;
-  setPublisherCounts: React.Dispatch<
-    React.SetStateAction<Record<string, number>>
-  >;
   setCurrentPageNumber: React.Dispatch<React.SetStateAction<number>>;
+  setHash: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export const SearchStateContext = createContext<SearchState | undefined>(

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as SliderPrimitive from '@radix-ui/react-slider';
 import { useLocale } from '@/hooks/use-locale';
+import { calculatePrice } from '@/lib/calculate-price';
 
 interface PriceRangeSliderProps {
   min: number;
@@ -8,6 +9,7 @@ interface PriceRangeSliderProps {
   step: number;
   defaultValue: [number, number];
   onValueChange?: (value: [number, number]) => void;
+  currency?: string;
 }
 
 export function PriceRangeSlider({
@@ -16,6 +18,7 @@ export function PriceRangeSlider({
   step,
   defaultValue,
   onValueChange,
+  currency,
 }: PriceRangeSliderProps) {
   const { locale } = useLocale();
   const [localValue, setLocalValue] =
@@ -23,17 +26,17 @@ export function PriceRangeSlider({
 
   const fmtr = Intl.NumberFormat(locale, {
     style: 'currency',
-    currency: 'USD',
+    currency: currency ?? 'USD',
   });
 
   return (
     <div className="w-full max-w-sm space-y-4">
       <div className="flex justify-between">
         <span className="text-sm font-medium">
-          {fmtr.format(localValue[0] / 100)}
+          {fmtr.format(calculatePrice(localValue[0], currency))}
         </span>
         <span className="text-sm font-medium">
-          {fmtr.format(localValue[1] / 100)}
+          {fmtr.format(calculatePrice(localValue[1], currency))}
         </span>
       </div>
       <SliderPrimitive.Root
@@ -65,8 +68,8 @@ export function PriceRangeSlider({
         />
       </SliderPrimitive.Root>
       <div className="flex justify-between text-xs text-muted-foreground">
-        <span>{fmtr.format(min / 100)}</span>
-        <span>{fmtr.format(max / 100)}</span>
+        <span>{fmtr.format(calculatePrice(min, currency))}</span>
+        <span>{fmtr.format(calculatePrice(max, currency))}</span>
       </div>
     </div>
   );
