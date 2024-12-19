@@ -335,10 +335,13 @@ function OfferInTop({ offer }: { offer: OfferWithTops }) {
         <div
           className={cn(
             'flex flex-row gap-1 items-center text-badge w-16 justify-center',
-            offer.position > offer.previousPosition ? 'text-red-500' : '',
+            offer.previousPosition && offer.position > offer.previousPosition
+              ? 'text-red-500'
+              : '',
           )}
         >
-          {offer.position !== offer.previousPosition ? (
+          {offer.previousPosition &&
+          offer.position !== offer.previousPosition ? (
             <>
               <ChevronDown
                 className={cn(
