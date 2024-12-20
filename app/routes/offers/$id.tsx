@@ -40,6 +40,7 @@ import { offersDictionary } from '@/lib/offers-dictionary';
 import { compareDates, timeAgo } from '@/lib/time-ago';
 import { cn } from '@/lib/utils';
 import type { Asset } from '@/types/asset';
+import type { Technology } from '@/types/builds';
 import type { Price } from '@/types/price';
 import type { SingleOffer } from '@/types/single-offer';
 import { useSuspenseQuery } from '@tanstack/react-query';
@@ -64,6 +65,11 @@ export const Route = createFileRoute('/offers/$id')({
       queryClient.ensureQueryData({
         queryKey: ['offer', { id: params.id }],
         queryFn: () => httpClient.get<SingleOffer>(`/offers/${params.id}`),
+      }),
+      queryClient.ensureQueryData({
+        queryKey: ['offer-technologies', { id: params.id }],
+        queryFn: () =>
+          httpClient.get<Technology[]>(`/offers/${params.id}/technologies`),
       }),
       queryClient.prefetchQuery({
         queryKey: ['price', { id: params.id, country }],
@@ -127,6 +133,10 @@ function OfferPage() {
   const { data: offer, isLoading: offerLoading } = useSuspenseQuery({
     queryKey: ['offer', { id }],
     queryFn: () => httpClient.get<SingleOffer>(`/offers/${id}`),
+  });
+  const { data: technologies } = useSuspenseQuery({
+    queryKey: ['offer-technologies', { id }],
+    queryFn: () => httpClient.get<Technology[]>(`/offers/${id}/technologies`),
   });
 
   const subPath = location.pathname.split(`/${id}/`)[1];
@@ -309,6 +319,31 @@ function OfferPage() {
                     <TimeAgo targetDate={offer.creationDate} />
                   </TableCell>
                 </TableRow>
+                {technologies && technologies.length > 0 && (
+                  <TableRow>
+                    <TableCell className="font-medium">Technologies</TableCell>
+                    <TableCell className="text-left border-l-gray-300/10 border-l flex flex-wrap flex-row gap-1">
+                      {technologies
+                        .filter(
+                          (technology) =>
+                            technology.section === 'Engine' ||
+                            technology.technology === 'EpicOnlineServices',
+                        )
+                        .map((technology, index, array) => (
+                          <span
+                            key={`${technology.section}-${technology.technology}`}
+                            className="font-mono"
+                          >
+                            {technology.technology}
+                            <sup className="text-[9px]">
+                              {technology.section}
+                            </sup>
+                            {index < array.length - 1 && ','}
+                          </span>
+                        ))}
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </div>
