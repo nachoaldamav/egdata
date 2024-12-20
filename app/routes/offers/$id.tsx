@@ -211,7 +211,6 @@ function OfferPage() {
                     </Link>
                   </TableCell>
                 </TableRow>
-
                 <TableRow>
                   <TableCell className="font-medium">Offer Type</TableCell>
                   <TableCell className="text-left border-l-gray-300/10 border-l">
@@ -361,21 +360,49 @@ function OfferPage() {
                         .filter(
                           (technology) =>
                             technology.section === 'Engine' ||
-                            technology.technology === 'EpicOnlineServices' ||
                             technology.section === 'AntiCheat' ||
                             technology.section === 'Container' ||
                             technology.section === 'Emulator' ||
                             technology.section === 'Launcher' ||
                             technology.technology === 'SteamworksNET' ||
+                            technology.technology === 'EpicOnlineServices' ||
                             technology.technology === 'Steam_Networking',
                         )
+                        // Sort by 1. AntiCheat, 2. Launcher, 3. Engine, ...others
+                        .sort((a, b) => {
+                          if (a.section === 'AntiCheat') {
+                            return -1;
+                          }
+
+                          if (b.section === 'AntiCheat') {
+                            return 1;
+                          }
+
+                          if (a.section === 'Launcher') {
+                            return -1;
+                          }
+
+                          if (b.section === 'Launcher') {
+                            return 1;
+                          }
+
+                          if (a.section === 'Engine') {
+                            return -1;
+                          }
+
+                          if (b.section === 'Engine') {
+                            return 1;
+                          }
+
+                          return 0;
+                        })
                         .map((technology, index, array) => (
                           <span
                             key={`${technology.section}-${technology.technology}`}
                             className="font-mono"
                           >
                             {technology.technology}
-                            <sup className="text-[9px]">
+                            <sup className="text-[9px] ml-[2px]">
                               {technology.section}
                             </sup>
                             {index < array.length - 1 && ','}
