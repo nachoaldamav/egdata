@@ -368,13 +368,16 @@ function OfferPage() {
                             technology.technology === 'EpicOnlineServices' ||
                             technology.technology === 'Steam_Networking',
                         )
-                        // Sort by 1. AntiCheat, 2. Launcher, 3. Engine, ...others
+                        // Sort by
+                        // Engine
+                        // Launcher
+                        // Anti-cheat
                         .sort((a, b) => {
-                          if (a.section === 'AntiCheat') {
+                          if (a.section === 'Engine') {
                             return -1;
                           }
 
-                          if (b.section === 'AntiCheat') {
+                          if (b.section === 'Engine') {
                             return 1;
                           }
 
@@ -386,11 +389,11 @@ function OfferPage() {
                             return 1;
                           }
 
-                          if (a.section === 'Engine') {
+                          if (a.section === 'AntiCheat') {
                             return -1;
                           }
 
-                          if (b.section === 'Engine') {
+                          if (b.section === 'AntiCheat') {
                             return 1;
                           }
 
