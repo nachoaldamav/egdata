@@ -361,7 +361,13 @@ function OfferPage() {
                         .filter(
                           (technology) =>
                             technology.section === 'Engine' ||
-                            technology.technology === 'EpicOnlineServices',
+                            technology.technology === 'EpicOnlineServices' ||
+                            technology.section === 'AntiCheat' ||
+                            technology.section === 'Container' ||
+                            technology.section === 'Emulator' ||
+                            technology.section === 'Launcher' ||
+                            technology.technology === 'SteamworksNET' ||
+                            technology.technology === 'Steam_Networking',
                         )
                         .map((technology, index, array) => (
                           <span
