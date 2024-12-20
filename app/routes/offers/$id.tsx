@@ -321,7 +321,41 @@ function OfferPage() {
                 </TableRow>
                 {technologies && technologies.length > 0 && (
                   <TableRow>
-                    <TableCell className="font-medium">Technologies</TableCell>
+                    <TableCell className="font-medium">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <span className="underline decoration-dotted decoration-gray-300/50 underline-offset-4 cursor-help">
+                              Technologies
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="text-sm max-w-md">
+                              We use the{' '}
+                              <a
+                                href="https://steamdb.info/tech/"
+                                className="text-blue-700 font-semibold"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                SteamDB
+                              </a>{' '}
+                              technologies list to track the used engines and
+                              different technologies from the game files.
+                              <br />
+                              <a
+                                href="https://github.com/SteamDatabase/FileDetectionRuleSets"
+                                className="text-blue-700 font-semibold"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                Source
+                              </a>
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableCell>
                     <TableCell className="text-left border-l-gray-300/10 border-l flex flex-wrap flex-row gap-1">
                       {technologies
                         .filter(
