@@ -126,6 +126,7 @@ function SandboxAchievementsPage() {
   const { data: offer } = useQuery({
     queryKey: ['sandbox', 'base-game', { id }],
     queryFn: () => httpClient.get<SingleOffer>(`/sandboxes/${id}/base-game`),
+    retry: false,
   });
   const { data: sandbox } = useQuery({
     queryKey: ['sandbox', { id }],

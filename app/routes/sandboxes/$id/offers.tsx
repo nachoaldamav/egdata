@@ -89,6 +89,7 @@ function SandboxOffersPage() {
   const { data: baseGame } = useQuery({
     queryKey: ['sandbox', 'base-game', { id }],
     queryFn: () => httpClient.get<SingleOffer>(`/sandboxes/${id}/base-game`),
+    retry: false,
   });
   const { data: sandbox } = useQuery({
     queryKey: ['sandbox', { id }],

@@ -110,6 +110,7 @@ function SandboxPage() {
   const { data: sandbox } = useQuery({
     queryKey: ['sandbox', { id }],
     queryFn: () => httpClient.get<SingleSandbox>(`/sandboxes/${id}`),
+    retry: false,
   });
 
   if (!sandbox) {

@@ -97,6 +97,7 @@ function SandboxAssetsPage() {
         queryKey: ['sandbox', 'base-game', { id }],
         queryFn: () =>
           httpClient.get<SingleOffer>(`/sandboxes/${id}/base-game`),
+        retry: false,
       },
       {
         queryKey: ['sandbox', { id }],
