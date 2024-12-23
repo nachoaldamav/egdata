@@ -1,5 +1,5 @@
 import type * as React from 'react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -26,6 +26,8 @@ import {
 import { getRarity } from '@/lib/get-rarity';
 import { Separator } from '@/components/ui/separator';
 import { useLocale } from '@/hooks/use-locale';
+import type { OfferPosition } from '@/types/collections';
+import { PerformanceTable } from '@/components/app/performance-table';
 
 export const Route = createFileRoute('/offers/$id/')({
   component: () => {
@@ -84,6 +86,22 @@ export const Route = createFileRoute('/offers/$id/')({
             }[]
           >(`/offers/${id}/giveaways`),
       }),
+      queryClient.prefetchQuery({
+        queryKey: [
+          'collection',
+          'positions',
+          { id, collection: 'top-sellers' },
+        ],
+        queryFn: () =>
+          httpClient.get<OfferPosition>(
+            `/offers/${id}/collections/top-sellers`,
+            {
+              params: {
+                country,
+              },
+            },
+          ),
+      }),
     ]);
 
     return {
@@ -97,6 +115,7 @@ export const Route = createFileRoute('/offers/$id/')({
 function RouteComponent() {
   const { id } = Route.useParams();
   const { country } = useCountry();
+  const [collection, setCollection] = useState('top-sellers');
   const [
     offerQuery,
     genresQuery,
@@ -106,6 +125,7 @@ function RouteComponent() {
     giveawaysQuery,
     hltbQuery,
     reviewsQuery,
+    collectionsQuery,
   ] = useQueries({
     queries: [
       {
@@ -163,6 +183,13 @@ function RouteComponent() {
         queryKey: ['offer', 'reviews', { id }],
         queryFn: () => httpClient.get<SinglePoll>(`/offers/${id}/polls`),
       },
+      {
+        queryKey: ['collection', 'positions', { id, collection }],
+        queryFn: () =>
+          httpClient.get<OfferPosition>(
+            `/offers/${id}/collections/${collection}`,
+          ),
+      },
     ],
   });
 
@@ -174,6 +201,7 @@ function RouteComponent() {
   const { data: giveaways } = giveawaysQuery;
   const { data: hltb } = hltbQuery;
   const { data: reviews } = reviewsQuery;
+  const { data: collections } = collectionsQuery;
 
   if (!offer) {
     return null;
@@ -207,6 +235,10 @@ function RouteComponent() {
 
   return (
     <div className="flex flex-col items-start justify-start h-full gap-1 px-4 w-full">
+      <PerformanceTable
+        data={collections as OfferPosition}
+        onChange={(value) => setCollection(value)}
+      />
       <div className="grid gap-8 grid-cols-1 md:grid-cols-2 mt-4 w-full">
         <OverviewColumn>
           <OverviewSection title="Genres">
