@@ -1,11 +1,12 @@
 import type { SingleOffer } from '@/types/single-offer';
 import type { SingleSandbox } from '@/types/single-sandbox';
+import type { SingleItem } from '@/types/single-item';
 import { getImage } from './get-image';
 
 export const generateSandboxMeta = (
   sandbox: SingleSandbox,
-  offer: SingleOffer | null,
-  section?: string
+  offer: SingleOffer | (SingleItem & { isItem: true }) | null,
+  section?: string,
 ): Array<React.JSX.IntrinsicElements['meta']> => {
   return [
     {
@@ -34,6 +35,7 @@ export const generateSandboxMeta = (
           'OfferImageWide',
           'DieselGameBoxWide',
           'DieselStoreFrontWide',
+          'DieselGameBox',
         ])?.url ?? '/placeholder.webp',
     },
     {
@@ -61,6 +63,7 @@ export const generateSandboxMeta = (
           'OfferImageWide',
           'DieselGameBoxWide',
           'DieselStoreFrontWide',
+          'DieselGameBox',
         ])?.url ?? '/placeholder.webp',
     },
   ];

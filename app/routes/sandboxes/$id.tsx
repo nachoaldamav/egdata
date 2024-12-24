@@ -15,6 +15,7 @@ import { getFetchedQuery } from '@/lib/get-fetched-query';
 import { getQueryClient } from '@/lib/client';
 import { EpicTrophyIcon } from '@/components/icons/epic-trophy';
 import { generateSandboxMeta } from '@/lib/generate-sandbox-meta';
+import type { SingleItem } from '@/types/single-item';
 
 export const Route = createFileRoute('/sandboxes/$id')({
   component: () => {
@@ -49,7 +50,9 @@ export const Route = createFileRoute('/sandboxes/$id')({
       queryClient.prefetchQuery({
         queryKey: ['sandbox', 'base-game', { id }],
         queryFn: () =>
-          httpClient.get<SingleOffer>(`/sandboxes/${id}/base-game`),
+          httpClient.get<SingleOffer | (SingleItem & { isItem: true })>(
+            `/sandboxes/${id}/base-game`,
+          ),
       }),
     ]);
 
@@ -81,11 +84,13 @@ export const Route = createFileRoute('/sandboxes/$id')({
       ctx.loaderData?.dehydratedState,
       ['sandbox', { id }],
     );
-    const offer = getFetchedQuery<SingleOffer>(
-      queryClient,
-      ctx.loaderData?.dehydratedState,
-      ['sandbox', 'base-game', { id }],
-    );
+    const offer = getFetchedQuery<
+      SingleOffer | (SingleItem & { isItem: true })
+    >(queryClient, ctx.loaderData?.dehydratedState, [
+      'sandbox',
+      'base-game',
+      { id },
+    ]);
 
     if (!sandbox)
       return {
