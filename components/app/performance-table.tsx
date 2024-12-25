@@ -133,14 +133,27 @@ export function PerformanceTable({
         {data && data.positions.length > 0 && (
           <div className="flex gap-4 overflow-x-auto pb-4">
             {data?.positions.slice(0, 7).map((pos, idx) => {
-              const prev = idx > 0 ? data.positions[idx - 1].position : 0;
+              // If it's the first item, there's no previous position
+              if (idx === 0) {
+                return (
+                  <PerformanceCard
+                    key={pos._id}
+                    position={pos.position}
+                    change={0}
+                    date={pos.date}
+                  />
+                );
+              }
 
+              // Previous position
+              const prev = data.positions[idx - 1].position;
+
+              // Normalize 0 => 100 to treat "out of tops" as position 100
+              const toPositionValue = (p: number) => (p === 0 ? 100 : p);
+
+              // Calculate change
               const change =
-                idx === 0
-                  ? 0
-                  : pos.position === 0
-                    ? 100 - prev // out of tops
-                    : pos.position - prev;
+                toPositionValue(pos.position) - toPositionValue(prev);
 
               return (
                 <PerformanceCard
