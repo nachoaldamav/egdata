@@ -42,11 +42,15 @@ function PerformanceCard({ position, change, date }: PerformanceCardProps) {
         getBackgroundClass(),
       )}
     >
-      <div className="text-2xl font-bold mb-2">Top {position}</div>
+      <div className="text-2xl font-bold mb-2">
+        {position === 0 ? 'Out of top' : `Top ${position}`}
+      </div>
+
       <div className="flex items-center gap-1">
         {getChangeIcon()}
         <span>{getChangeText()}</span>
       </div>
+
       <div className="text-sm mt-4">
         {new Date(date).toLocaleDateString('en-GB', {
           day: 'numeric',
@@ -118,7 +122,7 @@ export function PerformanceTable({
           <TabsTrigger value="top-wishlisted">Top Wishlisted</TabsTrigger>
           <TabsTrigger value="top-new-releases">Top New Releases</TabsTrigger>
           <TabsTrigger value="top-player-reviewed">
-            Top Player Reviewed
+            Top Player Rated
           </TabsTrigger>
           <TabsTrigger value="most-popular">Most Popular</TabsTrigger>
           <TabsTrigger value="top-demos">Top Demos</TabsTrigger>
@@ -128,18 +132,25 @@ export function PerformanceTable({
 
         {data && data.positions.length > 0 && (
           <div className="flex gap-4 overflow-x-auto pb-4">
-            {data?.positions.slice(0, 7).map((pos, idx) => (
-              <PerformanceCard
-                key={pos._id}
-                position={pos.position}
-                change={
-                  idx === 0
-                    ? 0
-                    : pos.position - data.positions[idx - 1].position
-                }
-                date={pos.date}
-              />
-            ))}
+            {data?.positions.slice(0, 7).map((pos, idx) => {
+              const prev = idx > 0 ? data.positions[idx - 1].position : 0;
+
+              const change =
+                idx === 0
+                  ? 0
+                  : pos.position === 0
+                    ? 100 - prev // out of tops
+                    : pos.position - prev;
+
+              return (
+                <PerformanceCard
+                  key={pos._id}
+                  position={pos.position}
+                  change={change}
+                  date={pos.date}
+                />
+              );
+            })}
           </div>
         )}
 
