@@ -153,7 +153,7 @@ export function PerformanceTable({
                 }
 
                 // Previous position
-                const prev = data.positions[idx - 1].position;
+                const prev = data.positions[idx + 1].position;
 
                 // Normalize 0 => 100 to treat "out of tops" as position 100
                 const toPositionValue = (p: number) => (p === 0 ? 100 : p);
