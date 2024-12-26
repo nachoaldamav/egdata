@@ -1,3 +1,7 @@
+import { ChangelogDailyChart } from '@/components/app/changelog-daily-chart';
+import { ChangelogFieldsChart } from '@/components/app/changelog-fields.chart';
+import { ChangelogTypesChart } from '@/components/app/changelog-types-chart';
+import { ChangelogWeekdaysChart } from '@/components/app/changelog-weekdays-chart';
 import type { Change } from '@/components/modules/changelist';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -6,10 +10,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useLocale } from '@/hooks/use-locale';
 import { getQueryClient } from '@/lib/client';
 import { generateOfferMeta } from '@/lib/generate-offer-meta';
 import { getFetchedQuery } from '@/lib/get-fetched-query';
 import { httpClient } from '@/lib/http-client';
+import type { ChangelogStats } from '@/types/changelog';
 import type { SingleOffer } from '@/types/single-offer';
 import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
@@ -35,11 +41,10 @@ export const Route = createFileRoute('/offers/$id/changelog')({
     const { queryClient } = context;
     const { id } = params;
 
-    const offer = getFetchedQuery<SingleOffer>(
-      queryClient,
-      dehydrate(queryClient),
-      ['offer', { id: params.id }],
-    );
+    const offer = await queryClient.ensureQueryData({
+      queryKey: ['offer', { id: params.id }],
+      queryFn: () => httpClient.get<SingleOffer>(`/offers/${params.id}`),
+    });
 
     await queryClient.prefetchQuery({
       queryKey: ['changelog', { id: params.id }],
@@ -101,9 +106,21 @@ const icons: {
 
 function ChangelogPage() {
   const { id } = Route.useLoaderData();
+  const { timezone } = useLocale();
   const { data, isLoading } = useQuery({
     queryKey: ['changelog', { id }],
     queryFn: () => httpClient.get<Change[]>(`/offers/${id}/changelog`),
+  });
+  const { data: stats } = useQuery({
+    queryKey: ['changelog-stats', { id }],
+    queryFn: () =>
+      httpClient.get<ChangelogStats>(`/offers/${id}/changelog/stats`, {
+        params: {
+          // One year ago
+          from: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(),
+          to: new Date().toISOString(),
+        },
+      }),
   });
 
   if (isLoading) {
@@ -129,6 +146,8 @@ function ChangelogPage() {
       </div>
     );
   }
+
+  console.log(stats);
 
   return (
     <section className="flex flex-col gap-4 mt-6">
@@ -162,6 +181,7 @@ function ChangelogPage() {
                         day: 'numeric',
                         hour: 'numeric',
                         minute: 'numeric',
+                        timeZone: timezone,
                       },
                     )}
                   </span>
@@ -205,6 +225,18 @@ function ChangelogPage() {
             ))}
         </TooltipProvider>
       </div>
+      <ChangelogDailyChart
+        chartData={stats?.dailyChanges as ChangelogStats['dailyChanges']}
+      />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <ChangelogWeekdaysChart chartData={stats?.weekdayChanges || {}} />
+        <ChangelogFieldsChart chartData={stats?.changeFields || {}} />
+        <ChangelogTypesChart
+          chartData={
+            stats?.changeTypes || ({} as ChangelogStats['changeTypes'])
+          }
+        />
+      </div>
     </section>
   );
 }
@@ -214,6 +246,7 @@ function valueToComponent(
   field: string,
   type: 'before' | 'after',
 ) {
+  const { timezone } = useLocale();
   if (value === null) return 'N/A';
   if (typeof value === 'object') {
     if (field === 'keyImages') {
@@ -313,6 +346,7 @@ function valueToComponent(
       day: 'numeric',
       hour: 'numeric',
       minute: 'numeric',
+      timeZone: timezone,
     });
   if (field === 'description') {
     const truncatedDescription =
