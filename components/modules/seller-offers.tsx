@@ -43,6 +43,12 @@ export function SellerOffers({
       }),
   });
 
+  if (!data || data.filter((offer) => offer.id !== currentOffer).length === 0) {
+    return null;
+  }
+
+  console.log(data);
+
   const handlePreviousSlide = () => {
     api?.scrollPrev();
   };
