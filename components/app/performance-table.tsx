@@ -139,9 +139,9 @@ export function PerformanceTable({
                   new Date(b.date).getTime() - new Date(a.date).getTime(),
               )
               .slice(0, 7)
-              .map((pos, idx) => {
+              .map((pos, idx, array) => {
                 // If it's the first item, there's no previous position
-                if (idx === 0) {
+                if (idx === array.length - 1) {
                   return (
                     <PerformanceCard
                       key={pos._id}
