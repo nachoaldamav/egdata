@@ -12,6 +12,15 @@ import {
   CardHeader,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Tooltip,
@@ -33,6 +42,13 @@ import { createFileRoute } from '@tanstack/react-router';
 import { EyeClosedIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
+const rarityOrder: (keyof typeof rarities)[] = ['gold', 'silver', 'bronze'];
+
+function rarityPriority(rarity: keyof typeof rarities) {
+  const idx = rarityOrder.indexOf(rarity);
+  return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
+}
+
 export const Route = createFileRoute('/offers/$id/achievements')({
   component: () => {
     const { dehydratedState } = Route.useLoaderData();
@@ -53,11 +69,10 @@ export const Route = createFileRoute('/offers/$id/achievements')({
         httpClient.get<AchievementsSets>(`/offers/${id}/achievements`),
     });
 
-    const offer = getFetchedQuery<SingleOffer>(
-      queryClient,
-      dehydrate(queryClient),
-      ['offer', { id: params.id }],
-    );
+    const offer = await queryClient.ensureQueryData({
+      queryKey: ['offer', { id: params.id }],
+      queryFn: () => httpClient.get<SingleOffer>(`/offers/${params.id}`),
+    });
 
     return {
       id,
@@ -119,6 +134,11 @@ function AchievementsPage() {
     [key: string]: boolean;
   }>({});
 
+  // 1. Add a sortBy state.
+  //    "default" means do not reorder, just keep hidden achievements at bottom.
+  //    "rarity" sorts by ascending rarity (i.e., common -> rare -> epic -> etc.)
+  const [sortBy, setSortBy] = useState<'default' | 'rarity'>('default');
+
   const handleFlipAll = () => {
     setFlipAll(!flipAll);
   };
@@ -172,6 +192,21 @@ function AchievementsPage() {
       <div className="inline-flex w-full justify-between items-center">
         <h1 className="text-2xl font-bold">Achievements</h1>
         <div className="flex gap-2">
+          <Select
+            value={sortBy}
+            onValueChange={(value) => setSortBy(value as 'default' | 'rarity')}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Sort by</SelectLabel>
+                <SelectItem value="default">Default Sort</SelectItem>
+                <SelectItem value="rarity">Sort by Rarity</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
           <Input
             className="w-full"
             placeholder="Search"
@@ -199,6 +234,7 @@ function AchievementsPage() {
           </Button>
         </div>
       </div>
+
       <Card className="w-full bg-card text-white p-4">
         <div className="flex flex-row items-center justify-center gap-10">
           {Object.entries(noOfAchievemenentsPerRarity).map(
@@ -235,6 +271,7 @@ function AchievementsPage() {
           </div>
         </div>
       </Card>
+
       {achievements.map((achievementSet) => (
         <div key={achievementSet.achievementSetId}>
           <TooltipProvider>
@@ -257,6 +294,7 @@ function AchievementsPage() {
 
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 mt-4">
             {achievementSet.achievements
+              // Filter by search
               .filter((achievement) => {
                 if (search && search.length > 0) {
                   return (
@@ -268,11 +306,26 @@ function AchievementsPage() {
                       .includes(search.toLowerCase())
                   );
                 }
-
                 return true;
               })
-              // Place hidden achievements at the bottom
-              .sort((a, b) => (a.hidden ? 1 : b.hidden ? -1 : 0))
+              // Sort by either default or by rarity
+              .sort((a, b) => {
+                if (sortBy === 'default') {
+                  // 3. Always put hidden achievements at the bottom
+                  if (a.hidden && !b.hidden) return 1;
+                  if (!a.hidden && b.hidden) return -1;
+                }
+
+                // If we're sorting by rarity, compare rarity priorities
+                if (sortBy === 'rarity') {
+                  const rarityA = rarityPriority(getRarity(a.xp));
+                  const rarityB = rarityPriority(getRarity(b.xp));
+                  return rarityA - rarityB;
+                }
+
+                // Default sort → do nothing special beyond hidden logic
+                return 0;
+              })
               .map((achievement, index) => (
                 <FlippableCard
                   key={achievement.name}
@@ -287,6 +340,7 @@ function AchievementsPage() {
           </div>
         </div>
       ))}
+
       {achievements.length === 0 && (
         <div className="flex justify-center items-center h-96">
           <p className="text-gray-500">No achievements found</p>
