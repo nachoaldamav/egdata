@@ -282,12 +282,14 @@ function RouteComponent() {
 
   return (
     <div className="flex flex-col items-start justify-start h-full gap-1 px-4 w-full">
-      <PerformanceTable
-        data={collections as OfferPosition}
-        onChange={(value) => setCollection(value)}
-        tops={tops || {}}
-        defaultCollection={defaultCollection}
-      />
+      {tops && tops.length > 0 && (
+        <PerformanceTable
+          data={collections as OfferPosition}
+          onChange={(value) => setCollection(value)}
+          tops={tops || {}}
+          defaultCollection={defaultCollection}
+        />
+      )}
       <div className="grid gap-8 grid-cols-1 md:grid-cols-2 mt-4 w-full">
         <OverviewColumn>
           <OverviewSection title="Genres">
