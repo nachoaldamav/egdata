@@ -145,7 +145,7 @@ export function PerformanceTable({
         </TabsList>
 
         {data && data.positions.length > 0 && (
-          <div className="flex gap-4 overflow-x-auto pb-4">
+          <div className="flex gap-4 overflow-x-auto pb-4 justify-center">
             {data?.positions
               // Sort by date, closest to today first
               .sort(
