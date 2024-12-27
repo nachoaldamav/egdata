@@ -91,10 +91,27 @@ function StatsBar({ data }: StatsBarProps) {
   );
 }
 
+const topsDictionary: Record<string, string> = {
+  'top-sellers': 'Top Sellers',
+  'most-played': 'Most Played',
+  'top-wishlisted': 'Top Wishlisted',
+  'top-new-releases': 'Top New Releases',
+  'most-popular': 'Most Popular',
+  'top-player-reviewed': 'Top Player Rated',
+  'top-demos': 'Top Demos',
+  'top-free-to-play': 'Top Free-to-Play',
+  'top-add-ons': 'Top Add-ons',
+};
+
 export function PerformanceTable({
   data,
   onChange,
-}: { data: OfferPosition | undefined; onChange: (value: string) => void }) {
+  tops,
+}: {
+  data: OfferPosition | undefined;
+  onChange: (value: string) => void;
+  tops: Record<string, number>;
+}) {
   return (
     <div className="w-full p-6 bg-card rounded-lg">
       <div className="flex justify-between items-center mb-6">
@@ -112,22 +129,19 @@ export function PerformanceTable({
       </div>
 
       <Tabs
-        defaultValue="top-sellers"
+        // Get the lowest value from the tops object
+        defaultValue={Object.keys(tops).reduce((acc, key) => {
+          return tops[key] < tops[acc] ? key : acc;
+        }, 'top-sellers')}
         className="w-full"
         onValueChange={onChange}
       >
         <TabsList className="bg-gray-800 text-gray-400 mb-6">
-          <TabsTrigger value="top-sellers">Top Sellers</TabsTrigger>
-          <TabsTrigger value="most-played">Most Played</TabsTrigger>
-          <TabsTrigger value="top-wishlisted">Top Wishlisted</TabsTrigger>
-          <TabsTrigger value="top-new-releases">Top New Releases</TabsTrigger>
-          <TabsTrigger value="top-player-reviewed">
-            Top Player Rated
-          </TabsTrigger>
-          <TabsTrigger value="most-popular">Most Popular</TabsTrigger>
-          <TabsTrigger value="top-demos">Top Demos</TabsTrigger>
-          <TabsTrigger value="top-free-to-play">Top Free to Play</TabsTrigger>
-          <TabsTrigger value="top-add-ons">Top Add-ons</TabsTrigger>
+          {Object.entries(tops).map(([key]) => (
+            <TabsTrigger key={key} value={key}>
+              {topsDictionary[key]}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
         {data && data.positions.length > 0 && (

@@ -1,10 +1,11 @@
 import type * as React from 'react';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   dehydrate,
   HydrationBoundary,
+  keepPreviousData,
   useQueries,
 } from '@tanstack/react-query';
 import { httpClient } from '@/lib/http-client';
@@ -102,6 +103,13 @@ export const Route = createFileRoute('/offers/$id/')({
             },
           ),
       }),
+      queryClient.prefetchQuery({
+        queryKey: ['offer', 'tops', { id }],
+        queryFn: () =>
+          httpClient.get<{
+            [key: string]: number;
+          }>(`/offers/${id}/tops`),
+      }),
     ]);
 
     return {
@@ -126,6 +134,7 @@ function RouteComponent() {
     hltbQuery,
     reviewsQuery,
     collectionsQuery,
+    topsQuery,
   ] = useQueries({
     queries: [
       {
@@ -190,6 +199,14 @@ function RouteComponent() {
             `/offers/${id}/collections/${collection}`,
           ),
       },
+      {
+        queryKey: ['offer', 'tops', { id }],
+        queryFn: () =>
+          httpClient.get<{
+            [key: string]: number;
+          }>(`/offers/${id}/tops`),
+        placeholderData: keepPreviousData,
+      },
     ],
   });
 
@@ -202,10 +219,21 @@ function RouteComponent() {
   const { data: hltb } = hltbQuery;
   const { data: reviews } = reviewsQuery;
   const { data: collections } = collectionsQuery;
+  const { data: tops } = topsQuery;
 
   if (!offer) {
     return null;
   }
+
+  useEffect(() => {
+    if (tops) {
+      setCollection(
+        Object.keys(tops).reduce((acc, key) => {
+          return tops[key] < tops[acc] ? key : acc;
+        }, 'top-sellers'),
+      );
+    }
+  }, [tops]);
 
   const noOfAchievemenentsPerRarity = useMemo(() => {
     return achievements
@@ -238,6 +266,7 @@ function RouteComponent() {
       <PerformanceTable
         data={collections as OfferPosition}
         onChange={(value) => setCollection(value)}
+        tops={tops || {}}
       />
       <div className="grid gap-8 grid-cols-1 md:grid-cols-2 mt-4 w-full">
         <OverviewColumn>
