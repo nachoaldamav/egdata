@@ -137,7 +137,9 @@ function AchievementsPage() {
   // 1. Add a sortBy state.
   //    "default" means do not reorder, just keep hidden achievements at bottom.
   //    "rarity" sorts by ascending rarity (i.e., common -> rare -> epic -> etc.)
-  const [sortBy, setSortBy] = useState<'default' | 'rarity'>('default');
+  const [sortBy, setSortBy] = useState<
+    'default' | 'rarity' | 'unlockedPercentage'
+  >('default');
 
   const handleFlipAll = () => {
     setFlipAll(!flipAll);
@@ -204,6 +206,9 @@ function AchievementsPage() {
                 <SelectLabel>Sort by</SelectLabel>
                 <SelectItem value="default">Default Sort</SelectItem>
                 <SelectItem value="rarity">Sort by Rarity</SelectItem>
+                <SelectItem value="unlockedPercentage">
+                  Sort by Completed %
+                </SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
@@ -321,6 +326,13 @@ function AchievementsPage() {
                   const rarityA = rarityPriority(getRarity(a.xp));
                   const rarityB = rarityPriority(getRarity(b.xp));
                   return rarityA - rarityB;
+                }
+
+                // If we're sorting by unlocked percentage, compare unlocked percentages
+                if (sortBy === 'unlockedPercentage') {
+                  const unlockedPercentageA = (a.completedPercent || 0) / 100;
+                  const unlockedPercentageB = (b.completedPercent || 0) / 100;
+                  return unlockedPercentageA - unlockedPercentageB;
                 }
 
                 // Default sort → do nothing special beyond hidden logic
