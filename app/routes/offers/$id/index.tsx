@@ -282,7 +282,7 @@ function RouteComponent() {
 
   return (
     <div className="flex flex-col items-start justify-start h-full gap-1 px-4 w-full">
-      {tops && tops.length > 0 && (
+      {tops && Object.keys(tops).length > 0 && (
         <PerformanceTable
           data={collections as OfferPosition}
           onChange={(value) => setCollection(value)}
