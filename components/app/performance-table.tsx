@@ -107,10 +107,12 @@ export function PerformanceTable({
   data,
   onChange,
   tops,
+  defaultCollection,
 }: {
   data: OfferPosition | undefined;
   onChange: (value: string) => void;
   tops: Record<string, number>;
+  defaultCollection: string;
 }) {
   return (
     <div className="w-full p-6 bg-card rounded-lg">
@@ -130,9 +132,7 @@ export function PerformanceTable({
 
       <Tabs
         // Get the lowest value from the tops object
-        defaultValue={Object.keys(tops).reduce((acc, key) => {
-          return tops[key] < tops[acc] ? key : acc;
-        }, 'top-sellers')}
+        defaultValue={defaultCollection}
         className="w-full"
         onValueChange={onChange}
       >

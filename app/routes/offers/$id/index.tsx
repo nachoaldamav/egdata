@@ -101,12 +101,16 @@ export const Route = createFileRoute('/offers/$id/')({
       [key: string]: number;
     }>(['offer', 'tops', { id }]);
 
+    console.log(tops);
+
     // Calculate the default collection
     const defaultCollection = tops
       ? Object.keys(tops).reduce((acc, key) => {
           return tops[key] < tops[acc] ? key : acc;
-        }, 'top-sellers')
+        }, Object.keys(tops)[0]) // Use the first key in tops as the initial value
       : 'top-sellers';
+
+    console.log(defaultCollection);
 
     await queryClient.prefetchQuery({
       queryKey: [
@@ -282,6 +286,7 @@ function RouteComponent() {
         data={collections as OfferPosition}
         onChange={(value) => setCollection(value)}
         tops={tops || {}}
+        defaultCollection={defaultCollection}
       />
       <div className="grid gap-8 grid-cols-1 md:grid-cols-2 mt-4 w-full">
         <OverviewColumn>
