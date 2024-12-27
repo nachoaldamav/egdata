@@ -88,22 +88,6 @@ export const Route = createFileRoute('/offers/$id/')({
           >(`/offers/${id}/giveaways`),
       }),
       queryClient.prefetchQuery({
-        queryKey: [
-          'collection',
-          'positions',
-          { id, collection: 'top-sellers' },
-        ],
-        queryFn: () =>
-          httpClient.get<OfferPosition>(
-            `/offers/${id}/collections/top-sellers`,
-            {
-              params: {
-                country,
-              },
-            },
-          ),
-      }),
-      queryClient.prefetchQuery({
         queryKey: ['offer', 'tops', { id }],
         queryFn: () =>
           httpClient.get<{
@@ -112,18 +96,49 @@ export const Route = createFileRoute('/offers/$id/')({
       }),
     ]);
 
+    // Fetch the tops data
+    const tops = queryClient.getQueryData<{
+      [key: string]: number;
+    }>(['offer', 'tops', { id }]);
+
+    // Calculate the default collection
+    const defaultCollection = tops
+      ? Object.keys(tops).reduce((acc, key) => {
+          return tops[key] < tops[acc] ? key : acc;
+        }, 'top-sellers')
+      : 'top-sellers';
+
+    await queryClient.prefetchQuery({
+      queryKey: [
+        'collection',
+        'positions',
+        { id, collection: defaultCollection },
+      ],
+      queryFn: () =>
+        httpClient.get<OfferPosition>(
+          `/offers/${id}/collections/${defaultCollection}`,
+          {
+            params: {
+              country,
+            },
+          },
+        ),
+    });
+
     return {
       id,
       dehydratedState: dehydrate(queryClient),
       country,
+      defaultCollection,
     };
   },
 });
 
 function RouteComponent() {
+  const { defaultCollection } = Route.useLoaderData();
   const { id } = Route.useParams();
   const { country } = useCountry();
-  const [collection, setCollection] = useState('top-sellers');
+  const [collection, setCollection] = useState(defaultCollection);
   const [
     offerQuery,
     genresQuery,
@@ -230,10 +245,10 @@ function RouteComponent() {
       setCollection(
         Object.keys(tops).reduce((acc, key) => {
           return tops[key] < tops[acc] ? key : acc;
-        }, 'top-sellers'),
+        }, defaultCollection),
       );
     }
-  }, [tops]);
+  }, [tops, defaultCollection]);
 
   const noOfAchievemenentsPerRarity = useMemo(() => {
     return achievements
