@@ -83,7 +83,7 @@ export function ChangelogFieldsChart({
                 dataKey="month"
                 position="insideLeft"
                 offset={8}
-                className="fill-white"
+                className="fill-white font-mono"
                 fontSize={12}
               />
             </Bar>
