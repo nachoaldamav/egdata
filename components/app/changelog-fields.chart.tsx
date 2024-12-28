@@ -23,8 +23,8 @@ import {
 import type { ChangelogStats } from '@/types/changelog';
 
 const chartConfig = {
-  desktop: {
-    label: 'Desktop',
+  changes: {
+    label: 'changes',
     color: 'hsl(var(--chart-1))',
   },
   mobile: {
@@ -51,7 +51,7 @@ export function ChangelogFieldsChart({
             accessibilityLayer
             data={Object.entries(chartData || {}).map(([key, value]) => ({
               month: key,
-              desktop: value,
+              changes: value,
             }))}
             layout="vertical"
             margin={{
@@ -68,15 +68,15 @@ export function ChangelogFieldsChart({
               tickFormatter={(value) => value.slice(0, 3)}
               hide
             />
-            <XAxis dataKey="desktop" type="number" hide />
+            <XAxis dataKey="changes" type="number" hide />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent indicator="line" />}
             />
             <Bar
-              dataKey="desktop"
+              dataKey="changes"
               layout="vertical"
-              fill="var(--color-desktop)"
+              fill="var(--color-changes)"
               radius={4}
             >
               <LabelList
