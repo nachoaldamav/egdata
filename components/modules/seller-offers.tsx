@@ -47,8 +47,6 @@ export function SellerOffers({
     return null;
   }
 
-  console.log(data);
-
   const handlePreviousSlide = () => {
     api?.scrollPrev();
   };

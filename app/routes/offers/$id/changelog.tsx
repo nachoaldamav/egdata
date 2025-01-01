@@ -147,8 +147,6 @@ function ChangelogPage() {
     );
   }
 
-  console.log(stats);
-
   return (
     <section className="flex flex-col gap-4 mt-6">
       <div className="inline-flex justify-between items-center">

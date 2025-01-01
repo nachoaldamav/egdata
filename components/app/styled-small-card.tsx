@@ -19,8 +19,6 @@ export const StyledSmallCard: React.FC<{
       'OfferImageWide',
     ])?.url || 'https://cdn.egdata.app/placeholder-1080.webp';
 
-  console.log(offer);
-
   return (
     <Link
       className="flex items-center justify-between bg-gray-800 rounded-lg shadow-lg w-full h-16 relative overflow-hidden group"

@@ -101,16 +101,12 @@ export const Route = createFileRoute('/offers/$id/')({
       [key: string]: number;
     }>(['offer', 'tops', { id }]);
 
-    console.log(tops);
-
     // Calculate the default collection
     const defaultCollection = tops
       ? Object.keys(tops).reduce((acc, key) => {
           return tops[key] < tops[acc] ? key : acc;
         }, Object.keys(tops)[0]) // Use the first key in tops as the initial value
       : 'top-sellers';
-
-    console.log(defaultCollection);
 
     await queryClient.prefetchQuery({
       queryKey: [
@@ -140,6 +136,7 @@ export const Route = createFileRoute('/offers/$id/')({
 
 function RouteComponent() {
   const { defaultCollection } = Route.useLoaderData();
+  const { timezone } = useLocale();
   const { id } = Route.useParams();
   const { country } = useCountry();
   const [collection, setCollection] = useState(defaultCollection);
@@ -371,6 +368,7 @@ function RouteComponent() {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric',
+                            timeZone: timezone,
                           },
                         )}
                       </span>
@@ -382,6 +380,7 @@ function RouteComponent() {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric',
+                            timeZone: timezone,
                           },
                         )}
                       </span>
@@ -550,7 +549,7 @@ function PriceText({
   price,
   showDate,
 }: { price: Price | null | undefined; showDate?: boolean }) {
-  const { locale } = useLocale();
+  const { locale, timezone } = useLocale();
   if (!price) {
     return <span>-</span>;
   }
@@ -602,6 +601,7 @@ function PriceText({
             year: 'numeric',
             month: 'short',
             day: 'numeric',
+            timeZone: timezone,
           })}
           )
         </span>

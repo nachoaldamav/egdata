@@ -72,8 +72,6 @@ function GenresPage() {
     return null;
   }
 
-  console.log('Rendered genres', genres);
-
   return (
     <main className="flex flex-col items-center justify-center min-h-screen py-2">
       <h1 className="text-2xl font-bold">Genres</h1>

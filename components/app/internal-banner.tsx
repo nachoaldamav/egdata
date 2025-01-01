@@ -36,7 +36,6 @@ export const InternalBanner: React.FC<{
             .filter(({ namespace }) => !internalNamespaces.includes(namespace))
             .filter(({ title: t }) => {
               const similarity = compareTitleSimilarity(title, t);
-              console.log(t, similarity);
               return similarity > 0.5;
             }),
         );
