@@ -47,7 +47,7 @@ interface Metadata {
 }
 
 interface Change {
-  changeType: string;
+  changeType: 'insert' | 'update' | 'delete';
   field: string;
   newValue: unknown;
   oldValue: unknown;

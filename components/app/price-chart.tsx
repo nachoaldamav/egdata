@@ -240,7 +240,7 @@ export function PriceChart({
       return {
         date: date.toISOString(),
         price: item.price.discountPrice / 100,
-        min: regionStats.minPrice / 100,
+        min: (regionStats?.minPrice || 0) / 100,
       };
     })
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
