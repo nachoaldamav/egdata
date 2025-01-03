@@ -12,7 +12,7 @@ export function getBuyLink({ offers }: { offers: SingleOffer[] }): string {
   }));
 
   const url = new URL('https://store.epicgames.com/purchase');
-  url.searchParams.set('showNavigation', 'true');
+  url.searchParams.set('showNavigation', 'false');
   url.searchParams.set('highlightColor', '4ade80');
 
   for (const offer of offerList) {
