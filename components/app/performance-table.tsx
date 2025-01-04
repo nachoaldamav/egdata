@@ -10,6 +10,15 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import type { OfferPosition } from '@/types/collections';
 import { cn } from '@/lib/utils';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
+import { useState } from 'react';
+import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 
 interface PerformanceCardProps {
   position: number;
@@ -114,11 +123,17 @@ export function PerformanceTable({
   tops: Record<string, number>;
   defaultCollection: string;
 }) {
+  const [timeframe, setTimeframe] = useState<'7' | '30' | '90'>('7');
+
   return (
     <div className="w-full p-6 bg-card rounded-lg">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-white">Performance Table</h2>
-        {/* <Select defaultValue="7">
+        <Select
+          defaultValue="7"
+          value={timeframe}
+          onValueChange={(value) => setTimeframe(value as '7' | '30' | '90')}
+        >
           <SelectTrigger className="w-[180px] bg-gray-800 text-white border-gray-700">
             <SelectValue placeholder="Select timeframe" />
           </SelectTrigger>
@@ -127,7 +142,7 @@ export function PerformanceTable({
             <SelectItem value="30">Last 30 days</SelectItem>
             <SelectItem value="90">Last 90 days</SelectItem>
           </SelectContent>
-        </Select> */}
+        </Select>
       </div>
 
       <Tabs
@@ -145,47 +160,50 @@ export function PerformanceTable({
         </TabsList>
 
         {data && data.positions.length > 0 && (
-          <div className="flex gap-4 overflow-x-auto pb-4 justify-center">
-            {data?.positions
-              // Sort by date, closest to today first
-              .sort(
-                (a, b) =>
-                  new Date(b.date).getTime() - new Date(a.date).getTime(),
-              )
-              .slice(0, 7)
-              .map((pos, idx, array) => {
-                // If it's the first item, there's no previous position
-                if (idx === array.length - 1) {
+          <ScrollArea hidden={false}>
+            <div className="flex gap-4 pb-4 justify-center w-full">
+              {data?.positions
+                // Sort by date, closest to today first
+                .sort(
+                  (a, b) =>
+                    new Date(b.date).getTime() - new Date(a.date).getTime(),
+                )
+                .slice(0, Number(timeframe))
+                .map((pos, idx, array) => {
+                  // If it's the first item, there's no previous position
+                  if (idx === array.length - 1) {
+                    return (
+                      <PerformanceCard
+                        key={pos._id}
+                        position={pos.position}
+                        change={0}
+                        date={pos.date}
+                      />
+                    );
+                  }
+
+                  // Previous position
+                  const prev = data.positions[idx + 1].position;
+
+                  // Normalize 0 => 100 to treat "out of tops" as position 100
+                  const toPositionValue = (p: number) => (p === 0 ? 100 : p);
+
+                  // Calculate change
+                  const change =
+                    toPositionValue(pos.position) - toPositionValue(prev);
+
                   return (
                     <PerformanceCard
                       key={pos._id}
                       position={pos.position}
-                      change={0}
+                      change={change}
                       date={pos.date}
                     />
                   );
-                }
-
-                // Previous position
-                const prev = data.positions[idx + 1].position;
-
-                // Normalize 0 => 100 to treat "out of tops" as position 100
-                const toPositionValue = (p: number) => (p === 0 ? 100 : p);
-
-                // Calculate change
-                const change =
-                  toPositionValue(pos.position) - toPositionValue(prev);
-
-                return (
-                  <PerformanceCard
-                    key={pos._id}
-                    position={pos.position}
-                    change={change}
-                    date={pos.date}
-                  />
-                );
-              })}
-          </div>
+                })}
+            </div>
+            <ScrollBar orientation="horizontal" hidden={false} />
+          </ScrollArea>
         )}
 
         {/** Show that there are no data if the data is not available */}
