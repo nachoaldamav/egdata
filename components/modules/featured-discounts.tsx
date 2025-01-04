@@ -35,11 +35,7 @@ const SLIDE_DELAY = 15_000;
 
 export function FeaturedDiscounts() {
   const { country } = useCountry();
-  const {
-    data: featuredDiscounts,
-    isLoading,
-    isFetching,
-  } = useQuery({
+  const { data: featuredDiscounts } = useQuery({
     queryKey: ['featuredDiscounts', { country }],
     queryFn: () => getFeaturedDiscounts({ country }),
   });
@@ -111,17 +107,6 @@ export function FeaturedDiscounts() {
       api.containerNode().removeEventListener('mouseleave', handleMouseLeave);
     };
   }, [api, current, isPaused, featuredDiscounts]);
-
-  if (isLoading && isFetching && !featuredDiscounts) {
-    return (
-      <section id="featured-discounts" className="w-full">
-        <h4 className="text-xl font-bold text-left inline-flex group items-center gap-2">
-          Featured Discounts
-        </h4>
-        <Skeleton className="w-full h-[550px] mt-2 p-4" />
-      </section>
-    );
-  }
 
   const handleNextSlide = () => {
     api?.scrollNext();
