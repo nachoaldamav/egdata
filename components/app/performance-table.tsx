@@ -1,24 +1,11 @@
 import { ChevronDown, ChevronUp, Minus } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
 import type { OfferPosition } from '@/types/collections';
 import { cn } from '@/lib/utils';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select';
 import { useState } from 'react';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
+import { DateRangePicker } from './date-range-picker';
 
 interface PerformanceCardProps {
   position: number;
@@ -128,13 +115,17 @@ export function PerformanceTable({
   tops: Record<string, number>;
   defaultCollection: string;
 }) {
-  const [timeframe, setTimeframe] = useState<'7' | '30' | '90'>('7');
+  // const [timeframe, setTimeframe] = useState<'7' | '30' | '90'>('7');
+  const [timeframe, setTimeframe] = useState<{ from: Date; to: Date }>({
+    from: new Date(new Date().setDate(new Date().getDate() - 7)),
+    to: new Date(),
+  });
 
   return (
     <div className="w-full p-6 bg-card rounded-lg">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-white">Performance Table</h2>
-        <Select
+        {/* <Select
           defaultValue="7"
           value={timeframe}
           onValueChange={(value) => setTimeframe(value as '7' | '30' | '90')}
@@ -147,7 +138,12 @@ export function PerformanceTable({
             <SelectItem value="30">Last 30 days</SelectItem>
             <SelectItem value="90">Last 90 days</SelectItem>
           </SelectContent>
-        </Select>
+        </Select> */}
+        <DateRangePicker
+          handleChange={({ from, to }) =>
+            setTimeframe({ from, to: to || new Date() })
+          }
+        />
       </div>
 
       <Tabs
@@ -173,7 +169,11 @@ export function PerformanceTable({
                   (a, b) =>
                     new Date(b.date).getTime() - new Date(a.date).getTime(),
                 )
-                .slice(0, Number(timeframe))
+                // Filter by date range
+                .filter((pos) => {
+                  const date = new Date(pos.date);
+                  return date >= timeframe.from && date <= timeframe.to;
+                })
                 .map((pos, idx, array) => {
                   // If it's the first item, there's no previous position
                   if (idx === array.length - 1) {
