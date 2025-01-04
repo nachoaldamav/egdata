@@ -51,7 +51,12 @@ function PerformanceCard({ position, change, date }: PerformanceCardProps) {
         getBackgroundClass(),
       )}
     >
-      <div className="text-2xl font-bold mb-2">
+      <div
+        className={cn(
+          'text-2xl font-bold mb-2',
+          position === 0 && 'opacity-70 text-xl',
+        )}
+      >
         {position === 0 ? 'Out of top' : `Top ${position}`}
       </div>
 
