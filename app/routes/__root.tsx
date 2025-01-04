@@ -2,6 +2,7 @@ import { createRootRouteWithContext, Link } from '@tanstack/react-router';
 import { Outlet, ScrollRestoration } from '@tanstack/react-router';
 import { Meta, Scripts } from '@tanstack/start';
 import type * as React from 'react';
+import { useEffect } from 'react';
 import styles from '../styles.css?url';
 import defaultPlayerTheme from '@vidstack/react/player/styles/default/theme.css?url';
 import defaultAudioPlayer from '@vidstack/react/player/styles/default/layouts/audio.css?url';
@@ -360,6 +361,10 @@ export const Route = createRootRouteWithContext<{
             ? '931f85f9-f8b6-422c-882d-04864194435b'
             : undefined,
         },
+        // Append the service worker registration script to the end of the body
+        {
+          src: '/register-sw.js',
+        },
       ],
     };
   },
@@ -383,6 +388,15 @@ function RootComponent() {
 
 function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
   const { country, locale, timezone, analyticsCookies } = Route.useLoaderData();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if ('serviceWorker' in navigator) {
+        import.meta.env.MODE === 'production' &&
+          navigator.serviceWorker.register('/_build/service-worker.js');
+      }
+    }
+  }, []);
 
   return (
     <html lang="en" suppressHydrationWarning>

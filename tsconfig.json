@@ -10,6 +10,7 @@
     "paths": {
       "@/*": ["./*"]
     },
-    "typeRoots": ["./types", "./node_modules/@types", "./global.d.ts"]
+    "typeRoots": ["./types", "./node_modules/@types", "./global.d.ts"],
+    "lib": ["ESNext", "DOM", "WebWorker"]
   }
 }
