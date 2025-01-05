@@ -107,7 +107,9 @@
     "glob": "^11.0.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "unenv": "^1.10.0",
+    "wrangler": "^3.99.0"
   },
   "packageManager": "pnpm@9.12.3"
 }
