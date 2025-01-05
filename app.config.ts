@@ -29,7 +29,11 @@ export default defineConfig({
       },
     },
     ssr: {
-      noExternal: ['@react-spectrum/image', '@react-spectrum/provider'],
+      noExternal: [
+        '@react-spectrum/image',
+        '@react-spectrum/provider',
+        '@vidstack/react',
+      ],
     },
   },
   server: {
