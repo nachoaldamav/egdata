@@ -26,11 +26,13 @@ export const saveAuthCookie = createServerFn({ method: 'GET' })
       value: EpicToken;
     };
 
-    const certificate = await readFile(
-      (process.env.JWT_SIGNING_CERT as string) ||
-        import.meta.env.JWT_SIGNING_CERT,
-      'utf-8',
-    );
+    const certificate =
+      process.env.JWT_SIGNING_KEY ??
+      (await readFile(
+        (process.env.JWT_SIGNING_CERT as string) ||
+          import.meta.env.JWT_SIGNING_CERT,
+        'utf-8',
+      ));
 
     const token = jwt.sign(value, certificate, {
       algorithm: 'RS256',
@@ -61,11 +63,13 @@ export const decodeJwt = createServerFn({ method: 'GET' })
   )
   .handler(async (ctx) => {
     try {
-      const certificate = await readFile(
-        (process.env.JWT_SIGNING_CERT as string) ||
-          import.meta.env.JWT_SIGNING_CERT,
-        'utf-8',
-      );
+      const certificate =
+        process.env.JWT_SIGNING_KEY ??
+        (await readFile(
+          (process.env.JWT_SIGNING_CERT as string) ||
+            import.meta.env.JWT_SIGNING_CERT,
+          'utf-8',
+        ));
       return jwt.verify(
         typeof ctx.data === 'string' ? ctx.data : ctx.data.payload,
         certificate,
