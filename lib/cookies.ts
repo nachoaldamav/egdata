@@ -1,7 +1,7 @@
 import type { EpicToken } from '@/types/epic';
 import { createServerFn } from '@tanstack/start';
 import { readFile } from 'node:fs/promises';
-import { jwtVerify, SignJWT } from 'jose';
+import { jwtVerify, SignJWT, importPKCS8, importSPKI } from 'jose';
 
 export const getCookie = createServerFn({ method: 'GET' })
   .validator((name: string) => name)
@@ -26,7 +26,7 @@ export const saveAuthCookie = createServerFn({ method: 'GET' })
       value: EpicToken;
     };
 
-    const certificate =
+    const privateKeyPem =
       process.env.JWT_SIGNING_KEY ??
       (await readFile(
         (process.env.JWT_SIGNING_CERT as string) ||
@@ -34,13 +34,14 @@ export const saveAuthCookie = createServerFn({ method: 'GET' })
         'utf-8',
       ));
 
-    const secretKey = new TextEncoder().encode(certificate);
+    // Import the private key (PEM format) for signing
+    const privateKey = await importPKCS8(privateKeyPem, 'RS256');
 
     const token = await new SignJWT(value)
       .setProtectedHeader({ alg: 'RS256' })
       .setIssuedAt()
       .setExpirationTime('365d')
-      .sign(secretKey);
+      .sign(privateKey);
 
     _setCookie(name, token, {
       httpOnly: false,
@@ -66,18 +67,20 @@ export const decodeJwt = createServerFn({ method: 'GET' })
   )
   .handler(async (ctx) => {
     try {
-      const certificate =
-        process.env.JWT_SIGNING_KEY ??
+      const publicKeyPem =
+        process.env.JWT_VERIFY_KEY ??
         (await readFile(
-          (process.env.JWT_SIGNING_CERT as string) ||
-            import.meta.env.JWT_SIGNING_CERT,
+          (process.env.JWT_VERIFY_CERT as string) ||
+            import.meta.env.JWT_VERIFY_CERT,
           'utf-8',
         ));
-      const secretKey = new TextEncoder().encode(certificate);
+
+      // Import the public key (PEM format) for verification
+      const publicKey = await importSPKI(publicKeyPem, 'RS256');
 
       const { payload } = await jwtVerify(
         typeof ctx.data === 'string' ? ctx.data : ctx.data.payload,
-        secretKey,
+        publicKey,
         {
           algorithms: ['RS256'],
         },

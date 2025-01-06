@@ -2,14 +2,31 @@ import { saveAuthCookie } from '@/lib/cookies';
 import type { EpicToken } from '@/types/epic';
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { createServerFn } from '@tanstack/start';
-import { existsSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 
-export const getStateFile = createServerFn({ method: 'GET' })
+export const validateState = createServerFn({ method: 'GET' })
   .validator((state: string) => state)
   .handler(async (ctx) => {
-    return existsSync(join(tmpdir(), 'egdata', ctx.data));
+    const response = await fetch(
+      'https://api.egdata.app/auth/v2/validate-state',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ state: ctx.data }),
+      },
+    );
+
+    if (response.ok) {
+      return (await response.json())?.valid || false;
+    }
+
+    console.error(
+      'Failed to validate state',
+      response.status,
+      await response.json(),
+    );
+    return false;
   });
 
 export const getTokens = createServerFn({ method: 'GET' })
@@ -67,9 +84,9 @@ export const Route = createFileRoute('/auth/callback')({
       });
     }
 
-    const stateFile = await getStateFile({ data: state });
+    const stateValid = await validateState({ data: state });
 
-    if (!stateFile) {
+    if (!stateValid) {
       throw redirect({
         to: '/',
         search: { error: 'invalid_state' },
@@ -111,7 +128,7 @@ export const Route = createFileRoute('/auth/callback')({
       console.error('Failed to persist tokens', await persistResponse.json());
       throw redirect({
         to: '/',
-        search: { error: 'perist_error' },
+        search: { error: 'persist_error' },
       });
     }
 

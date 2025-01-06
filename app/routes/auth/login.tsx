@@ -3,14 +3,21 @@ import { createServerFn } from '@tanstack/start';
 
 export const saveStateFile = createServerFn({ method: 'GET' }).handler(
   async () => {
-    const { randomUUID } = await import('node:crypto');
-    const { tmpdir } = await import('node:os');
-    const { join } = await import('node:path');
-    const { mkdir, writeFile } = await import('node:fs/promises');
+    // Replace with an API call to save the state on the server
+    const response = await fetch('https://api.egdata.app/auth/v2/save-state', {
+      method: 'POST',
+    });
 
-    const state = randomUUID().replaceAll('-', '').toUpperCase();
-    await mkdir(join(tmpdir(), 'egdata'), { recursive: true });
-    await writeFile(join(tmpdir(), 'egdata', state), '');
+    if (!response.ok) {
+      console.error(
+        'Failed to save state',
+        response.status,
+        await response.json(),
+      );
+      throw new Error('Failed to save state');
+    }
+
+    const { state } = await response.json();
     return state;
   },
 );
