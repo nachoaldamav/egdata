@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  vinxi@0.4.3:
+    hash: yqbpxpyonm2fav7ind7un5bi3m
+    path: patches/vinxi@0.4.3.patch
+
 importers:
 
   .:
@@ -247,7 +252,7 @@ importers:
         version: 1.1.2(@types/react-dom@18.3.5(@types/react@18.3.18))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       vinxi:
         specifier: ^0.4.3
-        version: 0.4.3(@types/node@22.10.5)(ioredis@5.4.1)(magicast@0.3.5)(terser@5.36.0)
+        version: 0.4.3(patch_hash=yqbpxpyonm2fav7ind7un5bi3m)(@types/node@22.10.5)(ioredis@5.4.1)(magicast@0.3.5)(terser@5.36.0)
       vite-plugin-pwa:
         specifier: ^0.21.1
         version: 0.21.1(vite@6.0.3(@types/node@22.10.5)(jiti@2.4.1)(terser@5.36.0)(tsx@4.19.2)(yaml@2.6.0))(workbox-build@7.3.0(@types/babel__core@7.20.5))(workbox-window@7.3.0)
@@ -15645,7 +15650,7 @@ snapshots:
       d3-time: 3.1.0
       d3-timer: 3.0.1
 
-  vinxi@0.4.3(@types/node@22.10.5)(ioredis@5.4.1)(magicast@0.3.5)(terser@5.36.0):
+  vinxi@0.4.3(patch_hash=yqbpxpyonm2fav7ind7un5bi3m)(@types/node@22.10.5)(ioredis@5.4.1)(magicast@0.3.5)(terser@5.36.0):
     dependencies:
       '@babel/core': 7.25.8
       '@babel/plugin-syntax-jsx': 7.25.7(@babel/core@7.25.8)

@@ -2,6 +2,7 @@ import type { EpicToken } from '@/types/epic';
 import { createServerFn } from '@tanstack/start';
 import { readFile } from 'node:fs/promises';
 import { jwtVerify, SignJWT, importPKCS8, importSPKI } from 'jose';
+import { getWebRequest } from 'vinxi/http';
 
 export const getCookie = createServerFn({ method: 'GET' })
   .validator((name: string) => name)
@@ -26,13 +27,21 @@ export const saveAuthCookie = createServerFn({ method: 'GET' })
       value: EpicToken;
     };
 
-    const privateKeyPem =
-      process.env.JWT_SIGNING_KEY ??
-      (await readFile(
-        (process.env.JWT_SIGNING_CERT as string) ||
-          import.meta.env.JWT_SIGNING_CERT,
-        'utf-8',
-      ));
+    const req = getWebRequest();
+
+    let privateKeyPem: string;
+
+    if (req.cloudflare) {
+      privateKeyPem = req.cloudflare.env.JWT_SIGNING_KEY;
+    } else {
+      privateKeyPem =
+        process.env.JWT_SIGNING_KEY ??
+        (await readFile(
+          (process.env.JWT_SIGNING_CERT as string) ||
+            import.meta.env.JWT_SIGNING_CERT,
+          'utf-8',
+        ));
+    }
 
     // Import the private key (PEM format) for signing
     const privateKey = await importPKCS8(privateKeyPem, 'RS256');
@@ -67,13 +76,20 @@ export const decodeJwt = createServerFn({ method: 'GET' })
   )
   .handler(async (ctx) => {
     try {
-      const publicKeyPem =
-        process.env.JWT_VERIFY_KEY ??
-        (await readFile(
-          (process.env.JWT_VERIFY_CERT as string) ||
-            import.meta.env.JWT_VERIFY_CERT,
-          'utf-8',
-        ));
+      const req = getWebRequest();
+
+      let publicKeyPem: string;
+      if (req.cloudflare) {
+        publicKeyPem = req.cloudflare.env.JWT_VERIFY_KEY;
+      } else {
+        publicKeyPem =
+          process.env.JWT_VERIFY_KEY ??
+          (await readFile(
+            (process.env.JWT_VERIFY_CERT as string) ||
+              import.meta.env.JWT_VERIFY_CERT,
+            'utf-8',
+          ));
+      }
 
       // Import the public key (PEM format) for verification
       const publicKey = await importSPKI(publicKeyPem, 'RS256');

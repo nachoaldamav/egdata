@@ -42,6 +42,7 @@ export const Route = createRootRouteWithContext<{
       const request = getWebRequest();
       url = new URL(request.url);
       cookieHeader = request.headers.get('Cookie') ?? '';
+      console.log('SSR', request);
     } else {
       url = new URL(window.location.href);
       cookieHeader = document.cookie;
