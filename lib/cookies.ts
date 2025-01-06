@@ -1,7 +1,7 @@
 import type { EpicToken } from '@/types/epic';
 import { createServerFn } from '@tanstack/start';
 import { readFile } from 'node:fs/promises';
-import jwt from 'jsonwebtoken';
+import { jwtVerify, SignJWT } from 'jose';
 
 export const getCookie = createServerFn({ method: 'GET' })
   .validator((name: string) => name)
@@ -34,10 +34,13 @@ export const saveAuthCookie = createServerFn({ method: 'GET' })
         'utf-8',
       ));
 
-    const token = jwt.sign(value, certificate, {
-      algorithm: 'RS256',
-      expiresIn: '365d',
-    });
+    const secretKey = new TextEncoder().encode(certificate);
+
+    const token = await new SignJWT(value)
+      .setProtectedHeader({ alg: 'RS256' })
+      .setIssuedAt()
+      .setExpirationTime('365d')
+      .sign(secretKey);
 
     _setCookie(name, token, {
       httpOnly: false,
@@ -70,13 +73,17 @@ export const decodeJwt = createServerFn({ method: 'GET' })
             import.meta.env.JWT_SIGNING_CERT,
           'utf-8',
         ));
-      return jwt.verify(
+      const secretKey = new TextEncoder().encode(certificate);
+
+      const { payload } = await jwtVerify(
         typeof ctx.data === 'string' ? ctx.data : ctx.data.payload,
-        certificate,
+        secretKey,
         {
           algorithms: ['RS256'],
         },
-      ) as EpicToken;
+      );
+
+      return payload as EpicToken;
     } catch (error) {
       console.error(`Failed to decode JWT ${ctx.data}`, error);
       return null;
