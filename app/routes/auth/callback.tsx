@@ -32,8 +32,19 @@ export const validateState = createServerFn({ method: 'GET' })
 export const getTokens = createServerFn({ method: 'GET' })
   .validator((code: string) => code)
   .handler(async (ctx) => {
-    const ClientID = process.env.EPIC_CLIENT_ID;
-    const ClientSecret = process.env.EPIC_CLIENT_SECRET;
+    const { getWebRequest } = await import('vinxi/http');
+    const req = getWebRequest();
+
+    let ClientID: string | undefined;
+    let ClientSecret: string | undefined;
+
+    if (req.cloudflare) {
+      ClientID = req.cloudflare.env.EPIC_CLIENT_ID;
+      ClientSecret = req.cloudflare.env.EPIC_CLIENT_SECRET;
+    } else {
+      ClientID = process.env.EPIC_CLIENT_ID;
+      ClientSecret = process.env.EPIC_CLIENT_SECRET;
+    }
 
     const response = await fetch(
       'https://api.epicgames.dev/epic/oauth/v2/token',

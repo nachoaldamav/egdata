@@ -2,7 +2,6 @@ import type { EpicToken } from '@/types/epic';
 import { createServerFn } from '@tanstack/start';
 import { readFile } from 'node:fs/promises';
 import { jwtVerify, SignJWT, importPKCS8, importSPKI } from 'jose';
-import { getWebRequest } from 'vinxi/http';
 
 export const getCookie = createServerFn({ method: 'GET' })
   .validator((name: string) => name)
@@ -20,7 +19,7 @@ export const getCookie = createServerFn({ method: 'GET' })
 export const saveAuthCookie = createServerFn({ method: 'GET' })
   .validator((stringifiedValue: string) => stringifiedValue)
   .handler(async (ctx) => {
-    const { setCookie: _setCookie } = await import('vinxi/http');
+    const { setCookie: _setCookie, getWebRequest } = await import('vinxi/http');
 
     const { name, value } = JSON.parse(ctx.data) as {
       name: string;
@@ -76,6 +75,7 @@ export const decodeJwt = createServerFn({ method: 'GET' })
   )
   .handler(async (ctx) => {
     try {
+      const { getWebRequest } = await import('vinxi/http');
       const req = getWebRequest();
 
       let publicKeyPem: string;

@@ -23,24 +23,43 @@ export const saveStateFile = createServerFn({ method: 'GET' }).handler(
   },
 );
 
+export const getEpicEnv = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const { getWebRequest } = await import('vinxi/http');
+    const req = getWebRequest();
+
+    let clientId: string;
+    let redirectUri: string;
+
+    if (req.cloudflare) {
+      clientId = req.cloudflare.env.EPIC_CLIENT_ID;
+      redirectUri = req.cloudflare.env.EPIC_REDIRECT_URI;
+    } else {
+      clientId = import.meta.env.EPIC_CLIENT_ID ?? process.env.EPIC_CLIENT_ID;
+      redirectUri =
+        import.meta.env.EPIC_REDIRECT_URI ?? process.env.EPIC_REDIRECT_URI;
+    }
+
+    return {
+      clientId,
+      redirectUri,
+    };
+  },
+);
+
 export const Route = createFileRoute('/auth/login')({
   component: () => <div>Hello /auth/login!</div>,
 
-  beforeLoad: async (ctx) => {
-    console.log('Before load', ctx);
+  beforeLoad: async () => {
     const state = await saveStateFile({ data: undefined });
 
+    const { clientId, redirectUri } = await getEpicEnv({ data: undefined });
+
     const epicUrl = new URL('https://www.epicgames.com/id/authorize');
-    epicUrl.searchParams.set(
-      'client_id',
-      import.meta.env.EPIC_CLIENT_ID ?? process.env.EPIC_CLIENT_ID,
-    );
+    epicUrl.searchParams.set('client_id', clientId);
     epicUrl.searchParams.set('response_type', 'code');
     epicUrl.searchParams.set('scope', 'basic_profile');
-    epicUrl.searchParams.set(
-      'redirect_uri',
-      import.meta.env.EPIC_REDIRECT_URI ?? process.env.EPIC_REDIRECT_URI,
-    );
+    epicUrl.searchParams.set('redirect_uri', redirectUri);
     epicUrl.searchParams.set('state', state);
 
     throw redirect({
