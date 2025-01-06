@@ -1,7 +1,7 @@
 import type { EpicToken } from '@/types/epic';
 import { createServerFn } from '@tanstack/start';
 import { readFile } from 'node:fs/promises';
-import jwt from 'jsonwebtoken';
+import { jwtVerify, SignJWT, importPKCS8, importSPKI } from 'jose';
 
 export const getCookie = createServerFn({ method: 'GET' })
   .validator((name: string) => name)
@@ -19,23 +19,37 @@ export const getCookie = createServerFn({ method: 'GET' })
 export const saveAuthCookie = createServerFn({ method: 'GET' })
   .validator((stringifiedValue: string) => stringifiedValue)
   .handler(async (ctx) => {
-    const { setCookie: _setCookie } = await import('vinxi/http');
+    const { setCookie: _setCookie, getWebRequest } = await import('vinxi/http');
 
     const { name, value } = JSON.parse(ctx.data) as {
       name: string;
       value: EpicToken;
     };
 
-    const certificate = await readFile(
-      (process.env.JWT_SIGNING_CERT as string) ||
-        import.meta.env.JWT_SIGNING_CERT,
-      'utf-8',
-    );
+    const req = getWebRequest();
 
-    const token = jwt.sign(value, certificate, {
-      algorithm: 'RS256',
-      expiresIn: '365d',
-    });
+    let privateKeyPem: string;
+
+    if (req.cloudflare) {
+      privateKeyPem = req.cloudflare.env.JWT_SIGNING_KEY;
+    } else {
+      privateKeyPem =
+        process.env.JWT_SIGNING_KEY ??
+        (await readFile(
+          (process.env.JWT_SIGNING_CERT as string) ||
+            import.meta.env.JWT_SIGNING_CERT,
+          'utf-8',
+        ));
+    }
+
+    // Import the private key (PEM format) for signing
+    const privateKey = await importPKCS8(privateKeyPem, 'RS256');
+
+    const token = await new SignJWT(value)
+      .setProtectedHeader({ alg: 'RS256' })
+      .setIssuedAt()
+      .setExpirationTime('365d')
+      .sign(privateKey);
 
     _setCookie(name, token, {
       httpOnly: false,
@@ -61,18 +75,34 @@ export const decodeJwt = createServerFn({ method: 'GET' })
   )
   .handler(async (ctx) => {
     try {
-      const certificate = await readFile(
-        (process.env.JWT_SIGNING_CERT as string) ||
-          import.meta.env.JWT_SIGNING_CERT,
-        'utf-8',
-      );
-      return jwt.verify(
+      const { getWebRequest } = await import('vinxi/http');
+      const req = getWebRequest();
+
+      let publicKeyPem: string;
+      if (req.cloudflare) {
+        publicKeyPem = req.cloudflare.env.JWT_VERIFY_KEY;
+      } else {
+        publicKeyPem =
+          process.env.JWT_VERIFY_KEY ??
+          (await readFile(
+            (process.env.JWT_VERIFY_CERT as string) ||
+              import.meta.env.JWT_VERIFY_CERT,
+            'utf-8',
+          ));
+      }
+
+      // Import the public key (PEM format) for verification
+      const publicKey = await importSPKI(publicKeyPem, 'RS256');
+
+      const { payload } = await jwtVerify(
         typeof ctx.data === 'string' ? ctx.data : ctx.data.payload,
-        certificate,
+        publicKey,
         {
           algorithms: ['RS256'],
         },
-      ) as EpicToken;
+      );
+
+      return payload as EpicToken;
     } catch (error) {
       console.error(`Failed to decode JWT ${ctx.data}`, error);
       return null;

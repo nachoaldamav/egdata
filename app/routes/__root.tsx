@@ -39,9 +39,11 @@ export const Route = createRootRouteWithContext<{
 
     if (import.meta.env.SSR) {
       const { getWebRequest } = await import('vinxi/http');
+      const { inspect } = await import('node:util');
       const request = getWebRequest();
       url = new URL(request.url);
       cookieHeader = request.headers.get('Cookie') ?? '';
+      console.log('SSR', inspect(request, { depth: null }));
     } else {
       url = new URL(window.location.href);
       cookieHeader = document.cookie;

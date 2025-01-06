@@ -43,10 +43,6 @@ import { useDebounce } from '@uidotdev/usehooks';
 import { ArrowDown, GridIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { z } from 'zod';
-import {
-  default as Motion,
-  type NumberFlowProps as MotionNumberProps,
-} from '@number-flow/react';
 import { getBuyLink } from '@/lib/get-build-link';
 import { useLocale } from '@/hooks/use-locale';
 import consola from 'consola';
@@ -551,15 +547,14 @@ function GiveawaysStats() {
         <TooltipProvider>
           <Tooltip>
             <div className="flex flex-col items-center justify-center gap-2">
-              <ClientOnlyMotionNumber
+              <BigText
                 value={calculatePrice(
                   data.totalValue.originalPrice,
                   data.totalValue.currencyCode,
-                )}
-                format={{
+                ).toLocaleString(locale, {
                   style: 'currency',
                   currency: data.totalValue.currencyCode,
-                }}
+                })}
                 className="text-4xl font-semibold"
               />
               <TooltipTrigger>
@@ -588,8 +583,8 @@ function GiveawaysStats() {
 
           <Tooltip>
             <div className="flex flex-col items-center justify-center gap-2">
-              <ClientOnlyMotionNumber
-                value={data.totalGiveaways}
+              <BigText
+                value={data.totalGiveaways.toLocaleString(locale)}
                 className="text-4xl font-semibold"
               />
               <TooltipTrigger>
@@ -607,8 +602,8 @@ function GiveawaysStats() {
 
           <Tooltip>
             <div className="flex flex-col items-center justify-center gap-2">
-              <ClientOnlyMotionNumber
-                value={data.totalOffers}
+              <BigText
+                value={data.totalOffers.toLocaleString(locale)}
                 className="text-4xl font-semibold"
               />
               <TooltipTrigger>
@@ -626,8 +621,8 @@ function GiveawaysStats() {
 
           <Tooltip>
             <div className="flex flex-col items-center justify-center gap-2">
-              <ClientOnlyMotionNumber
-                value={data.repeated}
+              <BigText
+                value={data.repeated.toLocaleString(locale)}
                 className="text-4xl font-semibold"
               />
               <TooltipTrigger>
@@ -646,8 +641,8 @@ function GiveawaysStats() {
 
           <Tooltip>
             <div className="flex flex-col items-center justify-center gap-2">
-              <ClientOnlyMotionNumber
-                value={data.sellers}
+              <BigText
+                value={data.sellers.toLocaleString(locale)}
                 className="text-4xl font-semibold"
               />
               <TooltipTrigger>
@@ -668,35 +663,14 @@ function GiveawaysStats() {
   );
 }
 
-function MotionNumber({
+function BigText({
   value,
-  format,
   className,
-  ...props
-}: MotionNumberProps) {
-  const [v, setV] = useState(0);
-
-  useEffect(() => {
-    setV(value as number);
-  }, [value]);
-
-  return <Motion value={v} format={format} className={className} {...props} />;
-}
-
-function ClientOnlyMotionNumber({
-  value,
-  format,
-  className,
-  ...props
-}: MotionNumberProps) {
-  return (
-    <MotionNumber
-      value={value}
-      format={format}
-      className={className}
-      {...props}
-    />
-  );
+}: {
+  value: string | number;
+  className?: string;
+}) {
+  return <span className={className}>{value}</span>;
 }
 
 function getYearsFrom2018ToCurrent(): number[] {

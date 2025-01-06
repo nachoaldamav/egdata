@@ -1,4 +1,5 @@
 import { defineConfig } from '@tanstack/start/config';
+import { cloudflare } from 'unenv';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -28,11 +29,16 @@ export default defineConfig({
       },
     },
     ssr: {
-      noExternal: ['@react-spectrum/image', '@react-spectrum/provider'],
+      noExternal: [
+        '@react-spectrum/image',
+        '@react-spectrum/provider',
+        '@vidstack/react',
+      ],
     },
   },
   server: {
-    preset: 'node-server',
+    preset: 'cloudflare-pages',
+    unenv: cloudflare,
   },
   tsr: {
     disableLogging: true,
