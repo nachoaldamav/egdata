@@ -13,7 +13,7 @@ if (!fs.existsSync(manifestPath)) {
 
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
 
-manifest.exclude.push('/_build/*');
+manifest.exclude.push('/_build/assets/*');
 
 // Remove all the exlcuded routes that start with /assets and replace them with /assets/*
 manifest.exclude = manifest.exclude.filter(
