@@ -15,4 +15,10 @@ const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
 
 manifest.exclude.push('/_build/*');
 
+// Remove all the exlcuded routes that start with /assets and replace them with /assets/*
+manifest.routes = manifest.routes.filter(
+  (route) => !route.startsWith('/assets'),
+);
+manifest.routes.push('/assets/*');
+
 fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
