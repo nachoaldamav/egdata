@@ -24,6 +24,7 @@ import { ArrowRightIcon, ChevronRightIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { type JsonValue, JsonVisualizer } from '@/components/app/json-tree';
 import { calculateSize } from '@/lib/calculate-size';
+import { ChangeTracker } from '@/components/app/changelog/item';
 
 export interface Root {
   hits: (OfferHit | ItemHit | AssetHit | Hit)[];
@@ -210,7 +211,13 @@ function ChangelogPage() {
           // Filter out hits without metadata
           .filter((hit) => hit.metadata)
           .map((hit) => (
-            <ChangelogItem key={hit._id} hit={hit} query={query} />
+            <ChangeTracker
+              key={hit._id}
+              _id={hit._id}
+              document={hit.document}
+              metadata={hit.metadata}
+              timestamp={hit.timestamp}
+            />
           ))}
       </div>
       <DynamicPagination
