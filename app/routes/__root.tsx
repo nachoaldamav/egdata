@@ -39,11 +39,9 @@ export const Route = createRootRouteWithContext<{
 
     if (import.meta.env.SSR) {
       const { getWebRequest } = await import('vinxi/http');
-      const { inspect } = await import('node:util');
       const request = getWebRequest();
       url = new URL(request.url);
       cookieHeader = request.headers.get('Cookie') ?? '';
-      console.log('SSR', inspect(request, { depth: null }));
     } else {
       url = new URL(window.location.href);
       cookieHeader = document.cookie;
@@ -424,13 +422,13 @@ function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
                     <div className="inline-flex gap-2">
                       <span>
                         Countries flags by{' '}
-                        <Link
+                        <a
                           href="https://flagpedia.net"
                           target="_blank"
                           rel="noopener noreferrer"
                         >
                           <strong>Flagpedia</strong>
-                        </Link>
+                        </a>
                       </span>
                       <span>|</span>
                       <span className="inline-flex gap-1 items-center">
