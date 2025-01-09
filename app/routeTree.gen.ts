@@ -55,6 +55,7 @@ import { Route as OffersIdItemsImport } from './routes/offers/$id/items'
 import { Route as OffersIdChangelogImport } from './routes/offers/$id/changelog'
 import { Route as OffersIdAchievementsImport } from './routes/offers/$id/achievements'
 import { Route as ItemsIdImagesImport } from './routes/items/$id/images'
+import { Route as ItemsIdChangelogImport } from './routes/items/$id/changelog'
 import { Route as ItemsIdBuildsImport } from './routes/items/$id/builds'
 import { Route as ItemsIdAssetsImport } from './routes/items/$id/assets'
 import { Route as BuildsIdItemsImport } from './routes/builds/$id/items'
@@ -328,6 +329,12 @@ const ItemsIdImagesRoute = ItemsIdImagesImport.update({
   getParentRoute: () => ItemsIdRoute,
 } as any)
 
+const ItemsIdChangelogRoute = ItemsIdChangelogImport.update({
+  id: '/changelog',
+  path: '/changelog',
+  getParentRoute: () => ItemsIdRoute,
+} as any)
+
 const ItemsIdBuildsRoute = ItemsIdBuildsImport.update({
   id: '/builds',
   path: '/builds',
@@ -586,6 +593,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ItemsIdBuildsImport
       parentRoute: typeof ItemsIdImport
     }
+    '/items/$id/changelog': {
+      id: '/items/$id/changelog'
+      path: '/changelog'
+      fullPath: '/items/$id/changelog'
+      preLoaderRoute: typeof ItemsIdChangelogImport
+      parentRoute: typeof ItemsIdImport
+    }
     '/items/$id/images': {
       id: '/items/$id/images'
       path: '/images'
@@ -743,6 +757,7 @@ const BuildsIdRouteWithChildren = BuildsIdRoute._addFileChildren(
 interface ItemsIdRouteChildren {
   ItemsIdAssetsRoute: typeof ItemsIdAssetsRoute
   ItemsIdBuildsRoute: typeof ItemsIdBuildsRoute
+  ItemsIdChangelogRoute: typeof ItemsIdChangelogRoute
   ItemsIdImagesRoute: typeof ItemsIdImagesRoute
   ItemsIdIndexRoute: typeof ItemsIdIndexRoute
 }
@@ -750,6 +765,7 @@ interface ItemsIdRouteChildren {
 const ItemsIdRouteChildren: ItemsIdRouteChildren = {
   ItemsIdAssetsRoute: ItemsIdAssetsRoute,
   ItemsIdBuildsRoute: ItemsIdBuildsRoute,
+  ItemsIdChangelogRoute: ItemsIdChangelogRoute,
   ItemsIdImagesRoute: ItemsIdImagesRoute,
   ItemsIdIndexRoute: ItemsIdIndexRoute,
 }
@@ -853,6 +869,7 @@ export interface FileRoutesByFullPath {
   '/builds/$id/items': typeof BuildsIdItemsRoute
   '/items/$id/assets': typeof ItemsIdAssetsRoute
   '/items/$id/builds': typeof ItemsIdBuildsRoute
+  '/items/$id/changelog': typeof ItemsIdChangelogRoute
   '/items/$id/images': typeof ItemsIdImagesRoute
   '/offers/$id/achievements': typeof OffersIdAchievementsRoute
   '/offers/$id/changelog': typeof OffersIdChangelogRoute
@@ -902,6 +919,7 @@ export interface FileRoutesByTo {
   '/builds/$id/items': typeof BuildsIdItemsRoute
   '/items/$id/assets': typeof ItemsIdAssetsRoute
   '/items/$id/builds': typeof ItemsIdBuildsRoute
+  '/items/$id/changelog': typeof ItemsIdChangelogRoute
   '/items/$id/images': typeof ItemsIdImagesRoute
   '/offers/$id/achievements': typeof OffersIdAchievementsRoute
   '/offers/$id/changelog': typeof OffersIdChangelogRoute
@@ -956,6 +974,7 @@ export interface FileRoutesById {
   '/builds/$id/items': typeof BuildsIdItemsRoute
   '/items/$id/assets': typeof ItemsIdAssetsRoute
   '/items/$id/builds': typeof ItemsIdBuildsRoute
+  '/items/$id/changelog': typeof ItemsIdChangelogRoute
   '/items/$id/images': typeof ItemsIdImagesRoute
   '/offers/$id/achievements': typeof OffersIdAchievementsRoute
   '/offers/$id/changelog': typeof OffersIdChangelogRoute
@@ -1011,6 +1030,7 @@ export interface FileRouteTypes {
     | '/builds/$id/items'
     | '/items/$id/assets'
     | '/items/$id/builds'
+    | '/items/$id/changelog'
     | '/items/$id/images'
     | '/offers/$id/achievements'
     | '/offers/$id/changelog'
@@ -1059,6 +1079,7 @@ export interface FileRouteTypes {
     | '/builds/$id/items'
     | '/items/$id/assets'
     | '/items/$id/builds'
+    | '/items/$id/changelog'
     | '/items/$id/images'
     | '/offers/$id/achievements'
     | '/offers/$id/changelog'
@@ -1111,6 +1132,7 @@ export interface FileRouteTypes {
     | '/builds/$id/items'
     | '/items/$id/assets'
     | '/items/$id/builds'
+    | '/items/$id/changelog'
     | '/items/$id/images'
     | '/offers/$id/achievements'
     | '/offers/$id/changelog'
@@ -1287,6 +1309,7 @@ export const routeTree = rootRoute
       "children": [
         "/items/$id/assets",
         "/items/$id/builds",
+        "/items/$id/changelog",
         "/items/$id/images",
         "/items/$id/"
       ]
@@ -1359,6 +1382,10 @@ export const routeTree = rootRoute
     },
     "/items/$id/builds": {
       "filePath": "items/$id/builds.tsx",
+      "parent": "/items/$id"
+    },
+    "/items/$id/changelog": {
+      "filePath": "items/$id/changelog.tsx",
       "parent": "/items/$id"
     },
     "/items/$id/images": {

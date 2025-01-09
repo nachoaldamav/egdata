@@ -271,6 +271,15 @@ function ItemPage() {
                 ),
                 href: `/items/${id}/builds`,
               },
+              {
+                id: 'changelog',
+                label: (
+                  <span className="inline-flex items-center gap-2">
+                    <span>Changelog</span>
+                  </span>
+                ),
+                href: `/items/${id}/changelog`,
+              },
             ]}
             activeSection={subPath ?? ''}
             onSectionChange={(location) => {
