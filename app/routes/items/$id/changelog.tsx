@@ -41,7 +41,7 @@ function ChangelogPage() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-4 mt-6">
+      <div className="flex flex-col gap-4">
         <h2 className="text-2xl font-bold">Changelog</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {Array.from({ length: 8 }).map((_, index) => (
@@ -64,7 +64,7 @@ function ChangelogPage() {
   }
 
   return (
-    <section className="flex flex-col gap-4 mt-6">
+    <section className="flex flex-col gap-4">
       <div className="inline-flex justify-between items-center">
         <h2 className="text-2xl font-bold">Changelog</h2>
       </div>
