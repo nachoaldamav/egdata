@@ -208,6 +208,8 @@ export const Route = createFileRoute('/freebies')({
       }),
     ]);
 
+    const ogId = await httpClient.get<{ id: string }>('/free-games/og');
+
     return {
       dehydratedState: dehydrate(client),
       page,
@@ -216,10 +218,19 @@ export const Route = createFileRoute('/freebies')({
       offerType,
       sortDir,
       year,
+      og: ogId.id,
     };
   },
 
-  head: () => {
+  head: (ctx) => {
+    const { loaderData } = ctx;
+
+    const ogImage =
+      'https://cdn.egdata.app/cdn-cgi/imagedelivery/<ACCOUNT_HASH>/<IMAGE_ID>/<VARIANT_NAME>'
+        .replace('<ACCOUNT_HASH>', 'RlN2EBAhhGSZh5aeUaPz3Q')
+        .replace('<IMAGE_ID>', loaderData?.og)
+        .replace('<VARIANT_NAME>', 'og');
+
     return {
       meta: [
         {
@@ -240,12 +251,30 @@ export const Route = createFileRoute('/freebies')({
         {
           property: 'twitter:title',
           content: 'Free Games | egdata.app',
-          key: 'twitter:title',
         },
         {
           property: 'twitter:description',
           content: 'Browse free games from the Epic Games Store.',
-          key: 'twitter:description',
+        },
+        {
+          property: 'og:image',
+          content: ogImage,
+        },
+        {
+          property: 'og:image:alt',
+          content: 'Free Games | egdata.app',
+        },
+        {
+          property: 'og:type',
+          content: 'website',
+        },
+        {
+          property: 'twitter:card',
+          content: 'summary_large_image',
+        },
+        {
+          property: 'twitter:image',
+          content: ogImage,
         },
       ],
     };
