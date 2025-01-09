@@ -15,7 +15,7 @@ import type { SingleItem } from '@/types/single-item';
 import type { SingleBuild } from '@/types/builds';
 import type { Asset } from '@/types/asset';
 import { Link } from '@tanstack/react-router';
-import { JsonValue, JsonVisualizer } from '../json-tree';
+import { type JsonValue, JsonVisualizer } from '../json-tree';
 import { calculateSize } from '@/lib/calculate-size';
 import { cn } from '@/lib/utils';
 import { useLocale } from '@/hooks/use-locale';
@@ -190,7 +190,9 @@ export function ChangeTracker({
             className="text-lg font-medium truncate max-w-[300px] underline decoration-dotted decoration-muted-foreground/40 underline-offset-4"
             to={`/${metadata.contextType}s/${metadata.contextId}`}
           >
-            {document && 'title' in document ? document?.title : document?._id}
+            {document && 'title' in document
+              ? document?.title
+              : metadata.contextId}
           </Link>
           <Link
             to={`/changelist/${_id}`}
@@ -323,6 +325,10 @@ function ValueToString(
   };
 
   if (value === null) return 'N/A';
+
+  if (field === 'asset' && short) {
+    return <span className="font-mono">{value?.artifactId}</span>;
+  }
 
   if (field === 'keyImages' && value !== null) {
     const typedValue = value as { url: string; md5: string; type: string };
