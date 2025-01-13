@@ -42,6 +42,7 @@ type Res = {
 
 export function UpcomingOffers() {
   const { country } = useCountry();
+  const { timezone } = useLocale();
   const navigate = useNavigate();
   const { data, isLoading } = useQuery({
     queryKey: ['upcoming', { country, page: 2 }],
@@ -115,6 +116,7 @@ export function UpcomingOffers() {
                   year: 'numeric',
                   hour: 'numeric',
                   minute: 'numeric',
+                  timeZone: timezone,
                 })}
               </TableCell>
             </TableRow>
