@@ -3,10 +3,10 @@ import { ChangelogFieldsChart } from '@/components/app/changelog-fields.chart';
 import { ChangelogTypesChart } from '@/components/app/changelog-types-chart';
 import { ChangelogWeekdaysChart } from '@/components/app/changelog-weekdays-chart';
 import { ChangeTracker } from '@/components/app/changelog/item';
-import { DynamicPagination } from '@/components/app/dynamic-pagination';
 import type { Change } from '@/components/modules/changelist';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getQueryClient } from '@/lib/client';
+import { ClientOnly } from '@/lib/cllient-only';
 import { generateOfferMeta } from '@/lib/generate-offer-meta';
 import { getFetchedQuery } from '@/lib/get-fetched-query';
 import { httpClient } from '@/lib/http-client';
@@ -166,18 +166,20 @@ function ChangelogPage() {
         setPage={setPage}
         totalPages={Math.ceil(1000 / 25)}
       /> */}
-      <ChangelogDailyChart
-        chartData={stats?.dailyChanges as ChangelogStats['dailyChanges']}
-      />
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <ChangelogWeekdaysChart chartData={stats?.weekdayChanges || {}} />
-        <ChangelogFieldsChart chartData={stats?.changeFields || {}} />
-        <ChangelogTypesChart
-          chartData={
-            stats?.changeTypes || ({} as ChangelogStats['changeTypes'])
-          }
+      <ClientOnly>
+        <ChangelogDailyChart
+          chartData={stats?.dailyChanges as ChangelogStats['dailyChanges']}
         />
-      </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <ChangelogWeekdaysChart chartData={stats?.weekdayChanges || {}} />
+          <ChangelogFieldsChart chartData={stats?.changeFields || {}} />
+          <ChangelogTypesChart
+            chartData={
+              stats?.changeTypes || ({} as ChangelogStats['changeTypes'])
+            }
+          />
+        </div>
+      </ClientOnly>
     </section>
   );
 }
