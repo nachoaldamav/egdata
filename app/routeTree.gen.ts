@@ -35,6 +35,7 @@ import { Route as ItemsIdImport } from './routes/items/$id'
 import { Route as CollectionsIdImport } from './routes/collections/$id'
 import { Route as BuildsIdImport } from './routes/builds/$id'
 import { Route as AuthLogoutImport } from './routes/auth/logout'
+import { Route as AuthLoginV2Import } from './routes/auth/login-v2'
 import { Route as AuthLoginImport } from './routes/auth/login'
 import { Route as AuthCallbackImport } from './routes/auth/callback'
 import { Route as SandboxesIdIndexImport } from './routes/sandboxes/$id/index'
@@ -206,6 +207,12 @@ const BuildsIdRoute = BuildsIdImport.update({
 const AuthLogoutRoute = AuthLogoutImport.update({
   id: '/auth/logout',
   path: '/auth/logout',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AuthLoginV2Route = AuthLoginV2Import.update({
+  id: '/auth/login-v2',
+  path: '/auth/login-v2',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -465,6 +472,13 @@ declare module '@tanstack/react-router' {
       path: '/auth/login'
       fullPath: '/auth/login'
       preLoaderRoute: typeof AuthLoginImport
+      parentRoute: typeof rootRoute
+    }
+    '/auth/login-v2': {
+      id: '/auth/login-v2'
+      path: '/auth/login-v2'
+      fullPath: '/auth/login-v2'
+      preLoaderRoute: typeof AuthLoginV2Import
       parentRoute: typeof rootRoute
     }
     '/auth/logout': {
@@ -851,6 +865,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/login': typeof AuthLoginRoute
+  '/auth/login-v2': typeof AuthLoginV2Route
   '/auth/logout': typeof AuthLogoutRoute
   '/builds/$id': typeof BuildsIdRouteWithChildren
   '/collections/$id': typeof CollectionsIdRoute
@@ -905,6 +920,7 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/login': typeof AuthLoginRoute
+  '/auth/login-v2': typeof AuthLoginV2Route
   '/auth/logout': typeof AuthLogoutRoute
   '/builds/$id': typeof BuildsIdRouteWithChildren
   '/collections/$id': typeof CollectionsIdRoute
@@ -956,6 +972,7 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/login': typeof AuthLoginRoute
+  '/auth/login-v2': typeof AuthLoginV2Route
   '/auth/logout': typeof AuthLogoutRoute
   '/builds/$id': typeof BuildsIdRouteWithChildren
   '/collections/$id': typeof CollectionsIdRoute
@@ -1012,6 +1029,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/auth/callback'
     | '/auth/login'
+    | '/auth/login-v2'
     | '/auth/logout'
     | '/builds/$id'
     | '/collections/$id'
@@ -1065,6 +1083,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/auth/callback'
     | '/auth/login'
+    | '/auth/login-v2'
     | '/auth/logout'
     | '/builds/$id'
     | '/collections/$id'
@@ -1114,6 +1133,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/auth/callback'
     | '/auth/login'
+    | '/auth/login-v2'
     | '/auth/logout'
     | '/builds/$id'
     | '/collections/$id'
@@ -1169,6 +1189,7 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   AuthLoginRoute: typeof AuthLoginRoute
+  AuthLoginV2Route: typeof AuthLoginV2Route
   AuthLogoutRoute: typeof AuthLogoutRoute
   BuildsIdRoute: typeof BuildsIdRouteWithChildren
   CollectionsIdRoute: typeof CollectionsIdRoute
@@ -1198,6 +1219,7 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   AuthLoginRoute: AuthLoginRoute,
+  AuthLoginV2Route: AuthLoginV2Route,
   AuthLogoutRoute: AuthLogoutRoute,
   BuildsIdRoute: BuildsIdRouteWithChildren,
   CollectionsIdRoute: CollectionsIdRoute,
@@ -1236,6 +1258,7 @@ export const routeTree = rootRoute
         "/search",
         "/auth/callback",
         "/auth/login",
+        "/auth/login-v2",
         "/auth/logout",
         "/builds/$id",
         "/collections/$id",
@@ -1289,6 +1312,9 @@ export const routeTree = rootRoute
     },
     "/auth/login": {
       "filePath": "auth/login.tsx"
+    },
+    "/auth/login-v2": {
+      "filePath": "auth/login-v2.tsx"
     },
     "/auth/logout": {
       "filePath": "auth/logout.tsx"
