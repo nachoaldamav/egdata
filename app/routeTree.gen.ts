@@ -32,7 +32,6 @@ import { Route as PromotionsIdImport } from './routes/promotions/$id'
 import { Route as ProfileIdImport } from './routes/profile/$id'
 import { Route as OffersIdImport } from './routes/offers/$id'
 import { Route as ItemsIdImport } from './routes/items/$id'
-import { Route as CollectionsIdImport } from './routes/collections/$id'
 import { Route as BuildsIdImport } from './routes/builds/$id'
 import { Route as AuthLogoutImport } from './routes/auth/logout'
 import { Route as AuthLoginImport } from './routes/auth/login'
@@ -41,6 +40,7 @@ import { Route as SandboxesIdIndexImport } from './routes/sandboxes/$id/index'
 import { Route as ProfileIdIndexImport } from './routes/profile/$id/index'
 import { Route as OffersIdIndexImport } from './routes/offers/$id/index'
 import { Route as ItemsIdIndexImport } from './routes/items/$id/index'
+import { Route as CollectionsIdIndexImport } from './routes/collections/$id/index'
 import { Route as SandboxesIdOffersImport } from './routes/sandboxes/$id/offers'
 import { Route as SandboxesIdItemsImport } from './routes/sandboxes/$id/items'
 import { Route as SandboxesIdBuildsImport } from './routes/sandboxes/$id/builds'
@@ -58,9 +58,11 @@ import { Route as ItemsIdImagesImport } from './routes/items/$id/images'
 import { Route as ItemsIdChangelogImport } from './routes/items/$id/changelog'
 import { Route as ItemsIdBuildsImport } from './routes/items/$id/builds'
 import { Route as ItemsIdAssetsImport } from './routes/items/$id/assets'
+import { Route as CollectionsIdWeekImport } from './routes/collections/$id/$week'
 import { Route as BuildsIdItemsImport } from './routes/builds/$id/items'
 import { Route as BuildsIdInstallOptionsImport } from './routes/builds/$id/install-options'
 import { Route as BuildsIdFilesImport } from './routes/builds/$id/files'
+import { Route as CollectionsIdWeekIndexImport } from './routes/collections/$id/$week/index'
 import { Route as ProfileIdAchievementsSandboxImport } from './routes/profile/$id/achievements/$sandbox'
 
 // Create/Update Routes
@@ -191,12 +193,6 @@ const ItemsIdRoute = ItemsIdImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const CollectionsIdRoute = CollectionsIdImport.update({
-  id: '/collections/$id',
-  path: '/collections/$id',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const BuildsIdRoute = BuildsIdImport.update({
   id: '/builds/$id',
   path: '/builds/$id',
@@ -243,6 +239,12 @@ const ItemsIdIndexRoute = ItemsIdIndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => ItemsIdRoute,
+} as any)
+
+const CollectionsIdIndexRoute = CollectionsIdIndexImport.update({
+  id: '/collections/$id/',
+  path: '/collections/$id/',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const SandboxesIdOffersRoute = SandboxesIdOffersImport.update({
@@ -347,6 +349,12 @@ const ItemsIdAssetsRoute = ItemsIdAssetsImport.update({
   getParentRoute: () => ItemsIdRoute,
 } as any)
 
+const CollectionsIdWeekRoute = CollectionsIdWeekImport.update({
+  id: '/collections/$id/$week',
+  path: '/collections/$id/$week',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const BuildsIdItemsRoute = BuildsIdItemsImport.update({
   id: '/items',
   path: '/items',
@@ -363,6 +371,12 @@ const BuildsIdFilesRoute = BuildsIdFilesImport.update({
   id: '/files',
   path: '/files',
   getParentRoute: () => BuildsIdRoute,
+} as any)
+
+const CollectionsIdWeekIndexRoute = CollectionsIdWeekIndexImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CollectionsIdWeekRoute,
 } as any)
 
 const ProfileIdAchievementsSandboxRoute =
@@ -481,13 +495,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BuildsIdImport
       parentRoute: typeof rootRoute
     }
-    '/collections/$id': {
-      id: '/collections/$id'
-      path: '/collections/$id'
-      fullPath: '/collections/$id'
-      preLoaderRoute: typeof CollectionsIdImport
-      parentRoute: typeof rootRoute
-    }
     '/items/$id': {
       id: '/items/$id'
       path: '/items/$id'
@@ -578,6 +585,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/builds/$id/items'
       preLoaderRoute: typeof BuildsIdItemsImport
       parentRoute: typeof BuildsIdImport
+    }
+    '/collections/$id/$week': {
+      id: '/collections/$id/$week'
+      path: '/collections/$id/$week'
+      fullPath: '/collections/$id/$week'
+      preLoaderRoute: typeof CollectionsIdWeekImport
+      parentRoute: typeof rootRoute
     }
     '/items/$id/assets': {
       id: '/items/$id/assets'
@@ -698,6 +712,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SandboxesIdOffersImport
       parentRoute: typeof SandboxesIdImport
     }
+    '/collections/$id/': {
+      id: '/collections/$id/'
+      path: '/collections/$id'
+      fullPath: '/collections/$id'
+      preLoaderRoute: typeof CollectionsIdIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/items/$id/': {
       id: '/items/$id/'
       path: '/'
@@ -732,6 +753,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/profile/$id/achievements/$sandbox'
       preLoaderRoute: typeof ProfileIdAchievementsSandboxImport
       parentRoute: typeof ProfileIdImport
+    }
+    '/collections/$id/$week/': {
+      id: '/collections/$id/$week/'
+      path: '/'
+      fullPath: '/collections/$id/$week/'
+      preLoaderRoute: typeof CollectionsIdWeekIndexImport
+      parentRoute: typeof CollectionsIdWeekImport
     }
   }
 }
@@ -837,6 +865,17 @@ const SandboxesIdRouteWithChildren = SandboxesIdRoute._addFileChildren(
   SandboxesIdRouteChildren,
 )
 
+interface CollectionsIdWeekRouteChildren {
+  CollectionsIdWeekIndexRoute: typeof CollectionsIdWeekIndexRoute
+}
+
+const CollectionsIdWeekRouteChildren: CollectionsIdWeekRouteChildren = {
+  CollectionsIdWeekIndexRoute: CollectionsIdWeekIndexRoute,
+}
+
+const CollectionsIdWeekRouteWithChildren =
+  CollectionsIdWeekRoute._addFileChildren(CollectionsIdWeekRouteChildren)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
@@ -853,7 +892,6 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/builds/$id': typeof BuildsIdRouteWithChildren
-  '/collections/$id': typeof CollectionsIdRoute
   '/items/$id': typeof ItemsIdRouteWithChildren
   '/offers/$id': typeof OffersIdRouteWithChildren
   '/profile/$id': typeof ProfileIdRouteWithChildren
@@ -867,6 +905,7 @@ export interface FileRoutesByFullPath {
   '/builds/$id/files': typeof BuildsIdFilesRoute
   '/builds/$id/install-options': typeof BuildsIdInstallOptionsRoute
   '/builds/$id/items': typeof BuildsIdItemsRoute
+  '/collections/$id/$week': typeof CollectionsIdWeekRouteWithChildren
   '/items/$id/assets': typeof ItemsIdAssetsRoute
   '/items/$id/builds': typeof ItemsIdBuildsRoute
   '/items/$id/changelog': typeof ItemsIdChangelogRoute
@@ -884,11 +923,13 @@ export interface FileRoutesByFullPath {
   '/sandboxes/$id/builds': typeof SandboxesIdBuildsRoute
   '/sandboxes/$id/items': typeof SandboxesIdItemsRoute
   '/sandboxes/$id/offers': typeof SandboxesIdOffersRoute
+  '/collections/$id': typeof CollectionsIdIndexRoute
   '/items/$id/': typeof ItemsIdIndexRoute
   '/offers/$id/': typeof OffersIdIndexRoute
   '/profile/$id/': typeof ProfileIdIndexRoute
   '/sandboxes/$id/': typeof SandboxesIdIndexRoute
   '/profile/$id/achievements/$sandbox': typeof ProfileIdAchievementsSandboxRoute
+  '/collections/$id/$week/': typeof CollectionsIdWeekIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -907,7 +948,6 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/builds/$id': typeof BuildsIdRouteWithChildren
-  '/collections/$id': typeof CollectionsIdRoute
   '/promotions/$id': typeof PromotionsIdRoute
   '/sales/$id': typeof SalesIdRoute
   '/sellers/$id': typeof SellersIdRoute
@@ -934,11 +974,13 @@ export interface FileRoutesByTo {
   '/sandboxes/$id/builds': typeof SandboxesIdBuildsRoute
   '/sandboxes/$id/items': typeof SandboxesIdItemsRoute
   '/sandboxes/$id/offers': typeof SandboxesIdOffersRoute
+  '/collections/$id': typeof CollectionsIdIndexRoute
   '/items/$id': typeof ItemsIdIndexRoute
   '/offers/$id': typeof OffersIdIndexRoute
   '/profile/$id': typeof ProfileIdIndexRoute
   '/sandboxes/$id': typeof SandboxesIdIndexRoute
   '/profile/$id/achievements/$sandbox': typeof ProfileIdAchievementsSandboxRoute
+  '/collections/$id/$week': typeof CollectionsIdWeekIndexRoute
 }
 
 export interface FileRoutesById {
@@ -958,7 +1000,6 @@ export interface FileRoutesById {
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/builds/$id': typeof BuildsIdRouteWithChildren
-  '/collections/$id': typeof CollectionsIdRoute
   '/items/$id': typeof ItemsIdRouteWithChildren
   '/offers/$id': typeof OffersIdRouteWithChildren
   '/profile/$id': typeof ProfileIdRouteWithChildren
@@ -972,6 +1013,7 @@ export interface FileRoutesById {
   '/builds/$id/files': typeof BuildsIdFilesRoute
   '/builds/$id/install-options': typeof BuildsIdInstallOptionsRoute
   '/builds/$id/items': typeof BuildsIdItemsRoute
+  '/collections/$id/$week': typeof CollectionsIdWeekRouteWithChildren
   '/items/$id/assets': typeof ItemsIdAssetsRoute
   '/items/$id/builds': typeof ItemsIdBuildsRoute
   '/items/$id/changelog': typeof ItemsIdChangelogRoute
@@ -989,11 +1031,13 @@ export interface FileRoutesById {
   '/sandboxes/$id/builds': typeof SandboxesIdBuildsRoute
   '/sandboxes/$id/items': typeof SandboxesIdItemsRoute
   '/sandboxes/$id/offers': typeof SandboxesIdOffersRoute
+  '/collections/$id/': typeof CollectionsIdIndexRoute
   '/items/$id/': typeof ItemsIdIndexRoute
   '/offers/$id/': typeof OffersIdIndexRoute
   '/profile/$id/': typeof ProfileIdIndexRoute
   '/sandboxes/$id/': typeof SandboxesIdIndexRoute
   '/profile/$id/achievements/$sandbox': typeof ProfileIdAchievementsSandboxRoute
+  '/collections/$id/$week/': typeof CollectionsIdWeekIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -1014,7 +1058,6 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/logout'
     | '/builds/$id'
-    | '/collections/$id'
     | '/items/$id'
     | '/offers/$id'
     | '/profile/$id'
@@ -1028,6 +1071,7 @@ export interface FileRouteTypes {
     | '/builds/$id/files'
     | '/builds/$id/install-options'
     | '/builds/$id/items'
+    | '/collections/$id/$week'
     | '/items/$id/assets'
     | '/items/$id/builds'
     | '/items/$id/changelog'
@@ -1045,11 +1089,13 @@ export interface FileRouteTypes {
     | '/sandboxes/$id/builds'
     | '/sandboxes/$id/items'
     | '/sandboxes/$id/offers'
+    | '/collections/$id'
     | '/items/$id/'
     | '/offers/$id/'
     | '/profile/$id/'
     | '/sandboxes/$id/'
     | '/profile/$id/achievements/$sandbox'
+    | '/collections/$id/$week/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1067,7 +1113,6 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/logout'
     | '/builds/$id'
-    | '/collections/$id'
     | '/promotions/$id'
     | '/sales/$id'
     | '/sellers/$id'
@@ -1094,11 +1139,13 @@ export interface FileRouteTypes {
     | '/sandboxes/$id/builds'
     | '/sandboxes/$id/items'
     | '/sandboxes/$id/offers'
+    | '/collections/$id'
     | '/items/$id'
     | '/offers/$id'
     | '/profile/$id'
     | '/sandboxes/$id'
     | '/profile/$id/achievements/$sandbox'
+    | '/collections/$id/$week'
   id:
     | '__root__'
     | '/'
@@ -1116,7 +1163,6 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/logout'
     | '/builds/$id'
-    | '/collections/$id'
     | '/items/$id'
     | '/offers/$id'
     | '/profile/$id'
@@ -1130,6 +1176,7 @@ export interface FileRouteTypes {
     | '/builds/$id/files'
     | '/builds/$id/install-options'
     | '/builds/$id/items'
+    | '/collections/$id/$week'
     | '/items/$id/assets'
     | '/items/$id/builds'
     | '/items/$id/changelog'
@@ -1147,11 +1194,13 @@ export interface FileRouteTypes {
     | '/sandboxes/$id/builds'
     | '/sandboxes/$id/items'
     | '/sandboxes/$id/offers'
+    | '/collections/$id/'
     | '/items/$id/'
     | '/offers/$id/'
     | '/profile/$id/'
     | '/sandboxes/$id/'
     | '/profile/$id/achievements/$sandbox'
+    | '/collections/$id/$week/'
   fileRoutesById: FileRoutesById
 }
 
@@ -1171,7 +1220,6 @@ export interface RootRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthLogoutRoute: typeof AuthLogoutRoute
   BuildsIdRoute: typeof BuildsIdRouteWithChildren
-  CollectionsIdRoute: typeof CollectionsIdRoute
   ItemsIdRoute: typeof ItemsIdRouteWithChildren
   OffersIdRoute: typeof OffersIdRouteWithChildren
   ProfileIdRoute: typeof ProfileIdRouteWithChildren
@@ -1182,6 +1230,8 @@ export interface RootRouteChildren {
   TagsIdRoute: typeof TagsIdRoute
   CollectionsIndexRoute: typeof CollectionsIndexRoute
   SalesIndexRoute: typeof SalesIndexRoute
+  CollectionsIdWeekRoute: typeof CollectionsIdWeekRouteWithChildren
+  CollectionsIdIndexRoute: typeof CollectionsIdIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -1200,7 +1250,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthLogoutRoute: AuthLogoutRoute,
   BuildsIdRoute: BuildsIdRouteWithChildren,
-  CollectionsIdRoute: CollectionsIdRoute,
   ItemsIdRoute: ItemsIdRouteWithChildren,
   OffersIdRoute: OffersIdRouteWithChildren,
   ProfileIdRoute: ProfileIdRouteWithChildren,
@@ -1211,6 +1260,8 @@ const rootRouteChildren: RootRouteChildren = {
   TagsIdRoute: TagsIdRoute,
   CollectionsIndexRoute: CollectionsIndexRoute,
   SalesIndexRoute: SalesIndexRoute,
+  CollectionsIdWeekRoute: CollectionsIdWeekRouteWithChildren,
+  CollectionsIdIndexRoute: CollectionsIdIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -1238,7 +1289,6 @@ export const routeTree = rootRoute
         "/auth/login",
         "/auth/logout",
         "/builds/$id",
-        "/collections/$id",
         "/items/$id",
         "/offers/$id",
         "/profile/$id",
@@ -1248,7 +1298,9 @@ export const routeTree = rootRoute
         "/sellers/$id",
         "/tags/$id",
         "/collections/",
-        "/sales/"
+        "/sales/",
+        "/collections/$id/$week",
+        "/collections/$id/"
       ]
     },
     "/": {
@@ -1300,9 +1352,6 @@ export const routeTree = rootRoute
         "/builds/$id/install-options",
         "/builds/$id/items"
       ]
-    },
-    "/collections/$id": {
-      "filePath": "collections/$id.tsx"
     },
     "/items/$id": {
       "filePath": "items/$id.tsx",
@@ -1376,6 +1425,12 @@ export const routeTree = rootRoute
       "filePath": "builds/$id/items.tsx",
       "parent": "/builds/$id"
     },
+    "/collections/$id/$week": {
+      "filePath": "collections/$id/$week.tsx",
+      "children": [
+        "/collections/$id/$week/"
+      ]
+    },
     "/items/$id/assets": {
       "filePath": "items/$id/assets.tsx",
       "parent": "/items/$id"
@@ -1444,6 +1499,9 @@ export const routeTree = rootRoute
       "filePath": "sandboxes/$id/offers.tsx",
       "parent": "/sandboxes/$id"
     },
+    "/collections/$id/": {
+      "filePath": "collections/$id/index.tsx"
+    },
     "/items/$id/": {
       "filePath": "items/$id/index.tsx",
       "parent": "/items/$id"
@@ -1463,6 +1521,10 @@ export const routeTree = rootRoute
     "/profile/$id/achievements/$sandbox": {
       "filePath": "profile/$id/achievements/$sandbox.tsx",
       "parent": "/profile/$id"
+    },
+    "/collections/$id/$week/": {
+      "filePath": "collections/$id/$week/index.tsx",
+      "parent": "/collections/$id/$week"
     }
   }
 }

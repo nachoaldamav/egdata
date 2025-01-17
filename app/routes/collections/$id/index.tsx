@@ -27,7 +27,7 @@ import {
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { ChevronDown } from 'lucide-react';
 
-export const Route = createFileRoute('/collections/$id')({
+export const Route = createFileRoute('/collections/$id/')({
   component: () => {
     const { dehydratedState } = Route.useLoaderData();
 

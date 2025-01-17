@@ -23,6 +23,8 @@ export interface Collections {
   page: number;
   total: number;
   title: string;
+  start?: string;
+  end?: string;
 }
 
 export const getCollection = async ({
@@ -30,18 +32,24 @@ export const getCollection = async ({
   limit,
   page,
   country,
+  week,
 }: {
   slug: string;
   limit: number;
   page: number;
   country: string;
+  week?: string;
 }) => {
-  const data = await httpClient.get<Collections>(`/collections/${slug}`, {
-    params: {
-      country,
-      page,
-      limit,
+  const data = await httpClient.get<Collections>(
+    !week ? `/collections/${slug}` : `/collections/${slug}/${week}`,
+    {
+      params: {
+        country,
+        page,
+        limit,
+      },
     },
-  });
+  );
+
   return data;
 };
