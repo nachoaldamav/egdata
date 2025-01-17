@@ -42,7 +42,7 @@ export const GoogleAnalytics: React.FC<GoogleAnalyticsProps> = ({
       const script = document.createElement('script');
       script.src = `https://www.googletagmanager.com/gtag/js?id=${tagId}`;
       script.async = true;
-      document.head.appendChild(script);
+      document.head?.appendChild(script);
     }
 
     const inlineScriptId = `google-analytics-script-${tagId}`;
@@ -64,7 +64,7 @@ export const GoogleAnalytics: React.FC<GoogleAnalyticsProps> = ({
         gtag('js', new Date());
         gtag('config', '${tagId}');
       `;
-      document.head.appendChild(script);
+      document.head?.appendChild(script);
       consola.info('GoogleAnalytics: Loaded inline script', tagId);
     }
   }, [tagId, consentSettings]);
