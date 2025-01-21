@@ -369,7 +369,7 @@ export default function Navbar() {
         </DropdownMenu>
       )}
       {!user && (
-        <a href="/auth/login">
+        <a href="/api/auth/login">
           <Avatar>
             <AvatarFallback>
               <svg

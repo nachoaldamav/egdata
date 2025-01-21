@@ -116,7 +116,7 @@
   "packageManager": "pnpm@9.12.3",
   "pnpm": {
     "patchedDependencies": {
-      "vinxi@0.5.1": "patches/vinxi@0.4.3.patch"
+      "vinxi@0.5.1": "patches/vinxi@0.5.1.patch"
     }
   }
 }

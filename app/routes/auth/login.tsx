@@ -29,7 +29,7 @@ export const getEpicEnv = createServerFn({ method: 'GET' }).handler(
 
     const req = getWebRequest();
 
-    console.log('Cloudflare Request', req.cloudflare);
+    console.log('Cloudflare Request', req);
 
     let clientId: string;
     let redirectUri: string;

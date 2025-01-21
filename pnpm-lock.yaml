@@ -7,7 +7,7 @@ settings:
 patchedDependencies:
   vinxi@0.5.1:
     hash: yqbpxpyonm2fav7ind7un5bi3m
-    path: patches/vinxi@0.4.3.patch
+    path: patches/vinxi@0.5.1.patch
 
 importers:
 
