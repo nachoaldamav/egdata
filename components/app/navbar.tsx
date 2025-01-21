@@ -359,7 +359,7 @@ export default function Navbar() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild className="cursor-pointer">
-              <Link to="/dashboard">Dashboard</Link>
+              <a href="/dashboard">Dashboard</a>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild className="cursor-pointer">
