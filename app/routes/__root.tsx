@@ -13,7 +13,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import getCountryCode from '@/lib/get-country-code';
 import { parseCookieString } from '@/lib/parse-cookies';
-import { decodeJwt, saveAuthCookie } from '@/lib/cookies';
+import { decodeJwt, deleteCookie } from '@/lib/cookies';
 import { SearchProvider } from '@/providers/global-search';
 import { getUserInformation } from '@/queries/profiles';
 import { PreferencesProvider } from '@/providers/preferences';
@@ -103,50 +103,55 @@ export const Route = createRootRouteWithContext<{
         new Date(epicToken.expires_at).getTime() <
           new Date().getTime() + 10 * 60 * 1000
       ) {
-        const refreshResponse = await fetch(
-          'https://api.egdata.app/auth/v2/refresh',
-          {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${authCookie}`,
-            },
-          },
-        );
+        // const refreshResponse = await fetch(
+        //   'https://api.egdata.app/auth/v2/refresh',
+        //   {
+        //     method: 'GET',
+        //     headers: {
+        //       Authorization: `Bearer ${authCookie}`,
+        //     },
+        //   },
+        // );
 
-        if (refreshResponse.ok) {
-          const refreshData = (await refreshResponse.json()) as {
-            accessToken: string;
-            refreshToken: string;
-            expiresAt: string;
-            refreshExpiresAt: string;
-          };
+        // if (refreshResponse.ok) {
+        //   const refreshData = (await refreshResponse.json()) as {
+        //     accessToken: string;
+        //     refreshToken: string;
+        //     expiresAt: string;
+        //     refreshExpiresAt: string;
+        //   };
 
-          epicToken = {
-            access_token: refreshData.accessToken,
-            refresh_token: refreshData.refreshToken ?? epicToken.refresh_token,
-            expires_at: refreshData.expiresAt ?? epicToken.expires_at,
-            refresh_expires_at:
-              refreshData.refreshExpiresAt ?? epicToken.refresh_expires_at,
-            account_id: epicToken.account_id,
-            application_id: epicToken.application_id,
-            scope: epicToken.scope,
-            token_type: epicToken.token_type,
-            client_id: epicToken.client_id,
-            expires_in: epicToken.expires_in,
-            refresh_expires_in: epicToken.refresh_expires_in,
-          };
+        //   epicToken = {
+        //     access_token: refreshData.accessToken,
+        //     refresh_token: refreshData.refreshToken ?? epicToken.refresh_token,
+        //     expires_at: refreshData.expiresAt ?? epicToken.expires_at,
+        //     refresh_expires_at:
+        //       refreshData.refreshExpiresAt ?? epicToken.refresh_expires_at,
+        //     account_id: epicToken.account_id,
+        //     application_id: epicToken.application_id,
+        //     scope: epicToken.scope,
+        //     token_type: epicToken.token_type,
+        //     client_id: epicToken.client_id,
+        //     expires_in: epicToken.expires_in,
+        //     refresh_expires_in: epicToken.refresh_expires_in,
+        //   };
 
-          await saveAuthCookie({
-            data: JSON.stringify({ name: 'EGDATA_AUTH', value: epicToken }),
-          });
+        //   await saveAuthCookie({
+        //     data: JSON.stringify({ name: 'EGDATA_AUTH', value: epicToken }),
+        //   });
 
-          consola.log('Refreshed token', epicToken.account_id);
-        } else {
-          consola.error(
-            'Failed to refresh token',
-            await refreshResponse.json(),
-          );
-        }
+        //   consola.log('Refreshed token', epicToken.account_id);
+        // } else {
+        //   consola.error(
+        //     'Failed to refresh token',
+        //     await refreshResponse.json(),
+        //   );
+        // }
+
+        // Delete the old cookie
+        await deleteCookie({
+          data: 'EGDATA_AUTH',
+        });
       }
 
       const isExpired = epicToken
