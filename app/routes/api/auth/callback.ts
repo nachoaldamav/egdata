@@ -140,7 +140,7 @@ export const APIRoute = createAPIFileRoute('/api/auth/callback')({
         Location: import.meta.env.PROD
           ? 'https://egdata.app/'
           : 'http://localhost:3000/',
-        'Set-Cookie': `EGDATA_AUTH=${t}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=31536000; domain=${
+        'Set-Cookie': `EGDATA_AUTH=${t}; Path=/; Secure; SameSite=Lax; Max-Age=31536000; domain=${
           import.meta.env.PROD ? 'egdata.app' : 'localhost'
         }`,
       }),
