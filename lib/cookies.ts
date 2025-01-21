@@ -2,6 +2,7 @@ import type { EpicToken } from '@/types/epic';
 import { createServerFn } from '@tanstack/start';
 import { readFile } from 'node:fs/promises';
 import { jwtVerify, SignJWT, importPKCS8, importSPKI } from 'jose';
+import { PUBLIC_KEY } from './pub-key';
 
 export const getCookie = createServerFn({ method: 'GET' })
   .validator((name: string) => name)
@@ -78,18 +79,7 @@ export const decodeJwt = createServerFn({ method: 'GET' })
       const { getWebRequest } = await import('vinxi/http');
       const req = getWebRequest();
 
-      let publicKeyPem: string;
-      if (req.cloudflare) {
-        publicKeyPem = req.cloudflare.env.JWT_VERIFY_KEY;
-      } else {
-        publicKeyPem =
-          process.env.JWT_VERIFY_KEY ??
-          (await readFile(
-            (process.env.JWT_VERIFY_CERT as string) ||
-              import.meta.env.JWT_VERIFY_CERT,
-            'utf-8',
-          ));
-      }
+      const publicKeyPem = PUBLIC_KEY;
 
       // Import the public key (PEM format) for verification
       const publicKey = await importSPKI(publicKeyPem, 'RS256');
