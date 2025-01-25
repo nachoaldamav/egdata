@@ -20,7 +20,6 @@ import { PreferencesProvider } from '@/providers/preferences';
 import { CompareProvider } from '@/providers/compare';
 import { ComparisonPortal } from '@/components/app/comparison-portal';
 import { LocaleProvider } from '@/providers/locale';
-import consola from 'consola';
 import { CookiesProvider } from '@/providers/cookies';
 import { Base64Utils } from '@/lib/base-64';
 import type { EpicToken } from '@/types/epic';
@@ -94,7 +93,7 @@ export const Route = createRootRouteWithContext<{
     const country = getCountryCode(url, cookies);
 
     const authCookie = cookies.EGDATA_AUTH;
-    let epicToken = authCookie ? await decodeJwt({ data: authCookie }) : null;
+    const epicToken = authCookie ? await decodeJwt({ data: authCookie }) : null;
 
     // Refresh the token if it's expired or about to expire (within 10 minutes)
     if (cause !== 'preload' && epicToken) {

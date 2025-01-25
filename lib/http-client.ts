@@ -166,6 +166,6 @@ export const httpClient = new HttpFetch(
         ? 'egdata.app/0.0.1 (https://egdata.app)'
         : undefined,
     },
-    timeout: 5000,
+    timeout: 10_000,
   },
 );

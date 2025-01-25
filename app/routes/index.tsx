@@ -163,24 +163,24 @@ function Home() {
     },
     {
       key: 'event1',
-      component: (
+      component: events[0] ? (
         <SalesModule
           key={'event1'}
           event={events[0].name}
           eventId={events[0].id}
         />
-      ),
+      ) : null,
     },
 
     {
       key: 'event3',
-      component: (
+      component: events[2] ? (
         <SalesModule
           key={'event3'}
           event={events[2].name}
           eventId={events[2].id}
         />
-      ),
+      ) : null,
     },
     {
       key: 'statsCombined',
