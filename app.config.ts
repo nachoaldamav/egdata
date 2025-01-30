@@ -1,5 +1,4 @@
 import { defineConfig } from '@tanstack/start/config';
-import { cloudflare } from 'unenv';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -37,11 +36,6 @@ export default defineConfig({
     },
   },
   server: {
-    preset: 'cloudflare-pages',
-    unenv: cloudflare,
-  },
-  tsr: {
-    disableLogging: true,
-    autoCodeSplitting: true,
+    preset: 'node-server',
   },
 });
