@@ -1,157 +1,175 @@
-interface FetchOptions extends RequestInit {
-  params?: Record<string, string | number | boolean | undefined | null>;
+import axios, {
+  type AxiosInstance,
+  type AxiosRequestConfig,
+  type AxiosError,
+} from 'axios';
+
+type ParameterValue = string | number | boolean | undefined | null;
+interface FetchOptions extends AxiosRequestConfig {
+  params?: Record<string, ParameterValue>;
   headers?: Record<string, string>;
   timeout?: number;
 }
 
 class HttpFetch {
-  private baseURL: string;
-  private defaultOptions: FetchOptions;
+  private axiosInstance: AxiosInstance;
 
   constructor(baseURL = '', defaultOptions: FetchOptions = {}) {
-    this.baseURL = baseURL;
-    this.defaultOptions = defaultOptions;
-  }
-
-  private async request<T>(
-    endpoint: string,
-    options: FetchOptions = {},
-  ): Promise<T> {
-    const url = new URL(`${this.baseURL}${endpoint}`);
-
-    const finalOptions: FetchOptions = {
-      ...this.defaultOptions,
-      ...options,
-      headers: {
-        ...this.defaultOptions.headers,
-        ...options.headers,
-      },
-      timeout: options.timeout || this.defaultOptions.timeout || 5000,
-    };
-
-    if (finalOptions.params) {
-      for (const [key, value] of Object.entries(finalOptions.params)) {
-        if (value !== undefined && value !== null) {
-          url.searchParams.append(key, String(value));
-        }
-      }
-      delete finalOptions.params;
-    }
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(
-      () => controller.abort(),
-      finalOptions.timeout,
-    );
-    const response = await fetch(url.toString(), {
-      ...finalOptions,
-      signal: controller.signal,
+    this.axiosInstance = axios.create({
+      baseURL,
+      headers: defaultOptions.headers,
+      timeout: defaultOptions.timeout ?? 10_000,
     });
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      let errorData: any;
-      try {
-        errorData = await response.json();
-      } catch (e) {
-        errorData = { message: 'Failed to parse error response as JSON' };
-      }
-      const error: any = new Error(`HTTP error! Status: ${response.status}`);
-      error.response = errorData;
-      error.status = response.status;
-      throw error;
-    }
-
-    const data = await response.json();
-    return data as T;
   }
 
-  private delay(ms: number) {
+  private handleAxiosError(error: unknown): never {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      const errorData = axiosError.response?.data;
+      const status = axiosError.response?.status;
+      const errorMessage = `HTTP error! Status: ${status ?? 'unknown'}`;
+
+      const httpError = new Error(errorMessage);
+      (httpError as any).response = errorData;
+      (httpError as any).status = status;
+      throw httpError;
+    }
+    throw error instanceof Error ? error : new Error('Unknown error occurred');
+  }
+
+  private async delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   public async retry<T>(
-    fetchMethod: () => Promise<T>,
+    requestFn: () => Promise<T>,
     { retries = 3, delay = 1000 }: { retries?: number; delay?: number } = {},
   ): Promise<T> {
-    let lastError: any;
+    let lastError: unknown;
 
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
-        return await fetchMethod();
+        return await requestFn();
       } catch (error) {
         lastError = error;
-
-        // If status is 404 or it's the last attempt, don't retry
-        if ((error as any).status === 404 || attempt === retries) {
+        const status = (error as { status?: number }).status;
+        if (status === 404 || attempt === retries) {
           throw lastError;
         }
-
         await this.delay(delay);
       }
     }
 
-    throw lastError || new Error('Max retries reached');
+    throw lastError ?? new Error('Max retries reached');
   }
 
-  public get<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
-    return this.request<T>(endpoint, { ...options, method: 'GET' });
-  }
-
-  public post<T>(
+  public async get<T>(
     endpoint: string,
-    body: unknown,
     options: FetchOptions = {},
   ): Promise<T> {
-    return this.request<T>(endpoint, {
-      ...options,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-      body: JSON.stringify(body),
-    });
+    try {
+      const response = await this.axiosInstance.get<T>(endpoint, {
+        params: options.params,
+        headers: options.headers,
+        timeout: options.timeout,
+      });
+      return response.data;
+    } catch (error) {
+      return this.handleAxiosError(error);
+    }
   }
 
-  public put<T>(
+  // Similar pattern for other methods (post, put, patch, delete, options)
+  public async post<T>(
     endpoint: string,
-    body: unknown,
+    body?: unknown,
     options: FetchOptions = {},
   ): Promise<T> {
-    return this.request<T>(endpoint, {
-      ...options,
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-      body: JSON.stringify(body),
-    });
+    try {
+      const response = await this.axiosInstance.post<T>(endpoint, body, {
+        params: options.params,
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+        timeout: options.timeout,
+      });
+      return response.data;
+    } catch (error) {
+      return this.handleAxiosError(error);
+    }
   }
 
-  public options<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
-    return this.request<T>(endpoint, { ...options, method: 'OPTIONS' });
-  }
-
-  public delete<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
-    return this.request<T>(endpoint, { ...options, method: 'DELETE' });
-  }
-
-  public patch<T>(
+  public async put<T>(
     endpoint: string,
-    body: unknown,
+    body?: unknown,
     options: FetchOptions = {},
   ): Promise<T> {
-    return this.request<T>(endpoint, {
-      ...options,
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-      body: JSON.stringify(body),
-    });
+    try {
+      const response = await this.axiosInstance.put<T>(endpoint, body, {
+        params: options.params,
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+        timeout: options.timeout,
+      });
+      return response.data;
+    } catch (error) {
+      return this.handleAxiosError(error);
+    }
+  }
+
+  public async patch<T>(
+    endpoint: string,
+    body?: unknown,
+    options: FetchOptions = {},
+  ): Promise<T> {
+    try {
+      const response = await this.axiosInstance.patch<T>(endpoint, body, {
+        params: options.params,
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+        timeout: options.timeout,
+      });
+      return response.data;
+    } catch (error) {
+      return this.handleAxiosError(error);
+    }
+  }
+
+  public async delete<T>(
+    endpoint: string,
+    options: FetchOptions = {},
+  ): Promise<T> {
+    try {
+      const response = await this.axiosInstance.delete<T>(endpoint, {
+        params: options.params,
+        headers: options.headers,
+        timeout: options.timeout,
+      });
+      return response.data;
+    } catch (error) {
+      return this.handleAxiosError(error);
+    }
+  }
+
+  public async options<T>(
+    endpoint: string,
+    options: FetchOptions = {},
+  ): Promise<T> {
+    try {
+      const response = await this.axiosInstance.options<T>(endpoint, {
+        params: options.params,
+        headers: options.headers,
+        timeout: options.timeout,
+      });
+      return response.data;
+    } catch (error) {
+      return this.handleAxiosError(error);
+    }
   }
 }
 
@@ -161,11 +179,10 @@ export const httpClient = new HttpFetch(
     : (import.meta.env.SERVER_API_ENDPOINT ?? 'https://api.egdata.app'),
   {
     headers: {
-      // @ts-expect-error
       'User-Agent': import.meta.env.SSR
         ? 'egdata.app/0.0.1 (https://egdata.app)'
         : undefined,
     },
-    timeout: 100_000,
+    timeout: 5_000,
   },
 );
