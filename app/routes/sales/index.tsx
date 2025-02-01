@@ -60,12 +60,10 @@ export const Route = createFileRoute('/sales/')({
         {
           property: 'twitter:title',
           content: 'Active Sales | egdata.app',
-          key: 'twitter:title',
         },
         {
           property: 'twitter:description',
           content: 'Browse active sales on egdata.app',
-          key: 'twitter:description',
         },
       ],
     };
@@ -98,7 +96,7 @@ function SalesPageIndex() {
     <main className="flex flex-col items-start justify-start min-h-screen py-2">
       <h1 className="text-2xl font-bold">Active Sales</h1>
       <Separator className="my-2" />
-      <div className="flex flex-wrap justify-center">
+      <div className="flex flex-wrap justify-center w-full">
         {data
           .filter((sale) => sale.active)
           .map((sale) => (

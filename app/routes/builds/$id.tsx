@@ -139,12 +139,10 @@ export const Route = createFileRoute('/builds/$id')({
         {
           property: 'twitter:title',
           content: `${items?.[0]?.title} (${build.buildVersion}) | egdata.app`,
-          key: 'twitter:title',
         },
         {
           property: 'twitter:description',
           content: `${build.buildVersion} Build for ${items?.[0]?.title} from the Epic Games Store.`,
-          key: 'twitter:description',
         },
         {
           name: 'og:image',

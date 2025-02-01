@@ -7,7 +7,7 @@ import { getFetchedQuery } from '@/lib/get-fetched-query';
 import { httpClient } from '@/lib/http-client';
 import type { SingleItem } from '@/types/single-item';
 import type { SingleOffer } from '@/types/single-offer';
-import { SingleSandbox } from '@/types/single-sandbox';
+import type { SingleSandbox } from '@/types/single-sandbox';
 import { dehydrate, useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState } from 'react';

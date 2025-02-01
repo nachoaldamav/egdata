@@ -130,12 +130,10 @@ export const Route = createFileRoute('/collections/$id/')({
         {
           property: 'twitter:title',
           content: `${collection.title} | egdata.app`,
-          key: 'twitter:title',
         },
         {
           property: 'twitter:description',
           content: `Check out the ${collection.title} from the Epic Games Store.`,
-          key: 'twitter:description',
         },
       ],
     };
