@@ -158,6 +158,7 @@ const formSchema = z.object({
   page: z.number().optional(),
   refundType: z.string().optional(),
   isCodeRedemptionOnly: z.boolean().optional(),
+  excludeBlockchain: z.boolean().optional(),
   price: z
     .object({
       min: z.number().optional(),
@@ -348,6 +349,8 @@ function RouteComponent() {
       refundType: (loaderData.hash?.refundType as string) || undefined,
       isCodeRedemptionOnly:
         (loaderData.hash?.isCodeRedemptionOnly as boolean) || undefined,
+      excludeBlockchain:
+        (loaderData.hash?.excludeBlockchain as boolean) || undefined,
       price: {
         // @ts-expect-error
         min: (loaderData.hash?.price?.min as number) || undefined,
@@ -457,6 +460,14 @@ function RouteComponent() {
                     label="Code Redemption Only"
                     onRemove={() =>
                       form.setFieldValue('isCodeRedemptionOnly', undefined)
+                    }
+                  />
+                )}
+                {values.excludeBlockchain && (
+                  <QuickPill
+                    label="Exclude Blockchain/NFT"
+                    onRemove={() =>
+                      form.setFieldValue('excludeBlockchain', undefined)
                     }
                   />
                 )}
@@ -644,6 +655,23 @@ function RouteComponent() {
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                   Code Redemption Only
+                </label>
+              </div>
+            )}
+          </form.Field>
+          <form.Field name="excludeBlockchain">
+            {({ handleChange, state }) => (
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="excludeBlockchain"
+                  checked={state.value}
+                  onCheckedChange={(value) => handleChange(value as boolean)}
+                />
+                <label
+                  htmlFor="excludeBlockchain"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Exclude Blockchain/NFT
                 </label>
               </div>
             )}

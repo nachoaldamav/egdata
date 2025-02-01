@@ -1,5 +1,5 @@
 import { createRootRouteWithContext, Link } from '@tanstack/react-router';
-import { Outlet, ScrollRestoration } from '@tanstack/react-router';
+import { Outlet } from '@tanstack/react-router';
 import { Meta, Scripts } from '@tanstack/start';
 import type * as React from 'react';
 import styles from '../styles.css?url';
@@ -456,7 +456,6 @@ function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
           <TanStackRouterDevtools position="bottom-left" />
         )}
         <ReactQueryDevtools buttonPosition="bottom-right" />
-        <ScrollRestoration />
         <Scripts />
       </body>
     </html>
