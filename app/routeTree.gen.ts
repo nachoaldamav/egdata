@@ -43,6 +43,7 @@ import { Route as ItemsIdIndexImport } from './routes/items/$id/index'
 import { Route as CollectionsIdIndexImport } from './routes/collections/$id/index'
 import { Route as SandboxesIdOffersImport } from './routes/sandboxes/$id/offers'
 import { Route as SandboxesIdItemsImport } from './routes/sandboxes/$id/items'
+import { Route as SandboxesIdChangelogImport } from './routes/sandboxes/$id/changelog'
 import { Route as SandboxesIdBuildsImport } from './routes/sandboxes/$id/builds'
 import { Route as SandboxesIdAssetsImport } from './routes/sandboxes/$id/assets'
 import { Route as SandboxesIdAchievementsImport } from './routes/sandboxes/$id/achievements'
@@ -256,6 +257,12 @@ const SandboxesIdOffersRoute = SandboxesIdOffersImport.update({
 const SandboxesIdItemsRoute = SandboxesIdItemsImport.update({
   id: '/items',
   path: '/items',
+  getParentRoute: () => SandboxesIdRoute,
+} as any)
+
+const SandboxesIdChangelogRoute = SandboxesIdChangelogImport.update({
+  id: '/changelog',
+  path: '/changelog',
   getParentRoute: () => SandboxesIdRoute,
 } as any)
 
@@ -698,6 +705,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SandboxesIdBuildsImport
       parentRoute: typeof SandboxesIdImport
     }
+    '/sandboxes/$id/changelog': {
+      id: '/sandboxes/$id/changelog'
+      path: '/changelog'
+      fullPath: '/sandboxes/$id/changelog'
+      preLoaderRoute: typeof SandboxesIdChangelogImport
+      parentRoute: typeof SandboxesIdImport
+    }
     '/sandboxes/$id/items': {
       id: '/sandboxes/$id/items'
       path: '/items'
@@ -847,6 +861,7 @@ interface SandboxesIdRouteChildren {
   SandboxesIdAchievementsRoute: typeof SandboxesIdAchievementsRoute
   SandboxesIdAssetsRoute: typeof SandboxesIdAssetsRoute
   SandboxesIdBuildsRoute: typeof SandboxesIdBuildsRoute
+  SandboxesIdChangelogRoute: typeof SandboxesIdChangelogRoute
   SandboxesIdItemsRoute: typeof SandboxesIdItemsRoute
   SandboxesIdOffersRoute: typeof SandboxesIdOffersRoute
   SandboxesIdIndexRoute: typeof SandboxesIdIndexRoute
@@ -856,6 +871,7 @@ const SandboxesIdRouteChildren: SandboxesIdRouteChildren = {
   SandboxesIdAchievementsRoute: SandboxesIdAchievementsRoute,
   SandboxesIdAssetsRoute: SandboxesIdAssetsRoute,
   SandboxesIdBuildsRoute: SandboxesIdBuildsRoute,
+  SandboxesIdChangelogRoute: SandboxesIdChangelogRoute,
   SandboxesIdItemsRoute: SandboxesIdItemsRoute,
   SandboxesIdOffersRoute: SandboxesIdOffersRoute,
   SandboxesIdIndexRoute: SandboxesIdIndexRoute,
@@ -921,6 +937,7 @@ export interface FileRoutesByFullPath {
   '/sandboxes/$id/achievements': typeof SandboxesIdAchievementsRoute
   '/sandboxes/$id/assets': typeof SandboxesIdAssetsRoute
   '/sandboxes/$id/builds': typeof SandboxesIdBuildsRoute
+  '/sandboxes/$id/changelog': typeof SandboxesIdChangelogRoute
   '/sandboxes/$id/items': typeof SandboxesIdItemsRoute
   '/sandboxes/$id/offers': typeof SandboxesIdOffersRoute
   '/collections/$id': typeof CollectionsIdIndexRoute
@@ -972,6 +989,7 @@ export interface FileRoutesByTo {
   '/sandboxes/$id/achievements': typeof SandboxesIdAchievementsRoute
   '/sandboxes/$id/assets': typeof SandboxesIdAssetsRoute
   '/sandboxes/$id/builds': typeof SandboxesIdBuildsRoute
+  '/sandboxes/$id/changelog': typeof SandboxesIdChangelogRoute
   '/sandboxes/$id/items': typeof SandboxesIdItemsRoute
   '/sandboxes/$id/offers': typeof SandboxesIdOffersRoute
   '/collections/$id': typeof CollectionsIdIndexRoute
@@ -1029,6 +1047,7 @@ export interface FileRoutesById {
   '/sandboxes/$id/achievements': typeof SandboxesIdAchievementsRoute
   '/sandboxes/$id/assets': typeof SandboxesIdAssetsRoute
   '/sandboxes/$id/builds': typeof SandboxesIdBuildsRoute
+  '/sandboxes/$id/changelog': typeof SandboxesIdChangelogRoute
   '/sandboxes/$id/items': typeof SandboxesIdItemsRoute
   '/sandboxes/$id/offers': typeof SandboxesIdOffersRoute
   '/collections/$id/': typeof CollectionsIdIndexRoute
@@ -1087,6 +1106,7 @@ export interface FileRouteTypes {
     | '/sandboxes/$id/achievements'
     | '/sandboxes/$id/assets'
     | '/sandboxes/$id/builds'
+    | '/sandboxes/$id/changelog'
     | '/sandboxes/$id/items'
     | '/sandboxes/$id/offers'
     | '/collections/$id'
@@ -1137,6 +1157,7 @@ export interface FileRouteTypes {
     | '/sandboxes/$id/achievements'
     | '/sandboxes/$id/assets'
     | '/sandboxes/$id/builds'
+    | '/sandboxes/$id/changelog'
     | '/sandboxes/$id/items'
     | '/sandboxes/$id/offers'
     | '/collections/$id'
@@ -1192,6 +1213,7 @@ export interface FileRouteTypes {
     | '/sandboxes/$id/achievements'
     | '/sandboxes/$id/assets'
     | '/sandboxes/$id/builds'
+    | '/sandboxes/$id/changelog'
     | '/sandboxes/$id/items'
     | '/sandboxes/$id/offers'
     | '/collections/$id/'
@@ -1396,6 +1418,7 @@ export const routeTree = rootRoute
         "/sandboxes/$id/achievements",
         "/sandboxes/$id/assets",
         "/sandboxes/$id/builds",
+        "/sandboxes/$id/changelog",
         "/sandboxes/$id/items",
         "/sandboxes/$id/offers",
         "/sandboxes/$id/"
@@ -1489,6 +1512,10 @@ export const routeTree = rootRoute
     },
     "/sandboxes/$id/builds": {
       "filePath": "sandboxes/$id/builds.tsx",
+      "parent": "/sandboxes/$id"
+    },
+    "/sandboxes/$id/changelog": {
+      "filePath": "sandboxes/$id/changelog.tsx",
       "parent": "/sandboxes/$id"
     },
     "/sandboxes/$id/items": {

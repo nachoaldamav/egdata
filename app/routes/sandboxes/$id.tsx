@@ -6,6 +6,7 @@ import { SectionsNav } from '@/components/app/offer-sections';
 import {
   Archive,
   BoxIcon,
+  CalculatorIcon,
   LibrarySquareIcon,
   PackageIcon,
   StoreIcon,
@@ -186,6 +187,16 @@ function SandboxPage() {
                 </span>
               ),
               href: `/sandboxes/${id}/achievements`,
+            },
+            {
+              id: 'changelog',
+              label: (
+                <span className="inline-flex items-center gap-2">
+                  <CalculatorIcon className="size-4" />
+                  <span>Changelog</span>
+                </span>
+              ),
+              href: `/sandboxes/${id}/changelog`,
             },
           ]}
           activeSection={subPath ?? ''}
