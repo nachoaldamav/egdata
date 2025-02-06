@@ -78,12 +78,27 @@ export const platforms: {
 
 export const columns: ColumnDef<Asset>[] = [
   {
+    accessorKey: 'title',
+    header: 'Title',
+    enableSorting: true,
+    enableColumnFilter: true,
+    cell: (info) => {
+      const title = info.getValue() as string;
+      return <span className="font-mono">{title}</span>;
+    },
+  },
+  {
     accessorKey: 'artifactId',
     header: 'ID',
     enableSorting: true,
     enableColumnFilter: true,
     cell: (info) => {
-      return <span className="font-mono">{info.getValue() as string}</span>;
+      return (
+        <span className="font-mono">
+          {(info.getValue() as string).slice(0, 4)}...
+          {(info.getValue() as string).slice(-4)}
+        </span>
+      );
     },
   },
   {

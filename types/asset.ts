@@ -6,4 +6,5 @@ export interface Asset {
   itemId: string;
   namespace: string;
   platform: string;
+  title: string;
 }
