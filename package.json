@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "vinxi dev",
-    "build": "vinxi build",
-    "start": "NODE_ENV=--enable-source-maps vinxi start",
+    "build": "vinxi build && npx @sentry/wizard@latest -i sourcemaps --saas",
+    "start": "NODE_ENV=--enable-source-maps TZ=UTC vinxi start",
     "format": "biome format --write app components lib queries types contexts hooks",
     "lint": "biome lint --fix app components lib queries types contexts hooks",
     "wrangler": "wrangler"
@@ -98,7 +98,10 @@
     "vaul": "^1.1.2",
     "vinxi": "0.5.1",
     "vite-plugin-pwa": "^0.21.1",
-    "zod": "^3.24.1"
+    "zod": "^3.24.1",
+    "@sentry/react": "^8.51.0",
+    "@sentry/tracing": "^7.114.0",
+    "@sentry/vite-plugin": "^3.1.2"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

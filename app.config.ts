@@ -1,4 +1,5 @@
 import { defineConfig } from '@tanstack/start/config';
+import { sentryVitePlugin } from '@sentry/vite-plugin';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -6,6 +7,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   vite: {
+    plugins: [
+      sentryVitePlugin({
+        authToken: process.env.SENTRY_AUTH_TOKEN,
+      }),
+    ],
     resolve: {
       alias: {
         '@': path.resolve(__dirname),
