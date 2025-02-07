@@ -10,6 +10,8 @@ export default defineConfig({
     plugins: [
       sentryVitePlugin({
         authToken: process.env.SENTRY_AUTH_TOKEN,
+        org: 'royale-radar',
+        project: 'egdata',
       }),
     ],
     resolve: {
