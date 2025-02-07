@@ -15,6 +15,7 @@ self.addEventListener('activate', (event) => {
  */
 function isJsOrCssRequest(request) {
   const url = new URL(request.url);
+  if (url.pathname.includes('/node_modules/')) return false;
   return url.pathname.endsWith('.js') || url.pathname.endsWith('.css');
 }
 

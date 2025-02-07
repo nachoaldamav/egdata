@@ -274,7 +274,7 @@ export default function Navbar() {
           {routes.map((route) => {
             if (route.component) {
               return (
-                <NavigationMenuItem key={route.name}>
+                <NavigationMenuItem key={route.name} className="bg-transparent">
                   <NavigationMenuTrigger
                     onClick={() =>
                       navigate({
@@ -282,6 +282,7 @@ export default function Navbar() {
                       })
                     }
                     className={cn(
+                      'bg-transparent',
                       'hover:text-white z-50',
                       'active:text-white data-[active]:text-white data-[state=open]:text-white',
                     )}
