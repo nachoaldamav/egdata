@@ -33,6 +33,7 @@ import { useCompare } from '@/hooks/use-compare';
 import { useLocale } from '@/hooks/use-locale';
 import { ClientOnly } from '@/lib/cllient-only';
 import { generateOfferMeta } from '@/lib/generate-offer-meta';
+import { getImage } from '@/lib/get-image';
 import { getSeller } from '@/lib/get-seller';
 import { httpClient } from '@/lib/http-client';
 import { internalNamespaces } from '@/lib/internal-namespaces';
@@ -43,6 +44,7 @@ import type { Asset } from '@/types/asset';
 import type { Technology } from '@/types/builds';
 import type { Price } from '@/types/price';
 import type { SingleOffer } from '@/types/single-offer';
+import { Portal } from '@radix-ui/react-portal';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import {
   createFileRoute,
@@ -154,10 +156,28 @@ function OfferPage() {
   }
 
   return (
-    <main className="flex flex-col items-start justify-start w-full min-h-screen gap-4">
+    <main className="flex flex-col items-start justify-start w-full min-h-screen gap-4 relative">
       <ClientOnly>
         <PrepurchasePopup id={offer.id} />
       </ClientOnly>
+      <Portal>
+        <div
+          className={cn(
+            'w-full h-[700px] absolute inset-0 -z-10 pointer-events-none bg-no-repeat bg-fit bg-center',
+            'blur-3xl bg-opacity-15 bg-black/40 filter brightness-[0.15] saturate-[0.5]',
+          )}
+          style={{
+            backgroundImage: `url(${
+              getImage(offer.keyImages, [
+                'DieselStoreFrontWide',
+                'OfferImageWide',
+                'DieselGameBoxWide',
+                'TakeoverWide',
+              ])?.url ?? '/placeholder.webp'
+            })`,
+          }}
+        />
+      </Portal>
       <header className="grid col-span-1 gap-4 md:grid-cols-2 w-full">
         <div className="flex flex-col gap-1">
           <h1 className="text-4xl font-bold">{offer.title}</h1>
