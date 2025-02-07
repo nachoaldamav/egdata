@@ -164,7 +164,8 @@ function OfferPage() {
         <div
           className={cn(
             'w-full h-[700px] absolute inset-0 -z-10 pointer-events-none bg-no-repeat bg-fit bg-center',
-            'blur-3xl bg-opacity-15 bg-black/40 filter brightness-[0.15] saturate-[0.5]',
+            'blur-3xl bg-opacity-15 bg-black/40 filter brightness-[0.15]',
+            'animate-in fade-in duration-500',
           )}
           style={{
             backgroundImage: `url(${
@@ -176,6 +177,7 @@ function OfferPage() {
               ])?.url ?? '/placeholder.webp'
             })`,
           }}
+          key="offer-background"
         />
       </Portal>
       <header className="grid col-span-1 gap-4 md:grid-cols-2 w-full">
