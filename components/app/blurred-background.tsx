@@ -50,7 +50,7 @@ export function BlurredBackground({ src }: { src: string }) {
         className={cn(
           'absolute inset-0 -z-10 pointer-events-none w-full h-[700px] filter brightness-[0.30] blur-3xl',
           'animate-in fade-in duration-1000',
-          isHovered ? 'opacity-75' : 'opacity-0',
+          isHovered ? 'opacity-50' : 'opacity-0',
         )}
         width={720}
         height={480}
