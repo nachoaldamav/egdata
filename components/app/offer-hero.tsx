@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { httpClient } from '@/lib/http-client';
 import { getImage } from '@/lib/getImage';
 import { cn } from '@/lib/utils';
@@ -7,6 +7,7 @@ import type { Media } from '@/types/media';
 import type { SingleOffer } from '@/types/single-offer';
 import { GameFeatures } from './features';
 import { Image } from './image';
+import { useVideo } from '@/hooks/use-video';
 
 export function OfferHero({ offer }: { offer: SingleOffer }) {
   const { data: media } = useQuery({
@@ -14,8 +15,9 @@ export function OfferHero({ offer }: { offer: SingleOffer }) {
     queryFn: () => httpClient.get<Media>(`/offers/${offer.id}/media`),
     retry: false,
   });
-  const [isHovered, setIsHovered] = useState(false);
+  const { isHovered, setIsHovered, setCanvasRef } = useVideo();
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const localCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const videoUrl = media?.videos?.[0]?.outputs
     .filter((output) => output.width !== undefined)
@@ -38,6 +40,44 @@ export function OfferHero({ offer }: { offer: SingleOffer }) {
     }
   }, [isHovered]);
 
+  useEffect(() => {
+    if (localCanvasRef.current) {
+      setCanvasRef(localCanvasRef);
+    }
+  }, [setCanvasRef]);
+
+  useEffect(() => {
+    let animationFrameId: number;
+
+    const drawFrame = () => {
+      if (videoRef.current && localCanvasRef.current) {
+        const ctx = localCanvasRef.current.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(
+            videoRef.current,
+            0,
+            0,
+            localCanvasRef.current.width,
+            localCanvasRef.current.height,
+          );
+          ctx.filter = 'blur(10px)'; // Apply blur effect
+          ctx.drawImage(localCanvasRef.current, 0, 0);
+        }
+      }
+      animationFrameId = requestAnimationFrame(drawFrame);
+    };
+
+    if (isHovered && videoRef.current && localCanvasRef.current) {
+      drawFrame();
+    }
+
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, [isHovered]);
+
   return (
     <div
       className="relative w-full h-auto"
@@ -58,11 +98,15 @@ export function OfferHero({ offer }: { offer: SingleOffer }) {
           width={'100%'}
           height={'auto'}
           src={videoUrl}
-          ref={(element) => {
-            videoRef.current = element;
-          }}
+          ref={videoRef}
         />
       )}
+      <canvas
+        ref={localCanvasRef}
+        width={720}
+        height={480}
+        style={{ display: 'none' }}
+      />
       <Image
         src={
           getImage(offer.keyImages, [

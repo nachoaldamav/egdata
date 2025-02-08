@@ -1,4 +1,5 @@
 /// <reference types="vinxi/types/server" />
+import '@/lib/instrument';
 import {
   createStartHandler,
   defaultStreamHandler,

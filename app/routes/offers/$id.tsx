@@ -1,4 +1,5 @@
 import { BaseGame } from '@/components/app/base-game';
+import { BlurredBackground } from '@/components/app/blurred-background';
 import { OfferInBundle } from '@/components/app/bundle-game';
 import { InternalBanner } from '@/components/app/internal-banner';
 import { OfferHero } from '@/components/app/offer-hero';
@@ -40,11 +41,11 @@ import { internalNamespaces } from '@/lib/internal-namespaces';
 import { offersDictionary } from '@/lib/offers-dictionary';
 import { compareDates, timeAgo } from '@/lib/time-ago';
 import { cn } from '@/lib/utils';
+import { VideoProvider } from '@/providers/offers-video';
 import type { Asset } from '@/types/asset';
 import type { Technology } from '@/types/builds';
 import type { Price } from '@/types/price';
 import type { SingleOffer } from '@/types/single-offer';
-import { Portal } from '@radix-ui/react-portal';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import {
   createFileRoute,
@@ -156,406 +157,401 @@ function OfferPage() {
   }
 
   return (
-    <main className="flex flex-col items-start justify-start w-full min-h-screen gap-4 relative">
-      <ClientOnly>
-        <PrepurchasePopup id={offer.id} />
-      </ClientOnly>
-      <Portal>
-        <div
-          className={cn(
-            'w-full h-[700px] absolute inset-0 -z-10 pointer-events-none bg-no-repeat bg-fit bg-center',
-            'blur-3xl bg-opacity-15 bg-black/40 filter brightness-[0.15]',
-            'animate-in fade-in duration-500',
-          )}
-          style={{
-            backgroundImage: `url(${
-              getImage(offer.keyImages, [
-                'DieselStoreFrontWide',
-                'OfferImageWide',
-                'DieselGameBoxWide',
-                'TakeoverWide',
-              ])?.url ?? '/placeholder.webp'
-            })`,
-          }}
-          key="offer-background"
+    <VideoProvider>
+      <main className="flex flex-col items-start justify-start w-full min-h-screen gap-4 relative">
+        <ClientOnly>
+          <PrepurchasePopup id={offer.id} />
+        </ClientOnly>
+        <BlurredBackground
+          src={
+            getImage(offer.keyImages, [
+              'DieselStoreFrontWide',
+              'OfferImageWide',
+              'DieselGameBoxWide',
+              'TakeoverWide',
+            ])?.url ?? '/placeholder.webp'
+          }
         />
-      </Portal>
-      <header className="grid col-span-1 gap-4 md:grid-cols-2 w-full">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-4xl font-bold">{offer.title}</h1>
-          <h4
-            className="text-lg font-semibold opacity-50 inline-flex items-center gap-2"
-            aria-label={`Offered by ${offer.seller.name}`}
-          >
-            {getSeller({
-              developerDisplayName: offer.developerDisplayName as string,
-              publisherDisplayName: offer.publisherDisplayName as string,
-              seller: offer.seller.name,
-              customAttributes: offer.customAttributes,
-            })}
-            {offer.prePurchase && <Badge variant="outline">Pre-Purchase</Badge>}
-            {offer.tags.find((tag) => tag.id === '1310') && (
-              <Badge variant="outline">Early Access</Badge>
-            )}
-          </h4>
+        <header className="grid col-span-1 gap-4 md:grid-cols-2 w-full">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-4xl font-bold">{offer.title}</h1>
+            <h4
+              className="text-lg font-semibold opacity-50 inline-flex items-center gap-2"
+              aria-label={`Offered by ${offer.seller.name}`}
+            >
+              {getSeller({
+                developerDisplayName: offer.developerDisplayName as string,
+                publisherDisplayName: offer.publisherDisplayName as string,
+                seller: offer.seller.name,
+                customAttributes: offer.customAttributes,
+              })}
+              {offer.prePurchase && (
+                <Badge variant="outline">Pre-Purchase</Badge>
+              )}
+              {offer.tags.find((tag) => tag.id === '1310') && (
+                <Badge variant="outline">Early Access</Badge>
+              )}
+            </h4>
 
-          <div className="rounded-xl border border-gray-300/10 mt-2">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[300px]">Offer ID</TableHead>
-                  <TableHead className="text-left font-mono border-l-gray-300/10 border-l">
-                    {offer.id}
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow>
-                  <TableCell className="font-medium">Namespace</TableCell>
-                  <TableCell
-                    className={
-                      'text-left font-mono border-l-gray-300/10 border-l underline decoration-dotted decoration-slate-600 underline-offset-4'
-                    }
-                  >
-                    <Link to={`/sandboxes/${offer.namespace}/offers`}>
-                      {internalNamespaces.includes(offer.namespace) ? (
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger>{offer.namespace}</TooltipTrigger>
-                            <TooltipContent>
-                              <p>Epic Games internal namespace</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      ) : (
-                        offer.namespace
-                      )}
-                    </Link>
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">Offer Type</TableCell>
-                  <TableCell className="text-left border-l-gray-300/10 border-l">
-                    {offersDictionary[offer.offerType] || offer.offerType}
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">Seller</TableCell>
-                  <TableCell className="text-left border-l-gray-300/10 border-l">
-                    <Link
-                      to={`/sellers/${offer.seller.id}`}
-                      className="underline underline-offset-4"
+            <div className="rounded-xl border border-gray-300/10 mt-2">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[300px]">Offer ID</TableHead>
+                    <TableHead className="text-left font-mono border-l-gray-300/10 border-l">
+                      {offer.id}
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="font-medium">Namespace</TableCell>
+                    <TableCell
+                      className={
+                        'text-left font-mono border-l-gray-300/10 border-l underline decoration-dotted decoration-slate-600 underline-offset-4'
+                      }
                     >
-                      {offer.seller.name}
-                    </Link>
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">Developer</TableCell>
-                  <TableCell className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l">
-                    {(offer.customAttributes?.developerName?.value === '{}'
-                      ? undefined
-                      : offer.customAttributes?.developerName?.value) ??
-                      offer.developerDisplayName ??
-                      offer.seller.name}
-                    {offer.publisherDisplayName !==
-                      offer.developerDisplayName && (
-                      <span className="opacity-50">
-                        ({offer.publisherDisplayName})
-                      </span>
-                    )}
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">
-                    Supported Platforms
-                  </TableCell>
-                  <TableCell className="text-left border-l-gray-300/10 border-l inline-flex items-center justify-start gap-1">
-                    {offer.tags
-                      .filter((tag) => tag !== null)
-                      .filter((tag) => platformIcons[tag.id])
-                      .map((tag) => (
-                        <span key={tag.id} className="text-xs">
-                          {platformIcons[tag.id]}
+                      <Link to={`/sandboxes/${offer.namespace}/offers`}>
+                        {internalNamespaces.includes(offer.namespace) ? (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger>{offer.namespace}</TooltipTrigger>
+                              <TooltipContent>
+                                <p>Epic Games internal namespace</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        ) : (
+                          offer.namespace
+                        )}
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Offer Type</TableCell>
+                    <TableCell className="text-left border-l-gray-300/10 border-l">
+                      {offersDictionary[offer.offerType] || offer.offerType}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Seller</TableCell>
+                    <TableCell className="text-left border-l-gray-300/10 border-l">
+                      <Link
+                        to={`/sellers/${offer.seller.id}`}
+                        className="underline underline-offset-4"
+                      >
+                        {offer.seller.name}
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Developer</TableCell>
+                    <TableCell className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l">
+                      {(offer.customAttributes?.developerName?.value === '{}'
+                        ? undefined
+                        : offer.customAttributes?.developerName?.value) ??
+                        offer.developerDisplayName ??
+                        offer.seller.name}
+                      {offer.publisherDisplayName !==
+                        offer.developerDisplayName && (
+                        <span className="opacity-50">
+                          ({offer.publisherDisplayName})
                         </span>
-                      ))}
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">Release Date</TableCell>
-                  <TableCell
-                    className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l"
-                    suppressHydrationWarning
-                  >
-                    <ReleaseDate
-                      releaseDate={offer.releaseDate}
-                      pcReleaseDate={offer.pcReleaseDate}
-                      timezone={timezone}
-                    />
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">Last Update</TableCell>
-                  <TableCell
-                    className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l"
-                    suppressHydrationWarning
-                  >
-                    {offer.lastModifiedDate
-                      ? new Date(offer.lastModifiedDate).toLocaleDateString(
-                          'en-UK',
-                          {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            hour: 'numeric',
-                            minute: 'numeric',
-                            timeZone: timezone,
-                            timeZoneName: 'short',
-                          },
-                        )
-                      : 'Not available'}
-                    <TimeAgo targetDate={offer.lastModifiedDate} />
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell className="font-medium">Creation Date</TableCell>
-                  <TableCell
-                    className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l"
-                    suppressHydrationWarning
-                  >
-                    {offer.creationDate
-                      ? new Date(offer.creationDate).toLocaleDateString(
-                          'en-UK',
-                          {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            hour: 'numeric',
-                            minute: 'numeric',
-                            timeZone: timezone,
-                            timeZoneName: 'short',
-                          },
-                        )
-                      : 'Not available'}
-                    <TimeAgo targetDate={offer.creationDate} />
-                  </TableCell>
-                </TableRow>
-                {technologies && technologies.length > 0 && (
+                      )}
+                    </TableCell>
+                  </TableRow>
                   <TableRow>
                     <TableCell className="font-medium">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <span className="underline decoration-dotted decoration-gray-300/50 underline-offset-4 cursor-help">
-                              Technologies
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p className="text-sm max-w-md">
-                              We use the{' '}
-                              <a
-                                href="https://steamdb.info/tech/"
-                                className="text-blue-700 font-semibold"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                SteamDB
-                              </a>{' '}
-                              technologies list to track the used engines and
-                              different technologies from the game files.
-                              <br />
-                              <a
-                                href="https://github.com/SteamDatabase/FileDetectionRuleSets"
-                                className="text-blue-700 font-semibold"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                              >
-                                Source
-                              </a>
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                      Supported Platforms
                     </TableCell>
-                    <TableCell className="text-left border-l-gray-300/10 border-l flex flex-wrap flex-row gap-1">
-                      {technologies
-                        .filter(
-                          (technology) =>
-                            technology.section === 'Engine' ||
-                            technology.section === 'AntiCheat' ||
-                            technology.section === 'Container' ||
-                            technology.section === 'Emulator' ||
-                            technology.section === 'Launcher' ||
-                            technology.technology === 'SteamworksNET' ||
-                            technology.technology === 'EpicOnlineServices' ||
-                            technology.technology === 'Steam_Networking',
-                        )
-                        // Sort by
-                        // Engine
-                        // Launcher
-                        // Anti-cheat
-                        .sort((a, b) => {
-                          if (a.section === 'Engine') {
-                            return -1;
-                          }
-
-                          if (b.section === 'Engine') {
-                            return 1;
-                          }
-
-                          if (a.section === 'Launcher') {
-                            return -1;
-                          }
-
-                          if (b.section === 'Launcher') {
-                            return 1;
-                          }
-
-                          if (a.section === 'AntiCheat') {
-                            return -1;
-                          }
-
-                          if (b.section === 'AntiCheat') {
-                            return 1;
-                          }
-
-                          return 0;
-                        })
-                        .map((technology, index, array) => (
-                          <span
-                            key={`${technology.section}-${technology.technology}`}
-                            className="font-mono"
-                          >
-                            {technology.technology}
-                            <sup className="text-[9px] ml-[2px]">
-                              {technology.section}
-                            </sup>
-                            {index < array.length - 1 && ','}
+                    <TableCell className="text-left border-l-gray-300/10 border-l inline-flex items-center justify-start gap-1">
+                      {offer.tags
+                        .filter((tag) => tag !== null)
+                        .filter((tag) => platformIcons[tag.id])
+                        .map((tag) => (
+                          <span key={tag.id} className="text-xs">
+                            {platformIcons[tag.id]}
                           </span>
                         ))}
                     </TableCell>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                  <TableRow>
+                    <TableCell className="font-medium">Release Date</TableCell>
+                    <TableCell
+                      className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l"
+                      suppressHydrationWarning
+                    >
+                      <ReleaseDate
+                        releaseDate={offer.releaseDate}
+                        pcReleaseDate={offer.pcReleaseDate}
+                        timezone={timezone}
+                      />
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Last Update</TableCell>
+                    <TableCell
+                      className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l"
+                      suppressHydrationWarning
+                    >
+                      {offer.lastModifiedDate
+                        ? new Date(offer.lastModifiedDate).toLocaleDateString(
+                            'en-UK',
+                            {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: 'numeric',
+                              minute: 'numeric',
+                              timeZone: timezone,
+                              timeZoneName: 'short',
+                            },
+                          )
+                        : 'Not available'}
+                      <TimeAgo targetDate={offer.lastModifiedDate} />
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Creation Date</TableCell>
+                    <TableCell
+                      className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l"
+                      suppressHydrationWarning
+                    >
+                      {offer.creationDate
+                        ? new Date(offer.creationDate).toLocaleDateString(
+                            'en-UK',
+                            {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: 'numeric',
+                              minute: 'numeric',
+                              timeZone: timezone,
+                              timeZoneName: 'short',
+                            },
+                          )
+                        : 'Not available'}
+                      <TimeAgo targetDate={offer.creationDate} />
+                    </TableCell>
+                  </TableRow>
+                  {technologies && technologies.length > 0 && (
+                    <TableRow>
+                      <TableCell className="font-medium">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <span className="underline decoration-dotted decoration-gray-300/50 underline-offset-4 cursor-help">
+                                Technologies
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="text-sm max-w-md">
+                                We use the{' '}
+                                <a
+                                  href="https://steamdb.info/tech/"
+                                  className="text-blue-700 font-semibold"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  SteamDB
+                                </a>{' '}
+                                technologies list to track the used engines and
+                                different technologies from the game files.
+                                <br />
+                                <a
+                                  href="https://github.com/SteamDatabase/FileDetectionRuleSets"
+                                  className="text-blue-700 font-semibold"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  Source
+                                </a>
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </TableCell>
+                      <TableCell className="text-left border-l-gray-300/10 border-l flex flex-wrap flex-row gap-1">
+                        {technologies
+                          .filter(
+                            (technology) =>
+                              technology.section === 'Engine' ||
+                              technology.section === 'AntiCheat' ||
+                              technology.section === 'Container' ||
+                              technology.section === 'Emulator' ||
+                              technology.section === 'Launcher' ||
+                              technology.technology === 'SteamworksNET' ||
+                              technology.technology === 'EpicOnlineServices' ||
+                              technology.technology === 'Steam_Networking',
+                          )
+                          // Sort by
+                          // Engine
+                          // Launcher
+                          // Anti-cheat
+                          .sort((a, b) => {
+                            if (a.section === 'Engine') {
+                              return -1;
+                            }
+
+                            if (b.section === 'Engine') {
+                              return 1;
+                            }
+
+                            if (a.section === 'Launcher') {
+                              return -1;
+                            }
+
+                            if (b.section === 'Launcher') {
+                              return 1;
+                            }
+
+                            if (a.section === 'AntiCheat') {
+                              return -1;
+                            }
+
+                            if (b.section === 'AntiCheat') {
+                              return 1;
+                            }
+
+                            return 0;
+                          })
+                          .map((technology, index, array) => (
+                            <span
+                              key={`${technology.section}-${technology.technology}`}
+                              className="font-mono"
+                            >
+                              {technology.technology}
+                              <sup className="text-[9px] ml-[2px]">
+                                {technology.section}
+                              </sup>
+                              {index < array.length - 1 && ','}
+                            </span>
+                          ))}
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+            <InternalBanner title={offer.title} namespace={offer.namespace} />
+            <BaseGame offer={offer} />
+            <OfferInBundle offer={offer} />
           </div>
-          <InternalBanner title={offer.title} namespace={offer.namespace} />
-          <BaseGame offer={offer} />
-          <OfferInBundle offer={offer} />
-        </div>
-        <div className="flex justify-start items-start flex-col gap-4">
-          <div className="inline-flex items-center gap-2 justify-end w-full h-8">
-            <StoreDropdown offer={offer} />
-            <OpenLauncher id={offer.id} />
-            <Button
-              onClick={() => {
-                if (compare.includes(offer.id)) {
-                  removeFromCompare(offer.id);
-                } else {
-                  addToCompare(offer.id);
-                }
-              }}
-              className="inline-flex items-center gap-1 bg-card text-white hover:bg-card-hover border"
-            >
-              {compare.includes(offer.id) ? <RemoveIcon /> : <AddIcon />}
-              <span>Compare</span>
-            </Button>
+          <div className="flex justify-start items-start flex-col gap-4">
+            <div className="inline-flex items-center gap-2 justify-end w-full h-8">
+              <StoreDropdown offer={offer} />
+              <OpenLauncher id={offer.id} />
+              <Button
+                onClick={() => {
+                  if (compare.includes(offer.id)) {
+                    removeFromCompare(offer.id);
+                  } else {
+                    addToCompare(offer.id);
+                  }
+                }}
+                className="inline-flex items-center gap-1 bg-card text-white hover:bg-card-hover border"
+              >
+                {compare.includes(offer.id) ? <RemoveIcon /> : <AddIcon />}
+                <span>Compare</span>
+              </Button>
+            </div>
+            <OfferHero offer={offer} />
+            <p className="px-1">{offer.description}</p>
           </div>
-          <OfferHero offer={offer} />
-          <p className="px-1">{offer.description}</p>
-        </div>
-      </header>
+        </header>
 
-      {offer.categories.findIndex((category) => category === 'collections') !==
-        -1 && (
-        <section className="w-full min-h-[50vh] flex flex-col gap-4">
-          <CollectionOffers id={offer.id} />
+        {offer.categories.findIndex(
+          (category) => category === 'collections',
+        ) !== -1 && (
+          <section className="w-full min-h-[50vh] flex flex-col gap-4">
+            <CollectionOffers id={offer.id} />
+          </section>
+        )}
+
+        {offer.offerType === 'BUNDLE' || offer.offerType === 'Bundle' ? (
+          <section className="w-full min-h-[50vh] flex flex-col gap-4">
+            <hr className="my-4" />
+            <Bundle id={offer.id} offer={offer} />
+            <hr className="my-4" />
+          </section>
+        ) : null}
+
+        <section
+          id="offer-information"
+          className="w-full min-h-[50vh] flex flex-col gap-4"
+        >
+          <SectionsNav
+            links={[
+              {
+                id: '',
+                label: 'Overview',
+                href: `/offers/${offer.id}`,
+              },
+              {
+                id: 'price',
+                label: 'Price',
+                href: `/offers/${offer.id}/price`,
+              },
+              {
+                id: 'items',
+                label: 'Items',
+                href: `/offers/${offer.id}/items`,
+              },
+              {
+                id: 'achievements',
+                label: 'Achievements',
+                href: `/offers/${offer.id}/achievements`,
+              },
+              {
+                id: 'related',
+                label: 'Related',
+                href: `/offers/${offer.id}/related`,
+              },
+              {
+                id: 'metadata',
+                label: 'Metadata',
+                href: `/offers/${offer.id}/metadata`,
+              },
+              {
+                id: 'changelog',
+                label: 'Changelog',
+                href: `/offers/${offer.id}/changelog`,
+              },
+              {
+                id: 'media',
+                label: 'Media',
+                href: `/offers/${offer.id}/media`,
+              },
+              {
+                id: 'reviews',
+                label: 'Reviews',
+                href: `/offers/${offer.id}/reviews`,
+              },
+            ]}
+            activeSection={subPath ?? ''}
+            onSectionChange={(id) => {
+              navigate({
+                to: `/offers/${offer.id}/${id}`,
+                replace: false,
+                resetScroll: false,
+              });
+            }}
+          />
+
+          <Outlet />
         </section>
-      )}
 
-      {offer.offerType === 'BUNDLE' || offer.offerType === 'Bundle' ? (
-        <section className="w-full min-h-[50vh] flex flex-col gap-4">
-          <hr className="my-4" />
-          <Bundle id={offer.id} offer={offer} />
-          <hr className="my-4" />
-        </section>
-      ) : null}
+        <hr className="my-4 border-gray-300/40" />
 
-      <section
-        id="offer-information"
-        className="w-full min-h-[50vh] flex flex-col gap-4"
-      >
-        <SectionsNav
-          links={[
-            {
-              id: '',
-              label: 'Overview',
-              href: `/offers/${offer.id}`,
-            },
-            {
-              id: 'price',
-              label: 'Price',
-              href: `/offers/${offer.id}/price`,
-            },
-            {
-              id: 'items',
-              label: 'Items',
-              href: `/offers/${offer.id}/items`,
-            },
-            {
-              id: 'achievements',
-              label: 'Achievements',
-              href: `/offers/${offer.id}/achievements`,
-            },
-            {
-              id: 'related',
-              label: 'Related',
-              href: `/offers/${offer.id}/related`,
-            },
-            {
-              id: 'metadata',
-              label: 'Metadata',
-              href: `/offers/${offer.id}/metadata`,
-            },
-            {
-              id: 'changelog',
-              label: 'Changelog',
-              href: `/offers/${offer.id}/changelog`,
-            },
-            {
-              id: 'media',
-              label: 'Media',
-              href: `/offers/${offer.id}/media`,
-            },
-            {
-              id: 'reviews',
-              label: 'Reviews',
-              href: `/offers/${offer.id}/reviews`,
-            },
-          ]}
-          activeSection={subPath ?? ''}
-          onSectionChange={(id) => {
-            navigate({
-              to: `/offers/${offer.id}/${id}`,
-              replace: false,
-              resetScroll: false,
-            });
-          }}
+        <SellerOffers
+          id={offer.seller.id}
+          name={offer.seller.name}
+          currentOffer={offer.id}
         />
 
-        <Outlet />
-      </section>
-
-      <hr className="my-4 border-gray-300/40" />
-
-      <SellerOffers
-        id={offer.seller.id}
-        name={offer.seller.name}
-        currentOffer={offer.id}
-      />
-
-      <SuggestedOffers id={offer.id} />
-    </main>
+        <SuggestedOffers id={offer.id} />
+      </main>
+    </VideoProvider>
   );
 }
 
