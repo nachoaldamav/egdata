@@ -19,6 +19,7 @@ class HttpFetch {
       baseURL,
       headers: defaultOptions.headers,
       timeout: defaultOptions.timeout ?? 10_000,
+      withCredentials: defaultOptions.withCredentials ?? true,
     });
   }
 
@@ -175,14 +176,10 @@ class HttpFetch {
 
 export const httpClient = new HttpFetch(
   import.meta.env.SSR
-    ? (process.env.SERVER_API_ENDPOINT ?? 'https://api.egdata.app')
-    : (import.meta.env.SERVER_API_ENDPOINT ?? 'https://api.egdata.app'),
+    ? (process.env.SERVER_API_ENDPOINT ?? 'http://127.0.0.1:4000')
+    : (import.meta.env.SERVER_API_ENDPOINT ?? 'http://localhost:4000'),
   {
-    headers: {
-      'User-Agent': import.meta.env.SSR
-        ? 'egdata.app/0.0.1 (https://egdata.app)'
-        : undefined,
-    },
     timeout: 5_000,
+    withCredentials: true,
   },
 );

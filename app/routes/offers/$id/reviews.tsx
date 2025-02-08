@@ -90,22 +90,11 @@ export const Route = createFileRoute('/offers/$id/reviews')({
 
   loader: async ({ params, context }) => {
     const { id } = params;
-    const { queryClient, epicToken } = context;
+    const { queryClient, epicToken, session } = context;
 
     const user = epicToken;
 
-    const [userCanReview] = await Promise.all([
-      httpClient
-        .get<{
-          canReview: boolean;
-        }>(`/offers/${params.id}/reviews/permissions`, {
-          headers: {
-            Authorization: `Bearer ${user?.access_token}`,
-          },
-        })
-        .catch(() => {
-          return null;
-        }),
+    await Promise.all([
       queryClient.prefetchQuery({
         queryKey: [
           'reviews',
@@ -126,9 +115,6 @@ export const Route = createFileRoute('/offers/$id/reviews')({
               page: 1,
               verified: getVerificationParam('all'),
             },
-            headers: user
-              ? { Authorization: `Bearer ${user.access_token}` }
-              : {},
           }),
       }),
       queryClient.prefetchQuery({
@@ -165,16 +151,7 @@ export const Route = createFileRoute('/offers/$id/reviews')({
     return {
       id,
       dehydratedState: dehydrate(queryClient),
-      userId: user?.account_id,
-      userCanReview: userCanReview
-        ? {
-            status: userCanReview.canReview,
-            label: 'Already reviewed',
-          }
-        : {
-            status: false,
-            label: 'Login to review',
-          },
+      userId: session?.user?.email.split('@')[0] ?? user?.account_id,
       offer,
     };
   },
@@ -219,11 +196,17 @@ export const Route = createFileRoute('/offers/$id/reviews')({
 function Reviews() {
   const { epicToken } = routeApi.useRouteContext();
   const { locale } = useLocale();
-  const { userCanReview, offer, id } = Route.useLoaderData();
+  const { offer, id } = Route.useLoaderData();
   const [page] = useState(1);
   const [filter, setFilter] = useState<ReviewsFilter>('all');
   const [showReviewForm, setShowReviewForm] = useState(false);
-  const [reviewsQuery, summaryQuery, pollsQuery, ratingsQuery] = useQueries({
+  const [
+    reviewsQuery,
+    summaryQuery,
+    pollsQuery,
+    ratingsQuery,
+    permissionsQuery,
+  ] = useQueries({
     queries: [
       {
         queryKey: [
@@ -245,7 +228,7 @@ function Reviews() {
               ? { Authorization: `Bearer ${epicToken.access_token}` }
               : undefined,
           }),
-        refetchOnMount: false,
+        refetchOnMount: 'always',
       },
       {
         queryKey: [
@@ -280,6 +263,16 @@ function Reviews() {
         ],
         queryFn: () => httpClient.get<RatingsType>(`/offers/${id}/ratings`),
       },
+      {
+        queryKey: ['permissions', { id }],
+        queryFn: () =>
+          httpClient.get<{ canReview: boolean }>(
+            `/offers/${id}/reviews/permissions`,
+            {
+              withCredentials: true,
+            },
+          ),
+      },
     ],
   });
 
@@ -287,6 +280,17 @@ function Reviews() {
   const summary = summaryQuery.data;
   const poll = pollsQuery.data;
   const ratings = ratingsQuery.data;
+  const permissions = permissionsQuery.data;
+
+  const userCanReview = permissions
+    ? {
+        status: permissions.canReview,
+        label: 'Already reviewed',
+      }
+    : {
+        status: false,
+        label: 'Login to review',
+      };
 
   const isReleased = offer
     ? new Date(offer?.releaseDate || offer?.effectiveDate) < new Date()

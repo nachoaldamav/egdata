@@ -48,7 +48,7 @@ export function EditReviewForm({
   offer,
   previousReview,
 }: ReviewFormProps) {
-  const { epicToken } = routeApi.useRouteContext();
+  const { epicToken, session } = routeApi.useRouteContext();
   const [step, setStep] = useState(1);
 
   const postReviewMutation = useMutation({
@@ -121,7 +121,7 @@ export function EditReviewForm({
         return { success: false, errors: { general: 'Spam detected' } };
       }
 
-      if (!epicToken || !epicToken.access_token) {
+      if ((!epicToken || !epicToken.access_token) && !session) {
         throw redirect({ to: '/auth/login' });
       }
 

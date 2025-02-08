@@ -28,13 +28,7 @@ export function DonateKeyForm() {
       const res = await httpClient.post<{
         message: string;
         id: string;
-      }>(
-        `/donate/key/${key}`,
-        {},
-        {
-          credentials: 'include',
-        },
-      );
+      }>(`/donate/key/${key}`, {});
       consola.info('Key donated');
       setSuccess(true);
       setId(res.id);

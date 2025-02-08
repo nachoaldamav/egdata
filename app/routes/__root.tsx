@@ -13,7 +13,6 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import getCountryCode from '@/lib/get-country-code';
 import { parseCookieString } from '@/lib/parse-cookies';
-import { decodeJwt, deleteCookie } from '@/lib/cookies';
 import { SearchProvider } from '@/providers/global-search';
 import { getUserInformation } from '@/queries/profiles';
 import { PreferencesProvider } from '@/providers/preferences';
@@ -23,12 +22,18 @@ import { LocaleProvider } from '@/providers/locale';
 import { CookiesProvider } from '@/providers/cookies';
 import { Base64Utils } from '@/lib/base-64';
 import type { EpicToken } from '@/types/epic';
+import type { auth } from '@/lib/auth';
+import { authClient } from '@/lib/auth-client';
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
   cookies: Record<string, string>;
   epicToken: EpicToken | null;
   country: string;
+  session: {
+    session: typeof auth.$Infer.Session.session;
+    user: typeof auth.$Infer.Session.user;
+  } | null;
 }>()({
   component: RootComponent,
 
@@ -67,19 +72,30 @@ export const Route = createRootRouteWithContext<{
     };
   },
 
-  beforeLoad: async ({ cause, context }) => {
+  beforeLoad: async ({ context }) => {
     const { queryClient } = context;
     let url: URL;
     let cookieHeader: string;
+    let headers: Headers;
+    let session: {
+      session: typeof auth.$Infer.Session.session;
+      user: typeof auth.$Infer.Session.user;
+    } | null;
 
     if (import.meta.env.SSR) {
       const { getWebRequest } = await import('vinxi/http');
+      const { auth } = await import('@/lib/auth');
       const request = getWebRequest();
       url = new URL(request.url);
       cookieHeader = request.headers.get('Cookie') ?? '';
+      headers = request.headers;
+      session = await auth.api.getSession({
+        headers,
+      });
     } else {
       url = new URL(window.location.href);
       cookieHeader = document.cookie;
+      session = await authClient.getSession().then((session) => session.data);
     }
 
     if (typeof cookieHeader !== 'string') {
@@ -92,95 +108,19 @@ export const Route = createRootRouteWithContext<{
     );
     const country = getCountryCode(url, cookies);
 
-    const authCookie = cookies.EGDATA_AUTH;
-    const epicToken = authCookie ? await decodeJwt({ data: authCookie }) : null;
-
-    // Refresh the token if it's expired or about to expire (within 10 minutes)
-    if (cause !== 'preload' && epicToken) {
-      if (
-        epicToken &&
-        new Date(epicToken.expires_at).getTime() <
-          new Date().getTime() + 10 * 60 * 1000
-      ) {
-        // const refreshResponse = await fetch(
-        //   'https://api.egdata.app/auth/v2/refresh',
-        //   {
-        //     method: 'GET',
-        //     headers: {
-        //       Authorization: `Bearer ${authCookie}`,
-        //     },
-        //   },
-        // );
-
-        // if (refreshResponse.ok) {
-        //   const refreshData = (await refreshResponse.json()) as {
-        //     accessToken: string;
-        //     refreshToken: string;
-        //     expiresAt: string;
-        //     refreshExpiresAt: string;
-        //   };
-
-        //   epicToken = {
-        //     access_token: refreshData.accessToken,
-        //     refresh_token: refreshData.refreshToken ?? epicToken.refresh_token,
-        //     expires_at: refreshData.expiresAt ?? epicToken.expires_at,
-        //     refresh_expires_at:
-        //       refreshData.refreshExpiresAt ?? epicToken.refresh_expires_at,
-        //     account_id: epicToken.account_id,
-        //     application_id: epicToken.application_id,
-        //     scope: epicToken.scope,
-        //     token_type: epicToken.token_type,
-        //     client_id: epicToken.client_id,
-        //     expires_in: epicToken.expires_in,
-        //     refresh_expires_in: epicToken.refresh_expires_in,
-        //   };
-
-        //   await saveAuthCookie({
-        //     data: JSON.stringify({ name: 'EGDATA_AUTH', value: epicToken }),
-        //   });
-
-        //   consola.log('Refreshed token', epicToken.account_id);
-        // } else {
-        //   consola.error(
-        //     'Failed to refresh token',
-        //     await refreshResponse.json(),
-        //   );
-        // }
-
-        // Delete the old cookie
-        await deleteCookie({
-          data: 'EGDATA_AUTH',
-        });
-      }
-
-      const isExpired = epicToken
-        ? new Date(epicToken.expires_at).getTime() < Date.now()
-        : false;
-
-      if (epicToken && isExpired) {
-        if (import.meta.env.SSR) {
-          const { deleteCookie } = await import('vinxi/http');
-          deleteCookie('EGDATA_AUTH', {
-            secure: true,
-            path: '/',
-            domain: import.meta.env.PROD ? '.egdata.app' : 'localhost',
-          });
-        }
-      }
-
-      if (epicToken && !isExpired) {
-        await queryClient.prefetchQuery({
-          queryKey: ['user', { id: epicToken?.account_id }],
-          queryFn: () => getUserInformation(epicToken?.account_id || null),
-        });
-      }
+    if (session) {
+      const id = session.user.email.split('@')[0];
+      await queryClient.prefetchQuery({
+        queryKey: ['user', { id }],
+        queryFn: () => getUserInformation(id),
+      });
     }
 
     return {
       country,
       cookies,
       url,
-      epicToken,
+      session,
     };
   },
 

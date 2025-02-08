@@ -48,7 +48,7 @@ const defaultContent: JSONContent = {
 const routeApi = getRouteApi('__root__');
 
 export function ReviewForm({ setIsOpen, offer }: ReviewFormProps) {
-  const { epicToken } = routeApi.useRouteContext();
+  const { session } = routeApi.useRouteContext();
   const [step, setStep] = useState(1);
 
   const postReviewMutation = useMutation({
@@ -66,7 +66,6 @@ export function ReviewForm({ setIsOpen, offer }: ReviewFormProps) {
         {
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${epicToken?.access_token}`,
           },
         },
       );
@@ -92,7 +91,7 @@ export function ReviewForm({ setIsOpen, offer }: ReviewFormProps) {
         return { success: false, errors: { general: 'Spam detected' } };
       }
 
-      if (!epicToken || !epicToken.access_token) {
+      if (!session) {
         throw redirect({ to: '/auth/login' });
       }
 
