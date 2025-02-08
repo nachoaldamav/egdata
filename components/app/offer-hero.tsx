@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { httpClient } from '@/lib/http-client';
 import { getImage } from '@/lib/getImage';
 import { cn } from '@/lib/utils';
@@ -18,6 +18,7 @@ export function OfferHero({ offer }: { offer: SingleOffer }) {
   const { isHovered, setIsHovered, setCanvasRef } = useVideo();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const localCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null);
 
   const videoUrl = media?.videos?.[0]?.outputs
     .filter((output) => output.width !== undefined)
@@ -78,11 +79,29 @@ export function OfferHero({ offer }: { offer: SingleOffer }) {
     };
   }, [isHovered]);
 
+  const handleMouseEnter = () => {
+    if (hoverTimeout) {
+      clearTimeout(hoverTimeout);
+    }
+    setHoverTimeout(
+      setTimeout(() => {
+        setIsHovered(true);
+      }, 150),
+    );
+  };
+
+  const handleMouseLeave = () => {
+    if (hoverTimeout) {
+      clearTimeout(hoverTimeout);
+    }
+    setIsHovered(false);
+  };
+
   return (
     <div
       className="relative w-full h-auto"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {videoUrl && (
         <video
