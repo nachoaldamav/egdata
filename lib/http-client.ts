@@ -176,8 +176,8 @@ class HttpFetch {
 
 export const httpClient = new HttpFetch(
   import.meta.env.SSR
-    ? (process.env.SERVER_API_ENDPOINT ?? 'http://127.0.0.1:4000')
-    : (import.meta.env.SERVER_API_ENDPOINT ?? 'http://localhost:4000'),
+    ? (process.env.SERVER_API_ENDPOINT ?? 'https://api.egdata.app')
+    : (import.meta.env.SERVER_API_ENDPOINT ?? 'https://api.egdata.app'),
   {
     timeout: 5_000,
     withCredentials: true,
