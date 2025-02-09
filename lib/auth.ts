@@ -84,6 +84,7 @@ export const auth = betterAuth({
   advanced: {
     defaultCookieAttributes: {
       httpOnly: false,
+      domain: import.meta.env.PROD ? '.egdata.app' : 'localhost',
     },
   },
 });
