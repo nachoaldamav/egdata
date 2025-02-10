@@ -27,6 +27,7 @@ export function CookieBanner() {
     personalization_storage: 'denied',
     security_storage: 'denied',
   });
+  const [ahrefsAnalytics, setAhrefsConsent] = useState(false);
   const { setSelection } = useCookies();
 
   const handleConsentChange = (key: keyof ConsentSettings, value: boolean) => {
@@ -49,6 +50,7 @@ export function CookieBanner() {
         personalization_storage: 'granted',
         security_storage: 'granted',
       },
+      ahrefsAnalytics: true,
     });
   };
 
@@ -65,6 +67,7 @@ export function CookieBanner() {
         personalization_storage: 'denied',
         security_storage: 'denied',
       },
+      ahrefsAnalytics: false,
     });
   };
 
@@ -73,6 +76,7 @@ export function CookieBanner() {
       googleAnalytics,
       selfHostedAnalytics,
       googleConsent,
+      ahrefsAnalytics,
     });
   };
 
@@ -123,6 +127,21 @@ export function CookieBanner() {
                   checked={googleAnalytics}
                   onCheckedChange={(value) =>
                     setGoogleAnalytics(value as boolean)
+                  }
+                />
+              </div>
+              <div className="flex items-center justify-between mt-4">
+                <Label htmlFor="ahrefs-analytics" className="flex flex-col">
+                  <span>Ahrefs Analytics</span>
+                  <span className="font-normal text-sm text-muted-foreground">
+                    Allow Ahrefs tracking
+                  </span>
+                </Label>
+                <Switch
+                  id="ahrefs-analytics"
+                  checked={ahrefsAnalytics}
+                  onCheckedChange={(value) =>
+                    setAhrefsConsent(value as boolean)
                   }
                 />
               </div>
