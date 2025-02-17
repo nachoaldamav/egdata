@@ -1,3 +1,6 @@
+import defaultPlayerTheme from '@vidstack/react/player/styles/default/theme.css?url';
+import defaultAudioPlayer from '@vidstack/react/player/styles/default/layouts/audio.css?url';
+import defaultVideoPlayer from '@vidstack/react/player/styles/default/layouts/video.css?url';
 import { BaseGame } from '@/components/app/base-game';
 import { BlurredBackground } from '@/components/app/blurred-background';
 import { OfferInBundle } from '@/components/app/bundle-game';
@@ -122,6 +125,36 @@ export const Route = createFileRoute('/offers/$id')({
 
     return {
       meta: generateOfferMeta(offer),
+      links: [
+        {
+          rel: 'stylesheet',
+          href: defaultPlayerTheme,
+        },
+        {
+          rel: 'stylesheet',
+          href: defaultAudioPlayer,
+        },
+        {
+          rel: 'stylesheet',
+          href: defaultVideoPlayer,
+        },
+        // Preload all the styles for the video player
+        {
+          rel: 'preload',
+          href: defaultPlayerTheme,
+          as: 'style',
+        },
+        {
+          rel: 'preload',
+          href: defaultAudioPlayer,
+          as: 'style',
+        },
+        {
+          rel: 'preload',
+          href: defaultVideoPlayer,
+          as: 'style',
+        },
+      ],
     };
   },
 });
