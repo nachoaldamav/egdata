@@ -1,6 +1,5 @@
 import { createRootRouteWithContext, Link } from '@tanstack/react-router';
-import { Outlet } from '@tanstack/react-router';
-import { Meta, Scripts } from '@tanstack/start';
+import { Outlet, HeadContent, Scripts } from '@tanstack/react-router';
 import type * as React from 'react';
 import styles from '../styles.css?url';
 import defaultPlayerTheme from '@vidstack/react/player/styles/default/theme.css?url';
@@ -335,7 +334,7 @@ function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <Meta />
+        <HeadContent />
       </head>
       <body className="antialiased">
         <div
