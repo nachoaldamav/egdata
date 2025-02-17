@@ -5,6 +5,7 @@ export interface CookiesSelection {
   googleAnalytics: boolean;
   selfHostedAnalytics: boolean;
   googleConsent: ConsentSettings;
+  ahrefsAnalytics: boolean;
 }
 
 export interface CookiesContextProps {

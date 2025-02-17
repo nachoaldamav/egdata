@@ -4,6 +4,7 @@ import { useCookies as useCookiesClient } from 'react-cookie';
 import { CookieBanner } from '@/components/app/cookies';
 import { Base64Utils } from '@/lib/base-64';
 import { GoogleAnalytics } from '@/components/app/google-analytics';
+import { AhrefsAnalytics } from '@/components/app/ahrefs-analytics';
 
 export interface CookiesProviderProps {
   children: ReactNode;
@@ -69,6 +70,9 @@ export function CookiesProvider({
           tagId="G-HB0VNVBEDQ"
           consentSettings={selection.googleConsent}
         />
+      )}
+      {selection?.ahrefsAnalytics && (
+        <AhrefsAnalytics tagId="f5ZfWIYM8MP8bKgYntptug" />
       )}
     </cookiesContext.Provider>
   );
