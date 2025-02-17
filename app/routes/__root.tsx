@@ -2,9 +2,6 @@ import { createRootRouteWithContext, Link } from '@tanstack/react-router';
 import { Outlet, HeadContent, Scripts } from '@tanstack/react-router';
 import type * as React from 'react';
 import styles from '../styles.css?url';
-import defaultPlayerTheme from '@vidstack/react/player/styles/default/theme.css?url';
-import defaultAudioPlayer from '@vidstack/react/player/styles/default/layouts/audio.css?url';
-import defaultVideoPlayer from '@vidstack/react/player/styles/default/layouts/video.css?url';
 import Navbar from '@/components/app/navbar';
 import type { QueryClient } from '@tanstack/react-query';
 import { CountryProvider } from '@/providers/country';
@@ -185,18 +182,6 @@ export const Route = createRootRouteWithContext<{
           type: 'font/ttf',
           crossOrigin: 'anonymous',
         },
-        {
-          rel: 'stylesheet',
-          href: defaultPlayerTheme,
-        },
-        {
-          rel: 'stylesheet',
-          href: defaultAudioPlayer,
-        },
-        {
-          rel: 'stylesheet',
-          href: defaultVideoPlayer,
-        },
       ],
       meta: [
         {
@@ -303,9 +288,14 @@ export const Route = createRootRouteWithContext<{
             ? '931f85f9-f8b6-422c-882d-04864194435b'
             : undefined,
         },
-        // Append the service worker registration script to the end of the body
         {
           src: '/register-sw.js',
+        },
+        // ahrefs analytics
+        {
+          src: 'https://analytics.ahrefs.com/analytics.js',
+          async: true,
+          'data-key': 'f5ZfWIYM8MP8bKgYntptug',
         },
       ],
     };
