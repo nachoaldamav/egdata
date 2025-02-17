@@ -1,8 +1,10 @@
 import { betterAuth } from 'better-auth';
-import { LibsqlDialect } from '@libsql/kysely-libsql';
+import pg from 'pg';
 import { genericOAuth } from 'better-auth/plugins';
 import consola from 'consola';
 import dotenv from 'dotenv';
+
+const { Pool } = pg;
 
 if (import.meta.env.SSR) {
   dotenv.config();
@@ -24,13 +26,9 @@ export const auth = betterAuth({
   logger: {
     level: 'debug',
   },
-  database: {
-    dialect: new LibsqlDialect({
-      url: process.env.TURSO_DATABASE_URL || '',
-      authToken: process.env.TURSO_AUTH_TOKEN || '',
-    }),
-    type: 'sqlite',
-  },
+  database: new Pool({
+    connectionString: process.env.NEON_CONNECTION_URI,
+  }),
   plugins: [
     genericOAuth({
       config: [
