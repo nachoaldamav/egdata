@@ -56,8 +56,8 @@ export const Route = createRootRouteWithContext<{
     const country = getCountryCode(url, cookies);
     const locale = cookies.user_locale;
     const timezone = cookies.user_timezone;
-    const analyticsCookies = cookies.EGDATA_COOKIES
-      ? JSON.parse(Base64Utils.decode(cookies.EGDATA_COOKIES))
+    const analyticsCookies = cookies.EGDATA_COOKIES_2
+      ? JSON.parse(Base64Utils.decode(cookies.EGDATA_COOKIES_2))
       : null;
 
     return {
@@ -290,12 +290,6 @@ export const Route = createRootRouteWithContext<{
         },
         {
           src: '/register-sw.js',
-        },
-        // ahrefs analytics
-        {
-          src: 'https://analytics.ahrefs.com/analytics.js',
-          async: true,
-          'data-key': 'f5ZfWIYM8MP8bKgYntptug',
         },
       ],
     };

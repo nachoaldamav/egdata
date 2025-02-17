@@ -27,24 +27,24 @@ export function CookiesProvider({
   children,
   initialSelection,
 }: CookiesProviderProps) {
-  const [cookies, setCookie] = useCookiesClient(['EGDATA_COOKIES']);
+  const [cookies, setCookie] = useCookiesClient(['EGDATA_COOKIES_2']);
   const [selection, setSelection] = useState<CookiesSelection | null>(
     initialSelection ?? null,
   );
 
   useEffect(() => {
-    if (cookies.EGDATA_COOKIES) {
-      const decodedCookie = decodeCookie(cookies.EGDATA_COOKIES);
+    if (cookies.EGDATA_COOKIES_2) {
+      const decodedCookie = decodeCookie(cookies.EGDATA_COOKIES_2);
       if (decodedCookie) {
         setSelection(decodedCookie);
       }
     }
-  }, [cookies.EGDATA_COOKIES]);
+  }, [cookies.EGDATA_COOKIES_2]);
 
   useEffect(() => {
     if (selection) {
       setCookie(
-        'EGDATA_COOKIES',
+        'EGDATA_COOKIES_2',
         Base64Utils.encode(JSON.stringify(selection)),
         {
           path: '/',
