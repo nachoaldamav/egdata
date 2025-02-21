@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 import { calculatePrice } from '@/lib/calculate-price';
 import { useLocale } from '@/hooks/use-locale';
+import { platformIcons } from './platform-icons';
 
 export function GameCard({ offer }: { offer: SingleOffer }) {
   const { locale } = useLocale();
@@ -215,6 +216,8 @@ const textSizes = {
   xl: 'text-xl',
 };
 
+const mobilePlatforms = ['39070', '39071'];
+
 export function OfferCard({
   offer,
   size = 'xl',
@@ -273,11 +276,14 @@ export function OfferCard({
                 <div className="flex items-start justify-between mb-2 z-10">
                   <h3
                     className={cn(
-                      'text-xl font-bold',
+                      'text-xl font-bold inline-flex items-center gap-3',
                       textSizes[size] ?? textSizes.xl,
                     )}
                   >
-                    {offer.title}
+                    {offer.title}{' '}
+                    {offer.tags
+                      .filter((tag) => mobilePlatforms.includes(tag.id))
+                      .map((tag) => platformIcons[tag.id])}
                   </h3>
                 </div>
                 <div className="text-sm text-muted-foreground mb-4 z-10">
