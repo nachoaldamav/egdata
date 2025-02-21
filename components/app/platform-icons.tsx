@@ -35,6 +35,9 @@ const linkedAccounts = [
 export const platformIcons: Record<string, React.ReactNode> = {
   '9547': <FaWindows className="w-5 h-5 text-muted-foreground" />,
   '10719': <FaApple className="w-5 h-5 text-muted-foreground" />,
+  '39071': <FaAndroid className="w-5 h-5 text-muted-foreground" />,
+  '39072': <FaAndroid className="w-5 h-5 text-muted-foreground" />,
+  '39070': <FaApple className="w-5 h-5 text-muted-foreground" />,
 };
 
 export const textPlatformIcons: Record<string, React.ReactNode> = {
@@ -66,7 +69,7 @@ export const accountPlatformIcons: Record<string, React.ReactNode> = {
 };
 
 export const getPlatformsArray = (
-  releaseInfo: SingleItem['releaseInfo']
+  releaseInfo: SingleItem['releaseInfo'],
 ): string[] => {
   const platforms = releaseInfo.flatMap((release) => release.platform);
 
@@ -74,7 +77,7 @@ export const getPlatformsArray = (
 };
 
 export const getAccountIcon = (
-  account: LinkedAccount
+  account: LinkedAccount,
 ): React.ReactNode | null => {
   if (!account) {
     return null;
