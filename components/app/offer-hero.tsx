@@ -136,9 +136,9 @@ export function OfferHero({ offer }: { offer: SingleOffer }) {
           ])?.url ?? 'https://cdn.egdata.app/placeholder-1080.webp'
         }
         alt={offer.title}
-        quality="original"
-        width={1920}
-        height={1080}
+        quality="high"
+        width={720}
+        height={400}
         className={cn(
           'rounded-xl shadow-lg transition-opacity duration-700 ease-in-out',
           videoUrl && isHovered ? 'opacity-0' : 'opacity-100',
