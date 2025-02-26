@@ -1,5 +1,5 @@
 import type { EpicToken } from '@/types/epic';
-import { createServerFn } from '@tanstack/start';
+import { createServerFn } from '@tanstack/react-start';
 import { readFile } from 'node:fs/promises';
 import { jwtVerify, SignJWT, importPKCS8, importSPKI } from 'jose';
 import { PUBLIC_KEY } from './pub-key';

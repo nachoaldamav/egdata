@@ -1,4 +1,4 @@
-import { defineConfig } from '@tanstack/start/config';
+import { defineConfig } from '@tanstack/react-start/config';
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

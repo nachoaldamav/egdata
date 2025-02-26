@@ -84,7 +84,7 @@ export const Image: FC<ImageProps> = ({
               setLoading(false);
               e.currentTarget.src = imageSrc;
             }}
-            loading="lazy"
+            loading={eager ? 'eager' : 'lazy'}
             {...props}
             alt={alt}
           />

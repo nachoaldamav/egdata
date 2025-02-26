@@ -43,7 +43,7 @@ import { cn } from '@/lib/utils';
 import { getImage } from '@/lib/get-image';
 import { httpClient } from '@/lib/http-client';
 import type { SingleOffer } from '@/types/single-offer';
-import { createServerFn } from '@tanstack/start';
+import { createServerFn } from '@tanstack/react-start';
 import { decodeJwt } from '@/lib/cookies';
 import { getCookie } from 'vinxi/http';
 

@@ -1,5 +1,5 @@
 import type { EpicToken } from '@/types/epic';
-import { createAPIFileRoute } from '@tanstack/start/api';
+import { createAPIFileRoute } from '@tanstack/react-start/api';
 import consola from 'consola';
 import { importPKCS8, SignJWT } from 'jose';
 import crypto from 'node:crypto';

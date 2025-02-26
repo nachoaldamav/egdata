@@ -1,7 +1,7 @@
 import { saveAuthCookie } from '@/lib/cookies';
 import type { EpicToken } from '@/types/epic';
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import { createServerFn } from '@tanstack/start';
+import { createServerFn } from '@tanstack/react-start';
 
 export const validateState = createServerFn({ method: 'GET' })
   .validator((state: string) => state)

@@ -1,7 +1,7 @@
 /// <reference types="vinxi/types/client" />
 import { startTransition, StrictMode } from 'react';
 import { hydrateRoot } from 'react-dom/client';
-import { StartClient } from '@tanstack/start';
+import { StartClient } from '@tanstack/react-start';
 import * as Sentry from '@sentry/react';
 import { createRouter } from './router';
 
