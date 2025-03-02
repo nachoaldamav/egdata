@@ -283,7 +283,9 @@ export function OfferCard({
                     {offer.title}{' '}
                     {offer.tags
                       .filter((tag) => mobilePlatforms.includes(tag.id))
-                      .map((tag) => platformIcons[tag.id])}
+                      .map((tag) => (
+                        <span key={tag.id}>{platformIcons[tag.id]}</span>
+                      ))}
                   </h3>
                 </div>
                 <div className="text-sm text-muted-foreground mb-4 z-10">
@@ -357,124 +359,73 @@ function OfferPrice({
 
   if (!offer.price) return null;
 
-  /**
-   * It has to be 1 level smaller than the text size
-   */
   const discountTextSizes = {
-    xs: 'text-[0.4rem]',
-    sm: 'text-[0.4rem]',
-    md: 'text-[0.5rem]',
+    xs: 'text-[0.6rem]',
+    sm: 'text-[0.6rem]',
+    md: 'text-[0.8rem]',
     lg: 'text-[1rem]',
     xl: 'text-[1.125rem]',
   };
 
+  const textSizes = {
+    xs: 'text-xs',
+    sm: 'text-sm',
+    md: 'text-md',
+    lg: 'text-lg',
+    xl: 'text-xl',
+  };
+
+  const formatPrice = (price: number) =>
+    fmt.format(calculatePrice(price, offer.price?.price.currencyCode ?? 'USD'));
+
+  const renderPrice = () => (
+    <>
+      <span>
+        {isFree ? 'Free' : formatPrice(offer.price?.price.discountPrice ?? 0)}
+      </span>
+      {(offer.price?.price.discount ?? 0) > 0 && (
+        <span
+          className={cn(
+            'line-through',
+            discountTextSizes[size] ?? discountTextSizes.xl,
+          )}
+        >
+          {formatPrice(offer.price?.price.originalPrice ?? 0)}
+        </span>
+      )}
+    </>
+  );
+
+  const renderDiscountBadge = () => (
+    <div className="text-xs inline-flex items-center rounded-full bg-badge text-black px-2 py-1 font-semibold">
+      {`-${Math.round(
+        (((offer.price?.price.originalPrice ?? 0) -
+          (offer.price?.price.discountPrice ?? 0)) /
+          (offer.price?.price.originalPrice ?? 0)) *
+          100,
+      )}%`}
+    </div>
+  );
+
   return (
     <div
       className={cn(
-        'text-lg font-bold text-primary inline-flex items-end gap-2 z-10 h-full',
+        'text-lg font-bold text-primary inline-flex items-end gap-2 z-10 h-full justify-between',
         textSizes[size] ?? textSizes.xl,
       )}
     >
-      {isReleased && offer.price && (
-        <div className="flex items-center gap-2 text-right w-full justify-start">
-          <span>
-            {isFree
-              ? 'Free'
-              : fmt.format(
-                  calculatePrice(
-                    offer.price?.price.discountPrice,
-                    offer.price?.price.currencyCode,
-                  ),
-                )}
-          </span>
-          {offer.price?.price.discount > 0 && (
-            <span className="line-through text-xs">
-              {fmt.format(
-                calculatePrice(
-                  offer.price?.price.originalPrice,
-                  offer.price?.price.currencyCode,
-                ),
-              )}
-            </span>
-          )}
-        </div>
-      )}
-
-      {!isReleased && isPreOrder && (
-        <div className="flex items-center gap-2 text-right w-full justify-start">
-          <span>
-            {fmt.format(
-              calculatePrice(
-                offer.price?.price.discountPrice,
-                offer.price?.price.currencyCode,
-              ),
-            )}
-          </span>
-          {offer.price?.price.discount > 0 && (
-            <span
-              className={cn(
-                'line-through text-xs',
-                discountTextSizes[size] ?? discountTextSizes.xl,
-              )}
-            >
-              {fmt.format(
-                calculatePrice(
-                  offer.price?.price.originalPrice,
-                  offer.price?.price.currencyCode,
-                ),
-              )}
-            </span>
-          )}
-        </div>
-      )}
-
-      {!isReleased && !isPreOrder && !offer.price && <span>Coming Soon</span>}
-
-      {!isReleased &&
-        !isPreOrder &&
-        offer.price &&
-        offer.price?.price.discountPrice !== 0 && (
-          <div className="flex items-center gap-2 text-right w-full justify-start">
-            <span>
-              {fmt.format(
-                calculatePrice(
-                  offer.price?.price.discountPrice,
-                  offer.price?.price.currencyCode,
-                ),
-              )}
-            </span>
-            {offer.price?.price.discount > 0 && (
-              <span
-                className={cn(
-                  'line-through text-sm',
-                  discountTextSizes[size] ?? discountTextSizes.xl,
-                )}
-              >
-                {fmt.format(
-                  calculatePrice(
-                    offer.price?.price.originalPrice,
-                    offer.price?.price.currencyCode,
-                  ),
-                )}
-              </span>
-            )}
-          </div>
+      <div className="inline-flex items-center gap-2">
+        {isReleased ? (
+          renderPrice()
+        ) : isPreOrder ? (
+          renderPrice()
+        ) : offer.price && offer.price.price.discountPrice !== 0 ? (
+          renderPrice()
+        ) : (
+          <span>Coming Soon</span>
         )}
-      {!isReleased &&
-        !isPreOrder &&
-        offer.price &&
-        offer.price?.price.discountPrice === 0 && <span>Coming Soon</span>}
-      {offer.price.price.discount > 0 && (
-        <div className="text-xs inline-flex items-center rounded-full bg-badge text-black px-2 py-1 font-semibold">
-          {offer.price.price.discount &&
-            `-${Math.round(
-              ((offer.price.price.originalPrice -
-                offer.price.price.discountPrice) /
-                offer.price.price.originalPrice) *
-                100,
-            )}%`}
-        </div>
-      )}
+      </div>
+      {offer.price.price.discount > 0 && renderDiscountBadge()}
     </div>
   );
 }
