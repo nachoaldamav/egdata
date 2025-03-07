@@ -14,6 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useLocale } from '@/hooks/use-locale';
 import { getQueryClient } from '@/lib/client';
 import { generateSandboxMeta } from '@/lib/generate-sandbox-meta';
 import { getFetchedQuery } from '@/lib/get-fetched-query';
@@ -101,6 +102,7 @@ export const Route = createFileRoute('/sandboxes/$id/achievements')({
 
 function SandboxAchievementsPage() {
   const { id } = Route.useParams();
+  const { timezone } = useLocale();
   const [search, setSearch] = useState('');
   const [blur, setBlur] = useState(true);
   const [flipAll, setFlipAll] = useState(false);
@@ -232,21 +234,59 @@ function SandboxAchievementsPage() {
           .map((achievementSet) => (
             <div key={achievementSet.achievementSetId}>
               <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <h4 className="text-xl font-thin underline decoration-dotted decoration-gray-300/50 underline-offset-4">
-                      {achievementSet.isBase ? 'Base Game' : 'DLC'} Achievements
-                    </h4>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>
-                      {achievementSet.isBase &&
-                        'This list of achievements are for the base game.'}
-                      {!achievementSet.isBase &&
-                        'This list of achievements are for one of the DLCs.'}
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
+                <div className="w-full justify-between items-center flex flex-row">
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <h4 className="text-xl font-thin underline decoration-dotted decoration-gray-300/50 underline-offset-4">
+                        {achievementSet.isBase ? 'Base Game' : 'DLC'}{' '}
+                        Achievements
+                      </h4>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>
+                        {achievementSet.isBase &&
+                          'This list of achievements are for the base game.'}
+                        {!achievementSet.isBase &&
+                          'This list of achievements are for one of the DLCs.'}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <div className="justify-between items-center">
+                    {achievementSet.lastUpdated && (
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <span className="text-sm underline decoration-dotted decoration-gray-300/50 underline-offset-4">
+                            Last Updated:{' '}
+                            {new Date(
+                              achievementSet.lastUpdated,
+                            ).toLocaleString('en-UK', {
+                              timeZone: timezone,
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                            })}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>
+                            This achievement set was last updated on{' '}
+                            {new Date(
+                              achievementSet.lastUpdated,
+                            ).toLocaleString('en-UK', {
+                              timeZone: timezone,
+                              timeStyle: 'short',
+                              dateStyle: 'short',
+                            })}
+                            .
+                            <br />
+                            This is either it's date of creation or the date of
+                            the last update.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                  </div>
+                </div>
               </TooltipProvider>
 
               <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 mt-4">

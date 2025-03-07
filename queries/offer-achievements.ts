@@ -11,6 +11,7 @@ export interface AchievementSet {
   numProgressed: number;
   numCompleted: number;
   achievements: Achievement[];
+  lastUpdated: string | undefined;
   __v: number;
 }
 
