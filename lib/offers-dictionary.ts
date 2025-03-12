@@ -16,6 +16,7 @@ export const offersDictionary = {
   undefined: 'Unknown',
   WALLET: 'Wallet',
   BUNDLE: 'Bundle',
+  SUBSCRIPTION: 'Subscription',
 } as const;
 
 const offerTypeRanks: {
@@ -38,6 +39,7 @@ const offerTypeRanks: {
   OTHERS: 14,
   null: 15,
   undefined: 16,
+  SUBSCRIPTION: 17,
 };
 
 export function offersSorter<T>(

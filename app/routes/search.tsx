@@ -132,6 +132,7 @@ const formSchema = z.object({
       'BUNDLE',
       'DIGITAL_EXTRA',
       'EDITION',
+      'SUBSCRIPTION',
     ])
     .optional(),
   tags: z.string().array().optional(),
