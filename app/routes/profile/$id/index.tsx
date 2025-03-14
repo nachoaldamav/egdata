@@ -30,6 +30,9 @@ import { getRarity } from '@/lib/get-rarity';
 import { getUserGames } from '@/queries/profiles';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { DynamicPagination } from '@/components/app/dynamic-pagination';
+import { z } from 'zod';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type RareAchievement = Achievement & {
   unlocked: boolean;
@@ -37,6 +40,12 @@ type RareAchievement = Achievement & {
   sandboxId: string;
   offer: SingleOffer;
 };
+
+const profileParamsSchema = z.object({
+  page: z.number().catch(1),
+});
+
+type ProfileParams = z.infer<typeof profileParamsSchema>;
 
 export const Route = createFileRoute('/profile/$id/')({
   component: () => {
@@ -65,6 +74,8 @@ export const Route = createFileRoute('/profile/$id/')({
       dehydratedState: dehydrate(queryClient),
     };
   },
+
+  validateSearch: (search) => profileParamsSchema.parse(search),
 });
 
 function ProfileInformation() {
@@ -200,6 +211,18 @@ function GameAchievementsSummary({
         <SandboxRareAchievements id={id} sandbox={game.sandboxId} />
       </div>
     </Link>
+  );
+}
+
+function GameAchievementsSummarySkeleton() {
+  return (
+    <div className="flex flex-row gap-4 items-center bg-card px-4 py-6 rounded-lg w-full select-none h-60">
+      <Skeleton className="w-1/4" />
+      <div className="flex flex-col gap-2">
+        <Skeleton className="h-6 w-full" />
+        <Skeleton className="h-6 w-full" />
+      </div>
+    </div>
   );
 }
 
@@ -470,55 +493,53 @@ function SingleAchievement({
 
 function AchievementsOverview() {
   const { id } = Route.useLoaderData();
+  const navigate = Route.useNavigate();
+  const { page } = Route.useSearch();
   const {
     data: games,
-    isLoading,
     isError,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery({
-    queryKey: ['profile-games', { id, limit: 20 }],
-    queryFn: ({ pageParam }) => getUserGames(id as string, pageParam, 20),
-    initialPageParam: 1,
-    getNextPageParam: (lastPage: {
-      pagination: { totalPages: number; page: number };
-    }) => {
-      if (lastPage.pagination.totalPages === lastPage.pagination.page)
-        return undefined;
-      return lastPage.pagination.page + 1;
-    },
+    isLoading,
+  } = useQuery({
+    queryKey: ['profile-games', { id, limit: 20, page }],
+    queryFn: () => getUserGames(id as string, page, 20),
   });
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (isError || !games) {
+  if (isError && !games) {
     return <div>Error</div>;
   }
+
+  const handlePageChange = (newPage: number) => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    navigate({
+      search: (prevState) => {
+        return {
+          ...prevState,
+          page: newPage,
+        };
+      },
+    });
+  };
 
   return (
     <div className="flex flex-col gap-4">
       <RarestAchievements />
       <div className="flex items-center flex-col gap-4">
-        {games.pages
-          .flatMap((page) => page.achievements)
-          .map((achievement) => (
-            <GameAchievementsSummary
-              key={achievement.sandboxId}
-              game={achievement}
-            />
+        {games?.achievements.map((achievement) => (
+          <GameAchievementsSummary
+            key={achievement.sandboxId}
+            game={achievement}
+          />
+        ))}
+        {isLoading &&
+          Array.from({ length: 10 }).map((_, i) => (
+            <GameAchievementsSummarySkeleton key={i} />
           ))}
       </div>
-      <Button
-        onClick={() => fetchNextPage()}
-        className="mt-4 w-fit mx-auto"
-        variant="outline"
-        disabled={!hasNextPage || isFetchingNextPage}
-      >
-        {isFetchingNextPage ? 'Loading more...' : 'Load More'}
-      </Button>
+      <DynamicPagination
+        currentPage={games?.pagination.page ?? 1}
+        setPage={handlePageChange}
+        totalPages={games?.pagination.totalPages ?? 1}
+      />
     </div>
   );
 }

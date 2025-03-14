@@ -6,7 +6,7 @@ import Navbar from '@/components/app/navbar';
 import type { QueryClient } from '@tanstack/react-query';
 import { CountryProvider } from '@/providers/country';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { TanStackRouterDevtools } from '@tanstack/router-devtools';
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import getCountryCode from '@/lib/get-country-code';
 import { parseCookieString } from '@/lib/parse-cookies';
 import { SearchProvider } from '@/providers/global-search';
