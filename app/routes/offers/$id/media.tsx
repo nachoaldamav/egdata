@@ -99,15 +99,18 @@ export const Route = createFileRoute('/offers/$id/media')({
 
 function MediaPage() {
   const params = Route.useParams();
-  const { offer } = Route.useLoaderData();
   const { data: media, isLoading } = useQuery({
     queryKey: ['media', { id: params.id }],
     queryFn: () => httpClient.get<Media>(`/offers/${params.id}/media`),
   });
+  const { data: offer, isLoading: isOfferLoading } = useQuery({
+    queryKey: ['offer', { id: params.id }],
+    queryFn: () => httpClient.get<SingleOffer>(`/offers/${params.id}`),
+  });
 
   const [active, setActive] = useState<boolean | string>(false);
 
-  if (isLoading && !media) {
+  if (isLoading && !media && isOfferLoading) {
     return (
       <div className="flex flex-col gap-4 mt-6 max-w-4xl w-full mx-auto">
         <h4 className="text-xl">Images</h4>
@@ -120,22 +123,13 @@ function MediaPage() {
     );
   }
 
-  if (!media) {
-    return (
-      <div className="flex flex-col items-start gap-2">
-        <h2 className="text-2xl font-bold">Media</h2>
-        <p>No media found</p>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col items-start gap-2">
       <Accordion
         type="single"
         collapsible
         className="w-full max-w-4xl mx-auto"
-        defaultValue="images"
+        defaultValue={media ? 'images' : 'covers'}
       >
         <AccordionItem value="images">
           <AccordionTrigger className="text-xl">Images</AccordionTrigger>
@@ -175,7 +169,7 @@ function MediaPage() {
                 <h2 className="text-2xl font-bold">No videos found</h2>
               </div>
             )}
-            {media?.videos.length > 0 && (
+            {(media?.videos.length ?? 0) > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {media?.videos.map((video) => (
                   <Suspense key={video._id} fallback={<div>Loading...</div>}>
