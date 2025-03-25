@@ -40,7 +40,7 @@ import type { SingleOffer } from '@/types/single-offer';
 import { CardStackIcon, EyeOpenIcon } from '@radix-ui/react-icons';
 import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { EyeClosedIcon } from 'lucide-react';
+import { EyeClosedIcon, FileWarningIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 const rarityOrder: (keyof typeof rarities)[] = ['gold', 'silver', 'bronze'];
@@ -280,7 +280,7 @@ function AchievementsPage() {
       </Card>
 
       {achievements.map((achievementSet) => (
-        <div key={achievementSet.achievementSetId}>
+        <div key={achievementSet.achievementSetId} className="w-full">
           <TooltipProvider>
             <div className="w-full justify-between items-center flex flex-row">
               <Tooltip>
@@ -391,6 +391,17 @@ function AchievementsPage() {
                 />
               ))}
           </div>
+          {achievementSet.achievements.length === 0 && (
+            <div className="w-full flex flex-col items-center justify-center h-96 mt-10 gap-2">
+              <FileWarningIcon className="size-10 opacity-75" />
+              <p className="text-center font-thin">
+                No achievements found for this set.
+                <br />
+                This could mean that the achievements are not currently
+                available but will be added in the future.
+              </p>
+            </div>
+          )}
         </div>
       ))}
 
