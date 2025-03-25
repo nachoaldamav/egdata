@@ -208,6 +208,26 @@ function MediaPage() {
                   <span className="text-sm font-mono">{cover.type}</span>
                 </div>
               ))}
+              {media?.logo && (
+                <div className="flex flex-col items-center gap-2 relative">
+                  <span className="absolute top-2 right-2 text-xs font-mono">
+                    <a
+                      className="text-xs bg-card/15 p-2 rounded-md cursor-pointer inline-block"
+                      href={media.logo}
+                      download={`${offer?.title}-logo`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <DownloadIcon className="w-4 h-4" />
+                    </a>
+                  </span>
+                  <img
+                    src={media.logo}
+                    alt={`${offer?.title} - Logo`}
+                    className="w-full h-auto"
+                  />
+                </div>
+              )}
             </div>
           </AccordionContent>
         </AccordionItem>
