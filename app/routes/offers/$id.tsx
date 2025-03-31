@@ -38,7 +38,7 @@ import { useLocale } from '@/hooks/use-locale';
 import { ClientOnly } from '@/lib/cllient-only';
 import { generateOfferMeta } from '@/lib/generate-offer-meta';
 import { getImage } from '@/lib/get-image';
-import { getSeller } from '@/lib/get-seller';
+import { getSeller, Seller } from '@/lib/get-seller';
 import { httpClient } from '@/lib/http-client';
 import { internalNamespaces } from '@/lib/internal-namespaces';
 import { offersDictionary } from '@/lib/offers-dictionary';
@@ -212,12 +212,18 @@ function OfferPage() {
               className="text-lg font-semibold opacity-50 inline-flex items-center gap-2"
               aria-label={`Offered by ${offer.seller.name}`}
             >
-              {getSeller({
+              {/* {getSeller({
                 developerDisplayName: offer.developerDisplayName as string,
                 publisherDisplayName: offer.publisherDisplayName as string,
                 seller: offer.seller.name,
                 customAttributes: offer.customAttributes,
-              })}
+              })} */}
+              <Seller
+                developerDisplayName={offer.developerDisplayName as string}
+                publisherDisplayName={offer.publisherDisplayName as string}
+                seller={offer.seller.name}
+                customAttributes={offer.customAttributes}
+              />
               {offer.prePurchase && (
                 <Badge variant="outline">Pre-Purchase</Badge>
               )}
@@ -280,17 +286,16 @@ function OfferPage() {
                   <TableRow>
                     <TableCell className="font-medium">Developer</TableCell>
                     <TableCell className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l">
-                      {(offer.customAttributes?.developerName?.value === '{}'
-                        ? undefined
-                        : offer.customAttributes?.developerName?.value) ??
-                        offer.developerDisplayName ??
-                        offer.seller.name}
-                      {offer.publisherDisplayName !==
-                        offer.developerDisplayName && (
-                        <span className="opacity-50">
-                          ({offer.publisherDisplayName})
-                        </span>
-                      )}
+                      <Seller
+                        developerDisplayName={
+                          offer.developerDisplayName as string
+                        }
+                        publisherDisplayName={
+                          offer.publisherDisplayName as string
+                        }
+                        seller={offer.seller.name}
+                        customAttributes={offer.customAttributes}
+                      />
                     </TableCell>
                   </TableRow>
                   <TableRow>

@@ -198,6 +198,8 @@ export const Route = createFileRoute('/search')({
     const page = search.page;
     const categories = search.categories;
     const onSale = search.on_sale;
+    const developerDisplayName = search.developerDisplayName;
+    const publisherDisplayName = search.publisherDisplayName;
 
     const [tagsData, hashData, typesData] = await Promise.allSettled([
       queryClient.ensureQueryData({
@@ -256,6 +258,14 @@ export const Route = createFileRoute('/search')({
     if (onSale) {
       if (!query) query = {};
       query.onSale = onSale;
+    }
+    if (developerDisplayName) {
+      if (!query) query = {};
+      query.developerDisplayName = developerDisplayName;
+    }
+    if (publisherDisplayName) {
+      if (!query) query = {};
+      query.publisherDisplayName = publisherDisplayName;
     }
 
     return {
