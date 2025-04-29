@@ -60,33 +60,6 @@ export const Route = createFileRoute('/offers/$id/')({
             params: { country },
           }),
       }),
-      // queryClient.prefetchQuery({
-      //   queryKey: ['offer', 'age-rating', { id, country }],
-      //   queryFn: () =>
-      //     httpClient.get<SingleSandbox['ageGatings']>(
-      //       `/offers/${id}/age-rating`,
-      //       {
-      //         params: { country, single: true },
-      //       },
-      //     ),
-      // }),
-      // queryClient.prefetchQuery({
-      //   queryKey: ['offer', 'hltb', { id }],
-      //   queryFn: () => httpClient.get<Hltb>(`/offers/${id}/hltb`),
-      // }),
-      // queryClient.prefetchQuery({
-      //   queryKey: ['offer', 'giveaways', { id }],
-      //   queryFn: () =>
-      //     httpClient.get<
-      //       {
-      //         _id: string;
-      //         id: string;
-      //         namespace: string;
-      //         startDate: string;
-      //         endDate: string;
-      //       }[]
-      //     >(`/offers/${id}/giveaways`),
-      // }),
       queryClient.prefetchQuery({
         queryKey: ['offer', 'tops', { id }],
         queryFn: () =>

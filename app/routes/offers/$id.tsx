@@ -67,28 +67,10 @@ export const Route = createFileRoute('/offers/$id')({
     const { country, queryClient } = context;
     const { id } = params;
 
-    const [offer] = await Promise.all([
-      queryClient.ensureQueryData({
-        queryKey: ['offer', { id: params.id }],
-        queryFn: () => httpClient.get<SingleOffer>(`/offers/${params.id}`),
-      }),
-      queryClient.ensureQueryData({
-        queryKey: ['offer-technologies', { id: params.id }],
-        queryFn: () =>
-          httpClient.get<Technology[]>(`/offers/${params.id}/technologies`),
-      }),
-      queryClient.prefetchQuery({
-        queryKey: ['price', { id: params.id, country }],
-        queryFn: () =>
-          httpClient.get<Price>(
-            `/offers/${params.id}/price?country=${country || 'US'}`,
-          ),
-      }),
-      queryClient.prefetchQuery({
-        queryKey: ['offer-assets', { id }],
-        queryFn: () => httpClient.get<Asset[]>(`/offers/${id}/assets`),
-      }),
-    ]);
+    const offer = await queryClient.ensureQueryData({
+      queryKey: ['offer', { id: params.id }],
+      queryFn: () => httpClient.get<SingleOffer>(`/offers/${params.id}`),
+    });
 
     return {
       id,
@@ -212,12 +194,6 @@ function OfferPage() {
               className="text-lg font-semibold opacity-50 inline-flex items-center gap-2"
               aria-label={`Offered by ${offer.seller.name}`}
             >
-              {/* {getSeller({
-                developerDisplayName: offer.developerDisplayName as string,
-                publisherDisplayName: offer.publisherDisplayName as string,
-                seller: offer.seller.name,
-                customAttributes: offer.customAttributes,
-              })} */}
               <Seller
                 developerDisplayName={offer.developerDisplayName as string}
                 publisherDisplayName={offer.publisherDisplayName as string}
