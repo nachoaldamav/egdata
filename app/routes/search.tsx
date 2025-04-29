@@ -41,6 +41,7 @@ import { ExtendedSearch } from '@/components/app/extended-search';
 import { QuickPill } from '@/components/app/quick-pill';
 import { useDebounce } from '@uidotdev/usehooks';
 import { Checkbox } from '@/components/ui/checkbox';
+import { QuerySearch } from '@/components/app/query-search';
 
 const tagTypes: {
   name: string | null;
@@ -427,12 +428,13 @@ function RouteComponent() {
                     <QuickPill
                       key={tag}
                       label={tagData?.name ?? tag}
-                      onRemove={() =>
+                      onRemove={() => {
+                        const currentTags = form.state.values.tags || [];
                         form.setFieldValue(
                           'tags',
-                          form.state.values.tags?.filter((t) => t !== tag),
-                        )
-                      }
+                          currentTags.filter((t) => String(t) !== String(tag)),
+                        );
+                      }}
                     />
                   );
                 })}
@@ -480,6 +482,16 @@ function RouteComponent() {
                     onRemove={() =>
                       form.setFieldValue('excludeBlockchain', undefined)
                     }
+                  />
+                )}
+                {values.seller && (
+                  <QuickPill
+                    label={values.seller}
+                    onRemove={() => {
+                      form.setFieldValue('seller', undefined);
+                      // Force a re-render of the QuerySearch component
+                      form.setFieldValue('seller', undefined);
+                    }}
                   />
                 )}
               </div>
@@ -630,6 +642,49 @@ function RouteComponent() {
                       }
                       value={state.value}
                       setValue={handleChange}
+                    />
+                  )}
+                </form.Field>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="seller">
+              <AccordionTrigger>Seller</AccordionTrigger>
+              <AccordionContent>
+                <form.Field name="seller">
+                  {({ handleChange, state }) => (
+                    <QuerySearch
+                      queryKey={['search', 'items']}
+                      fetchItems={async (query) => {
+                        return httpClient
+                          .get<{
+                            hits: {
+                              _id: string;
+                              name: string;
+                              createdAt: string;
+                              updatedAt: string;
+                              __v: number;
+                            }[];
+                            query: string;
+                            processingTimeMs: number;
+                            limit: number;
+                            offset: number;
+                            estimatedTotalHits: number;
+                          }>('/multisearch/sellers', {
+                            params: {
+                              query,
+                            },
+                          })
+                          .then((res) =>
+                            res.hits.map((hit) => ({
+                              id: hit._id,
+                              name: hit.name,
+                            })),
+                          );
+                      }}
+                      name="Sellers"
+                      value={state.value}
+                      setValue={handleChange}
+                      initialItems={[]} // Optional initial items
                     />
                   )}
                 </form.Field>
