@@ -3,6 +3,7 @@ import { OfferListItem } from '@/components/app/game-card';
 import { OfferCard } from '@/components/app/offer-card';
 import { EGSIcon } from '@/components/icons/egs';
 import { GiveawaysCarousel } from '@/components/modules/giveaways';
+import { MobileFreebiesCarousel } from '@/components/modules/mobile-freebies';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -46,6 +47,8 @@ import { z } from 'zod';
 import { getBuyLink } from '@/lib/get-build-link';
 import { useLocale } from '@/hooks/use-locale';
 import consola from 'consola';
+import { mobileFreebiesQuery } from '@/queries/mobile-freebies';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 const sortByList: Record<string, string> = {
   giveawayDate: 'Giveaway Date',
@@ -206,6 +209,7 @@ export const Route = createFileRoute('/freebies')({
             },
           }),
       }),
+      client.prefetchQuery(mobileFreebiesQuery),
     ]);
 
     const ogId = await httpClient.get<{ id: string }>('/free-games/og');
@@ -306,6 +310,8 @@ function FreeGames() {
     serverSortDir ?? 'desc',
   );
   const [year, setYear] = useState<string | undefined>(serverYear ?? undefined);
+  const [showMobileFreebies, setShowMobileFreebies] = useState(false);
+  const { data: mobileFreebies } = useQuery(mobileFreebiesQuery);
 
   // Debounce the query, sortBy, offerType, sortDir, and year values
   const debouncedQuery = useDebounce(query, 300);
@@ -429,6 +435,8 @@ function FreeGames() {
         </Button>
       </div>
       <GiveawaysCarousel hideTitle={true} />
+      <Separator orientation="horizontal" className="my-4" />
+      <MobileFreebiesCarousel />
       <Separator orientation="horizontal" className="my-4" />
       <header className="flex flex-row justify-between items-center gap-4 w-full">
         <h2 className="text-xl font-semibold">Past Free Games</h2>
