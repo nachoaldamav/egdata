@@ -365,9 +365,9 @@ function RouteComponent() {
         (loaderData.hash?.excludeBlockchain as boolean) || undefined,
       price: {
         // @ts-expect-error
-        min: (loaderData.hash?.price?.min as number) || undefined,
+        min: (loaderData.hash?.price?.min as number) ?? undefined,
         // @ts-expect-error
-        max: (loaderData.hash?.price?.max as number) || undefined,
+        max: (loaderData.hash?.price?.max as number) ?? undefined,
       },
       onSale: (loaderData.hash?.onSale as boolean) || undefined,
       categories: (loaderData.categories as string[]) || undefined,
@@ -502,8 +502,8 @@ function RouteComponent() {
             {({ handleChange }) => (
               <PriceRangeSlider
                 min={priceRange.min}
-                max={priceRange.max}
-                step={100}
+                max={Math.min(priceRange.max, 1000)}
+                step={1}
                 defaultValue={[
                   // @ts-expect-error
                   loaderData.hash?.price?.min || priceRange.min,
