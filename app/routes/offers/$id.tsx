@@ -67,10 +67,28 @@ export const Route = createFileRoute('/offers/$id')({
     const { country, queryClient } = context;
     const { id } = params;
 
-    const offer = await queryClient.ensureQueryData({
-      queryKey: ['offer', { id: params.id }],
-      queryFn: () => httpClient.get<SingleOffer>(`/offers/${params.id}`),
-    });
+    const [offer] = await Promise.all([
+      queryClient.ensureQueryData({
+        queryKey: ['offer', { id: params.id }],
+        queryFn: () => httpClient.get<SingleOffer>(`/offers/${params.id}`),
+      }),
+      queryClient.ensureQueryData({
+        queryKey: ['offer-technologies', { id: params.id }],
+        queryFn: () =>
+          httpClient.get<Technology[]>(`/offers/${params.id}/technologies`),
+      }),
+      queryClient.prefetchQuery({
+        queryKey: ['price', { id: params.id, country }],
+        queryFn: () =>
+          httpClient.get<Price>(
+            `/offers/${params.id}/price?country=${country || 'US'}`,
+          ),
+      }),
+      queryClient.prefetchQuery({
+        queryKey: ['offer-assets', { id }],
+        queryFn: () => httpClient.get<Asset[]>(`/offers/${id}/assets`),
+      }),
+    ]);
 
     return {
       id,
