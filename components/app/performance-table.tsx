@@ -3,7 +3,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import type { OfferPosition } from '@/types/collections';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 import { DateRangePicker } from './date-range-picker';
 
@@ -115,30 +115,31 @@ export function PerformanceTable({
   tops: Record<string, number>;
   defaultCollection: string;
 }) {
-  // const [timeframe, setTimeframe] = useState<'7' | '30' | '90'>('7');
   const [timeframe, setTimeframe] = useState<{ from: Date; to: Date }>({
     from: new Date(new Date().setDate(new Date().getDate() - 7)),
     to: new Date(),
   });
 
+  // Add effect to automatically set timeframe to shortest range with data
+  useEffect(() => {
+    if (!data?.positions.length) return;
+
+    const positions = data.positions;
+    const dates = positions.map((pos) => new Date(pos.date));
+    const minDate = new Date(Math.min(...dates.map((d) => d.getTime())));
+    const maxDate = new Date(Math.max(...dates.map((d) => d.getTime())));
+
+    // If we have data, set the timeframe to cover all available data
+    setTimeframe({
+      from: minDate,
+      to: maxDate,
+    });
+  }, [data]);
+
   return (
     <div className="w-full p-6 bg-card rounded-lg">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-white">Performance Table</h2>
-        {/* <Select
-          defaultValue="7"
-          value={timeframe}
-          onValueChange={(value) => setTimeframe(value as '7' | '30' | '90')}
-        >
-          <SelectTrigger className="w-[180px] bg-gray-800 text-white border-gray-700">
-            <SelectValue placeholder="Select timeframe" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="7">Last 7 days</SelectItem>
-            <SelectItem value="30">Last 30 days</SelectItem>
-            <SelectItem value="90">Last 90 days</SelectItem>
-          </SelectContent>
-        </Select> */}
         <DateRangePicker
           handleChange={({ from, to }) =>
             setTimeframe({ from, to: to || new Date() })
