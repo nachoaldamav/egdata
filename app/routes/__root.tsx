@@ -3,7 +3,7 @@ import { Outlet, HeadContent, Scripts } from '@tanstack/react-router';
 import type * as React from 'react';
 import styles from '../styles.css?url';
 import Navbar from '@/components/app/navbar';
-import type { QueryClient } from '@tanstack/react-query';
+import { queryOptions, type QueryClient } from '@tanstack/react-query';
 import { CountryProvider } from '@/providers/country';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
@@ -20,6 +20,12 @@ import { Base64Utils } from '@/lib/base-64';
 import type { EpicToken } from '@/types/epic';
 import type { auth } from '@/lib/auth';
 import { authClient } from '@/lib/auth-client';
+
+const getClientSession = queryOptions({
+  queryKey: ['session'],
+  queryFn: () => authClient.getSession(),
+  staleTime: 5_000,
+});
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -91,7 +97,8 @@ export const Route = createRootRouteWithContext<{
     } else {
       url = new URL(window.location.href);
       cookieHeader = document.cookie;
-      session = await authClient.getSession().then((session) => session.data);
+      const { data } = await queryClient.fetchQuery(getClientSession);
+      session = data;
     }
 
     if (typeof cookieHeader !== 'string') {
