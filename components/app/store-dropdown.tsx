@@ -8,6 +8,18 @@ import {
 import type { SingleOffer } from '@/types/single-offer';
 import { EpicGamesIcon } from '../icons/epic';
 import { EGSIcon } from '../icons/egs';
+import consola from 'consola';
+
+function trackEvent(offer: SingleOffer) {
+  try {
+    window.umami.track('open-egs', {
+      id: offer.id,
+      namespace: offer.namespace,
+    });
+  } catch (e) {
+    consola.error(e);
+  }
+}
 
 export function StoreDropdown({ offer }: { offer: SingleOffer }) {
   return (
@@ -24,13 +36,6 @@ export function StoreDropdown({ offer }: { offer: SingleOffer }) {
       </DropdownMenu>
     </div>
   );
-}
-
-function trackEvent(offer: SingleOffer) {
-  window.umami.track('open-egs', {
-    id: offer.id,
-    namespace: offer.namespace,
-  });
 }
 
 function OpenEgl({ offer }: { offer: SingleOffer }) {
@@ -83,15 +88,15 @@ function OpenEgs({ offer }: { offer: SingleOffer }) {
     return null;
   }
 
+  const storeUrl = `/store/${namespace}/${url.replaceAll('-pp', '')}?id=${offer.id}&ns=${offer.namespace}`;
+
   return (
     <DropdownMenuItem
       asChild
       className="flex items-center gap-3 px-4 py-2 hover:bg-zinc-800 cursor-pointer"
     >
       <a
-        href={`https://store.epicgames.com/${namespace}/${
-          offer.prePurchase && url.endsWith('-pp') ? url.slice(0, -3) : url
-        }?utm_source=egdata.app`}
+        href={storeUrl}
         rel="noopener noreferrer"
         referrerPolicy="no-referrer"
         target="_blank"

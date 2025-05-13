@@ -41,6 +41,7 @@ import { Route as ProfileIdIndexImport } from './routes/profile/$id/index'
 import { Route as OffersIdIndexImport } from './routes/offers/$id/index'
 import { Route as ItemsIdIndexImport } from './routes/items/$id/index'
 import { Route as CollectionsIdIndexImport } from './routes/collections/$id/index'
+import { Route as StoreNamespaceSlugImport } from './routes/store/$namespace/$slug'
 import { Route as SandboxesIdOffersImport } from './routes/sandboxes/$id/offers'
 import { Route as SandboxesIdItemsImport } from './routes/sandboxes/$id/items'
 import { Route as SandboxesIdChangelogImport } from './routes/sandboxes/$id/changelog'
@@ -245,6 +246,12 @@ const ItemsIdIndexRoute = ItemsIdIndexImport.update({
 const CollectionsIdIndexRoute = CollectionsIdIndexImport.update({
   id: '/collections/$id/',
   path: '/collections/$id/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const StoreNamespaceSlugRoute = StoreNamespaceSlugImport.update({
+  id: '/store/$namespace/$slug',
+  path: '/store/$namespace/$slug',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -726,6 +733,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SandboxesIdOffersImport
       parentRoute: typeof SandboxesIdImport
     }
+    '/store/$namespace/$slug': {
+      id: '/store/$namespace/$slug'
+      path: '/store/$namespace/$slug'
+      fullPath: '/store/$namespace/$slug'
+      preLoaderRoute: typeof StoreNamespaceSlugImport
+      parentRoute: typeof rootRoute
+    }
     '/collections/$id/': {
       id: '/collections/$id/'
       path: '/collections/$id'
@@ -940,6 +954,7 @@ export interface FileRoutesByFullPath {
   '/sandboxes/$id/changelog': typeof SandboxesIdChangelogRoute
   '/sandboxes/$id/items': typeof SandboxesIdItemsRoute
   '/sandboxes/$id/offers': typeof SandboxesIdOffersRoute
+  '/store/$namespace/$slug': typeof StoreNamespaceSlugRoute
   '/collections/$id': typeof CollectionsIdIndexRoute
   '/items/$id/': typeof ItemsIdIndexRoute
   '/offers/$id/': typeof OffersIdIndexRoute
@@ -992,6 +1007,7 @@ export interface FileRoutesByTo {
   '/sandboxes/$id/changelog': typeof SandboxesIdChangelogRoute
   '/sandboxes/$id/items': typeof SandboxesIdItemsRoute
   '/sandboxes/$id/offers': typeof SandboxesIdOffersRoute
+  '/store/$namespace/$slug': typeof StoreNamespaceSlugRoute
   '/collections/$id': typeof CollectionsIdIndexRoute
   '/items/$id': typeof ItemsIdIndexRoute
   '/offers/$id': typeof OffersIdIndexRoute
@@ -1050,6 +1066,7 @@ export interface FileRoutesById {
   '/sandboxes/$id/changelog': typeof SandboxesIdChangelogRoute
   '/sandboxes/$id/items': typeof SandboxesIdItemsRoute
   '/sandboxes/$id/offers': typeof SandboxesIdOffersRoute
+  '/store/$namespace/$slug': typeof StoreNamespaceSlugRoute
   '/collections/$id/': typeof CollectionsIdIndexRoute
   '/items/$id/': typeof ItemsIdIndexRoute
   '/offers/$id/': typeof OffersIdIndexRoute
@@ -1109,6 +1126,7 @@ export interface FileRouteTypes {
     | '/sandboxes/$id/changelog'
     | '/sandboxes/$id/items'
     | '/sandboxes/$id/offers'
+    | '/store/$namespace/$slug'
     | '/collections/$id'
     | '/items/$id/'
     | '/offers/$id/'
@@ -1160,6 +1178,7 @@ export interface FileRouteTypes {
     | '/sandboxes/$id/changelog'
     | '/sandboxes/$id/items'
     | '/sandboxes/$id/offers'
+    | '/store/$namespace/$slug'
     | '/collections/$id'
     | '/items/$id'
     | '/offers/$id'
@@ -1216,6 +1235,7 @@ export interface FileRouteTypes {
     | '/sandboxes/$id/changelog'
     | '/sandboxes/$id/items'
     | '/sandboxes/$id/offers'
+    | '/store/$namespace/$slug'
     | '/collections/$id/'
     | '/items/$id/'
     | '/offers/$id/'
@@ -1253,6 +1273,7 @@ export interface RootRouteChildren {
   CollectionsIndexRoute: typeof CollectionsIndexRoute
   SalesIndexRoute: typeof SalesIndexRoute
   CollectionsIdWeekRoute: typeof CollectionsIdWeekRouteWithChildren
+  StoreNamespaceSlugRoute: typeof StoreNamespaceSlugRoute
   CollectionsIdIndexRoute: typeof CollectionsIdIndexRoute
 }
 
@@ -1283,6 +1304,7 @@ const rootRouteChildren: RootRouteChildren = {
   CollectionsIndexRoute: CollectionsIndexRoute,
   SalesIndexRoute: SalesIndexRoute,
   CollectionsIdWeekRoute: CollectionsIdWeekRouteWithChildren,
+  StoreNamespaceSlugRoute: StoreNamespaceSlugRoute,
   CollectionsIdIndexRoute: CollectionsIdIndexRoute,
 }
 
@@ -1322,6 +1344,7 @@ export const routeTree = rootRoute
         "/collections/",
         "/sales/",
         "/collections/$id/$week",
+        "/store/$namespace/$slug",
         "/collections/$id/"
       ]
     },
@@ -1525,6 +1548,9 @@ export const routeTree = rootRoute
     "/sandboxes/$id/offers": {
       "filePath": "sandboxes/$id/offers.tsx",
       "parent": "/sandboxes/$id"
+    },
+    "/store/$namespace/$slug": {
+      "filePath": "store/$namespace/$slug.tsx"
     },
     "/collections/$id/": {
       "filePath": "collections/$id/index.tsx"

@@ -288,13 +288,15 @@ export const Route = createRootRouteWithContext<{
         },
       ],
       scripts: [
-        {
-          src: 'https://analytics.egdata.app/script.js',
-          async: true,
-          'data-website-id': import.meta.env.PROD
-            ? '931f85f9-f8b6-422c-882d-04864194435b'
-            : undefined,
-        },
+        ...(import.meta.env.DEV
+          ? []
+          : [
+              {
+                src: 'https://analytics.egdata.app/script.js',
+                async: true,
+                'data-website-id': '931f85f9-f8b6-422c-882d-04864194435b',
+              },
+            ]),
         {
           src: '/register-sw.js',
         },
