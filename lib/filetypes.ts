@@ -1,6 +1,6 @@
 export const fileTypes = {
   forge: 'Ubisoft Anvil',
-  pak: 'Unreal Engine Pak',
+  pak: 'PAK',
   sig: 'Signature',
   dll: 'Windows Executable',
   exe: 'Windows Executable',

@@ -24,7 +24,6 @@ import { useState } from 'react';
 import { DataTableToolbar } from './toolbar';
 import { DataTablePagination } from './pagination';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { DonateKeyPopup } from '@/components/forms/donate-key';
 import { Button } from '@/components/ui/button';
 import { Link } from '@tanstack/react-router';
 
