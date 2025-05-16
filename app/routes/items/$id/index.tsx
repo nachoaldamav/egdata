@@ -38,7 +38,7 @@ export const Route = createFileRoute('/items/$id/')({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {Object.entries(item.customAttributes).map(([key, value]) => (
+              {Object.entries(item.customAttributes).sort(([a],[b]) => a.localeCompare(b)).map(([key, value]) => (
                 <TableRow key={key}>
                   <TableCell className="font-medium">{key}</TableCell>
                   <TableCell className="border-l-gray-300/10 border-l font-mono">
