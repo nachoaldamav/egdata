@@ -38,7 +38,7 @@ import { useLocale } from '@/hooks/use-locale';
 import { ClientOnly } from '@/lib/cllient-only';
 import { generateOfferMeta } from '@/lib/generate-offer-meta';
 import { getImage } from '@/lib/get-image';
-import { getSeller, Seller } from '@/lib/get-seller';
+import { Seller } from '@/lib/get-seller';
 import { httpClient } from '@/lib/http-client';
 import { internalNamespaces } from '@/lib/internal-namespaces';
 import { offersDictionary } from '@/lib/offers-dictionary';
@@ -57,6 +57,7 @@ import {
   useLocation,
   useNavigate,
 } from '@tanstack/react-router';
+import { OffersHomeSkeleton } from '@/app/components/app/skeletons/offers-home';
 
 export const Route = createFileRoute('/offers/$id')({
   component: () => {
@@ -66,6 +67,9 @@ export const Route = createFileRoute('/offers/$id')({
   loader: async ({ params, context }) => {
     const { country, queryClient } = context;
     const { id } = params;
+
+    // Wait for 2 seconds
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     const [offer] = await Promise.all([
       queryClient.ensureQueryData({
@@ -157,6 +161,12 @@ export const Route = createFileRoute('/offers/$id')({
       ],
     };
   },
+
+  pendingComponent: () => {
+    return <OffersHomeSkeleton />;
+  },
+
+  pendingMs: 300,
 });
 
 function OfferPage() {
@@ -244,7 +254,12 @@ function OfferPage() {
                         'text-left font-mono border-l-gray-300/10 border-l underline decoration-dotted decoration-slate-600 underline-offset-4'
                       }
                     >
-                      <Link to={`/sandboxes/${offer.namespace}/offers`}>
+                      <Link
+                        to={'/sandboxes/$id/offers'}
+                        params={{
+                          id: offer.namespace,
+                        }}
+                      >
                         {internalNamespaces.includes(offer.namespace) ? (
                           <TooltipProvider>
                             <Tooltip>
@@ -270,7 +285,8 @@ function OfferPage() {
                     <TableCell className="font-medium">Seller</TableCell>
                     <TableCell className="text-left border-l-gray-300/10 border-l">
                       <Link
-                        to={`/sellers/${offer.seller.id}`}
+                        to="/sellers/$id"
+                        params={{ id: offer.seller.id }}
                         className="underline underline-offset-4"
                       >
                         {offer.seller.name}
