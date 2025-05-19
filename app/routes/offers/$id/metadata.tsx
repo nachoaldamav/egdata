@@ -158,7 +158,7 @@ function MetadataPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {Object.entries(offer.customAttributes).map(([key, item]) => (
+          {Object.entries(offer.customAttributes).sort(([a],[b]) => a.localeCompare(b)).map(([key, item]) => (
             <TableRow key={key}>
               <TableCell>{key}</TableCell>
               <TableCell>{item.value}</TableCell>
