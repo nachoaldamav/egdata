@@ -176,7 +176,7 @@ class HttpFetch {
 
 export const httpClient = new HttpFetch(
   import.meta.env.SSR
-    ? (process.env.SERVER_API_ENDPOINT ?? 'https://api.egdata.app')
+    ? (process.env.SERVER_API_ENDPOINT ?? 'https://api-gcp.egdata.app')
     : (import.meta.env.SERVER_API_ENDPOINT ?? 'https://api-gcp.egdata.app'),
   {
     timeout: 5_000,
