@@ -32,15 +32,11 @@ import { PerformanceTable } from '@/components/app/performance-table';
 
 export const Route = createFileRoute('/offers/$id/')({
   component: () => {
-    const { dehydratedState } = Route.useLoaderData();
-    return (
-      <HydrationBoundary state={dehydratedState}>
-        <RouteComponent />
-      </HydrationBoundary>
-    );
+    return <RouteComponent />;
   },
 
   loader: async ({ params, context }) => {
+    const startTime = performance.now();
     const { id } = params;
     const { country, queryClient } = context;
 
@@ -100,9 +96,13 @@ export const Route = createFileRoute('/offers/$id/')({
       });
     }
 
+    const endTime = performance.now();
+    console.log(
+      `[offers-index] Time taken: ${endTime - startTime} milliseconds`,
+    );
+
     return {
       id,
-      dehydratedState: dehydrate(queryClient),
       country,
       defaultCollection,
     };

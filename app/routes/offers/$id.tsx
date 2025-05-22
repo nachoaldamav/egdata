@@ -65,11 +65,9 @@ export const Route = createFileRoute('/offers/$id')({
   },
 
   loader: async ({ params, context }) => {
+    const startTime = performance.now();
     const { country, queryClient } = context;
     const { id } = params;
-
-    // Wait for 2 seconds
-    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     const [offer] = await Promise.all([
       queryClient.ensureQueryData({
@@ -93,6 +91,9 @@ export const Route = createFileRoute('/offers/$id')({
         queryFn: () => httpClient.get<Asset[]>(`/offers/${id}/assets`),
       }),
     ]);
+
+    const endTime = performance.now();
+    console.log(`[offers-root]Time taken: ${endTime - startTime} milliseconds`);
 
     return {
       id,
