@@ -40,6 +40,7 @@ export function OfferMediaSlider({ offer }: { offer: SingleOffer }) {
   const { data } = useQuery({
     queryKey: ['media', { id: offer.id }],
     queryFn: () => httpClient.get<Media>(`/offers/${offer.id}/media`),
+    retry: false,
   });
 
   // Videos first, then images, if no images, get cover image from offer data

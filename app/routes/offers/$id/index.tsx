@@ -81,22 +81,24 @@ export const Route = createFileRoute('/offers/$id/')({
         }, Object.keys(tops)[0]) // Use the first key in tops as the initial value
       : 'top-sellers';
 
-    await queryClient.prefetchQuery({
-      queryKey: [
-        'collection',
-        'positions',
-        { id, collection: defaultCollection },
-      ],
-      queryFn: () =>
-        httpClient.get<OfferPosition>(
-          `/offers/${id}/collections/${defaultCollection}`,
-          {
-            params: {
-              country,
+    if (defaultCollection) {
+      await queryClient.prefetchQuery({
+        queryKey: [
+          'collection',
+          'positions',
+          { id, collection: defaultCollection },
+        ],
+        queryFn: () =>
+          httpClient.get<OfferPosition>(
+            `/offers/${id}/collections/${defaultCollection}`,
+            {
+              params: {
+                country,
+              },
             },
-          },
-        ),
-    });
+          ),
+      });
+    }
 
     return {
       id,
@@ -176,10 +178,12 @@ function RouteComponent() {
       {
         queryKey: ['offer', 'hltb', { id }],
         queryFn: () => httpClient.get<Hltb>(`/offers/${id}/hltb`),
+        retry: false,
       },
       {
         queryKey: ['offer', 'reviews', { id }],
         queryFn: () => httpClient.get<SinglePoll>(`/offers/${id}/polls`),
+        retry: false,
       },
       {
         queryKey: ['collection', 'positions', { id, collection }],
@@ -187,6 +191,8 @@ function RouteComponent() {
           httpClient.get<OfferPosition>(
             `/offers/${id}/collections/${collection}`,
           ),
+        retry: false,
+        enabled: !!collection,
       },
       {
         queryKey: ['offer', 'tops', { id }],

@@ -22,7 +22,6 @@ import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 import buildImageUrl from '@/lib/build-image-url';
 import { useCountry } from '@/hooks/use-country';
-import { Skeleton } from '../ui/skeleton';
 import { getFeaturedDiscounts } from '@/queries/featured-discounts';
 import { ArrowUpIcon } from '@radix-ui/react-icons';
 import type { Price as OfferPrice } from '@/types/price';
@@ -241,6 +240,7 @@ function FeaturedOffer({ offer }: { offer: SingleOffer }) {
   const { data: offerMedia } = useQuery({
     queryKey: ['media', { id: offer.id }],
     queryFn: () => httpClient.get<Media>(`/offers/${offer.id}/media`),
+    retry: false,
   });
   const [isHovered, setIsHovered] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);

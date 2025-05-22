@@ -102,10 +102,12 @@ function MediaPage() {
   const { data: media, isLoading } = useQuery({
     queryKey: ['media', { id: params.id }],
     queryFn: () => httpClient.get<Media>(`/offers/${params.id}/media`),
+    retry: false,
   });
   const { data: offer, isLoading: isOfferLoading } = useQuery({
     queryKey: ['offer', { id: params.id }],
     queryFn: () => httpClient.get<SingleOffer>(`/offers/${params.id}`),
+    retry: false,
   });
 
   const [active, setActive] = useState<boolean | string>(false);
