@@ -147,7 +147,7 @@ function RouteComponent() {
         <h1 className="text-4xl font-bold text-left">{data[0].seller.name}</h1>
         {featuredCover && (
           <section className="w-full bg-card rounded-xl mt-10 relative group min-h-[500px]">
-            <div className="grid gap-8 md:grid-cols-2 lg:gap-16 py-24 px-10 z-10 relative rounded-xl">
+            <div className="grid gap-8 md:grid-cols-2 lg:gap-16 py-24 px-10 z-[1] relative rounded-xl">
               <span className="hidden md:block" />
               <div className="space-y-4">
                 <div className="inline-block rounded-lg bg-primary px-3 py-1 text-sm text-primary-foreground">
