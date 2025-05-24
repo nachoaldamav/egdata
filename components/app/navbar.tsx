@@ -36,6 +36,68 @@ import { getRouteApi } from '@tanstack/react-router';
 import { getUserInformation } from '@/queries/profiles';
 import { DiscordBotPopover } from './discord-bot';
 import { authClient } from '@/lib/auth-client';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+
+interface ListItemProps extends React.ComponentPropsWithoutRef<'a'> {
+  title: string;
+  href?: string;
+  backgroundImage?: string;
+}
+
+function MobileMenuItem({
+  title,
+  children,
+  href,
+  backgroundImage,
+}: ListItemProps) {
+  return (
+    <div className="py-2">
+      {href ? (
+        <Link
+          to={href}
+          className={cn(
+            'block select-none rounded-md leading-none no-underline outline-none transition-colors',
+            'hover:text-accent-foreground focus:bg-accent hover:bg-accent focus:text-accent-foreground',
+            'group relative overflow-hidden',
+          )}
+        >
+          <div className="relative z-20 p-3 space-y-1">
+            <div className="text-sm font-medium leading-none">{title}</div>
+            {children ? (
+              <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                {children}
+              </p>
+            ) : null}
+          </div>
+          {backgroundImage && (
+            <>
+              <span className="absolute inset-0 bg-gradient-to-l from-transparent via-card/75 to-card z-10 rounded-md" />
+              <div
+                className="h-full absolute inset-0 opacity-25 group-hover:opacity-75 bg-cover bg-center transition-opacity duration-500 ease-in-out rounded-md"
+                style={{ backgroundImage: `url(${backgroundImage})` }}
+                aria-hidden="true"
+              />
+            </>
+          )}
+        </Link>
+      ) : (
+        <div className="p-3 space-y-1">
+          <div className="text-sm font-medium leading-none">{title}</div>
+          {children ? (
+            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+              {children}
+            </p>
+          ) : null}
+        </div>
+      )}
+    </div>
+  );
+}
 
 type Route = {
   name: string;
@@ -189,6 +251,7 @@ export default function Navbar() {
   const { session } = routeApi.useRouteContext();
   const navigate = useNavigate();
   const { setFocus, focus } = useSearch();
+  const [sheetOpen, setSheetOpen] = React.useState(false);
   const { data: user } = useQuery({
     queryKey: ['user', { id: session?.user.email.split('@')[0] }],
     queryFn: () =>
@@ -196,8 +259,6 @@ export default function Navbar() {
   });
 
   useEffect(() => {
-    // If the user uses "CMD + K" or "CTRL + K" to focus the search input
-    // we should set the focus to true
     function handleKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
@@ -216,18 +277,23 @@ export default function Navbar() {
     };
   }, [setFocus, focus]);
 
+  const handleSearchClick = () => {
+    setFocus(true);
+    setSheetOpen(false);
+  };
+
   return (
     <header className="flex h-20 w-full shrink-0 items-center px-4 md:px-6 gap-2">
-      <Sheet>
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon" className="lg:hidden">
             <MenuIcon className="h-6 w-6" />
             <span className="sr-only">Toggle navigation menu</span>
           </Button>
         </SheetTrigger>
-        <SheetContent>
-          <SheetHeader>
-            <Link to="/" className="mr-6 flex items-center gap-2">
+        <SheetContent side="left" className="w-[300px] sm:w-[400px] p-0">
+          <SheetHeader className="p-4 border-b">
+            <Link to="/" className="flex items-center gap-2">
               <img
                 src="https://cdn.egdata.app/logo_simple_white_clean.png"
                 alt="GameDB Logo"
@@ -239,21 +305,97 @@ export default function Navbar() {
               </span>
             </Link>
           </SheetHeader>
-          <NavigationMenu className="grid gap-2 py-6">
-            {routes.map((route) => (
-              <NavigationMenuLink key={route.name} asChild>
-                <Button
-                  variant="ghost"
-                  className="hover:bg-accent/25 hover:text-white"
-                  asChild
-                >
-                  <Link key={route.name} to={route.href} preload="viewport">
+          <div className="p-4">
+            <div
+              className="relative mb-4 cursor-text"
+              onClick={handleSearchClick}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleSearchClick();
+                }
+              }}
+            >
+              <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
+              <Input
+                type="search"
+                placeholder="Search games..."
+                className="pl-8 w-full cursor-text"
+                readOnly
+              />
+            </div>
+            <Accordion type="single" collapsible className="w-full">
+              {routes.map((route) => (
+                <AccordionItem key={route.name} value={route.name}>
+                  <AccordionTrigger className="text-lg font-medium">
                     {route.name}
-                  </Link>
-                </Button>
-              </NavigationMenuLink>
-            ))}
-          </NavigationMenu>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    {route.component ? (
+                      <div className="pt-2">
+                        {route.name === 'Browse' && (
+                          <>
+                            <MobileMenuItem href="/search" title="Search">
+                              Find what you're looking for on the Epic Games
+                              Store.
+                            </MobileMenuItem>
+                            <MobileMenuItem href="/freebies" title="Free Games">
+                              Explore the latest free game offerings on the Epic
+                              Games Store.
+                            </MobileMenuItem>
+                            <MobileMenuItem
+                              href="/search?on_sale=true"
+                              title="With Discounts"
+                            >
+                              Check out games currently on sale with great
+                              discounts.
+                            </MobileMenuItem>
+                          </>
+                        )}
+                        {route.name === 'Tops' && (
+                          <>
+                            <MobileMenuItem
+                              href="/collections/top-sellers"
+                              title="Top Sellers"
+                            >
+                              Top sellers on the Epic Games Store
+                            </MobileMenuItem>
+                            <MobileMenuItem
+                              href="/collections/most-played"
+                              title="Most Played"
+                            >
+                              Most played games on the Epic Games Store
+                            </MobileMenuItem>
+                            <MobileMenuItem
+                              href="/collections/top-wishlisted"
+                              title="Top Wishlisted"
+                            >
+                              Top wishlisted games on the Epic Games Store
+                            </MobileMenuItem>
+                            <MobileMenuItem
+                              href="/collections/top-new-releases"
+                              title="Top New Releases"
+                            >
+                              Top new releases on the Epic Games Store
+                            </MobileMenuItem>
+                          </>
+                        )}
+                      </div>
+                    ) : (
+                      <Link
+                        to={route.href}
+                        className="block py-2 text-muted-foreground hover:text-white transition-colors"
+                      >
+                        {route.name}
+                      </Link>
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+            <div className="mt-4 pt-4 border-t">
+              <DiscordBotPopover />
+            </div>
+          </div>
         </SheetContent>
       </Sheet>
       <Link
@@ -313,89 +455,88 @@ export default function Navbar() {
       </NavigationMenu>
       <div className="ml-auto flex items-center gap-4">
         <div
-          className="relative cursor-text"
-          onClick={() => setFocus(true)}
+          className="relative cursor-text hidden lg:block"
+          onClick={handleSearchClick}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              setFocus(true);
+              handleSearchClick();
             }
           }}
         >
-          <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4text-gray-400" />
+          <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
           <Input
             type="search"
             placeholder="Search games..."
             className="pl-8 w-[200px] cursor-text"
-            onFocus={() => setFocus(true)}
             readOnly
           />
         </div>
-      </div>
-      <CountriesSelector />
-      {user && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              className="overflow-hidden rounded-full"
-            >
-              <Avatar>
-                <AvatarImage
-                  src={
-                    user.avatar?.medium
-                      ? user.avatar?.medium
-                      : `https://shared-static-prod.epicgames.com/epic-profile-icon/D8033C/${user.displayName[0].toUpperCase()}/icon.png?size=512`
-                  }
+        <CountriesSelector />
+        {user && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="overflow-hidden rounded-full"
+              >
+                <Avatar>
+                  <AvatarImage
+                    src={
+                      user.avatar?.medium
+                        ? user.avatar?.medium
+                        : `https://shared-static-prod.epicgames.com/epic-profile-icon/D8033C/${user.displayName[0].toUpperCase()}/icon.png?size=512`
+                    }
+                  />
+                  <AvatarFallback>
+                    {user.displayName.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>
+                <span className="dark:text-gray-300">
+                  Hello, {user.displayName}!
+                </span>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild className="cursor-pointer">
+                <a href="/dashboard">Dashboard</a>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild className="cursor-pointer">
+                <a href="/auth/logout">Logout</a>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+        {!user && (
+          <Avatar
+            className="cursor-pointer"
+            onClick={async () => {
+              await authClient.signIn.oauth2({
+                providerId: 'epic',
+              });
+            }}
+          >
+            <AvatarFallback>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="size-5"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
+                  clipRule="evenodd"
                 />
-                <AvatarFallback>
-                  {user.displayName.slice(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>
-              <span className="dark:text-gray-300">
-                Hello, {user.displayName}!
-              </span>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild className="cursor-pointer">
-              <a href="/dashboard">Dashboard</a>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild className="cursor-pointer">
-              <a href="/auth/logout">Logout</a>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
-      {!user && (
-        <Avatar
-          className="cursor-pointer"
-          onClick={async () => {
-            await authClient.signIn.oauth2({
-              providerId: 'epic',
-            });
-          }}
-        >
-          <AvatarFallback>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="size-5"
-            >
-              <path
-                fillRule="evenodd"
-                d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </AvatarFallback>
-        </Avatar>
-      )}
+              </svg>
+            </AvatarFallback>
+          </Avatar>
+        )}
+      </div>
     </header>
   );
 }
@@ -440,6 +581,7 @@ function SearchIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
 interface ListItemProps extends React.ComponentPropsWithoutRef<'a'> {
   title: string;
   href?: string;
