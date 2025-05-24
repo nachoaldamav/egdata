@@ -156,7 +156,7 @@ const routes: Route[] = [
     },
   },
   {
-    name: 'Tops',
+    name: 'Rankings',
     href: '/collections',
     component: () => {
       const collections: {
@@ -234,7 +234,6 @@ const routes: Route[] = [
     name: 'Genres',
     href: '/genres',
   },
-
   {
     name: 'Changelog',
     href: '/changelog',
@@ -351,7 +350,7 @@ export default function Navbar() {
                             </MobileMenuItem>
                           </>
                         )}
-                        {route.name === 'Tops' && (
+                        {route.name === 'Rankings' && (
                           <>
                             <MobileMenuItem
                               href="/collections/top-sellers"
