@@ -37,7 +37,16 @@ export const InternalBanner: React.FC<{
             .filter(({ title: t }) => {
               const similarity = compareTitleSimilarity(title, t);
               return similarity > 0.5;
-            }),
+            })
+            .map((e) => {
+              const similarity = compareTitleSimilarity(title, e.title);
+              return {
+                id: e.id,
+                title: e.title,
+                similarity,
+              };
+            })
+            .sort((a, b) => b.similarity - a.similarity),
         );
       });
   }, [title]);
@@ -51,7 +60,11 @@ export const InternalBanner: React.FC<{
         to the general public.
       </AlertDescription>
       {results.length > 0 && (
-        <Link to={`/offers/${results[0].id}`} className="underline">
+        <Link
+          to="/offers/$id"
+          params={{ id: results[0].id }}
+          className="underline"
+        >
           Go to public offer
         </Link>
       )}
