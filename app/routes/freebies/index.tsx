@@ -39,7 +39,7 @@ import {
   keepPreviousData,
   useQuery,
 } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, Link } from '@tanstack/react-router';
 import { useDebounce } from '@uidotdev/usehooks';
 import { ArrowDown, GridIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -48,7 +48,6 @@ import { getBuyLink } from '@/lib/get-build-link';
 import { useLocale } from '@/hooks/use-locale';
 import consola from 'consola';
 import { mobileFreebiesQuery } from '@/queries/mobile-freebies';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 const sortByList: Record<string, string> = {
   giveawayDate: 'Giveaway Date',
@@ -130,7 +129,7 @@ const giveawaysSearchSchema = z.object({
   year: z.number().optional(),
 });
 
-export const Route = createFileRoute('/freebies')({
+export const Route = createFileRoute('/freebies/')({
   component: () => {
     const { dehydratedState } = Route.useLoaderData();
     return (
@@ -310,8 +309,6 @@ function FreeGames() {
     serverSortDir ?? 'desc',
   );
   const [year, setYear] = useState<string | undefined>(serverYear ?? undefined);
-  const [showMobileFreebies, setShowMobileFreebies] = useState(false);
-  const { data: mobileFreebies } = useQuery(mobileFreebiesQuery);
 
   // Debounce the query, sortBy, offerType, sortDir, and year values
   const debouncedQuery = useDebounce(query, 300);
@@ -677,13 +674,16 @@ function GiveawaysStats() {
           </Tooltip>
 
           <Tooltip>
-            <div className="flex flex-col items-center justify-center gap-2">
+            <Link
+              className="flex flex-col items-center justify-center gap-2"
+              to="/freebies/sellers"
+            >
               <BigText
                 value={data.sellers.toLocaleString(locale)}
                 className="text-4xl font-semibold"
               />
               <TooltipTrigger>
-                <span className="text-lg font-medium text-gray-400 decoration-dotted decoration-gray-400/50 underline underline-offset-4">
+                <span className="text-lg font-medium text-gray-400 decoration-underline decoration-gray-400/50 underline underline-offset-4">
                   Sellers
                 </span>
               </TooltipTrigger>
@@ -692,7 +692,7 @@ function GiveawaysStats() {
                   Total number of unique sellers providing offers
                 </span>
               </TooltipContent>
-            </div>
+            </Link>
           </Tooltip>
         </TooltipProvider>
       </div>

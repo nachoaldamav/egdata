@@ -15,7 +15,6 @@ import { Route as SearchImport } from './routes/search'
 import { Route as PrivacyImport } from './routes/privacy'
 import { Route as PostsImport } from './routes/posts'
 import { Route as GenresImport } from './routes/genres'
-import { Route as FreebiesImport } from './routes/freebies'
 import { Route as FairUseImport } from './routes/fair-use'
 import { Route as DonateKeyImport } from './routes/donate-key'
 import { Route as DashboardImport } from './routes/dashboard'
@@ -23,6 +22,7 @@ import { Route as ChangelogImport } from './routes/changelog'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
 import { Route as SalesIndexImport } from './routes/sales/index'
+import { Route as FreebiesIndexImport } from './routes/freebies/index'
 import { Route as CollectionsIndexImport } from './routes/collections/index'
 import { Route as TagsIdImport } from './routes/tags/$id'
 import { Route as SellersIdImport } from './routes/sellers/$id'
@@ -32,6 +32,7 @@ import { Route as PromotionsIdImport } from './routes/promotions/$id'
 import { Route as ProfileIdImport } from './routes/profile/$id'
 import { Route as OffersIdImport } from './routes/offers/$id'
 import { Route as ItemsIdImport } from './routes/items/$id'
+import { Route as FreebiesSellersImport } from './routes/freebies/sellers'
 import { Route as BuildsIdImport } from './routes/builds/$id'
 import { Route as AuthLogoutImport } from './routes/auth/logout'
 import { Route as AuthLoginImport } from './routes/auth/login'
@@ -93,12 +94,6 @@ const GenresRoute = GenresImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const FreebiesRoute = FreebiesImport.update({
-  id: '/freebies',
-  path: '/freebies',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const FairUseRoute = FairUseImport.update({
   id: '/fair-use',
   path: '/fair-use',
@@ -138,6 +133,12 @@ const IndexRoute = IndexImport.update({
 const SalesIndexRoute = SalesIndexImport.update({
   id: '/sales/',
   path: '/sales/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const FreebiesIndexRoute = FreebiesIndexImport.update({
+  id: '/freebies/',
+  path: '/freebies/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -192,6 +193,12 @@ const OffersIdRoute = OffersIdImport.update({
 const ItemsIdRoute = ItemsIdImport.update({
   id: '/items/$id',
   path: '/items/$id',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const FreebiesSellersRoute = FreebiesSellersImport.update({
+  id: '/freebies/sellers',
+  path: '/freebies/sellers',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -446,13 +453,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FairUseImport
       parentRoute: typeof rootRoute
     }
-    '/freebies': {
-      id: '/freebies'
-      path: '/freebies'
-      fullPath: '/freebies'
-      preLoaderRoute: typeof FreebiesImport
-      parentRoute: typeof rootRoute
-    }
     '/genres': {
       id: '/genres'
       path: '/genres'
@@ -507,6 +507,13 @@ declare module '@tanstack/react-router' {
       path: '/builds/$id'
       fullPath: '/builds/$id'
       preLoaderRoute: typeof BuildsIdImport
+      parentRoute: typeof rootRoute
+    }
+    '/freebies/sellers': {
+      id: '/freebies/sellers'
+      path: '/freebies/sellers'
+      fullPath: '/freebies/sellers'
+      preLoaderRoute: typeof FreebiesSellersImport
       parentRoute: typeof rootRoute
     }
     '/items/$id': {
@@ -570,6 +577,13 @@ declare module '@tanstack/react-router' {
       path: '/collections'
       fullPath: '/collections'
       preLoaderRoute: typeof CollectionsIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/freebies/': {
+      id: '/freebies/'
+      path: '/freebies'
+      fullPath: '/freebies'
+      preLoaderRoute: typeof FreebiesIndexImport
       parentRoute: typeof rootRoute
     }
     '/sales/': {
@@ -913,7 +927,6 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/donate-key': typeof DonateKeyRoute
   '/fair-use': typeof FairUseRoute
-  '/freebies': typeof FreebiesRoute
   '/genres': typeof GenresRoute
   '/posts': typeof PostsRoute
   '/privacy': typeof PrivacyRoute
@@ -922,6 +935,7 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/builds/$id': typeof BuildsIdRouteWithChildren
+  '/freebies/sellers': typeof FreebiesSellersRoute
   '/items/$id': typeof ItemsIdRouteWithChildren
   '/offers/$id': typeof OffersIdRouteWithChildren
   '/profile/$id': typeof ProfileIdRouteWithChildren
@@ -931,6 +945,7 @@ export interface FileRoutesByFullPath {
   '/sellers/$id': typeof SellersIdRoute
   '/tags/$id': typeof TagsIdRoute
   '/collections': typeof CollectionsIndexRoute
+  '/freebies': typeof FreebiesIndexRoute
   '/sales': typeof SalesIndexRoute
   '/builds/$id/files': typeof BuildsIdFilesRoute
   '/builds/$id/install-options': typeof BuildsIdInstallOptionsRoute
@@ -971,7 +986,6 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/donate-key': typeof DonateKeyRoute
   '/fair-use': typeof FairUseRoute
-  '/freebies': typeof FreebiesRoute
   '/genres': typeof GenresRoute
   '/posts': typeof PostsRoute
   '/privacy': typeof PrivacyRoute
@@ -980,11 +994,13 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/builds/$id': typeof BuildsIdRouteWithChildren
+  '/freebies/sellers': typeof FreebiesSellersRoute
   '/promotions/$id': typeof PromotionsIdRoute
   '/sales/$id': typeof SalesIdRoute
   '/sellers/$id': typeof SellersIdRoute
   '/tags/$id': typeof TagsIdRoute
   '/collections': typeof CollectionsIndexRoute
+  '/freebies': typeof FreebiesIndexRoute
   '/sales': typeof SalesIndexRoute
   '/builds/$id/files': typeof BuildsIdFilesRoute
   '/builds/$id/install-options': typeof BuildsIdInstallOptionsRoute
@@ -1025,7 +1041,6 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/donate-key': typeof DonateKeyRoute
   '/fair-use': typeof FairUseRoute
-  '/freebies': typeof FreebiesRoute
   '/genres': typeof GenresRoute
   '/posts': typeof PostsRoute
   '/privacy': typeof PrivacyRoute
@@ -1034,6 +1049,7 @@ export interface FileRoutesById {
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/builds/$id': typeof BuildsIdRouteWithChildren
+  '/freebies/sellers': typeof FreebiesSellersRoute
   '/items/$id': typeof ItemsIdRouteWithChildren
   '/offers/$id': typeof OffersIdRouteWithChildren
   '/profile/$id': typeof ProfileIdRouteWithChildren
@@ -1043,6 +1059,7 @@ export interface FileRoutesById {
   '/sellers/$id': typeof SellersIdRoute
   '/tags/$id': typeof TagsIdRoute
   '/collections/': typeof CollectionsIndexRoute
+  '/freebies/': typeof FreebiesIndexRoute
   '/sales/': typeof SalesIndexRoute
   '/builds/$id/files': typeof BuildsIdFilesRoute
   '/builds/$id/install-options': typeof BuildsIdInstallOptionsRoute
@@ -1085,7 +1102,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/donate-key'
     | '/fair-use'
-    | '/freebies'
     | '/genres'
     | '/posts'
     | '/privacy'
@@ -1094,6 +1110,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/logout'
     | '/builds/$id'
+    | '/freebies/sellers'
     | '/items/$id'
     | '/offers/$id'
     | '/profile/$id'
@@ -1103,6 +1120,7 @@ export interface FileRouteTypes {
     | '/sellers/$id'
     | '/tags/$id'
     | '/collections'
+    | '/freebies'
     | '/sales'
     | '/builds/$id/files'
     | '/builds/$id/install-options'
@@ -1142,7 +1160,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/donate-key'
     | '/fair-use'
-    | '/freebies'
     | '/genres'
     | '/posts'
     | '/privacy'
@@ -1151,11 +1168,13 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/logout'
     | '/builds/$id'
+    | '/freebies/sellers'
     | '/promotions/$id'
     | '/sales/$id'
     | '/sellers/$id'
     | '/tags/$id'
     | '/collections'
+    | '/freebies'
     | '/sales'
     | '/builds/$id/files'
     | '/builds/$id/install-options'
@@ -1194,7 +1213,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/donate-key'
     | '/fair-use'
-    | '/freebies'
     | '/genres'
     | '/posts'
     | '/privacy'
@@ -1203,6 +1221,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/logout'
     | '/builds/$id'
+    | '/freebies/sellers'
     | '/items/$id'
     | '/offers/$id'
     | '/profile/$id'
@@ -1212,6 +1231,7 @@ export interface FileRouteTypes {
     | '/sellers/$id'
     | '/tags/$id'
     | '/collections/'
+    | '/freebies/'
     | '/sales/'
     | '/builds/$id/files'
     | '/builds/$id/install-options'
@@ -1253,7 +1273,6 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   DonateKeyRoute: typeof DonateKeyRoute
   FairUseRoute: typeof FairUseRoute
-  FreebiesRoute: typeof FreebiesRoute
   GenresRoute: typeof GenresRoute
   PostsRoute: typeof PostsRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -1262,6 +1281,7 @@ export interface RootRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthLogoutRoute: typeof AuthLogoutRoute
   BuildsIdRoute: typeof BuildsIdRouteWithChildren
+  FreebiesSellersRoute: typeof FreebiesSellersRoute
   ItemsIdRoute: typeof ItemsIdRouteWithChildren
   OffersIdRoute: typeof OffersIdRouteWithChildren
   ProfileIdRoute: typeof ProfileIdRouteWithChildren
@@ -1271,6 +1291,7 @@ export interface RootRouteChildren {
   SellersIdRoute: typeof SellersIdRoute
   TagsIdRoute: typeof TagsIdRoute
   CollectionsIndexRoute: typeof CollectionsIndexRoute
+  FreebiesIndexRoute: typeof FreebiesIndexRoute
   SalesIndexRoute: typeof SalesIndexRoute
   CollectionsIdWeekRoute: typeof CollectionsIdWeekRouteWithChildren
   StoreNamespaceSlugRoute: typeof StoreNamespaceSlugRoute
@@ -1284,7 +1305,6 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   DonateKeyRoute: DonateKeyRoute,
   FairUseRoute: FairUseRoute,
-  FreebiesRoute: FreebiesRoute,
   GenresRoute: GenresRoute,
   PostsRoute: PostsRoute,
   PrivacyRoute: PrivacyRoute,
@@ -1293,6 +1313,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthLogoutRoute: AuthLogoutRoute,
   BuildsIdRoute: BuildsIdRouteWithChildren,
+  FreebiesSellersRoute: FreebiesSellersRoute,
   ItemsIdRoute: ItemsIdRouteWithChildren,
   OffersIdRoute: OffersIdRouteWithChildren,
   ProfileIdRoute: ProfileIdRouteWithChildren,
@@ -1302,6 +1323,7 @@ const rootRouteChildren: RootRouteChildren = {
   SellersIdRoute: SellersIdRoute,
   TagsIdRoute: TagsIdRoute,
   CollectionsIndexRoute: CollectionsIndexRoute,
+  FreebiesIndexRoute: FreebiesIndexRoute,
   SalesIndexRoute: SalesIndexRoute,
   CollectionsIdWeekRoute: CollectionsIdWeekRouteWithChildren,
   StoreNamespaceSlugRoute: StoreNamespaceSlugRoute,
@@ -1324,7 +1346,6 @@ export const routeTree = rootRoute
         "/dashboard",
         "/donate-key",
         "/fair-use",
-        "/freebies",
         "/genres",
         "/posts",
         "/privacy",
@@ -1333,6 +1354,7 @@ export const routeTree = rootRoute
         "/auth/login",
         "/auth/logout",
         "/builds/$id",
+        "/freebies/sellers",
         "/items/$id",
         "/offers/$id",
         "/profile/$id",
@@ -1342,6 +1364,7 @@ export const routeTree = rootRoute
         "/sellers/$id",
         "/tags/$id",
         "/collections/",
+        "/freebies/",
         "/sales/",
         "/collections/$id/$week",
         "/store/$namespace/$slug",
@@ -1365,9 +1388,6 @@ export const routeTree = rootRoute
     },
     "/fair-use": {
       "filePath": "fair-use.tsx"
-    },
-    "/freebies": {
-      "filePath": "freebies.tsx"
     },
     "/genres": {
       "filePath": "genres.tsx"
@@ -1397,6 +1417,9 @@ export const routeTree = rootRoute
         "/builds/$id/install-options",
         "/builds/$id/items"
       ]
+    },
+    "/freebies/sellers": {
+      "filePath": "freebies/sellers.tsx"
     },
     "/items/$id": {
       "filePath": "items/$id.tsx",
@@ -1455,6 +1478,9 @@ export const routeTree = rootRoute
     },
     "/collections/": {
       "filePath": "collections/index.tsx"
+    },
+    "/freebies/": {
+      "filePath": "freebies/index.tsx"
     },
     "/sales/": {
       "filePath": "sales/index.tsx"
