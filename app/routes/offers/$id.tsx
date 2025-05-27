@@ -58,6 +58,7 @@ import {
   useNavigate,
 } from '@tanstack/react-router';
 import { OffersHomeSkeleton } from '@/app/components/app/skeletons/offers-home';
+import { FabIcon } from '@/components/icons/fab';
 
 export const Route = createFileRoute('/offers/$id')({
   component: () => {
@@ -200,6 +201,8 @@ function OfferPage() {
     return <div>{offer.description}</div>;
   }
 
+  const isFabItem = offer.customAttributes.FabListingId;
+
   return (
     <VideoProvider>
       <main className="flex flex-col items-start justify-start w-full min-h-screen gap-4 relative">
@@ -218,7 +221,10 @@ function OfferPage() {
         />
         <header className="grid col-span-1 gap-4 md:grid-cols-2 w-full">
           <div className="flex flex-col gap-1">
-            <h1 className="text-4xl font-bold">{offer.title}</h1>
+            <div className="inline-flex items-center gap-4">
+              {isFabItem && <FabIcon className="size-10" />}
+              <h1 className="text-4xl font-bold">{offer.title}</h1>
+            </div>
             <h4
               className="text-lg font-semibold opacity-50 inline-flex items-center gap-2"
               aria-label={`Offered by ${offer.seller.name}`}

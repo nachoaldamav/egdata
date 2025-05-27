@@ -32,7 +32,8 @@ type EGSImageTypes =
   | 'img_thumbnail'
   | 'storefront'
   | 'vertical'
-  | 'image name';
+  | 'image name'
+  | undefined;
 
 type KeyImages = {
   type: string;
@@ -49,7 +50,7 @@ export const getImage = (
   keyImages: KeyImages[] | null,
   types: EGSImageTypes[],
 ) => {
-  for (const type of types) {
+  for (const type of types.filter((type) => type !== undefined)) {
     const image = (keyImages ?? []).find((image) => image.type === type);
     if (image) {
       image.url = image.url.replaceAll(' ', '%20');

@@ -9,6 +9,7 @@ import type { SingleOffer } from '@/types/single-offer';
 import { EpicGamesIcon } from '../icons/epic';
 import { EGSIcon } from '../icons/egs';
 import consola from 'consola';
+import { FabIcon } from '../icons/fab';
 
 function trackEvent(offer: SingleOffer) {
   try {
@@ -30,8 +31,13 @@ export function StoreDropdown({ offer }: { offer: SingleOffer }) {
           <ChevronDown className="h-4 w-4" />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-[200px] bg-zinc-900 text-white">
-          <OpenEgs offer={offer} />
-          <OpenEgl offer={offer} />
+          {offer.namespace !== 'ue' && (
+            <>
+              <OpenEgs offer={offer} />
+              <OpenEgl offer={offer} />
+            </>
+          )}
+          {offer.namespace === 'ue' && <OpenFabWeb offer={offer} />}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
@@ -104,6 +110,28 @@ function OpenEgs({ offer }: { offer: SingleOffer }) {
       >
         <div className="flex items-center justify-center gap-2">
           <EGSIcon className="size-6 w-[20px]" />
+          <span className="font-semibold">Web Browser</span>
+        </div>
+      </a>
+    </DropdownMenuItem>
+  );
+}
+
+function OpenFabWeb({ offer }: { offer: SingleOffer }) {
+  const id = offer.customAttributes?.FabListingId?.value;
+  if (!id) {
+    return null;
+  }
+
+  return (
+    <DropdownMenuItem className="flex items-center gap-3 px-4 py-2 hover:bg-zinc-800 cursor-pointer">
+      <a
+        href={`https://www.fab.com/listings/${id}`}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <div className="flex items-center justify-center gap-2">
+          <FabIcon className="size-6 w-[20px]" />
           <span className="font-semibold">Web Browser</span>
         </div>
       </a>

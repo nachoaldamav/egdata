@@ -97,6 +97,8 @@ export function OfferHero({ offer }: { offer: SingleOffer }) {
     setIsHovered(false);
   };
 
+  const isFabItem = offer.customAttributes.FabListingId;
+
   return (
     <div
       className="relative w-full h-auto"
@@ -133,6 +135,7 @@ export function OfferHero({ offer }: { offer: SingleOffer }) {
             'OfferImageWide',
             'DieselGameBoxWide',
             'TakeoverWide',
+            isFabItem ? 'Screenshot' : undefined,
           ])?.url ?? 'https://cdn.egdata.app/placeholder-1080.webp'
         }
         alt={offer.title}
