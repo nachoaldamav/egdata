@@ -85,13 +85,21 @@ export const Route = createFileRoute('/sandboxes/$id')({
       ctx.loaderData?.dehydratedState,
       ['sandbox', { id }],
     );
-    const offer = getFetchedQuery<
-      SingleOffer | (SingleItem & { isItem: true })
-    >(queryClient, ctx.loaderData?.dehydratedState, [
-      'sandbox',
-      'base-game',
-      { id },
-    ]);
+
+    let offer = getFetchedQuery<SingleOffer | (SingleItem & { isItem: true })>(
+      queryClient,
+      ctx.loaderData?.dehydratedState,
+      ['sandbox', 'base-game', { id }],
+    );
+
+    if (id === 'ue') {
+      if (offer) {
+        offer = {
+          ...offer,
+          title: 'Unreal Engine',
+        };
+      }
+    }
 
     if (!sandbox)
       return {

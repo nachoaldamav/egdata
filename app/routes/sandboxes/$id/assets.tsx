@@ -2,6 +2,7 @@ import { httpClient } from '@/lib/http-client';
 import {
   dehydrate,
   HydrationBoundary,
+  keepPreviousData,
   useQueries,
 } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
@@ -14,6 +15,15 @@ import type { SingleSandbox } from '@/types/single-sandbox';
 import { getQueryClient } from '@/lib/client';
 import { getFetchedQuery } from '@/lib/get-fetched-query';
 import { generateSandboxMeta } from '@/lib/generate-sandbox-meta';
+import { useState } from 'react';
+import type { ColumnFiltersState } from '@tanstack/react-table';
+
+interface PaginatedResponse<T> {
+  elements: T[];
+  page: number;
+  limit: number;
+  count: number;
+}
 
 export const Route = createFileRoute('/sandboxes/$id/assets')({
   component: () => {
@@ -31,8 +41,11 @@ export const Route = createFileRoute('/sandboxes/$id/assets')({
     const { queryClient } = context;
 
     await queryClient.prefetchQuery({
-      queryKey: ['sandbox', 'assets', { id }],
-      queryFn: () => httpClient.get<Asset[]>(`/sandboxes/${id}/assets`),
+      queryKey: ['sandbox', 'assets', { id, page: 1, limit: 20 }],
+      queryFn: () =>
+        httpClient.get<PaginatedResponse<Asset>>(`/sandboxes/${id}/assets`, {
+          params: { page: 1, limit: 20 },
+        }),
     });
 
     return {
@@ -87,11 +100,21 @@ export const Route = createFileRoute('/sandboxes/$id/assets')({
 
 function SandboxAssetsPage() {
   const { id } = Route.useParams();
+  const [page, setPage] = useState({ pageIndex: 0, pageSize: 20 });
+  const [filters, setFilters] = useState<ColumnFiltersState>([]);
   const [assetsQuery, baseGameQuery, sandboxQuery] = useQueries({
     queries: [
       {
-        queryKey: ['sandbox', 'assets', { id }],
-        queryFn: () => httpClient.get<Asset[]>(`/sandboxes/${id}/assets`),
+        queryKey: [
+          'sandbox',
+          'assets',
+          { id, page: page.pageIndex + 1, limit: page.pageSize },
+        ],
+        queryFn: () =>
+          httpClient.get<PaginatedResponse<Asset>>(`/sandboxes/${id}/assets`, {
+            params: { page: page.pageIndex + 1, limit: page.pageSize },
+          }),
+        placeholderData: keepPreviousData,
       },
       {
         queryKey: ['sandbox', 'base-game', { id }],
@@ -106,11 +129,11 @@ function SandboxAssetsPage() {
     ],
   });
 
-  const { data: assets } = assetsQuery;
+  const { data: assetsData } = assetsQuery;
   const { data: baseGame } = baseGameQuery;
   const { data: sandbox } = sandboxQuery;
 
-  if (!assets) {
+  if (!assetsData) {
     return null;
   }
 
@@ -124,7 +147,15 @@ function SandboxAssetsPage() {
         id={id}
         sandbox={id}
       />
-      <DataTable columns={columns} data={assets} />
+      <DataTable
+        columns={columns}
+        data={assetsData.elements}
+        setPage={setPage}
+        page={page}
+        total={assetsData.count}
+        filters={filters}
+        setFilters={setFilters}
+      />
     </main>
   );
 }

@@ -3,6 +3,7 @@ import type { SingleBuild } from '@/types/builds';
 import {
   dehydrate,
   HydrationBoundary,
+  keepPreviousData,
   useQueries,
 } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
@@ -14,6 +15,15 @@ import type { SingleSandbox } from '@/types/single-sandbox';
 import { getFetchedQuery } from '@/lib/get-fetched-query';
 import { getQueryClient } from '@/lib/client';
 import { generateSandboxMeta } from '@/lib/generate-sandbox-meta';
+import { useState } from 'react';
+import type { ColumnFiltersState } from '@tanstack/react-table';
+
+interface PaginatedResponse<T> {
+  elements: T[];
+  page: number;
+  limit: number;
+  count: number;
+}
 
 export const Route = createFileRoute('/sandboxes/$id/builds')({
   component: () => {
@@ -31,8 +41,14 @@ export const Route = createFileRoute('/sandboxes/$id/builds')({
     const { queryClient } = context;
 
     await queryClient.prefetchQuery({
-      queryKey: ['sandbox', 'builds', { id }],
-      queryFn: () => httpClient.get<SingleBuild[]>(`/sandboxes/${id}/builds`),
+      queryKey: ['sandbox', 'builds', { id, page: 1, limit: 20 }],
+      queryFn: () =>
+        httpClient.get<PaginatedResponse<SingleBuild>>(
+          `/sandboxes/${id}/builds`,
+          {
+            params: { page: 1, limit: 20 },
+          },
+        ),
     });
 
     return {
@@ -87,11 +103,24 @@ export const Route = createFileRoute('/sandboxes/$id/builds')({
 
 function SandboxBuildsPage() {
   const { id } = Route.useParams();
+  const [page, setPage] = useState({ pageIndex: 0, pageSize: 20 });
+  const [filters, setFilters] = useState<ColumnFiltersState>([]);
   const [buildsQuery, baseGameQuery, sandboxQuery] = useQueries({
     queries: [
       {
-        queryKey: ['sandbox', 'builds', { id }],
-        queryFn: () => httpClient.get<SingleBuild[]>(`/sandboxes/${id}/builds`),
+        queryKey: [
+          'sandbox',
+          'builds',
+          { id, page: page.pageIndex + 1, limit: page.pageSize },
+        ],
+        queryFn: () =>
+          httpClient.get<PaginatedResponse<SingleBuild>>(
+            `/sandboxes/${id}/builds`,
+            {
+              params: { page: page.pageIndex + 1, limit: page.pageSize },
+            },
+          ),
+        placeholderData: keepPreviousData,
       },
       {
         queryKey: ['sandbox', 'base-game', { id }],
@@ -106,11 +135,11 @@ function SandboxBuildsPage() {
     ],
   });
 
-  const { data: builds } = buildsQuery;
+  const { data: buildsData } = buildsQuery;
   const { data: baseGame } = baseGameQuery;
   const { data: sandbox } = sandboxQuery;
 
-  if (!builds) {
+  if (!buildsData) {
     return null;
   }
 
@@ -124,7 +153,15 @@ function SandboxBuildsPage() {
         id={id}
         sandbox={id}
       />
-      <DataTable columns={columns} data={builds} />
+      <DataTable
+        columns={columns}
+        data={buildsData.elements}
+        setPage={setPage}
+        page={page}
+        total={buildsData.count}
+        filters={filters}
+        setFilters={setFilters}
+      />
     </main>
   );
 }

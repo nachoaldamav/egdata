@@ -30,44 +30,55 @@ import { Link } from '@tanstack/react-router';
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  setPage: React.Dispatch<
+    React.SetStateAction<{
+      pageIndex: number;
+      pageSize: number;
+    }>
+  >;
+  page: {
+    pageIndex: number;
+    pageSize: number;
+  };
+  total: number;
+  filters: ColumnFiltersState;
+  setFilters: React.Dispatch<React.SetStateAction<ColumnFiltersState>>;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  setPage,
+  page,
+  total,
+  filters,
+  setFilters,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({});
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const table = useReactTable({
     data,
     columns,
+    pageCount: Math.ceil(total / page.pageSize),
     state: {
       sorting,
       rowSelection,
-      columnFilters,
+      columnFilters: filters,
+      pagination: page,
     },
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
+    onColumnFiltersChange: setFilters,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-    initialState: {
-      pagination: {
-        pageSize: 20,
-      },
-      sorting: [
-        {
-          id: 'createdAt',
-          desc: true,
-        },
-      ],
-    },
+    onPaginationChange: setPage,
+    manualPagination: true,
+    manualFiltering: true,
   });
 
   return (

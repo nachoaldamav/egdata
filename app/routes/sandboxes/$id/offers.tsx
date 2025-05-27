@@ -1,6 +1,11 @@
 import { httpClient } from '@/lib/http-client';
 import type { SingleOffer } from '@/types/single-offer';
-import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
+import {
+  dehydrate,
+  HydrationBoundary,
+  keepPreviousData,
+  useQuery,
+} from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { DataTable } from '@/components/tables/offers/table';
 import { columns } from '@/components/tables/offers/columns';
@@ -9,6 +14,15 @@ import type { SingleSandbox } from '@/types/single-sandbox';
 import { getQueryClient } from '@/lib/client';
 import { getFetchedQuery } from '@/lib/get-fetched-query';
 import { generateSandboxMeta } from '@/lib/generate-sandbox-meta';
+import { useState } from 'react';
+import type { ColumnFiltersState } from '@tanstack/react-table';
+
+interface PaginatedResponse<T> {
+  elements: T[];
+  page: number;
+  limit: number;
+  count: number;
+}
 
 export const Route = createFileRoute('/sandboxes/$id/offers')({
   component: () => {
@@ -26,8 +40,14 @@ export const Route = createFileRoute('/sandboxes/$id/offers')({
     const { queryClient } = context;
 
     await queryClient.prefetchQuery({
-      queryKey: ['sandbox', 'offers', { id }],
-      queryFn: () => httpClient.get<SingleOffer[]>(`/sandboxes/${id}/offers`),
+      queryKey: ['sandbox', 'offers', { id, page: 1, limit: 20 }],
+      queryFn: () =>
+        httpClient.get<PaginatedResponse<SingleOffer>>(
+          `/sandboxes/${id}/offers`,
+          {
+            params: { page: 1, limit: 20 },
+          },
+        ),
     });
 
     return {
@@ -82,9 +102,22 @@ export const Route = createFileRoute('/sandboxes/$id/offers')({
 
 function SandboxOffersPage() {
   const { id } = Route.useParams();
-  const { data: offers } = useQuery({
-    queryKey: ['sandbox', 'offers', { id }],
-    queryFn: () => httpClient.get<SingleOffer[]>(`/sandboxes/${id}/offers`),
+  const [page, setPage] = useState({ pageIndex: 0, pageSize: 20 });
+  const [filters, setFilters] = useState<ColumnFiltersState>([]);
+  const { data: offersData } = useQuery({
+    queryKey: [
+      'sandbox',
+      'offers',
+      { id, page: page.pageIndex + 1, limit: page.pageSize },
+    ],
+    queryFn: () =>
+      httpClient.get<PaginatedResponse<SingleOffer>>(
+        `/sandboxes/${id}/offers`,
+        {
+          params: { page: page.pageIndex + 1, limit: page.pageSize },
+        },
+      ),
+    placeholderData: keepPreviousData,
   });
   const { data: baseGame } = useQuery({
     queryKey: ['sandbox', 'base-game', { id }],
@@ -96,7 +129,7 @@ function SandboxOffersPage() {
     queryFn: () => httpClient.get<SingleSandbox>(`/sandboxes/${id}`),
   });
 
-  if (!offers) {
+  if (!offersData) {
     return null;
   }
 
@@ -110,7 +143,15 @@ function SandboxOffersPage() {
         id={id}
         sandbox={id}
       />
-      <DataTable columns={columns} data={offers} />
+      <DataTable
+        columns={columns}
+        data={offersData.elements}
+        setPage={setPage}
+        page={page}
+        total={offersData.count}
+        filters={filters}
+        setFilters={setFilters}
+      />
     </main>
   );
 }

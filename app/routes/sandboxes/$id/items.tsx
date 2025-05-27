@@ -3,6 +3,7 @@ import type { SingleItem } from '@/types/single-item';
 import {
   dehydrate,
   HydrationBoundary,
+  keepPreviousData,
   useQueries,
 } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
@@ -14,6 +15,15 @@ import type { SingleSandbox } from '@/types/single-sandbox';
 import { getFetchedQuery } from '@/lib/get-fetched-query';
 import { getQueryClient } from '@/lib/client';
 import { generateSandboxMeta } from '@/lib/generate-sandbox-meta';
+import { useState } from 'react';
+import type { ColumnFiltersState } from '@tanstack/react-table';
+
+interface PaginatedResponse<T> {
+  elements: T[];
+  page: number;
+  limit: number;
+  count: number;
+}
 
 export const Route = createFileRoute('/sandboxes/$id/items')({
   component: () => {
@@ -31,8 +41,14 @@ export const Route = createFileRoute('/sandboxes/$id/items')({
     const { queryClient } = context;
 
     await queryClient.prefetchQuery({
-      queryKey: ['sandbox', 'items', { id }],
-      queryFn: () => httpClient.get<SingleItem[]>(`/sandboxes/${id}/items`),
+      queryKey: ['sandbox', 'items', { id, page: 1, limit: 20 }],
+      queryFn: () =>
+        httpClient.get<PaginatedResponse<SingleItem>>(
+          `/sandboxes/${id}/items`,
+          {
+            params: { page: 1, limit: 20 },
+          },
+        ),
     });
 
     return {
@@ -87,11 +103,24 @@ export const Route = createFileRoute('/sandboxes/$id/items')({
 
 function SandboxItemsPage() {
   const { id } = Route.useParams();
+  const [page, setPage] = useState({ pageIndex: 0, pageSize: 20 });
+  const [filters, setFilters] = useState<ColumnFiltersState>([]);
   const [itemsQuery, baseGameQuery, sandboxQuery] = useQueries({
     queries: [
       {
-        queryKey: ['sandbox', 'items', { id }],
-        queryFn: () => httpClient.get<SingleItem[]>(`/sandboxes/${id}/items`),
+        queryKey: [
+          'sandbox',
+          'items',
+          { id, page: page.pageIndex + 1, limit: page.pageSize },
+        ],
+        queryFn: () =>
+          httpClient.get<PaginatedResponse<SingleItem>>(
+            `/sandboxes/${id}/items`,
+            {
+              params: { page: page.pageIndex + 1, limit: page.pageSize },
+            },
+          ),
+        placeholderData: keepPreviousData,
       },
       {
         queryKey: ['sandbox', 'base-game', { id }],
@@ -106,11 +135,11 @@ function SandboxItemsPage() {
     ],
   });
 
-  const { data: items } = itemsQuery;
+  const { data: itemsData } = itemsQuery;
   const { data: baseGame } = baseGameQuery;
   const { data: sandbox } = sandboxQuery;
 
-  if (!items) {
+  if (!itemsData) {
     return null;
   }
 
@@ -124,7 +153,15 @@ function SandboxItemsPage() {
         id={id}
         sandbox={id}
       />
-      <DataTable columns={columns} data={items} />
+      <DataTable
+        columns={columns}
+        data={itemsData.elements}
+        setPage={setPage}
+        page={page}
+        total={itemsData.count}
+        filters={filters}
+        setFilters={setFilters}
+      />
     </main>
   );
 }
