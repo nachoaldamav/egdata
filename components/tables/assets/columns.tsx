@@ -76,7 +76,7 @@ export const platforms: {
   },
 ];
 
-export const columns: ColumnDef<Asset>[] = [
+export const columns: ColumnDef<Asset, unknown>[] = [
   {
     accessorKey: 'title',
     header: 'Title',

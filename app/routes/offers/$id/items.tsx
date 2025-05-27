@@ -8,6 +8,8 @@ import type { SingleItem } from '@/types/single-item';
 import type { SingleOffer } from '@/types/single-offer';
 import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
+import { useState } from 'react';
+import type { ColumnFiltersState } from '@tanstack/react-table';
 
 export const Route = createFileRoute('/offers/$id/items')({
   component: () => {
@@ -79,6 +81,8 @@ export const Route = createFileRoute('/offers/$id/items')({
 
 function ItemsPage() {
   const { id } = Route.useLoaderData();
+  const [page, setPage] = useState({ pageIndex: 0, pageSize: 20 });
+  const [filters, setFilters] = useState<ColumnFiltersState>([]);
   const {
     data: items,
     isLoading,
@@ -104,7 +108,15 @@ function ItemsPage() {
   return (
     <section id="offer-items" className="w-full h-full">
       <h2 className="text-2xl font-bold">Items</h2>
-      <DataTable columns={columns} data={items ?? []} />
+      <DataTable<SingleItem, unknown>
+        columns={columns}
+        data={items ?? []}
+        setPage={setPage}
+        page={page}
+        total={items?.length ?? 0}
+        filters={filters}
+        setFilters={setFilters}
+      />
     </section>
   );
 }

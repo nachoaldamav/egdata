@@ -8,6 +8,8 @@ import type { Build } from '@/types/builds';
 import type { SingleItem } from '@/types/single-item';
 import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
+import { useState } from 'react';
+import type { ColumnFiltersState } from '@tanstack/react-table';
 
 export const Route = createFileRoute('/items/$id/builds')({
   component: () => {
@@ -74,6 +76,8 @@ export const Route = createFileRoute('/items/$id/builds')({
 
 function ItemBuildsPage() {
   const { id } = Route.useParams();
+  const [page, setPage] = useState({ pageIndex: 0, pageSize: 20 });
+  const [filters, setFilters] = useState<ColumnFiltersState>([]);
   const { data: builds } = useQuery({
     queryKey: ['item', 'builds', { id }],
     queryFn: () => httpClient.get<Build[]>(`/items/${id}/builds`),
@@ -86,7 +90,15 @@ function ItemBuildsPage() {
   return (
     <div className="flex flex-col items-start justify-start h-full gap-4 w-full">
       <h2 className="text-xl font-bold">Builds</h2>
-      <DataTable columns={columns} data={builds} />
+      <DataTable<Build, unknown>
+        columns={columns}
+        data={builds}
+        setPage={setPage}
+        page={page}
+        total={builds.length}
+        filters={filters}
+        setFilters={setFilters}
+      />
     </div>
   );
 }

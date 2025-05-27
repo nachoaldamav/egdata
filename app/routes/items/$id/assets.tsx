@@ -8,6 +8,8 @@ import type { Asset } from '@/types/asset';
 import type { SingleItem } from '@/types/single-item';
 import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
+import { useState } from 'react';
+import type { ColumnFiltersState } from '@tanstack/react-table';
 
 export const Route = createFileRoute('/items/$id/assets')({
   component: () => {
@@ -74,6 +76,8 @@ export const Route = createFileRoute('/items/$id/assets')({
 
 function ItemAssetsPage() {
   const { id } = Route.useParams();
+  const [page, setPage] = useState({ pageIndex: 0, pageSize: 20 });
+  const [filters, setFilters] = useState<ColumnFiltersState>([]);
   const { data: assets } = useQuery({
     queryKey: ['item', 'assets', { id }],
     queryFn: () => httpClient.get<Asset[]>(`/items/${id}/assets`),
@@ -86,7 +90,15 @@ function ItemAssetsPage() {
   return (
     <div className="flex flex-col items-start justify-start h-full gap-4 w-full">
       <h2 className="text-xl font-bold">Assets</h2>
-      <DataTable columns={columns} data={assets} />
+      <DataTable<Asset, unknown>
+        columns={columns}
+        data={assets}
+        setPage={setPage}
+        page={page}
+        total={assets.length}
+        filters={filters}
+        setFilters={setFilters}
+      />
     </div>
   );
 }
