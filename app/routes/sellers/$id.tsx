@@ -178,7 +178,7 @@ function RouteComponent() {
 
         <section className="mt-16">
           <div className="flex flex-row flex-nowrap items-start justify-between gap-4">
-            <SearchFilters form={form} showSeller={false} />
+            <SearchFilters form={form} showSeller={false} showPastGiveaways />
             <div className="flex flex-col gap-4 w-full justify-start items-start relative">
               <SearchHeader form={form} title="Offers" />
               <SearchForm

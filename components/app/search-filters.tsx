@@ -51,6 +51,7 @@ export type SearchFiltersProps = {
   showOnSale?: boolean;
   showCodeRedemption?: boolean;
   showBlockchain?: boolean;
+  showPastGiveaways?: boolean;
 };
 
 export function SearchFilters({
@@ -66,6 +67,7 @@ export function SearchFilters({
   showOnSale = true,
   showCodeRedemption = true,
   showBlockchain = true,
+  showPastGiveaways = false,
 }: SearchFiltersProps) {
   const {
     tagCounts,
@@ -171,6 +173,12 @@ export function SearchFilters({
                   // Force a re-render of the QuerySearch component
                   form.setFieldValue('seller', undefined);
                 }}
+              />
+            )}
+            {showPastGiveaways && values.pastGiveaways && (
+              <QuickPill
+                label="Past Giveaways"
+                onRemove={() => form.setFieldValue('pastGiveaways', undefined)}
               />
             )}
           </div>
@@ -385,6 +393,26 @@ export function SearchFilters({
           </AccordionItem>
         )}
       </Accordion>
+
+      {showPastGiveaways && (
+        <form.Field name="pastGiveaways">
+          {({ handleChange, state }) => (
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="pastGiveaways"
+                checked={state.value}
+                onCheckedChange={(value) => handleChange(Boolean(value))}
+              />
+              <label
+                htmlFor="pastGiveaways"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Past Giveaways
+              </label>
+            </div>
+          )}
+        </form.Field>
+      )}
 
       {showOnSale && (
         <form.Field name="onSale">

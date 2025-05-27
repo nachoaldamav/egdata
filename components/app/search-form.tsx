@@ -86,6 +86,7 @@ export type SearchFormProps = {
   initialPage?: number;
   initialHash?: string;
   fixedFilters?: Partial<TypeOf<typeof formSchema>>;
+  showPastGiveaways?: boolean;
 };
 
 export function SearchForm({
