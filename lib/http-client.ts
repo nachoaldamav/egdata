@@ -181,5 +181,8 @@ export const httpClient = new HttpFetch(
   {
     timeout: 5_000,
     withCredentials: true,
+    headers: {
+      'User-Agent': 'egdata-web-client/1.0.0',
+    },
   },
 );
