@@ -27,13 +27,14 @@ export function PriceRangeSlider({
   const [priceRange, setPriceRange] =
     React.useState<[number, number]>(defaultValue);
   const [minInput, setMinInput] = React.useState<string>(
-    defaultValue[0].toString(),
+    defaultValue[0]?.toString() ?? '',
   );
   const [maxInput, setMaxInput] = React.useState<string>(
-    defaultValue[1].toString(),
+    defaultValue[1]?.toString() ?? '',
   );
 
   const handleSliderChange = (values: number[]) => {
+    if (!values || values.length < 2) return;
     const [min, max] = values as [number, number];
     setPriceRange([min, max]);
     setMinInput(min.toString());
@@ -82,7 +83,7 @@ export function PriceRangeSlider({
 
   const formatter = new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency: currency,
+    currency: currency ?? 'USD',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   });
