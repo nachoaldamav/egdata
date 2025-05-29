@@ -3,8 +3,6 @@ import { useMemo, useState, useEffect } from 'react';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { Card, CardContent } from '@/components/ui/card';
 import {
-  dehydrate,
-  HydrationBoundary,
   keepPreviousData,
   useQueries,
 } from '@tanstack/react-query';
@@ -35,71 +33,77 @@ export const Route = createFileRoute('/offers/$id/')({
     return <RouteComponent />;
   },
 
-  loader: async ({ params, context }) => {
+  loader: async ({ params, context, cause }) => {
     const startTime = performance.now();
     const { id } = params;
     const { country, queryClient } = context;
 
-    await Promise.all([
-      queryClient.prefetchQuery({
-        queryKey: ['offer', 'genres', { id }],
-        queryFn: () => httpClient.get<Tag[]>(`/offers/${id}/genres`),
-      }),
-      queryClient.prefetchQuery({
-        queryKey: ['price-stats', { id, country }],
-        queryFn: () =>
-          httpClient.get<{
-            current: Price | null;
-            lowest: Price | null;
-            lastDiscount: Price | null;
-          }>(`/offers/${id}/price-stats`, {
-            params: { country },
-          }),
-      }),
-      queryClient.prefetchQuery({
-        queryKey: ['offer', 'tops', { id }],
-        queryFn: () =>
-          httpClient.get<{
-            [key: string]: number;
-          }>(`/offers/${id}/tops`),
-      }),
-    ]);
+    const isPreload = cause === 'preload';
 
-    // Fetch the tops data
-    const tops = queryClient.getQueryData<{
-      [key: string]: number;
-    }>(['offer', 'tops', { id }]);
+    let defaultCollection = 'top-sellers';
 
-    // Calculate the default collection
-    const defaultCollection = tops
-      ? Object.keys(tops).reduce((acc, key) => {
-          return tops[key] < tops[acc] ? key : acc;
-        }, Object.keys(tops)[0]) // Use the first key in tops as the initial value
-      : 'top-sellers';
+    if (!isPreload) {
+      await Promise.all([
+        queryClient.prefetchQuery({
+          queryKey: ['offer', 'genres', { id }],
+          queryFn: () => httpClient.get<Tag[]>(`/offers/${id}/genres`),
+        }),
+        queryClient.prefetchQuery({
+          queryKey: ['price-stats', { id, country }],
+          queryFn: () =>
+            httpClient.get<{
+              current: Price | null;
+              lowest: Price | null;
+              lastDiscount: Price | null;
+            }>(`/offers/${id}/price-stats`, {
+              params: { country },
+            }),
+        }),
+        queryClient.prefetchQuery({
+          queryKey: ['offer', 'tops', { id }],
+          queryFn: () =>
+            httpClient.get<{
+              [key: string]: number;
+            }>(`/offers/${id}/tops`),
+        }),
+      ]);
 
-    if (defaultCollection) {
-      await queryClient.prefetchQuery({
-        queryKey: [
-          'collection',
-          'positions',
-          { id, collection: defaultCollection },
-        ],
-        queryFn: () =>
-          httpClient.get<OfferPosition>(
-            `/offers/${id}/collections/${defaultCollection}`,
-            {
-              params: {
-                country,
+      // Fetch the tops data
+      const tops = queryClient.getQueryData<{
+        [key: string]: number;
+      }>(['offer', 'tops', { id }]);
+
+      // Calculate the default collection
+      defaultCollection = tops
+        ? Object.keys(tops).reduce((acc, key) => {
+            return tops[key] < tops[acc] ? key : acc;
+          }, Object.keys(tops)[0]) // Use the first key in tops as the initial value
+        : 'top-sellers';
+
+      if (defaultCollection) {
+        await queryClient.prefetchQuery({
+          queryKey: [
+            'collection',
+            'positions',
+            { id, collection: defaultCollection },
+          ],
+          queryFn: () =>
+            httpClient.get<OfferPosition>(
+              `/offers/${id}/collections/${defaultCollection}`,
+              {
+                params: {
+                  country,
+                },
               },
-            },
-          ),
-      });
-    }
+            ),
+        });
+      }
 
-    const endTime = performance.now();
-    console.log(
-      `[offers-index] Time taken: ${endTime - startTime} milliseconds`,
-    );
+      const endTime = performance.now();
+      console.log(
+        `[offers-index] Time taken: ${endTime - startTime} milliseconds`,
+      );
+    }
 
     return {
       id,

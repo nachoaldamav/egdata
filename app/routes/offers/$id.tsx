@@ -65,33 +65,42 @@ export const Route = createFileRoute('/offers/$id')({
     return <OfferPage />;
   },
 
-  loader: async ({ params, context }) => {
+  loader: async ({ params, context, cause }) => {
     const startTime = performance.now();
     const { country, queryClient } = context;
     const { id } = params;
 
-    const [offer] = await Promise.all([
-      queryClient.ensureQueryData({
-        queryKey: ['offer', { id: params.id }],
-        queryFn: () => httpClient.get<SingleOffer>(`/offers/${params.id}`),
-      }),
-      queryClient.ensureQueryData({
-        queryKey: ['offer-technologies', { id: params.id }],
-        queryFn: () =>
-          httpClient.get<Technology[]>(`/offers/${params.id}/technologies`),
-      }),
-      queryClient.prefetchQuery({
-        queryKey: ['price', { id: params.id, country }],
-        queryFn: () =>
-          httpClient.get<Price>(
-            `/offers/${params.id}/price?country=${country || 'US'}`,
-          ),
-      }),
-      queryClient.prefetchQuery({
-        queryKey: ['offer-assets', { id }],
-        queryFn: () => httpClient.get<Asset[]>(`/offers/${id}/assets`),
-      }),
-    ]);
+    const isPreload = cause === 'preload';
+
+    // Always fetch the offer first
+    const offer = await queryClient.ensureQueryData({
+      queryKey: ['offer', { id: params.id }],
+      queryFn: () => httpClient.get<SingleOffer>(`/offers/${params.id}`),
+    });
+
+    // Prepare additional queries for SSR/SEO only
+    const extraQueries: Promise<unknown>[] = [];
+    if (!isPreload) {
+      extraQueries.push(
+        queryClient.prefetchQuery({
+          queryKey: ['price', { id: params.id, country }],
+          queryFn: () =>
+            httpClient.get<Price>(
+              `/offers/${params.id}/price?country=${country || 'US'}`,
+            ),
+        }),
+        queryClient.ensureQueryData({
+          queryKey: ['offer-technologies', { id: params.id }],
+          queryFn: () =>
+            httpClient.get<Technology[]>(`/offers/${params.id}/technologies`),
+        }),
+        queryClient.prefetchQuery({
+          queryKey: ['offer-assets', { id }],
+          queryFn: () => httpClient.get<Asset[]>(`/offers/${id}/assets`),
+        })
+      );
+    }
+    await Promise.all(extraQueries);
 
     const endTime = performance.now();
     console.log(`[offers-root]Time taken: ${endTime - startTime} milliseconds`);
