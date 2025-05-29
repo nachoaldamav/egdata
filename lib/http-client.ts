@@ -3,6 +3,8 @@ import axios, {
   type AxiosRequestConfig,
   type AxiosError,
 } from 'axios';
+import http from 'node:http';
+import https from 'node:https';
 
 type ParameterValue = string | number | boolean | undefined | null;
 interface FetchOptions extends AxiosRequestConfig {
@@ -15,11 +17,17 @@ class HttpFetch {
   private axiosInstance: AxiosInstance;
 
   constructor(baseURL = '', defaultOptions: FetchOptions = {}) {
+    // Create keep-alive agents for Node.js environment
+    const httpAgent = new http.Agent({ keepAlive: true });
+    const httpsAgent = new https.Agent({ keepAlive: true });
+
     this.axiosInstance = axios.create({
       baseURL,
       headers: defaultOptions.headers,
       timeout: defaultOptions.timeout ?? 10_000,
       withCredentials: defaultOptions.withCredentials ?? true,
+      // Only use agents in Node.js environment
+      ...(typeof window === 'undefined' ? { httpAgent, httpsAgent } : {}),
     });
   }
 
