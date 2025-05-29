@@ -3,8 +3,6 @@ import axios, {
   type AxiosRequestConfig,
   type AxiosError,
 } from 'axios';
-import http from 'node:http';
-import https from 'node:https';
 
 type ParameterValue = string | number | boolean | undefined | null;
 interface FetchOptions extends AxiosRequestConfig {
@@ -13,22 +11,51 @@ interface FetchOptions extends AxiosRequestConfig {
   timeout?: number;
 }
 
+interface HttpError extends Error {
+  response?: unknown;
+  status?: number;
+}
+
 class HttpFetch {
   private axiosInstance: AxiosInstance;
+  private initializationPromise: Promise<void>;
 
   constructor(baseURL = '', defaultOptions: FetchOptions = {}) {
-    // Create keep-alive agents for Node.js environment
-    const httpAgent = new http.Agent({ keepAlive: true });
-    const httpsAgent = new https.Agent({ keepAlive: true });
-
-    this.axiosInstance = axios.create({
+    const config: AxiosRequestConfig = {
       baseURL,
       headers: defaultOptions.headers,
       timeout: defaultOptions.timeout ?? 10_000,
       withCredentials: defaultOptions.withCredentials ?? true,
-      // Only use agents in Node.js environment
-      ...(typeof window === 'undefined' ? { httpAgent, httpsAgent } : {}),
-    });
+    };
+
+    // Initialize with basic config first
+    this.axiosInstance = axios.create(config);
+
+    // Handle async initialization for Node.js environment
+    this.initializationPromise = (async () => {
+      if (typeof window === 'undefined') {
+        try {
+          const [http, https] = await Promise.all([
+            import('node:http'),
+            import('node:https'),
+          ]);
+
+          // Create new instance with agents
+          this.axiosInstance = axios.create({
+            ...config,
+            httpAgent: new http.Agent({ keepAlive: true }),
+            httpsAgent: new https.Agent({ keepAlive: true }),
+          });
+        } catch (error) {
+          console.error('Failed to initialize HTTP agents:', error);
+          // Keep using the basic instance if agent initialization fails
+        }
+      }
+    })();
+  }
+
+  private async ensureInitialized() {
+    await this.initializationPromise;
   }
 
   private handleAxiosError(error: unknown): never {
@@ -38,9 +65,9 @@ class HttpFetch {
       const status = axiosError.response?.status;
       const errorMessage = `HTTP error! Status: ${status ?? 'unknown'}`;
 
-      const httpError = new Error(errorMessage);
-      (httpError as any).response = errorData;
-      (httpError as any).status = status;
+      const httpError = new Error(errorMessage) as HttpError;
+      httpError.response = errorData;
+      httpError.status = status;
       throw httpError;
     }
     throw error instanceof Error ? error : new Error('Unknown error occurred');
@@ -54,6 +81,7 @@ class HttpFetch {
     requestFn: () => Promise<T>,
     { retries = 3, delay = 1000 }: { retries?: number; delay?: number } = {},
   ): Promise<T> {
+    await this.ensureInitialized();
     let lastError: unknown;
 
     for (let attempt = 1; attempt <= retries; attempt++) {
@@ -76,6 +104,7 @@ class HttpFetch {
     endpoint: string,
     options: FetchOptions = {},
   ): Promise<T> {
+    await this.ensureInitialized();
     try {
       const response = await this.axiosInstance.get<T>(endpoint, {
         params: options.params,
@@ -88,12 +117,12 @@ class HttpFetch {
     }
   }
 
-  // Similar pattern for other methods (post, put, patch, delete, options)
   public async post<T>(
     endpoint: string,
     body?: unknown,
     options: FetchOptions = {},
   ): Promise<T> {
+    await this.ensureInitialized();
     try {
       const response = await this.axiosInstance.post<T>(endpoint, body, {
         params: options.params,
@@ -114,6 +143,7 @@ class HttpFetch {
     body?: unknown,
     options: FetchOptions = {},
   ): Promise<T> {
+    await this.ensureInitialized();
     try {
       const response = await this.axiosInstance.put<T>(endpoint, body, {
         params: options.params,
@@ -134,6 +164,7 @@ class HttpFetch {
     body?: unknown,
     options: FetchOptions = {},
   ): Promise<T> {
+    await this.ensureInitialized();
     try {
       const response = await this.axiosInstance.patch<T>(endpoint, body, {
         params: options.params,
@@ -153,6 +184,7 @@ class HttpFetch {
     endpoint: string,
     options: FetchOptions = {},
   ): Promise<T> {
+    await this.ensureInitialized();
     try {
       const response = await this.axiosInstance.delete<T>(endpoint, {
         params: options.params,
@@ -169,6 +201,7 @@ class HttpFetch {
     endpoint: string,
     options: FetchOptions = {},
   ): Promise<T> {
+    await this.ensureInitialized();
     try {
       const response = await this.axiosInstance.options<T>(endpoint, {
         params: options.params,
@@ -190,7 +223,8 @@ export const httpClient = new HttpFetch(
     timeout: 5_000,
     withCredentials: true,
     headers: {
-      'User-Agent': 'egdata-web-client/1.0.0',
+      // @ts-expect-error
+      'User-Agent': import.meta.env.SSR ? 'egdata-web-client/1.0.0' : undefined,
     },
   },
 );
