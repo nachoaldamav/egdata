@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
 import { httpClient } from '@/lib/http-client';
@@ -17,6 +18,7 @@ interface Metadata {
   changes: Change[];
   contextId: string;
   contextType: string;
+  context: SingleOffer | SingleItem | null;
 }
 
 interface Change {
@@ -27,25 +29,21 @@ interface Change {
 }
 
 interface OfferHit extends DefaultHit {
-  metadata: Metadata & { contextType: 'offer' };
-  document: SingleOffer;
+  metadata: Metadata & { contextType: 'offer'; context: SingleOffer };
 }
 
 interface ItemHit extends DefaultHit {
-  metadata: Metadata & { contextType: 'item' };
-  document: SingleItem;
+  metadata: Metadata & { contextType: 'item'; context: SingleItem };
 }
 
 interface AssetHit extends DefaultHit {
-  metadata: Metadata & { contextType: 'asset' };
-  document: SingleItem;
+  metadata: Metadata & { contextType: 'asset'; context: SingleItem };
 }
 
 interface Hit {
   _id: string;
   timestamp: string;
   metadata: Metadata;
-  document: null;
 }
 
 export const Route = createFileRoute('/changelog/$id')({
@@ -118,13 +116,15 @@ function ChangeDetailPage() {
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-6xl mx-auto px-4 py-8 sm:px-6">
-      <ChangeTracker
-        key={data._id}
-        _id={data._id}
-        document={data.document}
-        metadata={data.metadata}
-        timestamp={data.timestamp}
-      />
+      <div className="grid gap-4">
+        <ChangeTracker
+          key={data._id}
+          _id={data._id}
+          document={data.metadata.context}
+          metadata={data.metadata}
+          timestamp={data.timestamp}
+        />
+      </div>
     </div>
   );
 }
