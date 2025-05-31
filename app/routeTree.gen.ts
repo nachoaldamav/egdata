@@ -18,12 +18,12 @@ import { Route as GenresImport } from './routes/genres'
 import { Route as FairUseImport } from './routes/fair-use'
 import { Route as DonateKeyImport } from './routes/donate-key'
 import { Route as DashboardImport } from './routes/dashboard'
-import { Route as ChangelogImport } from './routes/changelog'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
 import { Route as SalesIndexImport } from './routes/sales/index'
 import { Route as FreebiesIndexImport } from './routes/freebies/index'
 import { Route as CollectionsIndexImport } from './routes/collections/index'
+import { Route as ChangelogIndexImport } from './routes/changelog/index'
 import { Route as TagsIdImport } from './routes/tags/$id'
 import { Route as SellersIdImport } from './routes/sellers/$id'
 import { Route as SandboxesIdImport } from './routes/sandboxes/$id'
@@ -33,6 +33,7 @@ import { Route as ProfileIdImport } from './routes/profile/$id'
 import { Route as OffersIdImport } from './routes/offers/$id'
 import { Route as ItemsIdImport } from './routes/items/$id'
 import { Route as FreebiesSellersImport } from './routes/freebies/sellers'
+import { Route as ChangelogIdImport } from './routes/changelog/$id'
 import { Route as BuildsIdImport } from './routes/builds/$id'
 import { Route as AuthLogoutImport } from './routes/auth/logout'
 import { Route as AuthLoginImport } from './routes/auth/login'
@@ -112,12 +113,6 @@ const DashboardRoute = DashboardImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const ChangelogRoute = ChangelogImport.update({
-  id: '/changelog',
-  path: '/changelog',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const AboutRoute = AboutImport.update({
   id: '/about',
   path: '/about',
@@ -145,6 +140,12 @@ const FreebiesIndexRoute = FreebiesIndexImport.update({
 const CollectionsIndexRoute = CollectionsIndexImport.update({
   id: '/collections/',
   path: '/collections/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ChangelogIndexRoute = ChangelogIndexImport.update({
+  id: '/changelog/',
+  path: '/changelog/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -199,6 +200,12 @@ const ItemsIdRoute = ItemsIdImport.update({
 const FreebiesSellersRoute = FreebiesSellersImport.update({
   id: '/freebies/sellers',
   path: '/freebies/sellers',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ChangelogIdRoute = ChangelogIdImport.update({
+  id: '/changelog/$id',
+  path: '/changelog/$id',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -425,13 +432,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutImport
       parentRoute: typeof rootRoute
     }
-    '/changelog': {
-      id: '/changelog'
-      path: '/changelog'
-      fullPath: '/changelog'
-      preLoaderRoute: typeof ChangelogImport
-      parentRoute: typeof rootRoute
-    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -509,6 +509,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BuildsIdImport
       parentRoute: typeof rootRoute
     }
+    '/changelog/$id': {
+      id: '/changelog/$id'
+      path: '/changelog/$id'
+      fullPath: '/changelog/$id'
+      preLoaderRoute: typeof ChangelogIdImport
+      parentRoute: typeof rootRoute
+    }
     '/freebies/sellers': {
       id: '/freebies/sellers'
       path: '/freebies/sellers'
@@ -570,6 +577,13 @@ declare module '@tanstack/react-router' {
       path: '/tags/$id'
       fullPath: '/tags/$id'
       preLoaderRoute: typeof TagsIdImport
+      parentRoute: typeof rootRoute
+    }
+    '/changelog/': {
+      id: '/changelog/'
+      path: '/changelog'
+      fullPath: '/changelog'
+      preLoaderRoute: typeof ChangelogIndexImport
       parentRoute: typeof rootRoute
     }
     '/collections/': {
@@ -923,7 +937,6 @@ const CollectionsIdWeekRouteWithChildren =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/changelog': typeof ChangelogRoute
   '/dashboard': typeof DashboardRoute
   '/donate-key': typeof DonateKeyRoute
   '/fair-use': typeof FairUseRoute
@@ -935,6 +948,7 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/builds/$id': typeof BuildsIdRouteWithChildren
+  '/changelog/$id': typeof ChangelogIdRoute
   '/freebies/sellers': typeof FreebiesSellersRoute
   '/items/$id': typeof ItemsIdRouteWithChildren
   '/offers/$id': typeof OffersIdRouteWithChildren
@@ -944,6 +958,7 @@ export interface FileRoutesByFullPath {
   '/sandboxes/$id': typeof SandboxesIdRouteWithChildren
   '/sellers/$id': typeof SellersIdRoute
   '/tags/$id': typeof TagsIdRoute
+  '/changelog': typeof ChangelogIndexRoute
   '/collections': typeof CollectionsIndexRoute
   '/freebies': typeof FreebiesIndexRoute
   '/sales': typeof SalesIndexRoute
@@ -982,7 +997,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/changelog': typeof ChangelogRoute
   '/dashboard': typeof DashboardRoute
   '/donate-key': typeof DonateKeyRoute
   '/fair-use': typeof FairUseRoute
@@ -994,11 +1008,13 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/builds/$id': typeof BuildsIdRouteWithChildren
+  '/changelog/$id': typeof ChangelogIdRoute
   '/freebies/sellers': typeof FreebiesSellersRoute
   '/promotions/$id': typeof PromotionsIdRoute
   '/sales/$id': typeof SalesIdRoute
   '/sellers/$id': typeof SellersIdRoute
   '/tags/$id': typeof TagsIdRoute
+  '/changelog': typeof ChangelogIndexRoute
   '/collections': typeof CollectionsIndexRoute
   '/freebies': typeof FreebiesIndexRoute
   '/sales': typeof SalesIndexRoute
@@ -1037,7 +1053,6 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/changelog': typeof ChangelogRoute
   '/dashboard': typeof DashboardRoute
   '/donate-key': typeof DonateKeyRoute
   '/fair-use': typeof FairUseRoute
@@ -1049,6 +1064,7 @@ export interface FileRoutesById {
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/builds/$id': typeof BuildsIdRouteWithChildren
+  '/changelog/$id': typeof ChangelogIdRoute
   '/freebies/sellers': typeof FreebiesSellersRoute
   '/items/$id': typeof ItemsIdRouteWithChildren
   '/offers/$id': typeof OffersIdRouteWithChildren
@@ -1058,6 +1074,7 @@ export interface FileRoutesById {
   '/sandboxes/$id': typeof SandboxesIdRouteWithChildren
   '/sellers/$id': typeof SellersIdRoute
   '/tags/$id': typeof TagsIdRoute
+  '/changelog/': typeof ChangelogIndexRoute
   '/collections/': typeof CollectionsIndexRoute
   '/freebies/': typeof FreebiesIndexRoute
   '/sales/': typeof SalesIndexRoute
@@ -1098,7 +1115,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
-    | '/changelog'
     | '/dashboard'
     | '/donate-key'
     | '/fair-use'
@@ -1110,6 +1126,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/logout'
     | '/builds/$id'
+    | '/changelog/$id'
     | '/freebies/sellers'
     | '/items/$id'
     | '/offers/$id'
@@ -1119,6 +1136,7 @@ export interface FileRouteTypes {
     | '/sandboxes/$id'
     | '/sellers/$id'
     | '/tags/$id'
+    | '/changelog'
     | '/collections'
     | '/freebies'
     | '/sales'
@@ -1156,7 +1174,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
-    | '/changelog'
     | '/dashboard'
     | '/donate-key'
     | '/fair-use'
@@ -1168,11 +1185,13 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/logout'
     | '/builds/$id'
+    | '/changelog/$id'
     | '/freebies/sellers'
     | '/promotions/$id'
     | '/sales/$id'
     | '/sellers/$id'
     | '/tags/$id'
+    | '/changelog'
     | '/collections'
     | '/freebies'
     | '/sales'
@@ -1209,7 +1228,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
-    | '/changelog'
     | '/dashboard'
     | '/donate-key'
     | '/fair-use'
@@ -1221,6 +1239,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/logout'
     | '/builds/$id'
+    | '/changelog/$id'
     | '/freebies/sellers'
     | '/items/$id'
     | '/offers/$id'
@@ -1230,6 +1249,7 @@ export interface FileRouteTypes {
     | '/sandboxes/$id'
     | '/sellers/$id'
     | '/tags/$id'
+    | '/changelog/'
     | '/collections/'
     | '/freebies/'
     | '/sales/'
@@ -1269,7 +1289,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  ChangelogRoute: typeof ChangelogRoute
   DashboardRoute: typeof DashboardRoute
   DonateKeyRoute: typeof DonateKeyRoute
   FairUseRoute: typeof FairUseRoute
@@ -1281,6 +1300,7 @@ export interface RootRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthLogoutRoute: typeof AuthLogoutRoute
   BuildsIdRoute: typeof BuildsIdRouteWithChildren
+  ChangelogIdRoute: typeof ChangelogIdRoute
   FreebiesSellersRoute: typeof FreebiesSellersRoute
   ItemsIdRoute: typeof ItemsIdRouteWithChildren
   OffersIdRoute: typeof OffersIdRouteWithChildren
@@ -1290,6 +1310,7 @@ export interface RootRouteChildren {
   SandboxesIdRoute: typeof SandboxesIdRouteWithChildren
   SellersIdRoute: typeof SellersIdRoute
   TagsIdRoute: typeof TagsIdRoute
+  ChangelogIndexRoute: typeof ChangelogIndexRoute
   CollectionsIndexRoute: typeof CollectionsIndexRoute
   FreebiesIndexRoute: typeof FreebiesIndexRoute
   SalesIndexRoute: typeof SalesIndexRoute
@@ -1301,7 +1322,6 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  ChangelogRoute: ChangelogRoute,
   DashboardRoute: DashboardRoute,
   DonateKeyRoute: DonateKeyRoute,
   FairUseRoute: FairUseRoute,
@@ -1313,6 +1333,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthLogoutRoute: AuthLogoutRoute,
   BuildsIdRoute: BuildsIdRouteWithChildren,
+  ChangelogIdRoute: ChangelogIdRoute,
   FreebiesSellersRoute: FreebiesSellersRoute,
   ItemsIdRoute: ItemsIdRouteWithChildren,
   OffersIdRoute: OffersIdRouteWithChildren,
@@ -1322,6 +1343,7 @@ const rootRouteChildren: RootRouteChildren = {
   SandboxesIdRoute: SandboxesIdRouteWithChildren,
   SellersIdRoute: SellersIdRoute,
   TagsIdRoute: TagsIdRoute,
+  ChangelogIndexRoute: ChangelogIndexRoute,
   CollectionsIndexRoute: CollectionsIndexRoute,
   FreebiesIndexRoute: FreebiesIndexRoute,
   SalesIndexRoute: SalesIndexRoute,
@@ -1342,7 +1364,6 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/about",
-        "/changelog",
         "/dashboard",
         "/donate-key",
         "/fair-use",
@@ -1354,6 +1375,7 @@ export const routeTree = rootRoute
         "/auth/login",
         "/auth/logout",
         "/builds/$id",
+        "/changelog/$id",
         "/freebies/sellers",
         "/items/$id",
         "/offers/$id",
@@ -1363,6 +1385,7 @@ export const routeTree = rootRoute
         "/sandboxes/$id",
         "/sellers/$id",
         "/tags/$id",
+        "/changelog/",
         "/collections/",
         "/freebies/",
         "/sales/",
@@ -1376,9 +1399,6 @@ export const routeTree = rootRoute
     },
     "/about": {
       "filePath": "about.tsx"
-    },
-    "/changelog": {
-      "filePath": "changelog.tsx"
     },
     "/dashboard": {
       "filePath": "dashboard.tsx"
@@ -1417,6 +1437,9 @@ export const routeTree = rootRoute
         "/builds/$id/install-options",
         "/builds/$id/items"
       ]
+    },
+    "/changelog/$id": {
+      "filePath": "changelog/$id.tsx"
     },
     "/freebies/sellers": {
       "filePath": "freebies/sellers.tsx"
@@ -1475,6 +1498,9 @@ export const routeTree = rootRoute
     },
     "/tags/$id": {
       "filePath": "tags/$id.tsx"
+    },
+    "/changelog/": {
+      "filePath": "changelog/index.tsx"
     },
     "/collections/": {
       "filePath": "collections/index.tsx"

@@ -195,7 +195,7 @@ export function ChangeTracker({
               : metadata.contextId}
           </Link>
           <Link
-            to={`/changelist/${_id}`}
+            to={`/changelog/${_id}`}
             className="text-sm text-blue-400 hover:underline font-mono"
           >
             {_id.slice(0, 10)}
