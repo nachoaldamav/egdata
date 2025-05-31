@@ -2,10 +2,7 @@ import type * as React from 'react';
 import { useMemo, useState, useEffect } from 'react';
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  keepPreviousData,
-  useQueries,
-} from '@tanstack/react-query';
+import { keepPreviousData, useQueries } from '@tanstack/react-query';
 import { httpClient } from '@/lib/http-client';
 import type { SingleOffer, Tag } from '@/types/single-offer';
 import type { SingleSandbox } from '@/types/single-sandbox';
@@ -27,11 +24,18 @@ import { Separator } from '@/components/ui/separator';
 import { useLocale } from '@/hooks/use-locale';
 import type { OfferPosition } from '@/types/collections';
 import { PerformanceTable } from '@/components/app/performance-table';
+import { OffersIndexSkeleton } from '@/components/skeletons/offers-index-skeleton';
 
 export const Route = createFileRoute('/offers/$id/')({
   component: () => {
     return <RouteComponent />;
   },
+
+  pendingComponent: () => {
+    return <OffersIndexSkeleton />;
+  },
+
+  pendingMs: 300,
 
   loader: async ({ params, context, cause }) => {
     const startTime = performance.now();

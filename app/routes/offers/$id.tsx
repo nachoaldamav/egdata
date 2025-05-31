@@ -57,7 +57,7 @@ import {
   useLocation,
   useNavigate,
 } from '@tanstack/react-router';
-import { OffersHomeSkeleton } from '@/app/components/app/skeletons/offers-home';
+import { OffersHomeSkeleton } from '@/components/skeletons/offers-home';
 import { FabIcon } from '@/components/icons/fab';
 
 export const Route = createFileRoute('/offers/$id')({
@@ -97,7 +97,7 @@ export const Route = createFileRoute('/offers/$id')({
         queryClient.prefetchQuery({
           queryKey: ['offer-assets', { id }],
           queryFn: () => httpClient.get<Asset[]>(`/offers/${id}/assets`),
-        })
+        }),
       );
     }
     await Promise.all(extraQueries);
@@ -177,7 +177,7 @@ export const Route = createFileRoute('/offers/$id')({
     return <OffersHomeSkeleton />;
   },
 
-  pendingMs: 300,
+  pendingMs: 500,
 });
 
 function OfferPage() {
