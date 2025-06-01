@@ -105,11 +105,14 @@ export const columns: ColumnDef<Build>[] = [
     enableColumnFilter: true,
     cell: (info) => {
       const version = info.getValue() as string;
+      const displayVersion = version.split('+')[0];
       return (
         <Tooltip>
           <TooltipTrigger>
             <span className="font-mono underline decoration-dotted underline-offset-4">
-              {version.split('+')[0]}
+              {displayVersion.length > 20
+                ? `${displayVersion.slice(0, 20)}...`
+                : displayVersion}
             </span>
           </TooltipTrigger>
           <TooltipContent>

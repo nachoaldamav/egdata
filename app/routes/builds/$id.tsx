@@ -327,7 +327,7 @@ function BuildPage() {
                 <TableCell className="border-l-gray-300/10 border-l">
                   <div className="grid grid-cols-3 gap-2">
                     {build.technologies
-                      .filter((tech) => tech.section !== 'Evidence')
+                      ?.filter((tech) => tech.section !== 'Evidence')
                       .map((tech) => (
                         <span
                           key={`${tech.section}.${tech.technology}`}
