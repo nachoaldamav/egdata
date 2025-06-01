@@ -97,7 +97,7 @@ export const Route = createFileRoute('/builds/$id')({
       ctx.loaderData?.dehydratedState,
       ['build', { id: params.id }],
     );
-    const items = getFetchedQuery<SingleItem[]>(
+    const items = getFetchedQuery<PaginatedResponse<SingleItem>>(
       queryClient,
       ctx.loaderData?.dehydratedState,
       ['build-items', { id: params.id }],
@@ -114,7 +114,7 @@ export const Route = createFileRoute('/builds/$id')({
       };
     }
 
-    const image = getImage(items?.[0]?.keyImages ?? [], [
+    const image = getImage(items?.data[0]?.keyImages ?? [], [
       'DieselGameBoxWide',
       'DieselGameBox',
     ]);
@@ -122,27 +122,27 @@ export const Route = createFileRoute('/builds/$id')({
     return {
       meta: [
         {
-          title: `${items?.[0]?.title} (${build.buildVersion}) | egdata.app`,
+          title: `${items?.data[0]?.title} (${build.buildVersion}) | egdata.app`,
         },
         {
           name: 'description',
-          content: `${build.buildVersion} Build for ${items?.[0]?.title} from the Epic Games Store.`,
+          content: `${build.buildVersion} Build for ${items?.data[0]?.title} from the Epic Games Store.`,
         },
         {
           name: 'og:title',
-          content: `${items?.[0]?.title} (${build.buildVersion}) | egdata.app`,
+          content: `${items?.data[0]?.title} (${build.buildVersion}) | egdata.app`,
         },
         {
           name: 'og:description',
-          content: `${build.buildVersion} Build for ${items?.[0]?.title} from the Epic Games Store.`,
+          content: `${build.buildVersion} Build for ${items?.data[0]?.title} from the Epic Games Store.`,
         },
         {
           property: 'twitter:title',
-          content: `${items?.[0]?.title} (${build.buildVersion}) | egdata.app`,
+          content: `${items?.data[0]?.title} (${build.buildVersion}) | egdata.app`,
         },
         {
           property: 'twitter:description',
-          content: `${build.buildVersion} Build for ${items?.[0]?.title} from the Epic Games Store.`,
+          content: `${build.buildVersion} Build for ${items?.data[0]?.title} from the Epic Games Store.`,
         },
         {
           name: 'og:image',
