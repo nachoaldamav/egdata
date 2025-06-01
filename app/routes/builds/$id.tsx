@@ -161,6 +161,11 @@ export const Route = createFileRoute('/builds/$id')({
   },
 });
 
+interface PaginatedResponse<T> {
+  data: T[];
+  total: number;
+}
+
 function BuildPage() {
   const { id } = Route.useLoaderData();
   const navigate = Route.useNavigate();
@@ -168,7 +173,8 @@ function BuildPage() {
   const subPath = useLocation().pathname.split(`/${id}/`)[1];
   const { data: items } = useQuery({
     queryKey: ['build-items', { id }],
-    queryFn: () => httpClient.get<SingleItem[]>(`/builds/${id}/items`),
+    queryFn: () =>
+      httpClient.get<PaginatedResponse<SingleItem>>(`/builds/${id}/items`),
   });
   const { data: build } = useQuery({
     queryKey: ['build', { id }],
@@ -190,7 +196,9 @@ function BuildPage() {
           <span className="text-lg text-muted-foreground inline-flex items-center">
             for
           </span>
-          <strong className="text-lg font-medium">{items?.[0].title}</strong>
+          <strong className="text-lg font-medium">
+            {items?.data[0].title}
+          </strong>
           <span>{textPlatformIcons[build.labelName.split('-')[1]]}</span>
         </div>
         <div className="rounded-xl border border-gray-300/10 w-full">
