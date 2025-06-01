@@ -127,7 +127,7 @@ function BuildsPage() {
     }) ?? [];
 
   return (
-    <section id="offer-builds" className="w-full h-full">
+    <section id="offer-builds" className="w-full h-full flex flex-col gap-4">
       <h2 className="text-2xl font-bold">Builds</h2>
       <DataTable<Build, unknown>
         columns={columns}
