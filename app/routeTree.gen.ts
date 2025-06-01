@@ -57,6 +57,7 @@ import { Route as OffersIdMetadataImport } from './routes/offers/$id/metadata'
 import { Route as OffersIdMediaImport } from './routes/offers/$id/media'
 import { Route as OffersIdItemsImport } from './routes/offers/$id/items'
 import { Route as OffersIdChangelogImport } from './routes/offers/$id/changelog'
+import { Route as OffersIdBuildsImport } from './routes/offers/$id/builds'
 import { Route as OffersIdAchievementsImport } from './routes/offers/$id/achievements'
 import { Route as ItemsIdImagesImport } from './routes/items/$id/images'
 import { Route as ItemsIdChangelogImport } from './routes/items/$id/changelog'
@@ -344,6 +345,12 @@ const OffersIdItemsRoute = OffersIdItemsImport.update({
 const OffersIdChangelogRoute = OffersIdChangelogImport.update({
   id: '/changelog',
   path: '/changelog',
+  getParentRoute: () => OffersIdRoute,
+} as any)
+
+const OffersIdBuildsRoute = OffersIdBuildsImport.update({
+  id: '/builds',
+  path: '/builds',
   getParentRoute: () => OffersIdRoute,
 } as any)
 
@@ -670,6 +677,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OffersIdAchievementsImport
       parentRoute: typeof OffersIdImport
     }
+    '/offers/$id/builds': {
+      id: '/offers/$id/builds'
+      path: '/builds'
+      fullPath: '/offers/$id/builds'
+      preLoaderRoute: typeof OffersIdBuildsImport
+      parentRoute: typeof OffersIdImport
+    }
     '/offers/$id/changelog': {
       id: '/offers/$id/changelog'
       path: '/changelog'
@@ -859,6 +873,7 @@ const ItemsIdRouteWithChildren =
 
 interface OffersIdRouteChildren {
   OffersIdAchievementsRoute: typeof OffersIdAchievementsRoute
+  OffersIdBuildsRoute: typeof OffersIdBuildsRoute
   OffersIdChangelogRoute: typeof OffersIdChangelogRoute
   OffersIdItemsRoute: typeof OffersIdItemsRoute
   OffersIdMediaRoute: typeof OffersIdMediaRoute
@@ -871,6 +886,7 @@ interface OffersIdRouteChildren {
 
 const OffersIdRouteChildren: OffersIdRouteChildren = {
   OffersIdAchievementsRoute: OffersIdAchievementsRoute,
+  OffersIdBuildsRoute: OffersIdBuildsRoute,
   OffersIdChangelogRoute: OffersIdChangelogRoute,
   OffersIdItemsRoute: OffersIdItemsRoute,
   OffersIdMediaRoute: OffersIdMediaRoute,
@@ -971,6 +987,7 @@ export interface FileRoutesByFullPath {
   '/items/$id/changelog': typeof ItemsIdChangelogRoute
   '/items/$id/images': typeof ItemsIdImagesRoute
   '/offers/$id/achievements': typeof OffersIdAchievementsRoute
+  '/offers/$id/builds': typeof OffersIdBuildsRoute
   '/offers/$id/changelog': typeof OffersIdChangelogRoute
   '/offers/$id/items': typeof OffersIdItemsRoute
   '/offers/$id/media': typeof OffersIdMediaRoute
@@ -1026,6 +1043,7 @@ export interface FileRoutesByTo {
   '/items/$id/changelog': typeof ItemsIdChangelogRoute
   '/items/$id/images': typeof ItemsIdImagesRoute
   '/offers/$id/achievements': typeof OffersIdAchievementsRoute
+  '/offers/$id/builds': typeof OffersIdBuildsRoute
   '/offers/$id/changelog': typeof OffersIdChangelogRoute
   '/offers/$id/items': typeof OffersIdItemsRoute
   '/offers/$id/media': typeof OffersIdMediaRoute
@@ -1087,6 +1105,7 @@ export interface FileRoutesById {
   '/items/$id/changelog': typeof ItemsIdChangelogRoute
   '/items/$id/images': typeof ItemsIdImagesRoute
   '/offers/$id/achievements': typeof OffersIdAchievementsRoute
+  '/offers/$id/builds': typeof OffersIdBuildsRoute
   '/offers/$id/changelog': typeof OffersIdChangelogRoute
   '/offers/$id/items': typeof OffersIdItemsRoute
   '/offers/$id/media': typeof OffersIdMediaRoute
@@ -1149,6 +1168,7 @@ export interface FileRouteTypes {
     | '/items/$id/changelog'
     | '/items/$id/images'
     | '/offers/$id/achievements'
+    | '/offers/$id/builds'
     | '/offers/$id/changelog'
     | '/offers/$id/items'
     | '/offers/$id/media'
@@ -1203,6 +1223,7 @@ export interface FileRouteTypes {
     | '/items/$id/changelog'
     | '/items/$id/images'
     | '/offers/$id/achievements'
+    | '/offers/$id/builds'
     | '/offers/$id/changelog'
     | '/offers/$id/items'
     | '/offers/$id/media'
@@ -1262,6 +1283,7 @@ export interface FileRouteTypes {
     | '/items/$id/changelog'
     | '/items/$id/images'
     | '/offers/$id/achievements'
+    | '/offers/$id/builds'
     | '/offers/$id/changelog'
     | '/offers/$id/items'
     | '/offers/$id/media'
@@ -1458,6 +1480,7 @@ export const routeTree = rootRoute
       "filePath": "offers/$id.tsx",
       "children": [
         "/offers/$id/achievements",
+        "/offers/$id/builds",
         "/offers/$id/changelog",
         "/offers/$id/items",
         "/offers/$id/media",
@@ -1547,6 +1570,10 @@ export const routeTree = rootRoute
     },
     "/offers/$id/achievements": {
       "filePath": "offers/$id/achievements.tsx",
+      "parent": "/offers/$id"
+    },
+    "/offers/$id/builds": {
+      "filePath": "offers/$id/builds.tsx",
       "parent": "/offers/$id"
     },
     "/offers/$id/changelog": {

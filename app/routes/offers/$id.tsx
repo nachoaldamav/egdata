@@ -562,6 +562,11 @@ function OfferPage() {
                 href: `/offers/${offer.id}/items`,
               },
               {
+                id: 'builds',
+                label: 'Builds',
+                href: `/offers/${offer.id}/builds`,
+              },
+              {
                 id: 'achievements',
                 label: 'Achievements',
                 href: `/offers/${offer.id}/achievements`,
