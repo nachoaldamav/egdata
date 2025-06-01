@@ -106,8 +106,6 @@ function BuildsPage() {
     );
   }
 
-  console.log(filters);
-
   // Filter builds based on the current filters
   const filteredBuilds =
     builds?.filter((build) => {
