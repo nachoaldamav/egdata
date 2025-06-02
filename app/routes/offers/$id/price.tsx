@@ -10,8 +10,11 @@ export const Route = createFileRoute('/offers/$id/price')({
     const { id } = Route.useParams();
 
     return (
-      <section id="offer-information" className="w-full h-full">
-        <h2 className="text-2xl font-bold">Price</h2>
+      <section
+        id="offer-information"
+        className="w-full h-full max-w-4xl mx-auto px-4"
+      >
+        <h2 className="text-xl md:text-2xl font-bold mb-4">Price</h2>
         <RegionalPricing id={id} />
       </section>
     );

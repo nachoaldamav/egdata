@@ -106,8 +106,8 @@ function ItemsPage() {
   }
 
   return (
-    <section id="offer-items" className="w-full h-full">
-      <h2 className="text-2xl font-bold">Items</h2>
+    <section id="offer-items" className="w-full h-full max-w-7xl mx-auto px-4">
+      <h2 className="text-xl md:text-2xl font-bold mb-4">Items</h2>
       <DataTable<SingleItem, unknown>
         columns={columns}
         data={items ?? []}

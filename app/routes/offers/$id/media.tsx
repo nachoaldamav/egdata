@@ -126,11 +126,11 @@ function MediaPage() {
   }
 
   return (
-    <div className="flex flex-col items-start gap-2">
+    <div className="flex flex-col items-start gap-2 w-full max-w-7xl mx-auto px-4">
       <Accordion
         type="single"
         collapsible
-        className="w-full max-w-4xl mx-auto"
+        className="w-full"
         defaultValue={media ? 'images' : 'covers'}
       >
         <AccordionItem value="images">
@@ -142,14 +142,14 @@ function MediaPage() {
               </div>
             )}
             {media?.images && media.images.length > 0 && (
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {media.images.map((image) => (
                   <Image
                     key={image._id}
                     src={image.src}
                     alt=""
                     onClick={() => setActive(image._id)}
-                    className="cursor-pointer rounded-xl"
+                    className="cursor-pointer rounded-xl w-full h-auto object-cover"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         setActive(image._id);
@@ -172,7 +172,7 @@ function MediaPage() {
               </div>
             )}
             {(media?.videos.length ?? 0) > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {media?.videos.map((video) => (
                   <Suspense key={video._id} fallback={<div>Loading...</div>}>
                     <Player video={video} offer={offer as SingleOffer} />
@@ -185,7 +185,7 @@ function MediaPage() {
         <AccordionItem value="covers">
           <AccordionTrigger className="text-xl">Covers</AccordionTrigger>
           <AccordionContent>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {offer?.keyImages.map((cover) => (
                 <div
                   key={cover.md5}
@@ -198,6 +198,7 @@ function MediaPage() {
                       download={`${offer.title}-${cover.type}`}
                       target="_blank"
                       rel="noreferrer"
+                      aria-label={`Download ${cover.type} cover`}
                     >
                       <DownloadIcon className="w-4 h-4" />
                     </a>
@@ -206,110 +207,15 @@ function MediaPage() {
                     key={cover.md5}
                     src={cover.url}
                     alt={`${offer.title} - ${cover.type}`}
+                    className="w-full h-auto object-contain"
                   />
                   <span className="text-sm font-mono">{cover.type}</span>
                 </div>
               ))}
-              {media?.logo && (
-                <div className="flex flex-col items-center gap-2 relative">
-                  <span className="absolute top-2 right-2 text-xs font-mono">
-                    <a
-                      className="text-xs bg-card/15 p-2 rounded-md cursor-pointer inline-block"
-                      href={media.logo}
-                      download={`${offer?.title}-logo`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <DownloadIcon className="w-4 h-4" />
-                    </a>
-                  </span>
-                  <img
-                    src={media.logo}
-                    alt={`${offer?.title} - Logo`}
-                    className="w-full h-auto"
-                  />
-                </div>
-              )}
             </div>
           </AccordionContent>
         </AccordionItem>
       </Accordion>
-
-      <Portal.Root>
-        {active && (
-          <ImageModal
-            images={media?.images}
-            active={active}
-            onClose={() => setActive(false)}
-          />
-        )}
-      </Portal.Root>
-    </div>
-  );
-}
-
-function ImageModal({
-  images,
-  active,
-  onClose,
-}: {
-  images: Media['images'];
-  active: boolean | string;
-  onClose: () => void;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  const activeIndex = images.findIndex((img) => img._id === active);
-  const sortedImages = [
-    ...images.slice(activeIndex),
-    ...images.slice(0, activeIndex),
-  ];
-
-  return (
-    <div
-      ref={ref}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 backdrop-blur-sm"
-      onClick={(e) => {
-        if (e.target === ref.current) {
-          onClose();
-        }
-      }}
-      onKeyDown={(e) => {
-        if (e.key === 'Escape') {
-          onClose();
-        }
-      }}
-    >
-      <button
-        className="absolute top-4 right-4 cursor-pointer"
-        onClick={onClose}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            onClose();
-          }
-        }}
-        type="button"
-        tabIndex={0}
-      >
-        <XIcon className="w-6 h-6 text-white" />
-      </button>
-      <section className="flex items-center justify-center w-full h-full max-w-6xl">
-        <Carousel aria-label="Images">
-          <CarouselContent>
-            {sortedImages.map((img) => (
-              <CarouselItem key={img._id}>
-                <img
-                  src={img.src}
-                  alt=""
-                  className="w-full h-auto cursor-default"
-                />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselNext />
-          <CarouselPrevious />
-        </Carousel>
-      </section>
     </div>
   );
 }

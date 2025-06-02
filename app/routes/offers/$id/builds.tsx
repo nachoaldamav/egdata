@@ -91,7 +91,14 @@ function BuildsPage() {
   const { id } = Route.useLoaderData();
   const [page, setPage] = useState({ pageIndex: 0, pageSize: 20 });
   const [filters, setFilters] = useState<ColumnFiltersState>([]);
-  const { data: builds, isLoading, isError } = useQuery(getOfferBuilds(id));
+  const {
+    data: builds,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ['offer-builds', { id }],
+    queryFn: () => httpClient.get<Build[]>(`/offers/${id}/builds`),
+  });
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -99,8 +106,11 @@ function BuildsPage() {
 
   if (isError) {
     return (
-      <section id="offer-builds" className="w-full h-full">
-        <h2 className="text-2xl font-bold">Builds</h2>
+      <section
+        id="offer-builds"
+        className="w-full h-full max-w-7xl mx-auto px-4"
+      >
+        <h2 className="text-xl md:text-2xl font-bold mb-4">Builds</h2>
         <div>Something went wrong</div>
       </section>
     );
@@ -125,8 +135,8 @@ function BuildsPage() {
     }) ?? [];
 
   return (
-    <section id="offer-builds" className="w-full h-full flex flex-col gap-4">
-      <h2 className="text-2xl font-bold">Builds</h2>
+    <section id="offer-builds" className="w-full h-full max-w-7xl mx-auto px-4">
+      <h2 className="text-xl md:text-2xl font-bold mb-4">Builds</h2>
       <DataTable<Build, unknown>
         columns={columns}
         data={filteredBuilds}

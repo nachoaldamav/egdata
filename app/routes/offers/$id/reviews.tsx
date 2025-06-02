@@ -450,13 +450,13 @@ function Reviews() {
         </TooltipProvider>
       </div>
       {reviews?.elements.length ? (
-        <div className="grid gap-6 grid-cols-2 w-full">
+        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 w-full max-w-7xl mx-auto px-4">
           {reviews?.elements.map((review) => (
             <Review key={review.id} review={review} />
           ))}
         </div>
       ) : (
-        <div className="w-full text-center min-h-[400px]">
+        <div className="w-full text-center min-h-[400px] max-w-4xl mx-auto px-4">
           <h6 className="text-lg font-semibold">
             {isReleased
               ? 'No reviews yet'
@@ -592,9 +592,9 @@ function Review({ review, full }: { review: SingleReview; full?: boolean }) {
         </div>
       </div>
       <div className="bg-gray-900 p-4 rounded-lg h-full">
-        <h3 className="font-bold mb-2">{review.title}</h3>
+        <h3 className="font-bold mb-2 text-lg md:text-xl">{review.title}</h3>
         <div className="relative">
-          <p className="mb-4 prose prose-sm prose-invert max-w-none min-w-1/2">
+          <p className="mb-4 prose prose-sm md:prose-base prose-invert max-w-none min-w-1/2">
             {typeof review.content === 'string' ? (
               <Markdown>
                 {review.content.length <= 750

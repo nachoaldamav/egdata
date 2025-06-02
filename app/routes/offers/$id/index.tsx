@@ -515,7 +515,11 @@ function RouteComponent() {
 }
 
 function OverviewColumn({ children }: { children: React.ReactNode }) {
-  return <div className="flex flex-col gap-4 w-full">{children}</div>;
+  return (
+    <div className="flex flex-col gap-4 w-full max-w-4xl mx-auto px-4">
+      {children}
+    </div>
+  );
 }
 
 function OverviewSection({
@@ -527,7 +531,7 @@ function OverviewSection({
 }) {
   return (
     <div className="flex flex-col gap-2 w-full mt-2">
-      <h6 className="text-2xl font-bold">{title}</h6>
+      <h6 className="text-xl md:text-2xl font-bold">{title}</h6>
       {children}
     </div>
   );

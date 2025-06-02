@@ -217,7 +217,7 @@ function OfferPage() {
 
   return (
     <VideoProvider>
-      <main className="flex flex-col items-start justify-start w-full min-h-screen gap-4 relative">
+      <main className="flex flex-col items-start justify-start w-full min-h-screen gap-4 relative px-5 md:px-0">
         <ClientOnly>
           <PrepurchasePopup id={offer.id} />
         </ClientOnly>

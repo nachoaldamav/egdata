@@ -110,7 +110,7 @@ function ItemPage() {
   }
 
   return (
-    <div className="flex flex-col items-center w-full min-h-[75vh]">
+    <div className="flex flex-col items-center w-full min-h-[75vh] px-5 md:px-0">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
         <div className="flex flex-col gap-4 w-full">
           <div className="flex items-center gap-4">
@@ -165,14 +165,18 @@ function ItemPage() {
                     {item.entitlementType}
                   </TableCell>
                 </TableRow>
-                {(item.entitlementName && item.entitlementName !== item.id && item.entitlementName !== item.title) && <TableRow>
-                  <TableCell className="font-medium">
-                    Entitlement Name
-                  </TableCell>
-                  <TableCell className="border-l-gray-300/10 border-l">
-                    {item.entitlementName}
-                  </TableCell>
-                </TableRow>}
+                {item.entitlementName &&
+                  item.entitlementName !== item.id &&
+                  item.entitlementName !== item.title && (
+                    <TableRow>
+                      <TableCell className="font-medium">
+                        Entitlement Name
+                      </TableCell>
+                      <TableCell className="border-l-gray-300/10 border-l">
+                        {item.entitlementName}
+                      </TableCell>
+                    </TableRow>
+                  )}
                 <TableRow>
                   <TableCell className="font-medium">Status</TableCell>
                   <TableCell className="border-l-gray-300/10 border-l">

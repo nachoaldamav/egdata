@@ -133,9 +133,9 @@ function RelatedOffersPage() {
   return (
     <section
       id="offer-related-offers"
-      className="w-full h-full flex flex-col gap-4"
+      className="w-full h-full flex flex-col gap-4 max-w-7xl mx-auto px-4"
     >
-      <h2 className="text-2xl font-bold">Related Offers</h2>
+      <h2 className="text-xl md:text-2xl font-bold">Related Offers</h2>
       <div className="flex flex-col gap-4">
         {Object.entries(offersGroupedByOfferType)
           .sort(([aType], [bType]) => {
@@ -149,13 +149,13 @@ function RelatedOffersPage() {
           })
           .map(([offerType, offers]) => (
             <div key={offerType} className="flex flex-col gap-4">
-              <h3 className="text-xl font-semibold inline-flex items-center gap-2">
+              <h3 className="text-lg md:text-xl font-semibold inline-flex items-center gap-2">
                 {offersDictionary[offerType] ?? offerType}{' '}
                 <span className="text-xs text-gray-400">({offers.length})</span>
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {offers?.map((offer) => (
-                  <div key={offer.id} className="basis-1/1 lg:basis-1/4">
+                  <div key={offer.id} className="w-full">
                     <OfferCard offer={offer} size="md" />
                   </div>
                 ))}
