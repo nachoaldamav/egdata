@@ -14,47 +14,60 @@ export const InternalBanner: React.FC<{
   const manualOfferId =
     offer.customAttributes?.['com.epicgames.app.offerId']?.value;
 
+  const productSlug = offer.customAttributes?.[
+    'com.epicgames.app.productSlug'
+  ]?.value?.replace('/home', '');
+
   if (!internalNamespaces.includes(namespace)) {
     return null;
   }
 
   const { data: results = [] } = useQuery({
-    queryKey: ['autocomplete', title, manualOfferId],
+    queryKey: ['autocomplete', title, manualOfferId, productSlug],
     queryFn: async () => {
       if (manualOfferId) {
         return [{ id: manualOfferId, title }];
       }
 
       const response = await httpClient.get<{
-        elements: Array<{
-          _id: string;
-          id: string;
-          namespace: string;
-          title: string;
-          keyImages: Array<{
-            type: string;
-            url: string;
-            md5: string;
-          }>;
-        }>;
+        elements: SingleOffer[];
         total: number;
       }>(`/autocomplete?query=${title}`);
 
       return response.elements
         .filter(({ namespace }) => !internalNamespaces.includes(namespace))
-        .filter(({ title: t }) => {
-          const similarity = compareTitleSimilarity(title, t);
-          return similarity > 0.5;
+        .filter(({ title: t, customAttributes }) => {
+          const titleSimilarity = compareTitleSimilarity(title, t);
+          const targetSlug = customAttributes?.[
+            'com.epicgames.app.productSlug'
+          ]?.value?.replace('/home', '');
+          const slugMatch =
+            productSlug && targetSlug && productSlug === targetSlug;
+
+          return titleSimilarity > 0.5 || slugMatch;
         })
         .map((e) => {
-          const similarity = compareTitleSimilarity(title, e.title);
+          const titleSimilarity = compareTitleSimilarity(title, e.title);
+          const targetSlug = e.customAttributes?.[
+            'com.epicgames.app.productSlug'
+          ]?.value?.replace('/home', '');
+          const slugMatch =
+            productSlug && targetSlug && productSlug === targetSlug;
+
           return {
             id: e.id,
             title: e.title,
-            similarity,
+            similarity: slugMatch ? 1 : titleSimilarity,
+            slugMatch,
           };
         })
-        .sort((a, b) => b.similarity - a.similarity);
+        .sort((a, b) => {
+          // First sort by slug match
+          if (a.slugMatch && !b.slugMatch) return -1;
+          if (!a.slugMatch && b.slugMatch) return 1;
+          // Then by similarity
+          return b.similarity - a.similarity;
+        });
     },
     enabled: !!title,
   });

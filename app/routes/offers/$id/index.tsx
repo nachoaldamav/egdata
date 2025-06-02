@@ -25,6 +25,7 @@ import { useLocale } from '@/hooks/use-locale';
 import type { OfferPosition } from '@/types/collections';
 import { PerformanceTable } from '@/components/app/performance-table';
 import { OffersIndexSkeleton } from '@/components/skeletons/offers-index-skeleton';
+import consola from 'consola';
 
 export const Route = createFileRoute('/offers/$id/')({
   component: () => {
@@ -104,8 +105,8 @@ export const Route = createFileRoute('/offers/$id/')({
       }
 
       const endTime = performance.now();
-      console.log(
-        `[offers-index] Time taken: ${endTime - startTime} milliseconds`,
+      consola.info(
+        `[offers-index] Time taken: ${(endTime - startTime).toFixed(2)} milliseconds`,
       );
     }
 

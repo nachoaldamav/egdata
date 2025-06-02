@@ -59,6 +59,7 @@ import {
 } from '@tanstack/react-router';
 import { OffersHomeSkeleton } from '@/components/skeletons/offers-home';
 import { FabIcon } from '@/components/icons/fab';
+import consola from 'consola';
 
 export const Route = createFileRoute('/offers/$id')({
   component: () => {
@@ -103,7 +104,9 @@ export const Route = createFileRoute('/offers/$id')({
     await Promise.all(extraQueries);
 
     const endTime = performance.now();
-    console.log(`[offers-root]Time taken: ${endTime - startTime} milliseconds`);
+    consola.info(
+      `[offers-root] Time taken: ${(endTime - startTime).toFixed(2)} milliseconds`,
+    );
 
     return {
       id,
