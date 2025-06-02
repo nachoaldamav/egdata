@@ -1,22 +1,31 @@
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import { Link } from '@tanstack/react-router';
-import { useState, useEffect } from 'react';
 import { httpClient } from '@/lib/http-client';
 import { internalNamespaces } from '@/lib/internal-namespaces';
 import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
+import type { SingleOffer } from '@/types/single-offer';
+import { useQuery } from '@tanstack/react-query';
 
 export const InternalBanner: React.FC<{
-  title: string;
-  namespace: string;
-}> = ({ title, namespace }) => {
+  offer: SingleOffer;
+}> = ({ offer }) => {
+  const { namespace, title } = offer;
+
+  const manualOfferId =
+    offer.customAttributes?.['com.epicgames.app.offerId']?.value;
+
   if (!internalNamespaces.includes(namespace)) {
     return null;
   }
-  const [results, setResults] = useState<{ id: string; title: string }[]>([]);
 
-  useEffect(() => {
-    httpClient
-      .get<{
+  const { data: results = [] } = useQuery({
+    queryKey: ['autocomplete', title, manualOfferId],
+    queryFn: async () => {
+      if (manualOfferId) {
+        return [{ id: manualOfferId, title }];
+      }
+
+      const response = await httpClient.get<{
         elements: Array<{
           _id: string;
           id: string;
@@ -29,27 +38,26 @@ export const InternalBanner: React.FC<{
           }>;
         }>;
         total: number;
-      }>(`/autocomplete?query=${title}`)
-      .then((response) => {
-        setResults(
-          response.elements
-            .filter(({ namespace }) => !internalNamespaces.includes(namespace))
-            .filter(({ title: t }) => {
-              const similarity = compareTitleSimilarity(title, t);
-              return similarity > 0.5;
-            })
-            .map((e) => {
-              const similarity = compareTitleSimilarity(title, e.title);
-              return {
-                id: e.id,
-                title: e.title,
-                similarity,
-              };
-            })
-            .sort((a, b) => b.similarity - a.similarity),
-        );
-      });
-  }, [title]);
+      }>(`/autocomplete?query=${title}`);
+
+      return response.elements
+        .filter(({ namespace }) => !internalNamespaces.includes(namespace))
+        .filter(({ title: t }) => {
+          const similarity = compareTitleSimilarity(title, t);
+          return similarity > 0.5;
+        })
+        .map((e) => {
+          const similarity = compareTitleSimilarity(title, e.title);
+          return {
+            id: e.id,
+            title: e.title,
+            similarity,
+          };
+        })
+        .sort((a, b) => b.similarity - a.similarity);
+    },
+    enabled: !!title,
+  });
 
   return (
     <Alert variant="destructive" className="mt-1">

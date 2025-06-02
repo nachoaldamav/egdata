@@ -497,7 +497,7 @@ function OfferPage() {
                 </TableBody>
               </Table>
             </div>
-            <InternalBanner title={offer.title} namespace={offer.namespace} />
+            <InternalBanner offer={offer} />
             <BaseGame offer={offer} />
             <OfferInBundle offer={offer} />
           </div>
