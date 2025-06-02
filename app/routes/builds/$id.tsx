@@ -246,7 +246,7 @@ function BuildPage() {
                   <span
                     className={cn(
                       'text-xs text-gray-400',
-                      build.downloadSizeBytes === 0
+                      !build.downloadSizeBytes
                         ? 'opacity-0'
                         : 'opacity-100',
                     )}
