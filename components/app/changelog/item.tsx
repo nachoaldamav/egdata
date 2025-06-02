@@ -61,6 +61,8 @@ interface AssetChange extends ChangeTrackerProps {
   document: Asset;
 }
 
+const epicVideoProtocol = 'com.epicgames.video://';
+
 /**
  * Some images changes are detected as insert and delete, instead of update
  * Find
@@ -332,6 +334,27 @@ function ValueToString(
 
   if (field === 'keyImages' && value !== null) {
     const typedValue = value as { url: string; md5: string; type: string };
+
+    if (typedValue.url.startsWith(epicVideoProtocol) && URL.canParse(typedValue.url)) {
+      const parsedUrl = new URL(typedValue.url);
+      const coverUrl = parsedUrl.searchParams.get('cover');
+      const videoId = parsedUrl.host;
+
+      return (
+        <div className="flex items-start justify-start gap-2">
+          <div>
+            <p>Video {videoId}</p>
+
+            {coverUrl && <img
+              src={coverUrl}
+              alt={videoId}
+              className="w-1/2 max-w-64 h-auto object-cover rounded-lg"
+            />}
+          </div>
+      </div>
+      )
+    }
+
     return (
       <div className="flex items-start justify-start gap-2">
         <img
