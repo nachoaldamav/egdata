@@ -122,7 +122,18 @@ function correctChanges(changes: Change[]): Change[] {
   // Add all other changes
   updatedChanges.push(...others);
 
-  return updatedChanges;
+  // sorting (:
+  return updatedChanges.sort((a,b) => {
+    if (a.field === b.field) {
+      if (a.changeType === b.changeType) {
+        return String(a.oldValue).localeCompare(String(b));
+      }
+
+      return a.changeType.localeCompare(b.changeType);
+    }
+    
+    return a.field.localeCompare(b.field);
+  });
 }
 
 export function ChangeTracker({
