@@ -159,12 +159,20 @@ function ItemPage() {
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">
-                    Entitlement type
+                    Entitlement Type
                   </TableCell>
                   <TableCell className="border-l-gray-300/10 border-l">
                     {item.entitlementType}
                   </TableCell>
                 </TableRow>
+                {(item.entitlementName && item.entitlementName !== item.id && item.entitlementName !== item.title) && <TableRow>
+                  <TableCell className="font-medium">
+                    Entitlement Name
+                  </TableCell>
+                  <TableCell className="border-l-gray-300/10 border-l">
+                    {item.entitlementName}
+                  </TableCell>
+                </TableRow>}
                 <TableRow>
                   <TableCell className="font-medium">Status</TableCell>
                   <TableCell className="border-l-gray-300/10 border-l">

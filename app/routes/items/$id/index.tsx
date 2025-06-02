@@ -12,6 +12,11 @@ import type { SingleItem } from '@/types/single-item';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 
+const jsonAttributes = [
+  'RequirementsJson',
+  'SysTrayRestore',
+];
+
 export const Route = createFileRoute('/items/$id/')({
   component: () => {
     const { id } = Route.useParams();
@@ -42,10 +47,10 @@ export const Route = createFileRoute('/items/$id/')({
                 <TableRow key={key}>
                   <TableCell className="font-medium">{key}</TableCell>
                   <TableCell className="border-l-gray-300/10 border-l font-mono">
-                    {key === 'RequirementsJson' && (
+                    {jsonAttributes.includes(key) && (
                       <JsonVisualizer data={JSON.parse(value.value)} />
                     )}
-                    {key !== 'RequirementsJson' && value.value}
+                    {!jsonAttributes.includes(key) && value.value}
                   </TableCell>
                 </TableRow>
               ))}
