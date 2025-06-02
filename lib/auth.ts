@@ -1,4 +1,5 @@
 import { betterAuth } from 'better-auth';
+import { reactStartCookies } from 'better-auth/react-start';
 import pg from 'pg';
 import { genericOAuth } from 'better-auth/plugins';
 import consola from 'consola';
@@ -72,6 +73,7 @@ export const auth = betterAuth({
         },
       ],
     }),
+    reactStartCookies(),
   ],
   session: {
     cookieCache: {
@@ -82,6 +84,10 @@ export const auth = betterAuth({
   advanced: {
     defaultCookieAttributes: {
       httpOnly: false,
+      domain: import.meta.env.PROD ? '.egdata.app' : 'localhost',
+    },
+    crossSubDomainCookies: {
+      enabled: true,
       domain: import.meta.env.PROD ? '.egdata.app' : 'localhost',
     },
   },
