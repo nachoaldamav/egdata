@@ -214,6 +214,9 @@ function OfferPage() {
   }
 
   const isFabItem = offer.customAttributes.FabListingId;
+  const platformTags = offer.tags
+    .filter((tag) => tag !== null)
+    .filter((tag) => platformIcons[tag.id]);
 
   return (
     <VideoProvider>
@@ -332,14 +335,15 @@ function OfferPage() {
                       Supported Platforms
                     </TableCell>
                     <TableCell className="text-left border-l-gray-300/10 border-l inline-flex items-center justify-start gap-1">
-                      {offer.tags
-                        .filter((tag) => tag !== null)
-                        .filter((tag) => platformIcons[tag.id])
-                        .map((tag) => (
-                          <span key={tag.id} className="text-xs">
-                            {platformIcons[tag.id]}
-                          </span>
-                        ))}
+                      {platformTags.map((tag) => (
+                        <span key={tag.id} className="text-xs">
+                          {platformIcons[tag.id]}
+                        </span>
+                      ))}
+
+                      {!platformTags.length && <div>
+                        N/A
+                      </div>}
                     </TableCell>
                   </TableRow>
                   <TableRow>
@@ -618,7 +622,7 @@ function OfferPage() {
         <SellerOffers
           id={offer.seller.id}
           name={offer.seller.name}
-          currentOffer={offer.id}
+          currentOffer={offer}
         />
 
         <SuggestedOffers id={offer.id} />

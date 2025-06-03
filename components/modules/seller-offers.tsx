@@ -13,6 +13,7 @@ import { Skeleton } from '../ui/skeleton';
 import { ArrowUpIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
+import { internalNamespaces } from '@/lib/internal-namespaces';
 
 export function SellerOffers({
   id,
@@ -21,16 +22,18 @@ export function SellerOffers({
 }: {
   id: string;
   name: string;
-  currentOffer: string;
+  currentOffer: SingleOffer;
 }) {
   const [api, setApi] = useState<CarouselApi>();
   const { country } = useCountry();
+  const ignoredSandboxes= internalNamespaces.filter((ns) => ns !== currentOffer.namespace).join(',');
   const { data, isLoading, isError } = useQuery({
     queryKey: [
       'seller-offers',
       {
         id,
         country,
+        ignoredSandboxes,
       },
     ],
     queryFn: () =>
@@ -39,11 +42,12 @@ export function SellerOffers({
           country,
           offerType: 'BASE_GAME',
           limit: 15,
+          ignoredSandboxes,
         },
       }),
   });
 
-  if (!data || data.filter((offer) => offer.id !== currentOffer).length === 0) {
+  if (!data || data.filter((offer) => offer.id !== currentOffer.id).length === 0) {
     return null;
   }
 
@@ -90,11 +94,11 @@ export function SellerOffers({
       {!isLoading &&
         !isError &&
         data?.length &&
-        data.filter((offer) => offer.id !== currentOffer).length > 0 && (
+        data.filter((offer) => offer.id !== currentOffer.id).length > 0 && (
           <Carousel className="mt-2 h-full p-4" setApi={setApi}>
             <CarouselContent>
               {data
-                .filter((offer) => offer.id !== currentOffer)
+                .filter((offer) => offer.id !== currentOffer.id)
                 .map((game) => (
                   <CarouselItem
                     key={game.id}
