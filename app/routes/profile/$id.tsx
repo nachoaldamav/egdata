@@ -34,7 +34,11 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { ExclamationTriangleIcon, ReloadIcon } from '@radix-ui/react-icons';
+import {
+  DiscordLogoIcon,
+  ExclamationTriangleIcon,
+  ReloadIcon,
+} from '@radix-ui/react-icons';
 import {
   Tooltip,
   TooltipContent,
@@ -52,6 +56,7 @@ import type { SingleOffer } from '@/types/single-offer';
 import axios, { type AxiosResponse } from 'axios';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { DiscordIcon } from '@/components/icons/discord';
 
 export const Route = createFileRoute('/profile/$id')({
   component: () => {
@@ -514,7 +519,20 @@ function RouteComponent() {
               </div>
             </section>
           </div>
-          <div className="absolute top-0 right-0">
+          <div className="absolute top-0 right-0 inline-flex items-center justify-center gap-2 z-10">
+            {!data.discord && userId === data.epicAccountId && (
+              <a
+                href={`${httpClient.axiosInstance.defaults.baseURL}/auth/discord/link`}
+              >
+                <Button
+                  variant="outline"
+                  className="bg-[#5865f2] hover:bg-[#4752c4]"
+                >
+                  <DiscordIcon className="size-4" fill="white" />
+                  <span>Link Discord</span>
+                </Button>
+              </a>
+            )}
             <RefreshProfile id={data.epicAccountId} />
           </div>
         </section>

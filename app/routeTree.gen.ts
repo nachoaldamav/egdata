@@ -17,6 +17,7 @@ import { Route as PostsImport } from './routes/posts'
 import { Route as GenresImport } from './routes/genres'
 import { Route as FairUseImport } from './routes/fair-use'
 import { Route as DonateKeyImport } from './routes/donate-key'
+import { Route as DiscordLinkedImport } from './routes/discord-linked'
 import { Route as DashboardImport } from './routes/dashboard'
 import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
@@ -105,6 +106,12 @@ const FairUseRoute = FairUseImport.update({
 const DonateKeyRoute = DonateKeyImport.update({
   id: '/donate-key',
   path: '/donate-key',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const DiscordLinkedRoute = DiscordLinkedImport.update({
+  id: '/discord-linked',
+  path: '/discord-linked',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -444,6 +451,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardImport
+      parentRoute: typeof rootRoute
+    }
+    '/discord-linked': {
+      id: '/discord-linked'
+      path: '/discord-linked'
+      fullPath: '/discord-linked'
+      preLoaderRoute: typeof DiscordLinkedImport
       parentRoute: typeof rootRoute
     }
     '/donate-key': {
@@ -954,6 +968,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/dashboard': typeof DashboardRoute
+  '/discord-linked': typeof DiscordLinkedRoute
   '/donate-key': typeof DonateKeyRoute
   '/fair-use': typeof FairUseRoute
   '/genres': typeof GenresRoute
@@ -1015,6 +1030,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/dashboard': typeof DashboardRoute
+  '/discord-linked': typeof DiscordLinkedRoute
   '/donate-key': typeof DonateKeyRoute
   '/fair-use': typeof FairUseRoute
   '/genres': typeof GenresRoute
@@ -1072,6 +1088,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/dashboard': typeof DashboardRoute
+  '/discord-linked': typeof DiscordLinkedRoute
   '/donate-key': typeof DonateKeyRoute
   '/fair-use': typeof FairUseRoute
   '/genres': typeof GenresRoute
@@ -1135,6 +1152,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/dashboard'
+    | '/discord-linked'
     | '/donate-key'
     | '/fair-use'
     | '/genres'
@@ -1195,6 +1213,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/dashboard'
+    | '/discord-linked'
     | '/donate-key'
     | '/fair-use'
     | '/genres'
@@ -1250,6 +1269,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/dashboard'
+    | '/discord-linked'
     | '/donate-key'
     | '/fair-use'
     | '/genres'
@@ -1312,6 +1332,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   DashboardRoute: typeof DashboardRoute
+  DiscordLinkedRoute: typeof DiscordLinkedRoute
   DonateKeyRoute: typeof DonateKeyRoute
   FairUseRoute: typeof FairUseRoute
   GenresRoute: typeof GenresRoute
@@ -1345,6 +1366,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   DashboardRoute: DashboardRoute,
+  DiscordLinkedRoute: DiscordLinkedRoute,
   DonateKeyRoute: DonateKeyRoute,
   FairUseRoute: FairUseRoute,
   GenresRoute: GenresRoute,
@@ -1387,6 +1409,7 @@ export const routeTree = rootRoute
         "/",
         "/about",
         "/dashboard",
+        "/discord-linked",
         "/donate-key",
         "/fair-use",
         "/genres",
@@ -1424,6 +1447,9 @@ export const routeTree = rootRoute
     },
     "/dashboard": {
       "filePath": "dashboard.tsx"
+    },
+    "/discord-linked": {
+      "filePath": "discord-linked.tsx"
     },
     "/donate-key": {
       "filePath": "donate-key.tsx"

@@ -24,6 +24,7 @@ export type Profile = {
     itemId: string;
     namespace: string;
   }[];
+  discord: boolean;
 };
 
 export const getUserInformation = async (id: string | null) => {
