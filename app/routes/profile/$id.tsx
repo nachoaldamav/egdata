@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
+import { createFileRoute, Outlet } from '@tanstack/react-router';
 import {
   dehydrate,
   HydrationBoundary,
@@ -22,6 +22,7 @@ import {
   LayoutGridIcon,
   MessageSquareQuoteIcon,
   UploadIcon,
+  Loader2,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Label } from '@/components/ui/label';
@@ -43,9 +44,7 @@ import { cn } from '@/lib/utils';
 import { getImage } from '@/lib/get-image';
 import { httpClient } from '@/lib/http-client';
 import type { SingleOffer } from '@/types/single-offer';
-import { createServerFn } from '@tanstack/react-start';
-import { decodeJwt } from '@/lib/cookies';
-import { getCookie } from 'vinxi/http';
+import axios, { type AxiosResponse } from 'axios';
 
 type Profile = {
   epicAccountId: string;
@@ -69,59 +68,6 @@ type Profile = {
   creationDate: string;
 };
 
-export const uploadAvatar = createServerFn({ method: 'GET' })
-  .validator((data) => {
-    if (!(data instanceof FormData)) {
-      throw new Error('Invalid form data');
-    }
-    const avatar = data.get('avatar');
-    if (!avatar || !(avatar instanceof File)) {
-      throw new Error('Invalid file');
-    }
-    return data;
-  })
-  .handler(async ({ data }) => {
-    const avatarFile = data.get('avatar') as File;
-    const authCookie = getCookie('EGDATA_AUTH');
-
-    if (!authCookie) {
-      throw new Error('Unable to get cookie EGDATA_AUTH');
-    }
-
-    const epicToken = await decodeJwt({ data: authCookie });
-    const accessToken = epicToken?.access_token;
-
-    if (!accessToken) {
-      throw new Error('Missing or invalid access token');
-    }
-
-    const chunks: Uint8Array[] = [];
-    for await (const chunk of avatarFile.stream()) {
-      chunks.push(chunk);
-    }
-    const blob = new Blob(chunks, { type: avatarFile.type });
-    const file = new File([blob], avatarFile.name, { type: avatarFile.type });
-
-    const uploadForm = new FormData();
-    uploadForm.append('file', file);
-
-    const SERVER_API_ENDPOINT =
-      process.env.SERVER_API_ENDPOINT ?? 'https://api.egdata.app';
-
-    const response = await fetch(`${SERVER_API_ENDPOINT}/auth/avatar`, {
-      method: 'POST',
-      body: uploadForm,
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to upload');
-    }
-
-    return await response.json();
-  });
 export const Route = createFileRoute('/profile/$id')({
   component: () => {
     const { dehydratedState } = Route.useLoaderData();
@@ -134,7 +80,7 @@ export const Route = createFileRoute('/profile/$id')({
   },
 
   loader: async ({ context, params }) => {
-    const { queryClient, epicToken } = context;
+    const { queryClient, session } = context;
     const { id } = params;
 
     await Promise.all([
@@ -160,7 +106,7 @@ export const Route = createFileRoute('/profile/$id')({
     return {
       id,
       dehydratedState: dehydrate(queryClient),
-      userId: epicToken?.account_id,
+      userId: session?.user.email.split('@')[0],
     };
   },
 
@@ -214,6 +160,8 @@ function RouteComponent() {
   const { id, userId } = Route.useLoaderData();
   const [selectedImage, setSelectedImage] = React.useState<File | null>(null);
   const [avatarErrors, setAvatarErrors] = React.useState<string[]>([]);
+  const [isUploading, setIsUploading] = React.useState(false);
+  const [uploadProgress, setUploadProgress] = React.useState(0);
   const { data, isLoading, isError } = useQuery({
     queryKey: ['profile-information', { id: id }],
     queryFn: () => getUserInformation(id),
@@ -239,6 +187,50 @@ function RouteComponent() {
       return () => URL.revokeObjectURL(image.src);
     }
   }, [selectedImage]);
+
+  const handleAvatarUpload = async (formData: FormData) => {
+    try {
+      setIsUploading(true);
+      setUploadProgress(0);
+      setAvatarErrors([]);
+
+      const SERVER_API_ENDPOINT =
+        process.env.SERVER_API_ENDPOINT ?? 'https://api-gcp.egdata.app';
+
+      const response: AxiosResponse = await axios.post(
+        `${SERVER_API_ENDPOINT}/auth/avatar`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          onUploadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              const progress = Math.round(
+                (progressEvent.loaded * 100) / progressEvent.total,
+              );
+              setUploadProgress(progress);
+            }
+          },
+          withCredentials: true,
+        },
+      );
+
+      if (response.status !== 200) {
+        throw new Error('Failed to upload');
+      }
+
+      window.location.reload();
+      return response.data;
+    } catch (error) {
+      console.error('Upload failed:', error);
+      setAvatarErrors([
+        error instanceof Error ? error.message : 'Upload failed',
+      ]);
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -285,12 +277,8 @@ function RouteComponent() {
                     className="space-y-6"
                     onSubmit={async (event) => {
                       event.preventDefault();
-                      // @ts-ignore-next-line
-                      const formData = new FormData(event.target);
-                      const response = await uploadAvatar({ data: formData });
-                      console.log(response);
-
-                      window.location.reload();
+                      const formData = new FormData(event.currentTarget);
+                      await handleAvatarUpload(formData);
                     }}
                   >
                     <div className="flex items-center space-x-4">
@@ -323,6 +311,7 @@ function RouteComponent() {
                           }}
                           className="w-full max-w-xs"
                           aria-describedby="avatar-upload-description"
+                          disabled={isUploading}
                         />
                         <p
                           id="avatar-upload-description"
@@ -332,11 +321,34 @@ function RouteComponent() {
                         </p>
                       </div>
                     </div>
+                    {isUploading && (
+                      <div className="w-full space-y-2">
+                        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-primary transition-all duration-300 ease-in-out"
+                            style={{ width: `${uploadProgress}%` }}
+                          />
+                        </div>
+                        <p className="text-sm text-gray-500 text-center">
+                          Uploading... {uploadProgress}%
+                        </p>
+                      </div>
+                    )}
                     <Button
                       type="submit"
-                      disabled={!selectedImage || avatarErrors.length > 0}
+                      disabled={
+                        !selectedImage || avatarErrors.length > 0 || isUploading
+                      }
+                      className="w-full"
                     >
-                      Update Avatar
+                      {isUploading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Uploading...
+                        </>
+                      ) : (
+                        'Update Avatar'
+                      )}
                     </Button>
                     {avatarErrors.length > 0 && (
                       <Alert variant="destructive">
@@ -399,8 +411,8 @@ function RouteComponent() {
               </p>
             )}
             <Separator orientation="vertical" />
-            <Link
-              to={`https://store.epicgames.com/u/${data.epicAccountId}?utm_source=egdata.app`}
+            <a
+              href={`https://store.epicgames.com/u/${data.epicAccountId}?utm_source=egdata.app`}
               target="_blank"
               rel="noreferrer noopener"
               className="flex items-center gap-2 text-sm text-gray-300 hover:text-gray-200"
@@ -408,7 +420,7 @@ function RouteComponent() {
               <EGSIcon className="w-4 h-4" />
               <span>Epic Games Store</span>
               <ExternalLinkIcon className="size-3 display-inline-block" />
-            </Link>
+            </a>
           </div>
           <section
             id="profile-header-achievements"
