@@ -194,8 +194,7 @@ function RouteComponent() {
       setUploadProgress(0);
       setAvatarErrors([]);
 
-      const SERVER_API_ENDPOINT =
-        process.env.SERVER_API_ENDPOINT ?? 'https://api-gcp.egdata.app';
+      const SERVER_API_ENDPOINT = httpClient.axiosInstance.defaults.baseURL;
 
       const response: AxiosResponse = await axios.post(
         `${SERVER_API_ENDPOINT}/auth/avatar`,

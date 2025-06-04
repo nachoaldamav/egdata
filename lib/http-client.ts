@@ -17,7 +17,7 @@ interface HttpError extends Error {
 }
 
 class HttpFetch {
-  private axiosInstance: AxiosInstance;
+  public axiosInstance: AxiosInstance;
   private initializationPromise: Promise<void>;
 
   constructor(baseURL = '', defaultOptions: FetchOptions = {}) {
