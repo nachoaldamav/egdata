@@ -20,6 +20,7 @@ import { Base64Utils } from '@/lib/base-64';
 import type { EpicToken } from '@/types/epic';
 import type { auth } from '@/lib/auth';
 import { authClient } from '@/lib/auth-client';
+import { Toaster } from '@/components/ui/sonner';
 
 const getClientSession = queryOptions({
   queryKey: ['session'],
@@ -338,6 +339,7 @@ function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
                     </CookiesProvider>
                   </PreferencesProvider>
                   <ComparisonPortal />
+                  <Toaster />
                   <footer className="flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400 text-xs gap-1">
                     <p>
                       egdata.app is a fan-made website and is not affiliated by

@@ -28,13 +28,14 @@ import {
   UploadIcon,
   Loader2,
   CrownIcon,
+  RefreshCwIcon,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
+import { ExclamationTriangleIcon, ReloadIcon } from '@radix-ui/react-icons';
 import {
   Tooltip,
   TooltipContent,
@@ -50,6 +51,8 @@ import { getImage } from '@/lib/get-image';
 import { httpClient } from '@/lib/http-client';
 import type { SingleOffer } from '@/types/single-offer';
 import axios, { type AxiosResponse } from 'axios';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 export const Route = createFileRoute('/profile/$id')({
   component: () => {
@@ -233,7 +236,10 @@ function RouteComponent() {
     <TooltipProvider>
       <main className="flex flex-col items-start justify-start w-full min-h-screen gap-4 mt-10">
         <BackgroundImage id={data.epicAccountId} />
-        <section id="profile-header" className="flex flex-row gap-10 w-full">
+        <section
+          id="profile-header"
+          className="flex flex-row gap-10 w-full relative"
+        >
           {userId === data.epicAccountId ? (
             <Dialog>
               <div className="flex flex-col gap-2 relative">
@@ -509,6 +515,9 @@ function RouteComponent() {
               </div>
             </section>
           </div>
+          <div className="absolute top-0 right-0">
+            <RefreshProfile id={data.epicAccountId} />
+          </div>
         </section>
         <section className="mt-20 w-full">
           <Outlet />
@@ -703,5 +712,34 @@ function DonnorBadge({ profile }: { profile: Profile }) {
         </p>
       </TooltipContent>
     </Tooltip>
+  );
+}
+
+function RefreshProfile({ id }: { id: string }) {
+  const [isRefreshed, setIsRefreshed] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await httpClient.put(`/profiles/${id}/refresh`).catch(() => {
+      toast.error('Failed to refresh profile');
+    });
+    setIsRefreshing(false);
+    toast.success(
+      'Profile added to queue for refresh, it will be updated soon.',
+    );
+    setIsRefreshed(true);
+  };
+
+  return (
+    <Button
+      variant="outline"
+      onClick={handleRefresh}
+      disabled={isRefreshing || isRefreshed}
+      className="inline-flex items-center justify-center gap-2"
+    >
+      <ReloadIcon className={cn('size-4', isRefreshing && 'animate-spin')} />
+      <span className="text-sm font-medium">Refresh profile</span>
+    </Button>
   );
 }
