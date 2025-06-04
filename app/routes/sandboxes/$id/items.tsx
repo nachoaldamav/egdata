@@ -41,7 +41,7 @@ export const Route = createFileRoute('/sandboxes/$id/items')({
     const { queryClient } = context;
 
     await queryClient.prefetchQuery({
-      queryKey: ['sandbox', 'items', { id, page: 1, limit: 20 }],
+      queryKey: ['sandbox', 'items', { id, page: 1, limit: 20, filters: [] }],
       queryFn: () =>
         httpClient.get<PaginatedResponse<SingleItem>>(
           `/sandboxes/${id}/items`,
@@ -111,15 +111,20 @@ function SandboxItemsPage() {
         queryKey: [
           'sandbox',
           'items',
-          { id, page: page.pageIndex + 1, limit: page.pageSize },
+          { id, page: page.pageIndex + 1, limit: page.pageSize, filters },
         ],
-        queryFn: () =>
-          httpClient.get<PaginatedResponse<SingleItem>>(
+        queryFn: () => {
+          const queryParams = new URLSearchParams();
+          queryParams.set('page', (page.pageIndex + 1).toString());
+          queryParams.set('limit', page.pageSize.toString());
+          for (const filter of filters) {
+            queryParams.set(filter.id, filter.value as string);
+          }
+          return httpClient.get<PaginatedResponse<SingleItem>>(
             `/sandboxes/${id}/items`,
-            {
-              params: { page: page.pageIndex + 1, limit: page.pageSize },
-            },
-          ),
+            { params: Object.fromEntries(queryParams) },
+          );
+        },
         placeholderData: keepPreviousData,
       },
       {
@@ -139,10 +144,6 @@ function SandboxItemsPage() {
   const { data: baseGame } = baseGameQuery;
   const { data: sandbox } = sandboxQuery;
 
-  if (!itemsData) {
-    return null;
-  }
-
   return (
     <main className="flex flex-col items-start justify-start h-full gap-4 px-4 w-full">
       <SandboxHeader
@@ -155,10 +156,10 @@ function SandboxItemsPage() {
       />
       <DataTable
         columns={columns}
-        data={itemsData.elements}
+        data={itemsData?.elements ?? []}
         setPage={setPage}
         page={page}
-        total={itemsData.count}
+        total={itemsData?.count ?? 0}
         filters={filters}
         setFilters={setFilters}
       />

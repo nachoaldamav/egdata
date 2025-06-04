@@ -41,7 +41,7 @@ export const Route = createFileRoute('/sandboxes/$id/builds')({
     const { queryClient } = context;
 
     await queryClient.prefetchQuery({
-      queryKey: ['sandbox', 'builds', { id, page: 1, limit: 20 }],
+      queryKey: ['sandbox', 'builds', { id, page: 1, limit: 20, filters: [] }],
       queryFn: () =>
         httpClient.get<PaginatedResponse<SingleBuild>>(
           `/sandboxes/${id}/builds`,
@@ -111,15 +111,22 @@ function SandboxBuildsPage() {
         queryKey: [
           'sandbox',
           'builds',
-          { id, page: page.pageIndex + 1, limit: page.pageSize },
+          { id, page: page.pageIndex + 1, limit: page.pageSize, filters },
         ],
-        queryFn: () =>
-          httpClient.get<PaginatedResponse<SingleBuild>>(
+        queryFn: () => {
+          const queryParams = new URLSearchParams();
+          queryParams.set('page', (page.pageIndex + 1).toString());
+          queryParams.set('limit', page.pageSize.toString());
+          for (const filter of filters) {
+            queryParams.set(filter.id, filter.value as string);
+          }
+
+          return httpClient.get<PaginatedResponse<SingleBuild>>(
             `/sandboxes/${id}/builds`,
-            {
-              params: { page: page.pageIndex + 1, limit: page.pageSize },
-            },
-          ),
+            { params: Object.fromEntries(queryParams) },
+          );
+        },
+
         placeholderData: keepPreviousData,
       },
       {
@@ -139,10 +146,6 @@ function SandboxBuildsPage() {
   const { data: baseGame } = baseGameQuery;
   const { data: sandbox } = sandboxQuery;
 
-  if (!buildsData) {
-    return null;
-  }
-
   return (
     <main className="flex flex-col builds-start justify-start h-full gap-4 px-4 w-full">
       <SandboxHeader
@@ -155,10 +158,10 @@ function SandboxBuildsPage() {
       />
       <DataTable
         columns={columns}
-        data={buildsData.elements}
+        data={buildsData?.elements ?? []}
         setPage={setPage}
         page={page}
-        total={buildsData.count}
+        total={buildsData?.count ?? 0}
         filters={filters}
         setFilters={setFilters}
       />

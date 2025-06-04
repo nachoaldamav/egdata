@@ -108,12 +108,21 @@ function SandboxAssetsPage() {
         queryKey: [
           'sandbox',
           'assets',
-          { id, page: page.pageIndex + 1, limit: page.pageSize },
+          { id, page: page.pageIndex + 1, limit: page.pageSize, filters },
         ],
-        queryFn: () =>
-          httpClient.get<PaginatedResponse<Asset>>(`/sandboxes/${id}/assets`, {
-            params: { page: page.pageIndex + 1, limit: page.pageSize },
-          }),
+        queryFn: () => {
+          const queryParams = new URLSearchParams();
+          queryParams.set('page', (page.pageIndex + 1).toString());
+          queryParams.set('limit', page.pageSize.toString());
+          for (const filter of filters) {
+            queryParams.set(filter.id, filter.value as string);
+          }
+
+          return httpClient.get<PaginatedResponse<Asset>>(
+            `/sandboxes/${id}/assets`,
+            { params: Object.fromEntries(queryParams) },
+          );
+        },
         placeholderData: keepPreviousData,
       },
       {
@@ -133,10 +142,6 @@ function SandboxAssetsPage() {
   const { data: baseGame } = baseGameQuery;
   const { data: sandbox } = sandboxQuery;
 
-  if (!assetsData) {
-    return null;
-  }
-
   return (
     <main className="flex flex-col items-start justify-start h-full gap-4 px-4 w-full">
       <SandboxHeader
@@ -149,10 +154,10 @@ function SandboxAssetsPage() {
       />
       <DataTable
         columns={columns}
-        data={assetsData.elements}
+        data={assetsData?.elements ?? []}
         setPage={setPage}
         page={page}
-        total={assetsData.count}
+        total={assetsData?.count ?? 0}
         filters={filters}
         setFilters={setFilters}
       />

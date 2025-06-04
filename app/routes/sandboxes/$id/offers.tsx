@@ -40,7 +40,7 @@ export const Route = createFileRoute('/sandboxes/$id/offers')({
     const { queryClient } = context;
 
     await queryClient.prefetchQuery({
-      queryKey: ['sandbox', 'offers', { id, page: 1, limit: 20 }],
+      queryKey: ['sandbox', 'offers', { id, page: 1, limit: 20, filters: [] }],
       queryFn: () =>
         httpClient.get<PaginatedResponse<SingleOffer>>(
           `/sandboxes/${id}/offers`,
@@ -108,15 +108,21 @@ function SandboxOffersPage() {
     queryKey: [
       'sandbox',
       'offers',
-      { id, page: page.pageIndex + 1, limit: page.pageSize },
+      { id, page: page.pageIndex + 1, limit: page.pageSize, filters },
     ],
-    queryFn: () =>
-      httpClient.get<PaginatedResponse<SingleOffer>>(
+    queryFn: () => {
+      const queryParams = new URLSearchParams();
+      queryParams.set('page', (page.pageIndex + 1).toString());
+      queryParams.set('limit', page.pageSize.toString());
+      for (const filter of filters) {
+        queryParams.set(filter.id, filter.value as string);
+      }
+
+      return httpClient.get<PaginatedResponse<SingleOffer>>(
         `/sandboxes/${id}/offers`,
-        {
-          params: { page: page.pageIndex + 1, limit: page.pageSize },
-        },
-      ),
+        { params: Object.fromEntries(queryParams) },
+      );
+    },
     placeholderData: keepPreviousData,
   });
   const { data: baseGame } = useQuery({
@@ -128,10 +134,6 @@ function SandboxOffersPage() {
     queryKey: ['sandbox', { id }],
     queryFn: () => httpClient.get<SingleSandbox>(`/sandboxes/${id}`),
   });
-
-  if (!offersData) {
-    return null;
-  }
 
   return (
     <main className="flex flex-col items-start justify-start h-full gap-4 px-4 w-full">
@@ -145,10 +147,10 @@ function SandboxOffersPage() {
       />
       <DataTable
         columns={columns}
-        data={offersData.elements}
+        data={offersData?.elements ?? []}
         setPage={setPage}
         page={page}
-        total={offersData.count}
+        total={offersData?.count ?? 0}
         filters={filters}
         setFilters={setFilters}
       />
