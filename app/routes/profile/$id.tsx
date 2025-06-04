@@ -4,9 +4,12 @@ import {
   dehydrate,
   HydrationBoundary,
   keepPreviousData,
+  QueryObserverResult,
+  RefetchOptions,
   useQuery,
 } from '@tanstack/react-query';
 import {
+  getRefreshStatus,
   getUserGames,
   getUserInformation,
   type Profile,
@@ -34,11 +37,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import {
-  DiscordLogoIcon,
-  ExclamationTriangleIcon,
-  ReloadIcon,
-} from '@radix-ui/react-icons';
+import { ExclamationTriangleIcon, ReloadIcon } from '@radix-ui/react-icons';
 import {
   Tooltip,
   TooltipContent,
@@ -54,7 +53,7 @@ import { getImage } from '@/lib/get-image';
 import { httpClient } from '@/lib/http-client';
 import type { SingleOffer } from '@/types/single-offer';
 import axios, { type AxiosResponse } from 'axios';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { DiscordIcon } from '@/components/icons/discord';
 
@@ -736,7 +735,7 @@ function DonnorBadge({ profile }: { profile: Profile }) {
 }
 
 function RefreshProfile({ id }: { id: string }) {
-  const [isRefreshed, setIsRefreshed] = useState(false);
+  const { data: refreshStatus, refetch } = useQuery(getRefreshStatus(id));
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleRefresh = async () => {
@@ -748,18 +747,93 @@ function RefreshProfile({ id }: { id: string }) {
     toast.success(
       'Profile added to queue for refresh, it will be updated soon.',
     );
-    setIsRefreshed(true);
+    await refetch();
   };
 
   return (
-    <Button
-      variant="outline"
-      onClick={handleRefresh}
-      disabled={isRefreshing || isRefreshed}
-      className="inline-flex items-center justify-center gap-2"
+    <Tooltip
+      delayDuration={0}
+      open={refreshStatus?.canRefresh ? false : undefined}
     >
-      <ReloadIcon className={cn('size-4', isRefreshing && 'animate-spin')} />
-      <span className="text-sm font-medium">Refresh profile</span>
-    </Button>
+      <TooltipTrigger>
+        <Button
+          variant="outline"
+          onClick={handleRefresh}
+          disabled={isRefreshing || !refreshStatus?.canRefresh}
+          className="inline-flex items-center justify-center gap-2"
+        >
+          <ReloadIcon
+            className={cn('size-4', isRefreshing && 'animate-spin')}
+          />
+          <span className="text-sm font-medium">Refresh profile</span>
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent sideOffset={5}>
+        <p>
+          Refresh available in{' '}
+          <Countdown
+            date={refreshStatus?.refreshAvailableAt ?? new Date()}
+            refetch={refetch}
+          />
+        </p>
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+function Countdown({
+  date,
+  refetch,
+}: {
+  date: Date;
+  refetch: (options?: RefetchOptions) => Promise<
+    QueryObserverResult<
+      {
+        refreshAvailableAt: Date;
+        canRefresh: boolean;
+        remainingTime: number;
+      },
+      Error
+    >
+  >;
+}) {
+  const [countdown, setCountdown] = useState(date.getTime() - Date.now());
+  const [hasRefetched, setHasRefetched] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const newCountdown = date.getTime() - Date.now();
+      setCountdown(newCountdown);
+
+      // Only refetch if we haven't already and the countdown is <= 0
+      if (!hasRefetched && newCountdown <= 0) {
+        setHasRefetched(true);
+        refetch();
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [date, refetch, hasRefetched]);
+
+  // Reset hasRefetched when date changes
+  useEffect(() => {
+    setHasRefetched(false);
+  }, []);
+
+  const minutes = Math.floor(countdown / (1000 * 60));
+  const seconds = Math.floor((countdown % (1000 * 60)) / 1000);
+
+  if (minutes > 0) {
+    return (
+      <span>
+        {minutes} minute{minutes !== 1 ? 's' : ''} {seconds} second
+        {seconds !== 1 ? 's' : ''}
+      </span>
+    );
+  }
+  return (
+    <span>
+      {seconds} second{seconds !== 1 ? 's' : ''}
+    </span>
   );
 }
