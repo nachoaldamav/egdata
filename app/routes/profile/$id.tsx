@@ -28,7 +28,6 @@ import {
   UploadIcon,
   Loader2,
   CrownIcon,
-  RefreshCwIcon,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Label } from '@/components/ui/label';
@@ -676,7 +675,10 @@ function DonatorName({
       </div>
 
       <h1
-        className={cn('relative z-10 text-6xl font-thin text-white', className)}
+        className={cn(
+          'relative z-[1] text-6xl font-thin text-white',
+          className,
+        )}
       >
         {children}
       </h1>
