@@ -1,25 +1,37 @@
 import { httpClient } from '@/lib/http-client';
-import type { Avatar, LinkedAccount } from '@/types/profiles';
+
+export type Profile = {
+  epicAccountId: string;
+  displayName: string;
+  avatar: {
+    small: string;
+    medium: string;
+    large: string;
+  };
+  stats: {
+    totalGames: number;
+    totalAchievements: number;
+    totalPlayerAwards: number;
+    totalXP: number;
+    reviewsCount: number;
+  };
+  linkedAccounts: Array<{
+    identityProviderId: string;
+    displayName: string;
+  }>;
+  creationDate: string;
+  donations: {
+    itemId: string;
+    namespace: string;
+  }[];
+};
 
 export const getUserInformation = async (id: string | null) => {
   if (!id) {
     return null;
   }
 
-  const res = await httpClient.get<{
-    epicAccountId: string;
-    displayName: string;
-    avatar: Avatar;
-    stats: {
-      totalGames: number;
-      totalAchievements: number;
-      totalPlayerAwards: number;
-      reviewsCount: number;
-      totalXP: number;
-    };
-    linkedAccounts?: LinkedAccount[];
-    creationDate: string | null;
-  }>(`/profiles/${id}/information`);
+  const res = await httpClient.get<Profile>(`/profiles/${id}/information`);
   return res;
 };
 

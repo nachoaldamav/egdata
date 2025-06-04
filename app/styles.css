@@ -119,27 +119,27 @@ body {
 }
 
 @font-face {
-  font-family: 'Montserrat';
-  src: url('https://cdn.egdata.app/Montserrat/Montserrat-VariableFont_wght.ttf')
-    format('truetype');
+  font-family: "Montserrat";
+  src: url("https://cdn.egdata.app/Montserrat/Montserrat-VariableFont_wght.ttf")
+    format("truetype");
   font-weight: 100 900;
   font-display: swap;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Raleway';
-  src: url('https://cdn.egdata.app/Raleway/Raleway-VariableFont_wght.ttf')
-    format('truetype');
+  font-family: "Raleway";
+  src: url("https://cdn.egdata.app/Raleway/Raleway-VariableFont_wght.ttf")
+    format("truetype");
   font-weight: 100 900;
   font-display: swap;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Nunito';
-  src: url('https://cdn.egdata.app/Nunito/Nunito-VariableFont_wght.ttf')
-    format('truetype');
+  font-family: "Nunito";
+  src: url("https://cdn.egdata.app/Nunito/Nunito-VariableFont_wght.ttf")
+    format("truetype");
   font-weight: 100 900;
   font-display: swap;
   font-style: normal;
@@ -152,7 +152,7 @@ body {
 }
 .tree::before,
 .tree-last::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 0;
@@ -162,7 +162,7 @@ body {
 }
 .tree::after,
 .tree-last::after {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 0.7em;
@@ -172,4 +172,28 @@ body {
 }
 .tree-last::before {
   height: 0.7em;
+}
+
+@keyframes shadow-pulse {
+  0%,
+  100% {
+    opacity: 0.9;
+    filter: blur(4px);
+  }
+  50% {
+    opacity: 0.6;
+    filter: blur(8px);
+  }
+}
+
+@keyframes shadow-pulse-2 {
+  0%,
+  100% {
+    opacity: 0.7;
+    filter: blur(8px);
+  }
+  50% {
+    opacity: 0.4;
+    filter: blur(12px);
+  }
 }

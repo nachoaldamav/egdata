@@ -1,12 +1,16 @@
 import * as React from 'react';
-import { createFileRoute, Outlet } from '@tanstack/react-router';
+import { createFileRoute, Link, Outlet } from '@tanstack/react-router';
 import {
   dehydrate,
   HydrationBoundary,
   keepPreviousData,
   useQuery,
 } from '@tanstack/react-query';
-import { getUserGames, getUserInformation } from '@/queries/profiles';
+import {
+  getUserGames,
+  getUserInformation,
+  type Profile,
+} from '@/queries/profiles';
 import { getFetchedQuery } from '@/lib/get-fetched-query';
 import { getQueryClient } from '@/lib/client';
 import {
@@ -23,6 +27,7 @@ import {
   MessageSquareQuoteIcon,
   UploadIcon,
   Loader2,
+  CrownIcon,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Label } from '@/components/ui/label';
@@ -45,28 +50,6 @@ import { getImage } from '@/lib/get-image';
 import { httpClient } from '@/lib/http-client';
 import type { SingleOffer } from '@/types/single-offer';
 import axios, { type AxiosResponse } from 'axios';
-
-type Profile = {
-  epicAccountId: string;
-  displayName: string;
-  avatar: {
-    small: string;
-    medium: string;
-    large: string;
-  };
-  stats: {
-    totalGames: number;
-    totalAchievements: number;
-    totalPlayerAwards: number;
-    totalXP: number;
-    reviewsCount: number;
-  };
-  linkedAccounts: Array<{
-    identityProviderId: string;
-    displayName: string;
-  }>;
-  creationDate: string;
-};
 
 export const Route = createFileRoute('/profile/$id')({
   component: () => {
@@ -247,236 +230,246 @@ function RouteComponent() {
   const percentToNextLevel = (xpToNextLevel / 250) * 100;
 
   return (
-    <main className="flex flex-col items-start justify-start w-full min-h-screen gap-4 mt-10">
-      <BackgroundImage id={data.epicAccountId} />
-      <section id="profile-header" className="flex flex-row gap-10 w-full">
-        {userId === data.epicAccountId ? (
-          <Dialog>
-            <div className="flex flex-col gap-2 relative">
-              <DialogTrigger asChild>
-                <div className="relative group">
-                  <img
-                    src={data.avatar.large}
-                    alt={data.displayName}
-                    className="rounded-full h-32 w-32 object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full">
-                    <span className="text-white text-lg">
-                      <UploadIcon className="w-6 h-6" />
-                    </span>
-                  </div>
-                </div>
-              </DialogTrigger>
-            </div>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Change Avatar</DialogTitle>
-                <DialogDescription asChild>
-                  <form
-                    className="space-y-6"
-                    onSubmit={async (event) => {
-                      event.preventDefault();
-                      const formData = new FormData(event.currentTarget);
-                      await handleAvatarUpload(formData);
-                    }}
-                  >
-                    <div className="flex items-center space-x-4">
-                      <Avatar className="h-24 w-24">
-                        <AvatarImage
-                          src={
-                            selectedImage
-                              ? URL.createObjectURL(selectedImage)
-                              : data.avatar.large
-                          }
-                          alt="Avatar preview"
-                        />
-                        <AvatarFallback>Avatar</AvatarFallback>
-                      </Avatar>
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="avatar-upload"
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          Change Avatar
-                        </Label>
-                        <Input
-                          id="avatar-upload"
-                          name="avatar"
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            if (e.target.files?.[0])
-                              setSelectedImage(e.target.files?.[0]);
-                          }}
-                          className="w-full max-w-xs"
-                          aria-describedby="avatar-upload-description"
-                          disabled={isUploading}
-                        />
-                        <p
-                          id="avatar-upload-description"
-                          className="text-sm text-gray-500"
-                        >
-                          Upload a new avatar image (max 5MB)
-                        </p>
-                      </div>
+    <TooltipProvider>
+      <main className="flex flex-col items-start justify-start w-full min-h-screen gap-4 mt-10">
+        <BackgroundImage id={data.epicAccountId} />
+        <section id="profile-header" className="flex flex-row gap-10 w-full">
+          {userId === data.epicAccountId ? (
+            <Dialog>
+              <div className="flex flex-col gap-2 relative">
+                <DialogTrigger asChild>
+                  <div className="relative group">
+                    <img
+                      src={data.avatar.large}
+                      alt={data.displayName}
+                      className="rounded-full h-32 w-32 object-cover"
+                    />
+                    <DonnorBadge profile={data} />
+                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full">
+                      <span className="text-white text-lg">
+                        <UploadIcon className="w-6 h-6" />
+                      </span>
                     </div>
-                    {isUploading && (
-                      <div className="w-full space-y-2">
-                        <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-primary transition-all duration-300 ease-in-out"
-                            style={{ width: `${uploadProgress}%` }}
-                          />
-                        </div>
-                        <p className="text-sm text-gray-500 text-center">
-                          Uploading... {uploadProgress}%
-                        </p>
-                      </div>
-                    )}
-                    <Button
-                      type="submit"
-                      disabled={
-                        !selectedImage || avatarErrors.length > 0 || isUploading
-                      }
-                      className="w-full"
+                  </div>
+                </DialogTrigger>
+              </div>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Change Avatar</DialogTitle>
+                  <DialogDescription asChild>
+                    <form
+                      className="space-y-6"
+                      onSubmit={async (event) => {
+                        event.preventDefault();
+                        const formData = new FormData(event.currentTarget);
+                        await handleAvatarUpload(formData);
+                      }}
                     >
-                      {isUploading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Uploading...
-                        </>
-                      ) : (
-                        'Update Avatar'
-                      )}
-                    </Button>
-                    {avatarErrors.length > 0 && (
-                      <Alert variant="destructive">
-                        <ExclamationTriangleIcon className="h-4 w-4" />
-                        <AlertTitle>Error</AlertTitle>
-                        <AlertDescription className="flex flex-col gap-1">
-                          {avatarErrors.map((error, index) => (
-                            <span key={index}>{error}</span>
-                          ))}
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                  </form>
-                </DialogDescription>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
-        ) : (
-          <img
-            src={data.avatar.large}
-            alt={data.displayName}
-            className="rounded-full h-32 w-32 object-cover"
-          />
-        )}
-        <div className="flex flex-col gap-4">
-          <h1 className="text-6xl font-thin">{data.displayName}</h1>
-          <div className="flex flex-row gap-6 items-center justify-start">
-            {data?.linkedAccounts && data.linkedAccounts.length > 0 && (
-              <div className="inline-flex gap-6 items-center h-6">
-                <TooltipProvider>
-                  {data.linkedAccounts
-                    ?.filter((account) => getAccountIcon(account))
-                    .map((account) => (
-                      <Tooltip key={account.identityProviderId}>
-                        <TooltipTrigger>
-                          {getAccountIcon(account)}
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="text-sm font-medium">
-                            {account.displayName}
+                      <div className="flex items-center space-x-4">
+                        <Avatar className="h-24 w-24">
+                          <AvatarImage
+                            src={
+                              selectedImage
+                                ? URL.createObjectURL(selectedImage)
+                                : data.avatar.large
+                            }
+                            alt="Avatar preview"
+                          />
+                          <AvatarFallback>Avatar</AvatarFallback>
+                        </Avatar>
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="avatar-upload"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                          >
+                            Change Avatar
+                          </Label>
+                          <Input
+                            id="avatar-upload"
+                            name="avatar"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              if (e.target.files?.[0])
+                                setSelectedImage(e.target.files?.[0]);
+                            }}
+                            className="w-full max-w-xs"
+                            aria-describedby="avatar-upload-description"
+                            disabled={isUploading}
+                          />
+                          <p
+                            id="avatar-upload-description"
+                            className="text-sm text-gray-500"
+                          >
+                            Upload a new avatar image (max 5MB)
                           </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    ))}
-                </TooltipProvider>
-              </div>
-            )}
-            {data.creationDate &&
-              data?.linkedAccounts &&
-              data.linkedAccounts.length > 0 && (
-                <Separator orientation="vertical" />
-              )}
-            {data.creationDate && (
-              <p className="text-sm text-gray-300">
-                <span>Joined </span>
-                {new Date(data.creationDate).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                })}
-              </p>
-            )}
-            <Separator orientation="vertical" />
-            <a
-              href={`https://store.epicgames.com/u/${data.epicAccountId}?utm_source=egdata.app`}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="flex items-center gap-2 text-sm text-gray-300 hover:text-gray-200"
-            >
-              <EGSIcon className="w-4 h-4" />
-              <span>Epic Games Store</span>
-              <ExternalLinkIcon className="size-3 display-inline-block" />
-            </a>
-          </div>
-          <section
-            id="profile-header-achievements"
-            className="flex flex-row w-full items-start justify-start"
-          >
-            <div
-              id="player-level"
-              className="flex flex-col gap-2 w-fit min:w-[250px] mr-10"
-            >
-              <SectionTitle title="Level" />
-              <div className="flex flex-row gap-4 items-center mb-3 h-10">
-                <p className="text-4xl font-light inline-flex items-center gap-1">
-                  <LevelIcon className="size-7 inline-block" />
-                  {userLevel}
-                </p>
-                <Separator orientation="vertical" className="bg-white/25" />
-                <p className="text-4xl font-thin">{userTotalXP} XP</p>
-              </div>
-              <div className="flex flex-col gap-2 items-start">
-                <div className="w-full h-[6px] bg-gray-300/10 rounded-full">
-                  <div
-                    className="h-[6px] bg-white rounded-full"
-                    style={{ width: `${percentToNextLevel}%` }}
-                  />
+                        </div>
+                      </div>
+                      {isUploading && (
+                        <div className="w-full space-y-2">
+                          <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-primary transition-all duration-300 ease-in-out"
+                              style={{ width: `${uploadProgress}%` }}
+                            />
+                          </div>
+                          <p className="text-sm text-gray-500 text-center">
+                            Uploading... {uploadProgress}%
+                          </p>
+                        </div>
+                      )}
+                      <Button
+                        type="submit"
+                        disabled={
+                          !selectedImage ||
+                          avatarErrors.length > 0 ||
+                          isUploading
+                        }
+                        className="w-full"
+                      >
+                        {isUploading ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Uploading...
+                          </>
+                        ) : (
+                          'Update Avatar'
+                        )}
+                      </Button>
+                      {avatarErrors.length > 0 && (
+                        <Alert variant="destructive">
+                          <ExclamationTriangleIcon className="h-4 w-4" />
+                          <AlertTitle>Error</AlertTitle>
+                          <AlertDescription className="flex flex-col gap-1">
+                            {avatarErrors.map((error, index) => (
+                              // biome-ignore lint/suspicious/noArrayIndexKey: unique key
+                              <span key={index}>{error}</span>
+                            ))}
+                          </AlertDescription>
+                        </Alert>
+                      )}
+                    </form>
+                  </DialogDescription>
+                </DialogHeader>
+              </DialogContent>
+            </Dialog>
+          ) : (
+            <div className="relative">
+              <img
+                src={data.avatar.large}
+                alt={data.displayName}
+                className="rounded-full h-32 w-32 object-cover"
+              />
+              <DonnorBadge profile={data} />
+            </div>
+          )}
+          <div className="flex flex-col gap-4">
+            <PlayerName profile={data} />
+            <div className="flex flex-row gap-6 items-center justify-start">
+              {data?.linkedAccounts && data.linkedAccounts.length > 0 && (
+                <div className="inline-flex gap-6 items-center h-6">
+                  <TooltipProvider>
+                    {data.linkedAccounts
+                      ?.filter((account) => getAccountIcon(account))
+                      .map((account) => (
+                        <Tooltip key={account.identityProviderId}>
+                          <TooltipTrigger>
+                            {getAccountIcon(account)}
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="text-sm font-medium">
+                              {account.displayName}
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      ))}
+                  </TooltipProvider>
                 </div>
-                <p className="text-sm font-light opacity-50">
-                  {xpToNextLevel} XP to next level
+              )}
+              {data.creationDate &&
+                data?.linkedAccounts &&
+                data.linkedAccounts.length > 0 && (
+                  <Separator orientation="vertical" />
+                )}
+              {data.creationDate && (
+                <p className="text-sm text-gray-300">
+                  <span>Joined </span>
+                  {new Date(data.creationDate).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                  })}
+                </p>
+              )}
+              <Separator orientation="vertical" />
+              <a
+                href={`https://store.epicgames.com/u/${data.epicAccountId}?utm_source=egdata.app`}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="flex items-center gap-2 text-sm text-gray-300 hover:text-gray-200"
+              >
+                <EGSIcon className="w-4 h-4" />
+                <span>Epic Games Store</span>
+                <ExternalLinkIcon className="size-3 display-inline-block" />
+              </a>
+            </div>
+            <section
+              id="profile-header-achievements"
+              className="flex flex-row w-full items-start justify-start"
+            >
+              <div
+                id="player-level"
+                className="flex flex-col gap-2 w-fit min:w-[250px] mr-10"
+              >
+                <SectionTitle title="Level" />
+                <div className="flex flex-row gap-4 items-center mb-3 h-10">
+                  <p className="text-4xl font-light inline-flex items-center gap-1">
+                    <LevelIcon className="size-7 inline-block" />
+                    {userLevel}
+                  </p>
+                  <Separator orientation="vertical" className="bg-white/25" />
+                  <p className="text-4xl font-thin">{userTotalXP} XP</p>
+                </div>
+                <div className="flex flex-col gap-2 items-start">
+                  <div className="w-full h-[6px] bg-gray-300/10 rounded-full">
+                    <div
+                      className="h-[6px] bg-white rounded-full"
+                      style={{ width: `${percentToNextLevel}%` }}
+                    />
+                  </div>
+                  <p className="text-sm font-light opacity-50">
+                    {xpToNextLevel} XP to next level
+                  </p>
+                </div>
+              </div>
+              <div
+                id="player-achievements-count"
+                className="flex flex-col gap-2 w-[175px]"
+              >
+                <SectionTitle title="Achievements" />
+                <p className="text-3xl font-light inline-flex items-center gap-2">
+                  <EpicTrophyIcon className="size-7 inline-block" />
+                  {data.stats.totalAchievements}
                 </p>
               </div>
-            </div>
-            <div
-              id="player-achievements-count"
-              className="flex flex-col gap-2 w-[175px]"
-            >
-              <SectionTitle title="Achievements" />
-              <p className="text-3xl font-light inline-flex items-center gap-2">
-                <EpicTrophyIcon className="size-7 inline-block" />
-                {data.stats.totalAchievements}
-              </p>
-            </div>
-            <div
-              id="player-platinum-count"
-              className="flex flex-col gap-2 w-[175px]"
-            >
-              <SectionTitle title="Platinum" />
-              <p className="text-3xl font-light inline-flex items-center gap-2">
-                <EpicPlatinumIcon
-                  className={cn(
-                    'size-7 inline-block',
-                    data.stats.totalPlayerAwards > 0 ? 'text-[#6e59e6]' : '',
-                  )}
-                />
-                {data.stats.totalPlayerAwards}
-              </p>
-            </div>
-            <div id="player-library" className="flex flex-col gap-2 w-[175px]">
-              <TooltipProvider>
+              <div
+                id="player-platinum-count"
+                className="flex flex-col gap-2 w-[175px]"
+              >
+                <SectionTitle title="Platinum" />
+                <p className="text-3xl font-light inline-flex items-center gap-2">
+                  <EpicPlatinumIcon
+                    className={cn(
+                      'size-7 inline-block',
+                      data.stats.totalPlayerAwards > 0 ? 'text-[#6e59e6]' : '',
+                    )}
+                  />
+                  {data.stats.totalPlayerAwards}
+                </p>
+              </div>
+              <div
+                id="player-library"
+                className="flex flex-col gap-2 w-[175px]"
+              >
                 <Tooltip delayDuration={250}>
                   <TooltipTrigger className="w-fit">
                     <SectionTitle
@@ -491,34 +484,37 @@ function RouteComponent() {
                     </p>
                   </TooltipContent>
                 </Tooltip>
-              </TooltipProvider>
 
-              <p className="text-3xl font-light inline-flex items-center gap-2">
-                <LayoutGridIcon
-                  className="size-7 inline-block"
-                  fill="currentColor"
-                />
-                {data.stats.totalGames}
-              </p>
-            </div>
-            <div id="player-reviews" className="flex flex-col gap-2 w-[175px]">
-              <SectionTitle title="Reviews" />
-              <p className="text-3xl font-light inline-flex items-center gap-2">
-                <MessageSquareQuoteIcon
-                  className="size-7 inline-block"
-                  stroke="transparent"
-                  fill="currentColor"
-                />
-                {data.stats.reviewsCount}
-              </p>
-            </div>
-          </section>
-        </div>
-      </section>
-      <section className="mt-20 w-full">
-        <Outlet />
-      </section>
-    </main>
+                <p className="text-3xl font-light inline-flex items-center gap-2">
+                  <LayoutGridIcon
+                    className="size-7 inline-block"
+                    fill="currentColor"
+                  />
+                  {data.stats.totalGames}
+                </p>
+              </div>
+              <div
+                id="player-reviews"
+                className="flex flex-col gap-2 w-[175px]"
+              >
+                <SectionTitle title="Reviews" />
+                <p className="text-3xl font-light inline-flex items-center gap-2">
+                  <MessageSquareQuoteIcon
+                    className="size-7 inline-block"
+                    stroke="transparent"
+                    fill="currentColor"
+                  />
+                  {data.stats.reviewsCount}
+                </p>
+              </div>
+            </section>
+          </div>
+        </section>
+        <section className="mt-20 w-full">
+          <Outlet />
+        </section>
+      </main>
+    </TooltipProvider>
   );
 }
 
@@ -619,5 +615,93 @@ export function EpicPlatinumIcon({
         fill="currentColor"
       />
     </svg>
+  );
+}
+
+export function PlayerName({ profile }: { profile: Profile }) {
+  const isDonator = profile.donations.length > 0;
+
+  if (isDonator) {
+    return <DonatorName>{profile.displayName}</DonatorName>;
+  }
+
+  return <h1 className="text-6xl font-thin">{profile.displayName}</h1>;
+}
+
+function DonatorName({
+  children,
+  className,
+}: { children: React.ReactNode; className?: string }) {
+  return (
+    <div className="relative">
+      <div
+        className={cn(
+          'absolute text-6xl font-thin',
+          'text-transparent bg-gradient-to-r from-blue-500 via-purple-600 to-pink-600 bg-clip-text',
+          'blur-md opacity-80 animate-[shadow-pulse_3s_ease-in-out_infinite]',
+          'select-none pointer-events-none',
+          className,
+        )}
+        style={{
+          transform: 'translate(-4px, -4px)',
+        }}
+        aria-hidden="true"
+      >
+        {children}
+      </div>
+
+      <div
+        className={cn(
+          'absolute text-6xl font-thin',
+          'text-transparent bg-gradient-to-r from-cyan-500 via-violet-600 to-fuchsia-600 bg-clip-text',
+          'blur-lg opacity-90 animate-[shadow-pulse-2_4s_ease-in-out_infinite]',
+          'select-none pointer-events-none',
+          className,
+        )}
+        style={{
+          transform: 'translate(10px, 10px)',
+        }}
+        aria-hidden="true"
+      >
+        {children}
+      </div>
+
+      <h1
+        className={cn('relative z-10 text-6xl font-thin text-white', className)}
+      >
+        {children}
+      </h1>
+    </div>
+  );
+}
+
+function DonnorBadge({ profile }: { profile: Profile }) {
+  const isDonator = profile.donations.length > 0;
+
+  if (!isDonator) return null;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger className="absolute -top-0 -right-0 bg-gradient-to-r from-blue-500 via-purple-600 to-pink-600 rounded-full p-1.5 shadow-lg">
+        <CrownIcon className="w-5 h-5 text-white" />
+      </TooltipTrigger>
+      <TooltipContent
+        className="flex flex-col gap-2 rounded-lg p-4 text-sm font-normal"
+        side="right"
+        sideOffset={10}
+      >
+        <p>
+          {profile.displayName} has donated {profile.donations.length}{' '}
+          {profile.donations.length === 1 ? 'key' : 'keys'} to egdata.app
+        </p>
+        <p className="gap-1 inline-flex items-center">
+          Go to{' '}
+          <Link to="/donate-key" className="text-blue-500 hover:text-blue-600">
+            this link
+          </Link>
+          to donate a key.
+        </p>
+      </TooltipContent>
+    </Tooltip>
   );
 }
