@@ -45,8 +45,6 @@ const profileParamsSchema = z.object({
   page: z.number().catch(1),
 });
 
-type ProfileParams = z.infer<typeof profileParamsSchema>;
-
 export const Route = createFileRoute('/profile/$id/')({
   component: () => {
     const { dehydratedState } = Route.useLoaderData();
@@ -105,7 +103,9 @@ function ProfileInformation() {
           <button
             type="button"
             key={tab.id}
-            ref={(el) => (tabRefs.current[tab.id] = el)}
+            ref={(el) => {
+              tabRefs.current[tab.id] = el;
+            }}
             className={cn(
               'px-4 py-2 font-medium text-sm focus:outline-none',
               activeTab === tab.id
@@ -140,7 +140,11 @@ function GameAchievementsSummary({
   return (
     <Link
       className="flex hover:bg-card/25 bg-card text-white p-2 rounded-lg overflow-hidden transition-all duration-300 ease-in-out w-full gap-4"
-      to={`/profile/${id}/achievements/${game.sandboxId}`}
+      to="/profile/$id/achievements/$sandbox"
+      params={{
+        id,
+        sandbox: game.sandboxId,
+      }}
     >
       <div className="w-1/4">
         <Image
@@ -454,7 +458,11 @@ function SingleAchievement({
     <div className="flex flex-row gap-4 w-full h-full">
       <Link
         className="max-w-72 w-full h-full cursor-pointer"
-        to={`/profile/${id}/achievements/${achievement.offer.namespace}`}
+        to="/profile/$id/achievements/$sandbox"
+        params={{
+          id,
+          sandbox: achievement.offer.namespace,
+        }}
       >
         <FlippableCard
           achievement={achievement}
@@ -527,11 +535,13 @@ function AchievementsOverview() {
         {games?.achievements.map((achievement) => (
           <GameAchievementsSummary
             key={achievement.sandboxId}
+            // @ts-expect-error
             game={achievement}
           />
         ))}
         {isLoading &&
           Array.from({ length: 10 }).map((_, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: loader
             <GameAchievementsSummarySkeleton key={i} />
           ))}
       </div>

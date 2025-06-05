@@ -30,6 +30,7 @@ export interface Achievement {
   lockedIconLink: string;
   xp: number;
   completedPercent: number;
+  unlockDate: string;
 }
 
 export async function fetchAchievementsSets({ id }: { id: string }) {

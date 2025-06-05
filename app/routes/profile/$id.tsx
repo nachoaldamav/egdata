@@ -4,8 +4,8 @@ import {
   dehydrate,
   HydrationBoundary,
   keepPreviousData,
-  QueryObserverResult,
-  RefetchOptions,
+  type QueryObserverResult,
+  type RefetchOptions,
   useQuery,
 } from '@tanstack/react-query';
 import {
@@ -232,8 +232,9 @@ function RouteComponent() {
 
   // Each level is 250 XP
   const userLevel = Math.floor(userTotalXP / 250);
-  const xpToNextLevel = userTotalXP % 250;
-  const percentToNextLevel = (xpToNextLevel / 250) * 100;
+  const xpInCurrentLevel = userTotalXP % 250;
+  const xpToNextLevel = 250 - xpInCurrentLevel;
+  const percentToNextLevel = (xpInCurrentLevel / 250) * 100;
 
   return (
     <TooltipProvider>
