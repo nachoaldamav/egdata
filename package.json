@@ -131,9 +131,7 @@
   },
   "packageManager": "pnpm@10.2.1",
   "pnpm": {
-    "ignoredBuiltDependencies": [
-      "es5-ext"
-    ],
+    "ignoredBuiltDependencies": ["es5-ext"],
     "onlyBuiltDependencies": [
       "@biomejs/biome",
       "@parcel/watcher",
@@ -142,6 +140,9 @@
       "better-sqlite3",
       "esbuild",
       "workerd"
-    ]
+    ],
+    "overrides": {
+      "vite": "npm:rolldown-vite@latest"
+    }
   }
 }
