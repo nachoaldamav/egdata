@@ -20,20 +20,8 @@ export default defineConfig({
       },
     },
     build: {
-      minify: 'terser',
+      minify: 'oxc',
       sourcemap: true,
-      rollupOptions: {
-        output: {
-          manualChunks: (id) => {
-            // If the id contains @/components/ui, it's a component
-            if (id.includes('components/ui')) {
-              return id.split('/').pop()?.replace('.tsx', '');
-            }
-
-            return undefined;
-          },
-        },
-      },
     },
     ssr: {
       noExternal: [
