@@ -23,9 +23,7 @@ import type { SingleOffer } from '@/types/single-offer';
 import {
   dehydrate,
   HydrationBoundary,
-  infiniteQueryOptions,
   keepPreviousData,
-  useInfiniteQuery,
   useQuery,
 } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
