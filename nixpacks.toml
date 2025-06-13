@@ -1,0 +1,2 @@
+[start]
+cmd = 'NODE_ENV=--enable-source-maps node .output/server/index.mjs'
