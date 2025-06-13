@@ -45,10 +45,10 @@ export const Route = createRootRouteWithContext<{
     let cookieHeader: string;
 
     if (import.meta.env.SSR) {
-      const { getWebRequest } = await import('vinxi/http');
-      const request = getWebRequest();
-      url = new URL(request.url);
-      cookieHeader = request.headers.get('Cookie') ?? '';
+      const { getEvent } = await import('@tanstack/react-start/server');
+      const event = getEvent();
+      url = new URL(`https://egdata.app${event.node.req.url}`);
+      cookieHeader = event.headers.get('Cookie') ?? '';
     } else {
       url = new URL(window.location.href);
       cookieHeader = document.cookie;
@@ -86,12 +86,12 @@ export const Route = createRootRouteWithContext<{
     } | null;
 
     if (import.meta.env.SSR) {
-      const { getWebRequest } = await import('vinxi/http');
+      const { getEvent } = await import('@tanstack/react-start/server');
+      const event = getEvent();
       const { auth } = await import('@/lib/auth');
-      const request = getWebRequest();
-      url = new URL(request.url);
-      cookieHeader = request.headers.get('Cookie') ?? '';
-      headers = request.headers;
+      url = new URL(`https://egdata.app${event.node.req.url}`);
+      cookieHeader = event.headers.get('Cookie') ?? '';
+      headers = event.headers;
       session = await auth.api.getSession({
         headers,
       });

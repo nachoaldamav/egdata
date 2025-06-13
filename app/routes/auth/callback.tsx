@@ -32,8 +32,9 @@ export const validateState = createServerFn({ method: 'GET' })
 export const getTokens = createServerFn({ method: 'GET' })
   .validator((code: string) => code)
   .handler(async (ctx) => {
-    const { getWebRequest } = await import('vinxi/http');
-    const req = getWebRequest();
+    const { getEvent } = await import('@tanstack/react-start/server');
+    const event = getEvent();
+    const req = event.node.req;
 
     let ClientID: string | undefined;
     let ClientSecret: string | undefined;
