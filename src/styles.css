@@ -1,52 +1,114 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "@vidstack/react/player/styles/base.css";
+@import "tailwindcss";
+@import "tw-animate-css";
 
-@layer base {
-  :root {
-    --background: 240 11.1% 7.1%;
-    --foreground: 166 33% 99%;
-    --muted: 240 3% 21%;
-    --muted-foreground: 136 8% 73%;
-    --popover: 240 7% 12%;
-    --popover-foreground: 180 39% 100%;
-    --card: 240 7% 12%;
-    --card-foreground: 180 39% 100%;
-    --border: 240 3% 19%;
-    --input: 240 3% 19%;
-    --primary: 166 67% 88%;
-    --primary-foreground: 166 67% 8%;
-    --secondary: 136 67% 88%;
-    --secondary-foreground: 136 67% 8%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 94% 49%;
-    --destructive-foreground: 0 0% 100%;
-    --ring: 166 67% 88%;
-    --radius: 0.5rem;
-    --badge: 198.8deg 100% 57.45%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 340 75% 55%;
-    --chart-3: oklch(0.398 0.07 227.392);
-    --chart-4: oklch(0.828 0.189 84.429);
-    --chart-5: oklch(0.769 0.188 70.08);
-    --bronze-start: rgb(202, 81, 43);
-    --bronze-end: rgb(202, 81, 43, 0.6);
-    --silver-start: rgb(175, 180, 189);
-    --silver-end: rgba(175, 180, 189, 0.6);
-    --gold-start: rgb(255, 232, 60);
-    --gold-end: rgb(255, 232, 60, 0.6);
-    --platinum-start: rgb(114, 91, 255);
-    --platinum-end: rgba(114, 91, 255, 0.6);
-  }
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: hsl(240 11.1% 7.1%);
+  --foreground: hsl(166 33% 99%);
+  --muted: hsl(240 3% 21%);
+  --muted-foreground: hsl(136 8% 73%);
+  --popover: hsl(240 7% 12%);
+  --popover-foreground: hsl(180 39% 100%);
+  --card: hsl(240 7% 12%);
+  --card-foreground: hsl(180 39% 100%);
+  --border: hsl(240 3% 19%);
+  --input: hsl(240 3% 19%);
+  --primary: hsl(166 67% 88%);
+  --primary-foreground: hsl(166 67% 8%);
+  --secondary: hsl(136 67% 88%);
+  --secondary-foreground: hsl(136 67% 8%);
+  --accent: hsl(240 3.7% 15.9%);
+  --accent-foreground: hsl(0 0% 98%);
+  --destructive: hsl(0 94% 49%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --ring: hsl(166 67% 88%);
+  --radius: 0.5rem;
+  --badge: hsl(198.8deg 100% 57.45%);
+  --chart-1: 220 70% 50%;
+  --chart-2: 340 75% 55%;
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --bronze-start: rgb(202, 81, 43);
+  --bronze-end: rgb(202, 81, 43, 0.6);
+  --silver-start: rgb(175, 180, 189);
+  --silver-end: rgba(175, 180, 189, 0.6);
+  --gold-start: rgb(255, 232, 60);
+  --gold-end: rgb(255, 232, 60, 0.6);
+  --platinum-start: rgb(114, 91, 255);
+  --platinum-end: rgba(114, 91, 255, 0.6);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-badge: var(--badge);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-bronze-start: var(--bronze-start);
+  --color-bronze-end: var(--bronze-end);
+  --color-silver-start: var(--silver-start);
+  --color-silver-end: var(--silver-end);
+  --color-gold-start: var(--gold-start);
+  --color-gold-end: var(--gold-end);
+  --color-platinum-start: var(--platinum-start);
+  --font-sans: "Nunito", sans-serif;
+  --font-montserrat: "Montserrat", sans-serif;
+  --font-raleway: "Raleway", sans-serif;
 }
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@utility container {
+  @apply mx-auto;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  max-width: 100%;
+
+  @media (min-width: 1536px) {
+    /* default 2xl in Tailwind */
+    max-width: 1400px;
   }
 }
 
