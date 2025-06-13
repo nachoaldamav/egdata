@@ -26,6 +26,7 @@ import { Route as FreebiesIndexImport } from './routes/freebies/index'
 import { Route as CollectionsIndexImport } from './routes/collections/index'
 import { Route as ChangelogIndexImport } from './routes/changelog/index'
 import { Route as TagsIdImport } from './routes/tags/$id'
+import { Route as StatsReleasesImport } from './routes/stats/releases'
 import { Route as SellersIdImport } from './routes/sellers/$id'
 import { Route as SandboxesIdImport } from './routes/sandboxes/$id'
 import { Route as SalesIdImport } from './routes/sales/$id'
@@ -160,6 +161,12 @@ const ChangelogIndexRoute = ChangelogIndexImport.update({
 const TagsIdRoute = TagsIdImport.update({
   id: '/tags/$id',
   path: '/tags/$id',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const StatsReleasesRoute = StatsReleasesImport.update({
+  id: '/stats/releases',
+  path: '/stats/releases',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -593,6 +600,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellersIdImport
       parentRoute: typeof rootRoute
     }
+    '/stats/releases': {
+      id: '/stats/releases'
+      path: '/stats/releases'
+      fullPath: '/stats/releases'
+      preLoaderRoute: typeof StatsReleasesImport
+      parentRoute: typeof rootRoute
+    }
     '/tags/$id': {
       id: '/tags/$id'
       path: '/tags/$id'
@@ -988,6 +1002,7 @@ export interface FileRoutesByFullPath {
   '/sales/$id': typeof SalesIdRoute
   '/sandboxes/$id': typeof SandboxesIdRouteWithChildren
   '/sellers/$id': typeof SellersIdRoute
+  '/stats/releases': typeof StatsReleasesRoute
   '/tags/$id': typeof TagsIdRoute
   '/changelog': typeof ChangelogIndexRoute
   '/collections': typeof CollectionsIndexRoute
@@ -1046,6 +1061,7 @@ export interface FileRoutesByTo {
   '/promotions/$id': typeof PromotionsIdRoute
   '/sales/$id': typeof SalesIdRoute
   '/sellers/$id': typeof SellersIdRoute
+  '/stats/releases': typeof StatsReleasesRoute
   '/tags/$id': typeof TagsIdRoute
   '/changelog': typeof ChangelogIndexRoute
   '/collections': typeof CollectionsIndexRoute
@@ -1108,6 +1124,7 @@ export interface FileRoutesById {
   '/sales/$id': typeof SalesIdRoute
   '/sandboxes/$id': typeof SandboxesIdRouteWithChildren
   '/sellers/$id': typeof SellersIdRoute
+  '/stats/releases': typeof StatsReleasesRoute
   '/tags/$id': typeof TagsIdRoute
   '/changelog/': typeof ChangelogIndexRoute
   '/collections/': typeof CollectionsIndexRoute
@@ -1172,6 +1189,7 @@ export interface FileRouteTypes {
     | '/sales/$id'
     | '/sandboxes/$id'
     | '/sellers/$id'
+    | '/stats/releases'
     | '/tags/$id'
     | '/changelog'
     | '/collections'
@@ -1229,6 +1247,7 @@ export interface FileRouteTypes {
     | '/promotions/$id'
     | '/sales/$id'
     | '/sellers/$id'
+    | '/stats/releases'
     | '/tags/$id'
     | '/changelog'
     | '/collections'
@@ -1289,6 +1308,7 @@ export interface FileRouteTypes {
     | '/sales/$id'
     | '/sandboxes/$id'
     | '/sellers/$id'
+    | '/stats/releases'
     | '/tags/$id'
     | '/changelog/'
     | '/collections/'
@@ -1352,6 +1372,7 @@ export interface RootRouteChildren {
   SalesIdRoute: typeof SalesIdRoute
   SandboxesIdRoute: typeof SandboxesIdRouteWithChildren
   SellersIdRoute: typeof SellersIdRoute
+  StatsReleasesRoute: typeof StatsReleasesRoute
   TagsIdRoute: typeof TagsIdRoute
   ChangelogIndexRoute: typeof ChangelogIndexRoute
   CollectionsIndexRoute: typeof CollectionsIndexRoute
@@ -1386,6 +1407,7 @@ const rootRouteChildren: RootRouteChildren = {
   SalesIdRoute: SalesIdRoute,
   SandboxesIdRoute: SandboxesIdRouteWithChildren,
   SellersIdRoute: SellersIdRoute,
+  StatsReleasesRoute: StatsReleasesRoute,
   TagsIdRoute: TagsIdRoute,
   ChangelogIndexRoute: ChangelogIndexRoute,
   CollectionsIndexRoute: CollectionsIndexRoute,
@@ -1429,6 +1451,7 @@ export const routeTree = rootRoute
         "/sales/$id",
         "/sandboxes/$id",
         "/sellers/$id",
+        "/stats/releases",
         "/tags/$id",
         "/changelog/",
         "/collections/",
@@ -1544,6 +1567,9 @@ export const routeTree = rootRoute
     },
     "/sellers/$id": {
       "filePath": "sellers/$id.tsx"
+    },
+    "/stats/releases": {
+      "filePath": "stats/releases.tsx"
     },
     "/tags/$id": {
       "filePath": "tags/$id.tsx"

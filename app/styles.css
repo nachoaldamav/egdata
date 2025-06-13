@@ -26,10 +26,10 @@
     --radius: 0.5rem;
     --badge: 198.8deg 100% 57.45%;
     --chart-1: 220 70% 50%;
-    --chart-5: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
     --chart-2: 340 75% 55%;
+    --chart-3: oklch(0.398 0.07 227.392);
+    --chart-4: oklch(0.828 0.189 84.429);
+    --chart-5: oklch(0.769 0.188 70.08);
     --bronze-start: rgb(202, 81, 43);
     --bronze-end: rgb(202, 81, 43, 0.6);
     --silver-start: rgb(175, 180, 189);
@@ -54,8 +54,6 @@ body {
   position: relative;
   min-height: 100vh;
 }
-
-/* Add this to your CSS file or inside a <style> tag in your component */
 
 .cover-section {
   position: relative;
