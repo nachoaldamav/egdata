@@ -1,4 +1,3 @@
-/// <reference types="vinxi/types/client" />
 import { startTransition, StrictMode } from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import { StartClient } from '@tanstack/react-start';
@@ -12,6 +11,7 @@ function clearBrowserExtensionInjectionsBeforeHydration() {
     'link[href*="extension://"]',
   ];
 
+  // @ts-expect-error
   for (const selector of document.querySelectorAll(selectors.join(', '))) {
     selector.parentNode?.removeChild(selector);
   }

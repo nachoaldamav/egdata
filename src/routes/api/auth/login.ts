@@ -1,6 +1,6 @@
-import { createAPIFileRoute } from '@tanstack/react-start/api';
+import { createServerFileRoute } from '@tanstack/react-start/server';
 
-export const APIRoute = createAPIFileRoute('/api/auth/login')({
+export const ServerRoute = createServerFileRoute('/api/auth/login').methods({
   GET: async ({ request }) => {
     const response = await fetch('https://api.egdata.app/auth/v2/save-state', {
       method: 'POST',

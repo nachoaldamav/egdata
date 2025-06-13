@@ -1,11 +1,11 @@
 import type { EpicToken } from '@/types/epic';
-import { createAPIFileRoute } from '@tanstack/react-start/api';
+import { createServerFileRoute } from '@tanstack/react-start/server';
 import consola from 'consola';
 import { importPKCS8, SignJWT } from 'jose';
 import crypto from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 
-export const APIRoute = createAPIFileRoute('/api/auth/callback')({
+export const ServerRoute = createServerFileRoute('/api/auth/callback').methods({
   GET: async ({ request }) => {
     const url = new URL(request.url);
     const state = url.searchParams.get('state');

@@ -1,6 +1,6 @@
-import { createAPIFileRoute } from '@tanstack/react-start/api';
+import { createServerFileRoute } from '@tanstack/react-start/server';
 
-export const APIRoute = createAPIFileRoute('/api/logout')({
+export const ServerRoute = createServerFileRoute('/api/logout').methods({
   GET: async () => {
     const headers = new Headers({
       Location: 'https://api.egdata.app/auth/logout',
