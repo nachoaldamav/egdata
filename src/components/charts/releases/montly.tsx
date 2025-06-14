@@ -43,7 +43,7 @@ const importantDates = [
     label: 'Epic First Run',
   },
   {
-    date: new Date('2025-06-01'),
+    date: new Date('2025-05-01'),
     label: '100% Revenue Share Program',
   },
   {
