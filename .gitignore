@@ -137,3 +137,6 @@ build
 .wrangler
 # Sentry Config File
 .env.sentry-build-plugin
+
+.nitro
+.tanstack

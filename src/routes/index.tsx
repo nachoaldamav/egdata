@@ -39,10 +39,10 @@ export const Route = createFileRoute('/')({
     let cookieHeader: string;
 
     if (import.meta.env.SSR) {
-      const { getWebRequest } = await import('vinxi/http');
-      const request = getWebRequest();
-      url = new URL(request.url);
-      cookieHeader = request.headers.get('Cookie') ?? '';
+      const { getEvent } = await import('@tanstack/react-start/server');
+      const event = getEvent();
+      url = new URL(`https://egdata.app${event.node.req.url}`);
+      cookieHeader = event.headers.get('Cookie') ?? '';
     } else {
       url = new URL(window.location.href);
       cookieHeader = document.cookie;

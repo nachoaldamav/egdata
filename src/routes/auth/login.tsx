@@ -25,9 +25,9 @@ export const saveStateFile = createServerFn({ method: 'GET' }).handler(
 
 export const getEpicEnv = createServerFn({ method: 'GET' }).handler(
   async () => {
-    const { getWebRequest } = await import('vinxi/http');
-
-    const req = getWebRequest();
+    const { getEvent } = await import('@tanstack/react-start/server');
+    const event = getEvent();
+    const req = event.node.req;
 
     console.log('Cloudflare Request', req);
 

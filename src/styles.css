@@ -1,0 +1,259 @@
+@import "tailwindcss";
+@import "@vidstack/react/player/styles/base.css";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: hsl(240 11.1% 7.1%);
+  --foreground: hsl(166 33% 99%);
+  --muted: hsl(240 3% 21%);
+  --muted-foreground: hsl(136 8% 73%);
+  --popover: hsl(240 7% 12%);
+  --popover-foreground: hsl(180 39% 100%);
+  --card: hsl(240 7% 12%);
+  --card-foreground: hsl(180 39% 100%);
+  --border: hsl(240 3% 19%);
+  --input: hsl(240 3% 19%);
+  --primary: hsl(166 67% 88%);
+  --primary-foreground: hsl(166 67% 8%);
+  --secondary: hsl(136 67% 88%);
+  --secondary-foreground: hsl(136 67% 8%);
+  --accent: hsl(240 3.7% 15.9%);
+  --accent-foreground: hsl(0 0% 98%);
+  --destructive: hsl(0 94% 49%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --ring: hsl(166 67% 88%);
+  --radius: 0.5rem;
+  --badge: hsl(198.8deg 100% 57.45%);
+  --chart-1: 220 70% 50%;
+  --chart-2: 340 75% 55%;
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --bronze-start: rgb(202, 81, 43);
+  --bronze-end: rgb(202, 81, 43, 0.6);
+  --silver-start: rgb(175, 180, 189);
+  --silver-end: rgba(175, 180, 189, 0.6);
+  --gold-start: rgb(255, 232, 60);
+  --gold-end: rgb(255, 232, 60, 0.6);
+  --platinum-start: rgb(114, 91, 255);
+  --platinum-end: rgba(114, 91, 255, 0.6);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-badge: var(--badge);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-bronze-start: var(--bronze-start);
+  --color-bronze-end: var(--bronze-end);
+  --color-silver-start: var(--silver-start);
+  --color-silver-end: var(--silver-end);
+  --color-gold-start: var(--gold-start);
+  --color-gold-end: var(--gold-end);
+  --color-platinum-start: var(--platinum-start);
+  --font-sans: "Nunito", sans-serif;
+  --font-montserrat: "Montserrat", sans-serif;
+  --font-raleway: "Raleway", sans-serif;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@utility container {
+  @apply mx-auto;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  max-width: 100%;
+
+  @media (min-width: 1536px) {
+    /* default 2xl in Tailwind */
+    max-width: 1400px;
+  }
+}
+
+body {
+  position: relative;
+  min-height: 100vh;
+}
+
+.cover-section {
+  position: relative;
+  height: 60vh;
+  max-height: 600px;
+  overflow: hidden;
+}
+
+.cover-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cover-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.3));
+  border-radius: 2rem;
+}
+
+.cover-content {
+  z-index: 1;
+}
+
+.perspective {
+  perspective: 1000px;
+}
+
+.container {
+  perspective: 1000px; /* Needed for the 3D effect */
+}
+
+.card {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s;
+}
+
+.card.flipped {
+  transform: rotateY(180deg);
+}
+
+.front,
+.back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: rotateY(0deg);
+}
+
+.back {
+  transform: rotateY(180deg);
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("https://cdn.egdata.app/Montserrat/Montserrat-VariableFont_wght.ttf")
+    format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Raleway";
+  src: url("https://cdn.egdata.app/Raleway/Raleway-VariableFont_wght.ttf")
+    format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Nunito";
+  src: url("https://cdn.egdata.app/Nunito/Nunito-VariableFont_wght.ttf")
+    format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: normal;
+}
+
+.tree,
+.tree-last {
+  position: relative;
+  padding-left: 1.5em;
+}
+.tree::before,
+.tree-last::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #d1d5db;
+}
+.tree::after,
+.tree-last::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.7em;
+  width: 1.5em;
+  height: 2px;
+  background: #d1d5db;
+}
+.tree-last::before {
+  height: 0.7em;
+}
+
+@keyframes shadow-pulse {
+  0%,
+  100% {
+    opacity: 0.9;
+    filter: blur(4px);
+  }
+  50% {
+    opacity: 0.6;
+    filter: blur(8px);
+  }
+}
+
+@keyframes shadow-pulse-2 {
+  0%,
+  100% {
+    opacity: 0.7;
+    filter: blur(8px);
+  }
+  50% {
+    opacity: 0.4;
+    filter: blur(12px);
+  }
+}

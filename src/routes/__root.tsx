@@ -1,7 +1,6 @@
 import { createRootRouteWithContext, Link } from '@tanstack/react-router';
 import { Outlet, HeadContent, Scripts } from '@tanstack/react-router';
 import type * as React from 'react';
-import styles from '../styles.css?url';
 import Navbar from '@/components/app/navbar';
 import { queryOptions, type QueryClient } from '@tanstack/react-query';
 import { CountryProvider } from '@/providers/country';
@@ -21,6 +20,7 @@ import type { EpicToken } from '@/types/epic';
 import type { auth } from '@/lib/auth';
 import { authClient } from '@/lib/auth-client';
 import { Toaster } from '@/components/ui/sonner';
+import styles from '@/styles.css?url';
 
 const getClientSession = queryOptions({
   queryKey: ['session'],
@@ -45,10 +45,10 @@ export const Route = createRootRouteWithContext<{
     let cookieHeader: string;
 
     if (import.meta.env.SSR) {
-      const { getWebRequest } = await import('vinxi/http');
-      const request = getWebRequest();
-      url = new URL(request.url);
-      cookieHeader = request.headers.get('Cookie') ?? '';
+      const { getEvent } = await import('@tanstack/react-start/server');
+      const event = getEvent();
+      url = new URL(`https://egdata.app${event.node.req.url}`);
+      cookieHeader = event.headers.get('Cookie') ?? '';
     } else {
       url = new URL(window.location.href);
       cookieHeader = document.cookie;
@@ -86,12 +86,12 @@ export const Route = createRootRouteWithContext<{
     } | null;
 
     if (import.meta.env.SSR) {
-      const { getWebRequest } = await import('vinxi/http');
+      const { getEvent } = await import('@tanstack/react-start/server');
+      const event = getEvent();
       const { auth } = await import('@/lib/auth');
-      const request = getWebRequest();
-      url = new URL(request.url);
-      cookieHeader = request.headers.get('Cookie') ?? '';
-      headers = request.headers;
+      url = new URL(`https://egdata.app${event.node.req.url}`);
+      cookieHeader = event.headers.get('Cookie') ?? '';
+      headers = event.headers;
       session = await auth.api.getSession({
         headers,
       });
@@ -138,7 +138,6 @@ export const Route = createRootRouteWithContext<{
         {
           rel: 'stylesheet',
           href: styles,
-          preload: 'true',
         },
         { rel: 'preconnect', href: 'https://cdn1.epicgames.com/' },
         { rel: 'preconnect', href: 'https://api.egdata.app/' },
