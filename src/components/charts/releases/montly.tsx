@@ -6,7 +6,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from '@/components/ui/chart';
-import { useMemo } from 'react';
+import { Fragment, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { keepPreviousData } from '@tanstack/react-query';
 import { httpClient } from '@/lib/http-client';
@@ -182,7 +182,7 @@ export function ReleasesByMonth() {
           content={(props) => {
             if (!props.active || !props.payload?.length) return null;
             const dateStr = props.payload[0].payload.date;
-            const eventLabel = getImportantEventLabel(dateStr);
+            const eventLabels = getImportantEventLabels(dateStr);
 
             return (
               // @ts-expect-error
@@ -194,10 +194,14 @@ export function ReleasesByMonth() {
                   const date = new Date(payload[0].payload.date);
                   return (
                     <div className="flex flex-col gap-1">
-                      {eventLabel && (
-                        <div className="text-xs font-mono">{eventLabel}</div>
-                      )}
-                      {eventLabel && <Separator />}
+                      {eventLabels.map((label) => (
+                        <Fragment key={label}>
+                          <div key={label} className="text-xs font-mono">
+                            {label}
+                          </div>
+                          <Separator />
+                        </Fragment>
+                      ))}
                       <div>
                         {date.toLocaleDateString('en-US', {
                           month: 'short',
@@ -243,12 +247,12 @@ export function ReleasesByMonth() {
   );
 }
 
-function getImportantEventLabel(dateStr: string) {
+function getImportantEventLabels(dateStr: string): string[] {
   const date = new Date(dateStr);
-  const event = importantDates.find(
+  const events = importantDates.filter(
     (d) =>
       d.date.getFullYear() === date.getFullYear() &&
       d.date.getMonth() === date.getMonth(),
   );
-  return event?.label;
+  return events.map((e) => e.label);
 }
