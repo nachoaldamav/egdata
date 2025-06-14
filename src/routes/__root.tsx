@@ -1,7 +1,6 @@
 import { createRootRouteWithContext, Link } from '@tanstack/react-router';
 import { Outlet, HeadContent, Scripts } from '@tanstack/react-router';
 import type * as React from 'react';
-import styles from '../styles.css?url';
 import Navbar from '@/components/app/navbar';
 import { queryOptions, type QueryClient } from '@tanstack/react-query';
 import { CountryProvider } from '@/providers/country';
@@ -21,6 +20,7 @@ import type { EpicToken } from '@/types/epic';
 import type { auth } from '@/lib/auth';
 import { authClient } from '@/lib/auth-client';
 import { Toaster } from '@/components/ui/sonner';
+import styles from '@/styles.css?url';
 
 const getClientSession = queryOptions({
   queryKey: ['session'],
@@ -138,7 +138,6 @@ export const Route = createRootRouteWithContext<{
         {
           rel: 'stylesheet',
           href: styles,
-          preload: 'true',
         },
         { rel: 'preconnect', href: 'https://cdn1.epicgames.com/' },
         { rel: 'preconnect', href: 'https://api.egdata.app/' },

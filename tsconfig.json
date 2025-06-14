@@ -12,7 +12,7 @@
         "./src/*"
       ]
     },
-    "typeRoots": ["src/types", "./node_modules/@types", "./global.d.ts"],
+    "typeRoots": ["./src/types", "./node_modules/@types", "./global.d.ts"],
     "lib": ["ESNext", "DOM", "WebWorker"]
   }
 }
