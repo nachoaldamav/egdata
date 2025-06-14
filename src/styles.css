@@ -1,5 +1,5 @@
 @import "@vidstack/react/player/styles/base.css";
-@import "tailwindcss";
+@import "tailwindcss" source("../");
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
