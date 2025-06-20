@@ -255,7 +255,7 @@ function RouteComponent() {
                       className="rounded-full h-32 w-32 object-cover"
                     />
                     <DonnorBadge profile={data} />
-                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full">
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full">
                       <span className="text-white text-lg">
                         <UploadIcon className="w-6 h-6" />
                       </span>

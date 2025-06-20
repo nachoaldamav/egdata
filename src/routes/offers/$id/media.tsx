@@ -4,7 +4,7 @@ import type { Media } from '@/types/media';
 import type { SingleOffer } from '@/types/single-offer';
 import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
 import { getFetchedQuery } from '@/lib/get-fetched-query';
-import { Suspense, useRef, useState } from 'react';
+import { Suspense, useRef, useState, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Image } from '@/components/app/image';
 import {
@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/carousel';
 import { getQueryClient } from '@/lib/client';
 import { generateOfferMeta } from '@/lib/generate-offer-meta';
+import { Button } from '@/components/ui/button';
 
 export const Route = createFileRoute('/offers/$id/media')({
   component: () => {
@@ -112,12 +113,29 @@ function MediaPage() {
 
   const [active, setActive] = useState<boolean | string>(false);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setActive(false);
+      }
+    };
+
+    if (active) {
+      document.addEventListener('keydown', handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [active]);
+
   if (isLoading && !media && isOfferLoading) {
     return (
       <div className="flex flex-col gap-4 mt-6 max-w-4xl w-full mx-auto">
         <h4 className="text-xl">Images</h4>
         <div className="grid grid-cols-2 gap-4">
           {Array.from({ length: 4 }).map((_, index) => (
+            /* biome-ignore lint/suspicious/noArrayIndexKey: This is a static list for a skeleton loader */
             <Skeleton key={index} className="w-full h-72" />
           ))}
         </div>
@@ -216,6 +234,78 @@ function MediaPage() {
           </AccordionContent>
         </AccordionItem>
       </Accordion>
+
+      {active && media?.images && (
+        <Portal.Root>
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: The explicit close button and escape key provide sufficient accessibility. */}
+          <div
+            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center backdrop-blur-sm"
+            onClick={() => setActive(false)}
+          >
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActive(false);
+              }}
+              className="absolute top-4 right-4 text-white z-[51] rounded-full bg-black/50 p-2"
+              aria-label="Close"
+            >
+              <XIcon className="w-6 h-6" />
+            </button>
+
+            <Carousel
+              className="w-full max-w-5xl"
+              opts={{
+                loop: true,
+                startIndex:
+                  media.images.findIndex((image) => image._id === active) || 0,
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <CarouselContent>
+                {media.images.map((image) => (
+                  <CarouselItem key={image._id}>
+                    <div className="relative">
+                      <Button
+                        variant="outline"
+                        className="absolute top-4 right-4 text-white z-[51] rounded-md bg-black/50 p-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          downloadImage(
+                            image.src,
+                            `${offer?.title}-${image.src.split('/').pop()?.split('?')[0]}`,
+                          );
+                        }}
+                      >
+                        <DownloadIcon className="w-4 h-4" />
+                      </Button>
+                      <Image
+                        src={image.src}
+                        alt=""
+                        className="w-full h-auto object-contain max-h-[90vh]"
+                        width={1920}
+                        height={1080}
+                      />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="absolute -left-12" />
+              <CarouselNext className="absolute -right-12" />
+            </Carousel>
+          </div>
+        </Portal.Root>
+      )}
     </div>
   );
+}
+
+function downloadImage(src: string, title: string) {
+  const a = document.createElement('a');
+  a.href = src;
+  a.download = title;
+  a.target = '_blank';
+  a.rel = 'noreferrer';
+  a.click();
 }
