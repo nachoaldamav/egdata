@@ -26,6 +26,7 @@ import type { OfferPosition } from '@/types/collections';
 import { PerformanceTable } from '@/components/app/performance-table';
 import { OffersIndexSkeleton } from '@/components/skeletons/offers-index-skeleton';
 import consola from 'consola';
+import { getOfferIgdb } from '@/queries/igdb';
 
 export const Route = createFileRoute('/offers/$id/')({
   component: () => {
@@ -71,6 +72,7 @@ export const Route = createFileRoute('/offers/$id/')({
               [key: string]: number;
             }>(`/offers/${id}/tops`),
         }),
+        queryClient.prefetchQuery(getOfferIgdb(id)),
       ]);
 
       // Fetch the tops data
@@ -135,6 +137,7 @@ function RouteComponent() {
     reviewsQuery,
     collectionsQuery,
     topsQuery,
+    igdbQuery,
   ] = useQueries({
     queries: [
       {
@@ -211,6 +214,7 @@ function RouteComponent() {
           }>(`/offers/${id}/tops`),
         placeholderData: keepPreviousData,
       },
+      getOfferIgdb(id),
     ],
   });
 
@@ -224,6 +228,7 @@ function RouteComponent() {
   const { data: reviews } = reviewsQuery;
   const { data: collections } = collectionsQuery;
   const { data: tops } = topsQuery;
+  const { data: igdb } = igdbQuery;
 
   if (!offer) {
     return null;
@@ -508,6 +513,27 @@ function RouteComponent() {
               </CardContent>
             </Card>
           </OverviewSection>
+          {igdb && (
+            <OverviewSection
+              title="IGDB Rating"
+              href={`https://www.igdb.com/games/${igdb?.slug}?utm_source=egdata.app`}
+            >
+              <Card className="w-full">
+                <CardContent className="p-6">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <span className="text-6xl font-extrabold">
+                      {((igdb?.total_rating ?? 0) / 20).toFixed(1)}
+                    </span>
+                    <StarsRating rating={(igdb?.total_rating ?? 0) / 20} />
+                    <span className="text-sm text-muted-foreground">
+                      {igdb?.total_rating_count}
+                      {igdb?.total_rating_count === 1 ? ' review' : ' reviews'}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </OverviewSection>
+          )}
         </OverviewColumn>
       </div>
     </div>
@@ -525,13 +551,26 @@ function OverviewColumn({ children }: { children: React.ReactNode }) {
 function OverviewSection({
   title,
   children,
+  href,
 }: {
   title: string;
   children: React.ReactNode;
+  href?: string;
 }) {
   return (
     <div className="flex flex-col gap-2 w-full mt-2">
-      <h6 className="text-xl md:text-2xl font-bold">{title}</h6>
+      {href ? (
+        <Link
+          to={href}
+          className="text-xl md:text-2xl font-bold underline decoration-dotted underline-offset-4"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {title}
+        </Link>
+      ) : (
+        <h6 className="text-xl md:text-2xl font-bold">{title}</h6>
+      )}
       {children}
     </div>
   );
