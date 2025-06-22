@@ -1,11 +1,11 @@
-FROM node:22-slim AS base
+FROM node:24-alpine AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 COPY . /app
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y wget
+RUN apk add --no-cache wget
 
 FROM base AS prod-deps
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
@@ -17,4 +17,3 @@ RUN pnpm run build
 FROM base
 COPY --from=build /app/.output /app/.output
 EXPOSE 3000
-CMD [ "pnpm", "start" ]
