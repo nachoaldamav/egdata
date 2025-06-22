@@ -5,17 +5,15 @@ RUN corepack enable
 COPY . /app
 WORKDIR /app
 
-RUN apk add --no-cache wget curl
-RUN apk add --no-cache --virtual .build-deps gcc g++ make python3
-
 FROM base AS deps
+RUN apk add --no-cache --virtual .build-deps gcc g++ make python3
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
-FROM base AS build
-COPY --from=deps /app/node_modules /app/node_modules
+FROM deps AS build
 RUN pnpm run build
 RUN apk del .build-deps
 
-FROM base
+FROM base as final
+RUN apk add --no-cache wget curl
 COPY --from=build /app/.output /app/.output
 EXPOSE 3000
