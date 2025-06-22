@@ -14,7 +14,7 @@ export default defineConfig({
       project: 'egdata',
     }),
     tanstackStart({
-      target: 'node-server',
+      target: 'bun',
     }),
   ],
   build: {

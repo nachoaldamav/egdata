@@ -13,8 +13,8 @@ FROM deps AS build
 RUN pnpm run build
 RUN apk del .build-deps
 
-FROM base as final
-RUN apk update && apk add ca-certificates wget && update-ca-certificates
+FROM oven/bun:1.2.17-debian as final
+RUN apt update && apt install -y ca-certificates wget && update-ca-certificates
 COPY --from=build /app/.output /app/.output
 EXPOSE 3000
-CMD [ "pnpm", "start" ]
+CMD [ "bun", "run", ".output/server/index.mjs" ]
