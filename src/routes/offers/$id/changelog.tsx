@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Tooltip,
@@ -258,6 +259,7 @@ function ChangelogPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All types</SelectItem>
+                  <Separator className="my-2" />
                   <SelectItem value="insert">
                     <ChangeTypeBubble type="insert" />
                   </SelectItem>
@@ -280,6 +282,7 @@ function ChangelogPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All fields</SelectItem>
+                  <Separator className="my-2" />
                   {offerChangeFields.map((field) => (
                     <SelectItem key={field} value={field}>
                       {field}
