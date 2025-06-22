@@ -5,7 +5,7 @@ RUN corepack enable
 COPY . /app
 WORKDIR /app
 
-RUN apk add --no-cache wget
+RUN apk add --no-cache wget g++ make py3-pip
 
 FROM base AS prod-deps
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
