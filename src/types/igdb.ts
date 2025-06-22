@@ -46,6 +46,7 @@ export interface IgdbOffer {
   game_localizations: number[];
   game_type: number;
   externalGameSources: ExternalGameSource[];
+  timeToBeat?: IgdbTimeToBeat;
 }
 
 export interface Cover {
@@ -82,4 +83,17 @@ export interface ExternalGameSource {
   checksum: string;
   external_game_source: number;
   year?: number;
+}
+
+export interface IgdbTimeToBeat {
+  id: number;
+  game_id: number;
+  hurriedly?: number;
+  normally?: number;
+  completely?: number;
+  hastily?: number;
+  count: number;
+  created_at: number;
+  updated_at: number;
+  checksum: string;
 }

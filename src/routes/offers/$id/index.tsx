@@ -28,6 +28,28 @@ import { OffersIndexSkeleton } from '@/components/skeletons/offers-index-skeleto
 import consola from 'consola';
 import { getOfferIgdb } from '@/queries/igdb';
 
+/**
+ * Format the time to a human readable format
+ * hours > minutes > seconds
+ * @param time - The time to format
+ * @returns The formatted time
+ */
+const formatTimeToHumanReadable = (time: number) => {
+  if (time === 0) {
+    return 'N/A';
+  }
+
+  if (time > 3600) {
+    return `${Math.floor(time / 3600)}h`;
+  }
+
+  if (time > 60) {
+    return `${Math.floor(time / 60)}m`;
+  }
+
+  return `${time}s`;
+};
+
 export const Route = createFileRoute('/offers/$id/')({
   component: () => {
     return <RouteComponent />;
@@ -229,6 +251,7 @@ function RouteComponent() {
   const { data: collections } = collectionsQuery;
   const { data: tops } = topsQuery;
   const { data: igdb } = igdbQuery;
+  const timeToBeat = igdb?.timeToBeat;
 
   if (!offer) {
     return null;
@@ -444,6 +467,53 @@ function RouteComponent() {
               </div>
             </Card>
           </OverviewSection>
+          {timeToBeat && (
+            <OverviewSection
+              title="IGDB Time To Beat"
+              href={`https://www.igdb.com/games/${igdb?.slug}?utm_source=egdata.app`}
+            >
+              <Card className="w-full">
+                <CardContent className="p-6">
+                  <div className="flex flex-col items-center justify-center gap-4">
+                    <div className="grid w-full grid-cols-3 divide-x">
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <span className="text-4xl font-extrabold">
+                          {formatTimeToHumanReadable(
+                            timeToBeat.hastily ?? timeToBeat.hurriedly ?? 0,
+                          )}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          Hastily
+                        </span>
+                      </div>
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <span className="text-4xl font-extrabold">
+                          {formatTimeToHumanReadable(timeToBeat.normally ?? 0)}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          Normally
+                        </span>
+                      </div>
+                      <div className="flex flex-col items-center justify-center gap-2">
+                        <span className="text-4xl font-extrabold">
+                          {formatTimeToHumanReadable(
+                            timeToBeat.completely ?? 0,
+                          )}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          Completely
+                        </span>
+                      </div>
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      Based on {timeToBeat.count}
+                      {timeToBeat.count === 1 ? ' submission' : ' submissions'}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </OverviewSection>
+          )}
         </OverviewColumn>
         <OverviewColumn>
           <OverviewSection title="Price">
