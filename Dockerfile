@@ -14,7 +14,7 @@ RUN pnpm run build
 RUN apk del .build-deps
 
 FROM base as final
-RUN apk add --no-cache wget curl
+RUN apk update && apk add ca-certificates wget && update-ca-certificates
 COPY --from=build /app/.output /app/.output
 EXPOSE 3000
 CMD [ "pnpm", "start" ]
