@@ -13,7 +13,7 @@ FROM deps AS build
 RUN pnpm run build
 RUN apk del .build-deps
 
-FROM oven/bun:1.2.17-debian as final
+FROM oven/bun:1.2.17-debian
 RUN apt update && apt install -y ca-certificates wget && update-ca-certificates
 COPY --from=build /app/.output /app/.output
 EXPOSE 3000
