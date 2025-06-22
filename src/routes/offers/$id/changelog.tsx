@@ -6,6 +6,14 @@ import { ChangeTracker } from '@/components/app/changelog/item';
 import { DynamicPagination } from '@/components/app/dynamic-pagination';
 import type { Change } from '@/components/modules/changelist';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Tooltip,
@@ -18,6 +26,7 @@ import { ClientOnly } from '@/lib/cllient-only';
 import { generateOfferMeta } from '@/lib/generate-offer-meta';
 import { getFetchedQuery } from '@/lib/get-fetched-query';
 import { httpClient } from '@/lib/http-client';
+import { offerChangeFields } from '@/lib/offer-change-fields';
 import type { ChangelogStats } from '@/types/changelog';
 import type { SingleOffer } from '@/types/single-offer';
 import {
@@ -27,6 +36,7 @@ import {
   useQuery,
 } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
+import { useDebounce } from '@uidotdev/usehooks';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -48,12 +58,21 @@ function isChangelogWithPagination(
   return !Array.isArray(page) && 'totalPages' in page;
 }
 
-const getChangelog = (id: string, page: number) => ({
-  queryKey: ['changelog', { id, page }],
+const getChangelog = (
+  id: string,
+  page: number,
+  query?: string,
+  field?: string,
+  type?: string,
+) => ({
+  queryKey: ['changelog', { id, page, query, field, type }],
   queryFn: () =>
     httpClient.get<ChangelogWithPagination>(`/offers/${id}/changelog`, {
       params: {
         page,
+        query,
+        field,
+        type,
       },
     }),
   placeholderData: keepPreviousData,
@@ -126,10 +145,31 @@ export const Route = createFileRoute('/offers/$id/changelog')({
   },
 });
 
+const changelogTypes = {
+  update: {
+    label: 'Update',
+    color: 'hsl(var(--chart-1))',
+  },
+  delete: {
+    label: 'Delete',
+    color: 'hsl(var(--chart-2))',
+  },
+  insert: {
+    label: 'Insert',
+    color: 'var(--chart-3)',
+  },
+};
+
 function ChangelogPage() {
   const { id } = Route.useLoaderData();
   const [page, setPage] = useState(1);
-  const { data, isLoading, isFetching } = useQuery(getChangelog(id, page));
+  const [query, setQuery] = useState<string | undefined>(undefined);
+  const debouncedQuery = useDebounce(query, 500);
+  const [field, setField] = useState<string | undefined>(undefined);
+  const [type, setType] = useState<string | undefined>(undefined);
+  const { data, isLoading, isFetching } = useQuery(
+    getChangelog(id, page, debouncedQuery, field, type),
+  );
   const { data: stats } = useQuery({
     queryKey: ['changelog-stats', { id }],
     queryFn: () =>
@@ -206,6 +246,53 @@ function ChangelogPage() {
             </Tooltip>
           </div>
           <div className="flex items-center gap-2">
+            <div className="flex flex-row gap-2 items-center">
+              <Select
+                value={type}
+                onValueChange={(value) =>
+                  value === 'all' ? setType(undefined) : setType(value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="All types" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All types</SelectItem>
+                  <SelectItem value="insert">
+                    <ChangeTypeBubble type="insert" />
+                  </SelectItem>
+                  <SelectItem value="update">
+                    <ChangeTypeBubble type="update" />
+                  </SelectItem>
+                  <SelectItem value="delete">
+                    <ChangeTypeBubble type="delete" />
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <Select
+                value={field}
+                onValueChange={(value) =>
+                  value === 'all' ? setField(undefined) : setField(value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a field" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All fields</SelectItem>
+                  {offerChangeFields.map((field) => (
+                    <SelectItem key={field} value={field}>
+                      {field}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Input
+                placeholder="Search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
             <Button
               variant="outline"
               size="sm"
@@ -251,6 +338,11 @@ function ChangelogPage() {
                 metadata={changelist.metadata}
               />
             ))}
+          {data.elements.length === 0 && (
+            <p className="text-sm text-muted-foreground">
+              No changes found for this offer
+            </p>
+          )}
         </div>
         <DynamicPagination
           currentPage={page}
@@ -279,5 +371,17 @@ function ChangelogPage() {
         </ClientOnly>
       </section>
     </TooltipProvider>
+  );
+}
+
+function ChangeTypeBubble({ type }: { type: string }) {
+  return (
+    <span className="inline-flex items-center gap-2">
+      <span
+        className="w-2 h-2 rounded-full"
+        style={{ backgroundColor: changelogTypes[type].color }}
+      />
+      {changelogTypes[type].label}
+    </span>
   );
 }

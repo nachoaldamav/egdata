@@ -32,7 +32,7 @@ const chartConfig = {
   },
   insert: {
     label: 'Insert',
-    color: 'hsl(var(--chart-3))',
+    color: 'var(--chart-3)',
   },
 } satisfies ChartConfig;
 
