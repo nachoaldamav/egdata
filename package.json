@@ -45,9 +45,9 @@
     "@radix-ui/react-toggle": "^1.1.9",
     "@radix-ui/react-toggle-group": "^1.1.10",
     "@radix-ui/react-tooltip": "^1.2.7",
-    "@sentry/node": "^8.55.0",
-    "@sentry/profiling-node": "^8.55.0",
-    "@sentry/react": "^8.55.0",
+    "@sentry/node": "^9.30.0",
+    "@sentry/profiling-node": "^9.30.0",
+    "@sentry/react": "^9.30.0",
     "@sentry/tracing": "^7.114.0",
     "@sentry/vite-plugin": "^3.5.0",
     "@tailwindcss/typography": "^0.5.16",
@@ -140,12 +140,13 @@
     "onlyBuiltDependencies": [
       "@biomejs/biome",
       "@parcel/watcher",
+      "@sentry-internal/node-cpu-profiler",
       "@sentry/cli",
       "@sentry/profiling-node",
+      "@tailwindcss/oxide",
       "better-sqlite3",
       "esbuild",
-      "workerd",
-      "@tailwindcss/oxide"
+      "workerd"
     ],
     "overrides": {
       "vite": "npm:rolldown-vite@latest",
