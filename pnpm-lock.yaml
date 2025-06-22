@@ -141,7 +141,7 @@ importers:
         version: 1.121.0-alpha.27(@tanstack/react-query@5.80.10(react@19.1.0))(@tanstack/react-router@1.121.0-alpha.27(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@tanstack/router-core@1.121.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@tanstack/react-start':
         specifier: 1.121.0-alpha.27
-        version: 1.121.0-alpha.27(@libsql/client@0.8.1)(@tanstack/react-router@1.121.0-alpha.27(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@vitejs/plugin-react@4.5.2(rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0)))(better-sqlite3@11.10.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0))
+        version: 1.121.0-alpha.27(@libsql/client@0.8.1)(@tanstack/react-router@1.121.0-alpha.27(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@vitejs/plugin-react@4.5.2(rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0)))(better-sqlite3@12.0.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0))
       '@tanstack/react-table':
         specifier: ^8.21.3
         version: 8.21.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -206,8 +206,8 @@ importers:
         specifier: ^1.2.8
         version: 1.2.9
       better-sqlite3:
-        specifier: ^11.10.0
-        version: 11.10.0
+        specifier: ^12.0.0
+        version: 12.0.0
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -4329,8 +4329,9 @@ packages:
   better-call@1.0.9:
     resolution: {integrity: sha512-Qfm0gjk0XQz0oI7qvTK1hbqTsBY4xV2hsHAxF8LZfUYl3RaECCIifXuVqtPpZJWvlCCMlQSvkvhhyuApGUba6g==}
 
-  better-sqlite3@11.10.0:
-    resolution: {integrity: sha512-EwhOpyXiOEL/lKzHz9AW1msWFNzGc/z+LzeB3/jnFJpxu+th2yqvzsSWas1v9jgs9+xiXJcD5A8CJxAG2TaghQ==}
+  better-sqlite3@12.0.0:
+    resolution: {integrity: sha512-ElLgwbEth4MHBrDXEqzkE7Hm2+ACw5+KKBhkLArcjJrVFJyOXvzcE/if2dx7/m5pXTc8vqJjsCQUt1AFQY+TTQ==}
+    engines: {node: 20.x || 22.x || 23.x || 24.x}
 
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
@@ -12026,10 +12027,10 @@ snapshots:
       tiny-invariant: 1.3.3
       tiny-warning: 1.0.3
 
-  '@tanstack/react-start-plugin@1.121.9(@libsql/client@0.8.1)(@tanstack/react-router@1.121.0-alpha.27(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@vitejs/plugin-react@4.5.2(rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0)))(better-sqlite3@11.10.0)(rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0))':
+  '@tanstack/react-start-plugin@1.121.9(@libsql/client@0.8.1)(@tanstack/react-router@1.121.0-alpha.27(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@vitejs/plugin-react@4.5.2(rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0)))(better-sqlite3@12.0.0)(rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0))':
     dependencies:
       '@tanstack/router-utils': 1.121.0
-      '@tanstack/start-plugin-core': 1.121.9(@libsql/client@0.8.1)(@tanstack/react-router@1.121.0-alpha.27(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(better-sqlite3@11.10.0)(rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0))
+      '@tanstack/start-plugin-core': 1.121.9(@libsql/client@0.8.1)(@tanstack/react-router@1.121.0-alpha.27(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(better-sqlite3@12.0.0)(rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0))
       '@vitejs/plugin-react': 4.5.2(rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0))
       vite: rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0)
       zod: 3.25.67
@@ -12081,10 +12082,10 @@ snapshots:
       tiny-warning: 1.0.3
       unctx: 2.4.1
 
-  '@tanstack/react-start@1.121.0-alpha.27(@libsql/client@0.8.1)(@tanstack/react-router@1.121.0-alpha.27(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@vitejs/plugin-react@4.5.2(rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0)))(better-sqlite3@11.10.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0))':
+  '@tanstack/react-start@1.121.0-alpha.27(@libsql/client@0.8.1)(@tanstack/react-router@1.121.0-alpha.27(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@vitejs/plugin-react@4.5.2(rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0)))(better-sqlite3@12.0.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0))':
     dependencies:
       '@tanstack/react-start-client': 1.121.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@tanstack/react-start-plugin': 1.121.9(@libsql/client@0.8.1)(@tanstack/react-router@1.121.0-alpha.27(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@vitejs/plugin-react@4.5.2(rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0)))(better-sqlite3@11.10.0)(rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0))
+      '@tanstack/react-start-plugin': 1.121.9(@libsql/client@0.8.1)(@tanstack/react-router@1.121.0-alpha.27(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@vitejs/plugin-react@4.5.2(rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0)))(better-sqlite3@12.0.0)(rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0))
       '@tanstack/react-start-server': 1.121.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@tanstack/start-server-functions-client': 1.121.2(rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0))
       '@tanstack/start-server-functions-server': 1.121.0(rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0))
@@ -12255,7 +12256,7 @@ snapshots:
       tiny-invariant: 1.3.3
       tiny-warning: 1.0.3
 
-  '@tanstack/start-plugin-core@1.121.9(@libsql/client@0.8.1)(@tanstack/react-router@1.121.0-alpha.27(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(better-sqlite3@11.10.0)(rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0))':
+  '@tanstack/start-plugin-core@1.121.9(@libsql/client@0.8.1)(@tanstack/react-router@1.121.0-alpha.27(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(better-sqlite3@12.0.0)(rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0))':
     dependencies:
       '@babel/code-frame': 7.26.2
       '@babel/core': 7.27.4
@@ -12271,7 +12272,7 @@ snapshots:
       babel-dead-code-elimination: 1.0.10
       cheerio: 1.1.0
       h3: 1.13.0
-      nitropack: 2.11.12(@libsql/client@0.8.1)(better-sqlite3@11.10.0)
+      nitropack: 2.11.12(@libsql/client@0.8.1)(better-sqlite3@12.0.0)
       pathe: 2.0.3
       ufo: 1.6.1
       vite: rolldown-vite@6.3.19(@types/node@22.15.32)(esbuild@0.17.19)(jiti@2.4.2)(terser@5.42.0)(tsx@4.20.3)(yaml@2.8.0)
@@ -13066,7 +13067,7 @@ snapshots:
       set-cookie-parser: 2.7.1
       uncrypto: 0.1.3
 
-  better-sqlite3@11.10.0:
+  better-sqlite3@12.0.0:
     dependencies:
       bindings: 1.5.0
       prebuild-install: 7.1.3
@@ -13502,10 +13503,10 @@ snapshots:
 
   date-fns@4.1.0: {}
 
-  db0@0.3.2(@libsql/client@0.8.1)(better-sqlite3@11.10.0):
+  db0@0.3.2(@libsql/client@0.8.1)(better-sqlite3@12.0.0):
     optionalDependencies:
       '@libsql/client': 0.8.1
-      better-sqlite3: 11.10.0
+      better-sqlite3: 12.0.0
 
   debug@4.4.1:
     dependencies:
@@ -15529,7 +15530,7 @@ snapshots:
 
   next-tick@1.1.0: {}
 
-  nitropack@2.11.12(@libsql/client@0.8.1)(better-sqlite3@11.10.0):
+  nitropack@2.11.12(@libsql/client@0.8.1)(better-sqlite3@12.0.0):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.4.0
       '@netlify/functions': 3.1.10(rollup@4.43.0)
@@ -15551,7 +15552,7 @@ snapshots:
       cookie-es: 2.0.0
       croner: 9.0.0
       crossws: 0.3.5
-      db0: 0.3.2(@libsql/client@0.8.1)(better-sqlite3@11.10.0)
+      db0: 0.3.2(@libsql/client@0.8.1)(better-sqlite3@12.0.0)
       defu: 6.1.4
       destr: 2.0.5
       dot-prop: 9.0.0
@@ -15597,7 +15598,7 @@ snapshots:
       unenv: 2.0.0-rc.17
       unimport: 5.0.1
       unplugin-utils: 0.2.4
-      unstorage: 1.16.0(db0@0.3.2(@libsql/client@0.8.1)(better-sqlite3@11.10.0))(ioredis@5.6.1)
+      unstorage: 1.16.0(db0@0.3.2(@libsql/client@0.8.1)(better-sqlite3@12.0.0))(ioredis@5.6.1)
       untyped: 2.0.0
       unwasm: 0.3.9
       youch: 4.1.0-beta.8
@@ -17246,7 +17247,7 @@ snapshots:
       picomatch: 4.0.2
       webpack-virtual-modules: 0.6.2
 
-  unstorage@1.16.0(db0@0.3.2(@libsql/client@0.8.1)(better-sqlite3@11.10.0))(ioredis@5.6.1):
+  unstorage@1.16.0(db0@0.3.2(@libsql/client@0.8.1)(better-sqlite3@12.0.0))(ioredis@5.6.1):
     dependencies:
       anymatch: 3.1.3
       chokidar: 4.0.3
@@ -17257,7 +17258,7 @@ snapshots:
       ofetch: 1.4.1
       ufo: 1.6.1
     optionalDependencies:
-      db0: 0.3.2(@libsql/client@0.8.1)(better-sqlite3@11.10.0)
+      db0: 0.3.2(@libsql/client@0.8.1)(better-sqlite3@12.0.0)
       ioredis: 5.6.1
 
   untun@0.1.3:

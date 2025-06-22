@@ -79,7 +79,7 @@
     "@vitejs/plugin-react": "^4.5.0",
     "axios": "^1.10.0",
     "better-auth": "^1.2.8",
-    "better-sqlite3": "^11.10.0",
+    "better-sqlite3": "^12.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.0",
@@ -134,9 +134,7 @@
   },
   "packageManager": "pnpm@10.12.1",
   "pnpm": {
-    "ignoredBuiltDependencies": [
-      "es5-ext"
-    ],
+    "ignoredBuiltDependencies": ["es5-ext"],
     "onlyBuiltDependencies": [
       "@biomejs/biome",
       "@parcel/watcher",
