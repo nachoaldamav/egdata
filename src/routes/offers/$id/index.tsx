@@ -59,7 +59,7 @@ export const Route = createFileRoute('/offers/$id/')({
     return <OffersIndexSkeleton />;
   },
 
-  pendingMs: 300,
+  pendingMs: 0,
 
   loader: async ({ params, context, cause }) => {
     const startTime = performance.now();

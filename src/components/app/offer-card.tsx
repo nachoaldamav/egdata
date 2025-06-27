@@ -225,7 +225,7 @@ export function OfferCard({
 }: {
   offer: SingleOffer;
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-  content?: JSX.Element;
+  content?: React.ReactNode;
 }) {
   const { genres } = useGenres();
   const [gradient, setGradient] = useState<string | null>(null);
@@ -255,9 +255,13 @@ export function OfferCard({
 
   return (
     <Link
-      to={`/offers/${offer.id}`}
+      to="/offers/$id"
+      params={{
+        id: offer.id,
+      }}
       preload="viewport"
       className="select-none group mx-auto w-fit md:w-full"
+      viewTransition
     >
       <Card className="w-64 md:w-full overflow-hidden rounded-lg border-0 relative">
         <Image

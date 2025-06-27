@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp, Minus } from 'lucide-react';
+import { ChartBarIcon, ChevronDown, ChevronUp, Minus } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import type { OfferPosition } from '@/types/collections';
@@ -6,6 +6,8 @@ import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 import { DateRangePicker } from './date-range-picker';
+import { PerformancePositionsChart } from '../charts/performance/positions';
+import { CardStackIcon } from '@radix-ui/react-icons';
 
 interface PerformanceCardProps {
   position: number;
@@ -119,6 +121,7 @@ export function PerformanceTable({
     from: new Date(new Date().setDate(new Date().getDate() - 7)),
     to: new Date(),
   });
+  const [view, setView] = useState<'cards' | 'chart'>('cards');
 
   // Add effect to automatically set timeframe to shortest range with data
   useEffect(() => {
@@ -136,6 +139,17 @@ export function PerformanceTable({
     });
   }, [data]);
 
+  // Extract filtered and sorted positions for reuse
+  const filteredPositions =
+    data?.positions
+      .filter((pos) => {
+        const date = new Date(pos.date);
+        return date >= timeframe.from && date <= timeframe.to;
+      })
+      .sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+      ) ?? [];
+
   return (
     <div className="w-full p-6 bg-card rounded-lg">
       <div className="flex justify-between items-center mb-6">
@@ -148,71 +162,100 @@ export function PerformanceTable({
       </div>
 
       <Tabs
-        // Get the lowest value from the tops object
         defaultValue={defaultCollection}
         className="w-full"
         onValueChange={onChange}
       >
-        <TabsList className="bg-gray-800 text-gray-400 mb-6">
-          {Object.entries(tops).map(([key]) => (
-            <TabsTrigger key={key} value={key}>
-              {topsDictionary[key]}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        {/* Flex row for tops selection (left) and view toggle (right) */}
+        <div className="flex justify-between items-center mb-6">
+          <TabsList className="bg-gray-800 text-gray-400">
+            {Object.entries(tops).map(([key]) => (
+              <TabsTrigger key={key} value={key}>
+                {topsDictionary[key]}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {/* View toggle as button group */}
+          <div className="ml-4 flex gap-2 bg-gray-800 rounded-md p-1">
+            <button
+              type="button"
+              onClick={() => setView('cards')}
+              className={cn(
+                'px-2 py-1 rounded flex items-center',
+                view === 'cards'
+                  ? 'bg-gray-700 text-white'
+                  : 'text-gray-400 hover:text-white',
+              )}
+              aria-label="Cards view"
+            >
+              <CardStackIcon className="size-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setView('chart')}
+              className={cn(
+                'px-2 py-1 rounded flex items-center',
+                view === 'chart'
+                  ? 'bg-gray-700 text-white'
+                  : 'text-gray-400 hover:text-white',
+              )}
+              aria-label="Chart view"
+            >
+              <ChartBarIcon className="size-4" />
+            </button>
+          </div>
+        </div>
 
-        {data && data.positions.length > 0 && (
+        {/* Cards View */}
+        {view === 'cards' && data && filteredPositions.length > 0 && (
           <ScrollArea hidden={false}>
             <div className="flex gap-4 pb-4 justify-center w-full">
-              {data?.positions
-                // Sort by date, closest to today first
-                .sort(
-                  (a, b) =>
-                    new Date(b.date).getTime() - new Date(a.date).getTime(),
-                )
-                // Filter by date range
-                .filter((pos) => {
-                  const date = new Date(pos.date);
-                  return date >= timeframe.from && date <= timeframe.to;
-                })
-                .map((pos, idx, array) => {
-                  // If it's the first item, there's no previous position
-                  if (idx === array.length - 1) {
-                    return (
-                      <PerformanceCard
-                        key={pos._id}
-                        position={pos.position}
-                        change={0}
-                        date={pos.date}
-                      />
-                    );
-                  }
-
-                  // Previous position
-                  const prev = data.positions[idx + 1].position;
-
-                  // Normalize 0 => 100 to treat "out of tops" as position 100
-                  const toPositionValue = (p: number) => (p === 0 ? 100 : p);
-
-                  // Calculate change
-                  const change =
-                    toPositionValue(pos.position) - toPositionValue(prev);
-
+              {filteredPositions.map((pos, idx, array) => {
+                // If it's the first item, there's no previous position
+                if (idx === array.length - 1) {
                   return (
                     <PerformanceCard
                       key={pos._id}
                       position={pos.position}
-                      change={change}
+                      change={0}
                       date={pos.date}
                     />
                   );
-                })}
+                }
+
+                // Previous position
+                const prev = array[idx + 1].position;
+
+                // Normalize 0 => 100 to treat "out of tops" as position 100
+                const toPositionValue = (p: number) => (p === 0 ? 100 : p);
+
+                // Calculate change
+                const change =
+                  toPositionValue(pos.position) - toPositionValue(prev);
+
+                return (
+                  <PerformanceCard
+                    key={pos._id}
+                    position={pos.position}
+                    change={change}
+                    date={pos.date}
+                  />
+                );
+              })}
             </div>
             <ScrollBar orientation="horizontal" hidden={false} />
           </ScrollArea>
         )}
 
-        {/** Show that there are no data if the data is not available */}
+        {/* Chart View */}
+        {view === 'chart' && data && filteredPositions.length > 0 && (
+          <PerformancePositionsChart
+            positions={data.positions}
+            timeframe={timeframe}
+          />
+        )}
+
+        {/* Show that there are no data if the data is not available */}
         {!data && (
           <div className="flex justify-center items-center h-60">
             <p className="text-gray-500">No data found</p>

@@ -180,7 +180,7 @@ export const Route = createFileRoute('/offers/$id')({
     return <OffersHomeSkeleton />;
   },
 
-  pendingMs: 500,
+  pendingMs: 1000,
 });
 
 function OfferPage() {
@@ -341,9 +341,7 @@ function OfferPage() {
                         </span>
                       ))}
 
-                      {!platformTags.length && <div>
-                        N/A
-                      </div>}
+                      {!platformTags.length && <div>N/A</div>}
                     </TableCell>
                   </TableRow>
                   <TableRow>

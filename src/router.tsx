@@ -17,6 +17,22 @@ export function createRouter() {
       defaultErrorComponent: DefaultCatchBoundary,
       defaultNotFoundComponent: () => <NotFound />,
       scrollRestoration: true,
+      defaultViewTransition: {
+        types: ({ fromLocation, toLocation }) => {
+          let direction = 'none';
+
+          if (fromLocation) {
+            const fromIndex = fromLocation.state.__TSR_index;
+            const toIndex = toLocation.state.__TSR_index;
+
+            direction = fromIndex > toIndex ? 'right' : 'left';
+          }
+
+          console.log(direction);
+
+          return [`slide-${direction}`];
+        },
+      },
     }),
     queryClient,
   );
