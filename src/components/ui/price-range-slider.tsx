@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as SliderPrimitive from '@radix-ui/react-slider';
+import { Slider as SliderPrimitive } from 'radix-ui';
 import { useLocale } from '@/hooks/use-locale';
 // import { calculatePrice } from '@/lib/calculate-price';
 import { Input } from './input';
