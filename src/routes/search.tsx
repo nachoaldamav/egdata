@@ -294,7 +294,7 @@ function RouteComponent() {
   return (
     <div className="flex flex-col gap-4 min-h-screen">
       <main className="flex flex-row flex-nowrap items-start justify-between gap-4">
-        <SearchFilters form={form} />
+        <SearchFilters form={form} showPastGiveaways />
         <div className="flex flex-col gap-4 w-full justify-start items-start relative">
           <SearchHeader form={form} isFetching={isFetching} />
           <SearchForm
