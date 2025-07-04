@@ -375,8 +375,8 @@ export function PriceChart({
               axisLine={false}
               tickMargin={8}
               minTickGap={32}
-              tickFormatter={(ms: number) =>
-                DateTime.fromMillis(ms).setLocale('en-GB').toLocaleString({
+              tickFormatter={(ms: string) =>
+                DateTime.fromISO(ms).setLocale('en-GB').toLocaleString({
                   month: 'short',
                   year: 'numeric',
                 })
