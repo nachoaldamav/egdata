@@ -44,7 +44,7 @@ const chartConfig = {
   },
   min: {
     label: 'Lowest Price',
-    color: 'hsl(var(--chart-3))',
+    color: 'var(--chart-4)',
   },
 } satisfies ChartConfig;
 
