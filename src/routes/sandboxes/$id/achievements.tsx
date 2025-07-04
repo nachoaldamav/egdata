@@ -259,7 +259,7 @@ function SandboxAchievementsPage() {
                             Last Updated:{' '}
                             {new Date(
                               achievementSet.lastUpdated,
-                            ).toLocaleString('en-UK', {
+                            ).toLocaleString('en-GB', {
                               timeZone: timezone,
                               year: 'numeric',
                               month: 'long',
@@ -272,7 +272,7 @@ function SandboxAchievementsPage() {
                             This achievement set was last updated on{' '}
                             {new Date(
                               achievementSet.lastUpdated,
-                            ).toLocaleString('en-UK', {
+                            ).toLocaleString('en-GB', {
                               timeZone: timezone,
                               timeStyle: 'short',
                               dateStyle: 'short',

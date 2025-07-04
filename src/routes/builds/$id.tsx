@@ -32,6 +32,7 @@ import {
   useLocation,
 } from '@tanstack/react-router';
 import { BoxIcon, FilesIcon, OptionIcon } from 'lucide-react';
+import { DateTime } from 'luxon';
 
 export const Route = createFileRoute('/builds/$id')({
   component: () => {
@@ -246,9 +247,7 @@ function BuildPage() {
                   <span
                     className={cn(
                       'text-xs text-gray-400',
-                      !build.downloadSizeBytes
-                        ? 'opacity-0'
-                        : 'opacity-100',
+                      !build.downloadSizeBytes ? 'opacity-0' : 'opacity-100',
                     )}
                   >
                     (
@@ -263,29 +262,31 @@ function BuildPage() {
               <TableRow>
                 <TableCell className="font-medium">Created At</TableCell>
                 <TableCell className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l">
-                  {new Date(build.createdAt).toLocaleString('en-UK', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    timeZoneName: 'short',
-                    hour: 'numeric',
-                    minute: 'numeric',
-                    timeZone: timezone,
-                  })}
+                  {DateTime.fromISO(build.createdAt, { zone: timezone })
+                    .setLocale('en-GB')
+                    .toLocaleString({
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      timeZoneName: 'short',
+                      hour: 'numeric',
+                      minute: 'numeric',
+                    })}
                 </TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="font-medium">Updated At</TableCell>
                 <TableCell className="text-left inline-flex items-center gap-1 border-l-gray-300/10 border-l">
-                  {new Date(build.updatedAt).toLocaleString('en-UK', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    timeZoneName: 'short',
-                    hour: 'numeric',
-                    minute: 'numeric',
-                    timeZone: timezone,
-                  })}
+                  {DateTime.fromISO(build.updatedAt, { zone: timezone })
+                    .setLocale('en-GB')
+                    .toLocaleString({
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      timeZoneName: 'short',
+                      hour: 'numeric',
+                      minute: 'numeric',
+                    })}
                 </TableCell>
               </TableRow>
               <TableRow>

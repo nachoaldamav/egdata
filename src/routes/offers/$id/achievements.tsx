@@ -42,6 +42,7 @@ import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { EyeClosedIcon, FileWarningIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { DateTime } from 'luxon';
 
 const rarityOrder: (keyof typeof rarities)[] = ['gold', 'silver', 'bronze'];
 
@@ -304,28 +305,28 @@ function AchievementsPage() {
                     <TooltipTrigger>
                       <span className="text-sm underline decoration-dotted decoration-gray-300/50 underline-offset-4">
                         Last Updated:{' '}
-                        {new Date(achievementSet.lastUpdated).toLocaleString(
-                          'en-UK',
-                          {
-                            timeZone: timezone,
+                        {DateTime.fromISO(achievementSet.lastUpdated, {
+                          zone: timezone,
+                        })
+                          .setLocale('en-GB')
+                          .toLocaleString({
                             year: 'numeric',
                             month: 'long',
                             day: 'numeric',
-                          },
-                        )}
+                          })}
                       </span>
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>
                         This achievement set was last updated on{' '}
-                        {new Date(achievementSet.lastUpdated).toLocaleString(
-                          'en-UK',
-                          {
-                            timeZone: timezone,
+                        {DateTime.fromISO(achievementSet.lastUpdated, {
+                          zone: timezone,
+                        })
+                          .setLocale('en-GB')
+                          .toLocaleString({
                             timeStyle: 'short',
                             dateStyle: 'short',
-                          },
-                        )}
+                          })}
                         .
                         <br />
                         This is either it's date of creation or the date of the

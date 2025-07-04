@@ -27,6 +27,7 @@ import { PerformanceTable } from '@/components/app/performance-table';
 import { OffersIndexSkeleton } from '@/components/skeletons/offers-index-skeleton';
 import consola from 'consola';
 import { getOfferIgdb } from '@/queries/igdb';
+import { DateTime } from 'luxon';
 
 /**
  * Format the time to a human readable format
@@ -698,12 +699,13 @@ function PriceText({
       {showDate && (
         <span className="text-sm text-muted-foreground font-light">
           (
-          {new Date(price.updatedAt).toLocaleDateString('en-UK', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            timeZone: timezone,
-          })}
+          {DateTime.fromISO(price.updatedAt, { zone: timezone })
+            .setLocale('en-GB')
+            .toLocaleString({
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+            })}
           )
         </span>
       )}

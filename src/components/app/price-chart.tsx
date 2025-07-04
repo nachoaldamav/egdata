@@ -31,6 +31,7 @@ import { useRegions } from '@/hooks/use-regions';
 import { Separator } from '../ui/separator';
 import { useLocale } from '@/hooks/use-locale';
 import type { SingleRegionalPrice } from '@/types/regional-pricing';
+import { DateTime } from 'luxon';
 
 const chartConfig = {
   price: {
@@ -374,14 +375,12 @@ export function PriceChart({
               axisLine={false}
               tickMargin={8}
               minTickGap={32}
-              tickFormatter={(value) => {
-                const date = new Date(value);
-                return date.toLocaleDateString('en-US', {
+              tickFormatter={(ms: number) =>
+                DateTime.fromMillis(ms).setLocale('en-GB').toLocaleString({
                   month: 'short',
-                  day: 'numeric',
                   year: 'numeric',
-                });
-              }}
+                })
+              }
             />
             <YAxis
               axisLine={false}
@@ -407,11 +406,13 @@ export function PriceChart({
               content={
                 <ChartTooltipContent
                   labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    });
+                    return DateTime.fromISO(value)
+                      .setLocale('en-GB')
+                      .toLocaleString({
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      });
                   }}
                   formatter={(value, key, entry) => {
                     const regionName =

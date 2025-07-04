@@ -3,6 +3,7 @@ import { offersDictionary } from '@/lib/offers-dictionary';
 import type { SingleOffer } from '@/types/single-offer';
 import { Link } from '@tanstack/react-router';
 import type { ColumnDef } from '@tanstack/react-table';
+import { DateTime } from 'luxon';
 
 export const types: {
   value: keyof typeof offersDictionary;
@@ -88,10 +89,12 @@ export const columns: ColumnDef<SingleOffer>[] = [
     enableSorting: true,
     enableColumnFilter: true,
     cell: (info) =>
-      new Date(info.getValue() as string).toLocaleDateString('en-UK', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      }),
+      DateTime.fromISO(info.getValue() as string)
+        .setLocale('en-GB')
+        .toLocaleString({
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        }),
   },
 ];

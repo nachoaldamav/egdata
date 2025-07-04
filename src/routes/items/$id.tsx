@@ -30,6 +30,7 @@ import { generateItemMeta } from '@/lib/generate-item-meta';
 import { getFetchedQuery } from '@/lib/get-fetched-query';
 import { getQueryClient } from '@/lib/client';
 import { useLocale } from '@/hooks/use-locale';
+import { DateTime } from 'luxon';
 
 export const Route = createFileRoute('/items/$id')({
   component: () => {
@@ -186,15 +187,16 @@ function ItemPage() {
                 <TableRow>
                   <TableCell className="font-medium">Creation Date</TableCell>
                   <TableCell className="border-l-gray-300/10 border-l">
-                    {new Date(item.creationDate).toLocaleString('en-UK', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      hour: 'numeric',
-                      minute: 'numeric',
-                      timeZone: timezone,
-                      timeZoneName: 'short',
-                    })}
+                    {DateTime.fromISO(item.creationDate, { zone: timezone })
+                      .setLocale('en-GB')
+                      .toLocaleString({
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric',
+                        timeZoneName: 'short',
+                      })}
                   </TableCell>
                 </TableRow>
                 <TableRow>

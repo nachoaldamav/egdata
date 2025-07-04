@@ -41,6 +41,7 @@ import { generateOfferMeta } from '@/lib/generate-offer-meta';
 import { getQueryClient } from '@/lib/client';
 import { useLocale } from '@/hooks/use-locale';
 import { Viewer } from '@/components/app/viewer';
+import { DateTime } from 'luxon';
 
 const ReviewForm = lazy(() =>
   import('@/components/forms/add-review').then((mod) => {
@@ -628,11 +629,13 @@ function Review({ review, full }: { review: SingleReview; full?: boolean }) {
             <div className="flex items-center">
               <span className="text-gray-400">
                 Reviewed on{' '}
-                {new Date(review.createdAt).toLocaleDateString('en-UK', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric',
-                })}
+                {DateTime.fromISO(review.createdAt)
+                  .setLocale('en-GB')
+                  .toLocaleString({
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                  })}
               </span>
               {review.editions?.length && review.editions.length > 0 ? (
                 <Tooltip disableHoverableContent={!review.editions}>
@@ -643,16 +646,15 @@ function Review({ review, full }: { review: SingleReview; full?: boolean }) {
                     <span className="text-xs flex flex-col gap-1">
                       <span>
                         Last updated on{' '}
-                        {new Date(review.updatedAt).toLocaleDateString(
-                          'en-UK',
-                          {
+                        {DateTime.fromISO(review.updatedAt)
+                          .setLocale('en-GB')
+                          .toLocaleString({
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric',
                             hour: 'numeric',
                             minute: 'numeric',
-                          },
-                        )}
+                          })}
                       </span>
                       {review.editions && (
                         <span>Edited {review.editions?.length ?? 0} times</span>
@@ -770,11 +772,13 @@ function FullReview({
           <div className="mt-4 inline-flex justify-between items-center w-full">
             <span className="text-gray-400">
               Reviewed on{' '}
-              {new Date(review.createdAt).toLocaleDateString('en-UK', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-              })}
+              {DateTime.fromISO(review.createdAt)
+                .setLocale('en-GB')
+                .toLocaleString({
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                })}
             </span>
             <Button
               variant="outline"

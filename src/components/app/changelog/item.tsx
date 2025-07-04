@@ -20,6 +20,7 @@ import { calculateSize } from '@/lib/calculate-size';
 import { cn } from '@/lib/utils';
 import { useLocale } from '@/hooks/use-locale';
 import { Separator } from '@/components/ui/separator';
+import { DateTime } from 'luxon';
 
 interface Metadata {
   contextType: 'offer' | 'item' | 'asset' | 'build' | 'sandbox';
@@ -123,7 +124,7 @@ function correctChanges(changes: Change[]): Change[] {
   updatedChanges.push(...others);
 
   // sorting (:
-  return updatedChanges.sort((a,b) => {
+  return updatedChanges.sort((a, b) => {
     if (a.field === b.field) {
       if (a.changeType === b.changeType) {
         return String(a.oldValue).localeCompare(String(b));
@@ -131,7 +132,7 @@ function correctChanges(changes: Change[]): Change[] {
 
       return a.changeType.localeCompare(b.changeType);
     }
-    
+
     return a.field.localeCompare(b.field);
   });
 }
@@ -346,7 +347,10 @@ function ValueToString(
   if (field === 'keyImages' && value !== null) {
     const typedValue = value as { url: string; md5: string; type: string };
 
-    if (typedValue.url.startsWith(epicVideoProtocol) && URL.canParse(typedValue.url)) {
+    if (
+      typedValue.url.startsWith(epicVideoProtocol) &&
+      URL.canParse(typedValue.url)
+    ) {
       const parsedUrl = new URL(typedValue.url);
       const coverUrl = parsedUrl.searchParams.get('cover');
       const videoId = parsedUrl.host;
@@ -356,14 +360,16 @@ function ValueToString(
           <div>
             <p>Video {videoId}</p>
 
-            {coverUrl && <img
-              src={coverUrl}
-              alt={videoId}
-              className="w-1/2 max-w-64 h-auto object-cover rounded-lg"
-            />}
+            {coverUrl && (
+              <img
+                src={coverUrl}
+                alt={videoId}
+                className="w-1/2 max-w-64 h-auto object-cover rounded-lg"
+              />
+            )}
           </div>
-      </div>
-      )
+        </div>
+      );
     }
 
     return (
@@ -378,17 +384,18 @@ function ValueToString(
   }
 
   if (field?.includes('Date') && typeof value === 'string') {
-    return new Date(value).toLocaleString('en-UK', {
-      weekday: undefined,
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      second: 'numeric',
-      timeZone: timezone,
-      timeZoneName: 'short',
-    });
+    return DateTime.fromISO(value, { zone: timezone })
+      .setLocale('en-GB')
+      .toLocaleString({
+        weekday: undefined,
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        timeZoneName: 'short',
+      });
   }
 
   if (field === 'tags' && value !== null) {

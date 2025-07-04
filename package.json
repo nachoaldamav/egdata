@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "vite dev --port 3000",
+    "dev": "TZ=UTC vite dev --port 3000",
     "build": "vite build",
     "start": "NODE_ENV=--enable-source-maps TZ=UTC node --env-file-if-exists=.env .output/server/index.mjs",
     "format": "biome format --write app components lib queries types contexts hooks",
@@ -76,6 +76,7 @@
     "jsonwebtoken": "^9.0.2",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.453.0",
+    "luxon": "^3.6.1",
     "next-themes": "^0.4.6",
     "pg": "^8.16.3",
     "radix-ui": "latest",
@@ -115,9 +116,7 @@
   },
   "packageManager": "pnpm@10.12.1",
   "pnpm": {
-    "ignoredBuiltDependencies": [
-      "es5-ext"
-    ],
+    "ignoredBuiltDependencies": ["es5-ext"],
     "onlyBuiltDependencies": [
       "@biomejs/biome",
       "@parcel/watcher",

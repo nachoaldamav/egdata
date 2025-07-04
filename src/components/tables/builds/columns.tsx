@@ -8,6 +8,7 @@ import { calculateSize } from '@/lib/calculate-size';
 import type { Build } from '@/types/builds';
 import { Link } from '@tanstack/react-router';
 import type { ColumnDef } from '@tanstack/react-table';
+import { DateTime } from 'luxon';
 
 export const platforms: {
   value: keyof typeof textPlatformIcons;
@@ -208,11 +209,13 @@ export const columns: ColumnDef<Build>[] = [
     enableSorting: true,
     enableColumnFilter: true,
     cell: (info) => {
-      return new Date(info.getValue() as string).toLocaleDateString('en-UK', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
+      return DateTime.fromISO(info.getValue() as string)
+        .setLocale('en-GB')
+        .toLocaleString({
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        });
     },
     sortingFn: (a, b) => {
       const aDate = new Date(a.original.createdAt);

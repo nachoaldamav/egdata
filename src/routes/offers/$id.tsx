@@ -60,6 +60,7 @@ import {
 import { OffersHomeSkeleton } from '@/components/skeletons/offers-home';
 import { FabIcon } from '@/components/icons/fab';
 import consola from 'consola';
+import { DateTime } from 'luxon';
 
 export const Route = createFileRoute('/offers/$id')({
   component: () => {
@@ -185,7 +186,7 @@ export const Route = createFileRoute('/offers/$id')({
 
 function OfferPage() {
   const { id } = Route.useLoaderData();
-  const { timezone } = useLocale();
+  const { timezone, locale } = useLocale();
   const { addToCompare, removeFromCompare, compare } = useCompare();
   const navigate = useNavigate();
   const location = useLocation();
@@ -364,18 +365,18 @@ function OfferPage() {
                       suppressHydrationWarning
                     >
                       {offer.lastModifiedDate
-                        ? new Date(offer.lastModifiedDate).toLocaleDateString(
-                            'en-UK',
-                            {
+                        ? DateTime.fromISO(offer.lastModifiedDate, {
+                            zone: timezone,
+                          })
+                            .setLocale('en-GB')
+                            .toLocaleString({
                               year: 'numeric',
                               month: 'long',
                               day: 'numeric',
                               hour: 'numeric',
                               minute: 'numeric',
-                              timeZone: timezone,
                               timeZoneName: 'short',
-                            },
-                          )
+                            })
                         : 'Not available'}
                       <TimeAgo targetDate={offer.lastModifiedDate} />
                     </TableCell>
@@ -387,18 +388,18 @@ function OfferPage() {
                       suppressHydrationWarning
                     >
                       {offer.creationDate
-                        ? new Date(offer.creationDate).toLocaleDateString(
-                            'en-UK',
-                            {
+                        ? DateTime.fromISO(offer.creationDate, {
+                            zone: timezone,
+                          })
+                            .setLocale('en-GB')
+                            .toLocaleString({
                               year: 'numeric',
                               month: 'long',
                               day: 'numeric',
                               hour: 'numeric',
                               minute: 'numeric',
-                              timeZone: timezone,
                               timeZoneName: 'short',
-                            },
-                          )
+                            })
                         : 'Not available'}
                       <TimeAgo targetDate={offer.creationDate} />
                     </TableCell>
@@ -660,15 +661,16 @@ const ReleaseDate: React.FC<{
                   'underline decoration-dotted underline-offset-4',
               )}
             >
-              {new Date(releaseDate).toLocaleDateString('en-UK', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: 'numeric',
-                minute: 'numeric',
-                timeZone: timezone,
-                timeZoneName: 'short',
-              })}
+              {DateTime.fromISO(releaseDate, { zone: timezone })
+                .setLocale('en-GB')
+                .toLocaleString({
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: 'numeric',
+                  minute: 'numeric',
+                  timeZoneName: 'short',
+                })}
             </span>
           </TooltipTrigger>
           <TooltipContent>
