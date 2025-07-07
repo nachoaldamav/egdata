@@ -56,6 +56,7 @@ import {
 } from 'lucide-react';
 import { httpClient } from '@/lib/http-client';
 import type { GenreResponse } from '@/routes/genres';
+import { Separator } from '../ui/separator';
 
 interface ListItemProps extends React.ComponentPropsWithoutRef<'a'> {
   title: string;
@@ -126,7 +127,7 @@ const ExploreMenu = () => {
   });
 
   return (
-    <div className="grid grid-cols-3 gap-2 p-6 w-[800px]">
+    <div className="grid grid-cols-2 gap-2 p-6 w-[600px]">
       {/* Genres Column */}
       <div className="border-r pr-8">
         <h4 className="text-xs font-semibold text-muted-foreground mb-4 tracking-wider uppercase">
@@ -159,12 +160,13 @@ const ExploreMenu = () => {
           </Link>
         </div>
       </div>
-      {/* Rankings Column */}
-      <div className="border-r px-8">
+      {/* Rankings + Others Column */}
+      <div className="pl-8">
         <h4 className="text-xs font-semibold text-muted-foreground mb-4 tracking-wider uppercase">
           Rankings
         </h4>
         <ul className="space-y-1 list-none">
+          {/* Rankings */}
           <li>
             <Link
               to="/collections/$id"
@@ -206,9 +208,7 @@ const ExploreMenu = () => {
             </Link>
           </li>
         </ul>
-      </div>
-      {/* Stats Column */}
-      <div className="pl-8">
+        <Separator className="my-4" />
         <h4 className="text-xs font-semibold text-muted-foreground mb-4 tracking-wider uppercase">
           Others
         </h4>
@@ -220,24 +220,6 @@ const ExploreMenu = () => {
             >
               <BarChart3Icon className="w-4 h-4 text-muted-foreground" />
               Release Stats
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/sales"
-              className="flex items-center gap-2 px-2 py-2 rounded hover:bg-accent/30 focus:bg-accent/40 transition text-sm font-medium outline-none"
-            >
-              <TagIcon className="w-4 h-4 text-muted-foreground" />
-              Sales
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/freebies"
-              className="flex items-center gap-2 px-2 py-2 rounded hover:bg-accent/30 focus:bg-accent/40 transition text-sm font-medium outline-none"
-            >
-              <GiftIcon className="w-4 h-4 text-muted-foreground" />
-              Free Games
             </Link>
           </li>
         </ul>
