@@ -3,24 +3,24 @@ import { cn } from '@/lib/utils';
 import { dehydrate, HydrationBoundary, useQuery } from '@tanstack/react-query';
 import { createFileRoute, Link } from '@tanstack/react-router';
 
-interface GenreResponse {
+export interface GenreResponse {
   genre: Genre;
   offers: Offer[];
 }
 
-interface Genre {
+export interface Genre {
   id: string;
   name: string;
   aliases: string[];
 }
 
-interface Offer {
+export interface Offer {
   id: string;
   title: string;
   image: Image;
 }
 
-interface Image {
+export interface Image {
   type: string;
   url: string;
   md5: string;

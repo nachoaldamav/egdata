@@ -26,9 +26,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useQueries, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getImage } from '@/lib/get-image';
-import { getCollection } from '@/queries/collection';
 import { getTopSection } from '@/queries/top-section';
 import { CountriesSelector } from './countries-selector';
 import { useSearch } from '@/hooks/use-search';
@@ -42,6 +41,21 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import {
+  Gamepad2Icon,
+  SwordIcon,
+  JoystickIcon,
+  BrainIcon,
+  TrendingUpIcon,
+  UsersIcon,
+  BarChart3Icon,
+  TagIcon,
+  GiftIcon,
+  StarIcon,
+  CalendarCheck2Icon,
+} from 'lucide-react';
+import { httpClient } from '@/lib/http-client';
+import type { GenreResponse } from '@/routes/genres';
 
 interface ListItemProps extends React.ComponentPropsWithoutRef<'a'> {
   title: string;
@@ -101,11 +115,142 @@ function MobileMenuItem({
 
 type Route = {
   name: string;
-  href: string;
-  component?: () => JSX.Element;
+  href?: string;
+  component?: () => React.ReactNode;
+};
+
+const ExploreMenu = () => {
+  const { data: genres, isLoading } = useQuery({
+    queryKey: ['genres-list'],
+    queryFn: () => httpClient.get<GenreResponse[]>('/offers/genres'),
+  });
+
+  return (
+    <div className="grid grid-cols-3 gap-2 p-6 w-[800px]">
+      {/* Genres Column */}
+      <div className="border-r pr-8">
+        <h4 className="text-xs font-semibold text-muted-foreground mb-4 tracking-wider uppercase">
+          Genres
+        </h4>
+        <ul className="space-y-1 list-none">
+          {isLoading && (
+            <li className="text-muted-foreground text-sm">Loading...</li>
+          )}
+          {genres?.slice(0, 6).map((genre) => (
+            <li key={genre.genre.id}>
+              <Link
+                to="/search"
+                search={{
+                  tags: genre.genre.id,
+                }}
+                className="flex items-center gap-2 px-2 py-2 rounded hover:bg-accent/30 focus:bg-accent/40 transition text-sm font-medium outline-none"
+              >
+                {genre.genre.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-4">
+          <Link
+            to="/genres"
+            className="flex items-center gap-2 px-2 py-2 rounded hover:bg-accent/30 focus:bg-accent/40 transition text-xs text-primary underline font-medium outline-none"
+          >
+            See all genres
+          </Link>
+        </div>
+      </div>
+      {/* Rankings Column */}
+      <div className="border-r px-8">
+        <h4 className="text-xs font-semibold text-muted-foreground mb-4 tracking-wider uppercase">
+          Rankings
+        </h4>
+        <ul className="space-y-1 list-none">
+          <li>
+            <Link
+              to="/collections/$id"
+              params={{ id: 'top-sellers' }}
+              className="flex items-center gap-2 px-2 py-2 rounded hover:bg-accent/30 focus:bg-accent/40 transition text-sm font-medium outline-none"
+            >
+              <TrendingUpIcon className="w-4 h-4 text-muted-foreground" />
+              Top Sellers
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/collections/$id"
+              params={{ id: 'most-played' }}
+              className="flex items-center gap-2 px-2 py-2 rounded hover:bg-accent/30 focus:bg-accent/40 transition text-sm font-medium outline-none"
+            >
+              <UsersIcon className="w-4 h-4 text-muted-foreground" />
+              Most Played
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/collections/$id"
+              params={{ id: 'top-wishlisted' }}
+              className="flex items-center gap-2 px-2 py-2 rounded hover:bg-accent/30 focus:bg-accent/40 transition text-sm font-medium outline-none"
+            >
+              <StarIcon className="w-4 h-4 text-muted-foreground" />
+              Top Wishlisted
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/collections/$id"
+              params={{ id: 'top-new-releases' }}
+              className="flex items-center gap-2 px-2 py-2 rounded hover:bg-accent/30 focus:bg-accent/40 transition text-sm font-medium outline-none"
+            >
+              <CalendarCheck2Icon className="w-4 h-4 text-muted-foreground" />
+              Top New Releases
+            </Link>
+          </li>
+        </ul>
+      </div>
+      {/* Stats Column */}
+      <div className="pl-8">
+        <h4 className="text-xs font-semibold text-muted-foreground mb-4 tracking-wider uppercase">
+          Others
+        </h4>
+        <ul className="space-y-1 list-none">
+          <li>
+            <Link
+              to="/stats/releases"
+              className="flex items-center gap-2 px-2 py-2 rounded hover:bg-accent/30 focus:bg-accent/40 transition text-sm font-medium outline-none"
+            >
+              <BarChart3Icon className="w-4 h-4 text-muted-foreground" />
+              Release Stats
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/sales"
+              className="flex items-center gap-2 px-2 py-2 rounded hover:bg-accent/30 focus:bg-accent/40 transition text-sm font-medium outline-none"
+            >
+              <TagIcon className="w-4 h-4 text-muted-foreground" />
+              Sales
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/freebies"
+              className="flex items-center gap-2 px-2 py-2 rounded hover:bg-accent/30 focus:bg-accent/40 transition text-sm font-medium outline-none"
+            >
+              <GiftIcon className="w-4 h-4 text-muted-foreground" />
+              Free Games
+            </Link>
+          </li>
+        </ul>
+      </div>
+    </div>
+  );
 };
 
 const routes: Route[] = [
+  {
+    name: 'Explore',
+    component: ExploreMenu,
+  },
   {
     name: 'Browse',
     href: '/search',
@@ -156,83 +301,8 @@ const routes: Route[] = [
     },
   },
   {
-    name: 'Rankings',
-    href: '/collections',
-    component: () => {
-      const collections: {
-        slug: string;
-        title: string;
-        description: string;
-      }[] = [
-        {
-          slug: 'top-sellers',
-          title: 'Top Sellers',
-          description: 'Top sellers on the Epic Games Store',
-        },
-        {
-          slug: 'most-played',
-          title: 'Most Played',
-          description: 'Most played games on the Epic Games Store',
-        },
-        {
-          slug: 'top-wishlisted',
-          title: 'Top Wishlisted',
-          description: 'Top wishlisted games on the Epic Games Store',
-        },
-        {
-          slug: 'top-new-releases',
-          title: 'Top New Releases',
-          description: 'Top new releases on the Epic Games Store',
-        },
-      ];
-
-      const queries = useQueries({
-        queries: collections.map((slug) => ({
-          queryKey: [
-            'collection',
-            { slug: slug.slug, country: 'US', limit: 20, page: 1 },
-          ],
-          queryFn: () =>
-            getCollection({
-              slug: slug.slug,
-              limit: 1,
-              page: 1,
-              country: 'US',
-            }),
-        })),
-      });
-
-      return (
-        <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.5fr_.5fr] lg:grid-rows-[repeat(3, auto)]">
-          {queries.map(({ data }, index) => (
-            <ListItem
-              key={collections[index].slug}
-              href={`/collections/${collections[index].slug}`}
-              title={data?.title ?? ''}
-              backgroundImage={
-                getImage(data?.elements[0]?.keyImages ?? [], [
-                  'OfferImageWide',
-                  'featuredMedia',
-                  'DieselGameBoxWide',
-                  'DieselStoreFrontWide',
-                ])?.url ?? '/placeholder.webp'
-              }
-              className="min-h-[70px]"
-            >
-              {data?.elements[0]?.title}
-            </ListItem>
-          ))}
-        </ul>
-      );
-    },
-  },
-  {
     name: 'Sales',
     href: '/sales',
-  },
-  {
-    name: 'Genres',
-    href: '/genres',
   },
   {
     name: 'Changelog',
@@ -331,6 +401,93 @@ export default function Navbar() {
                   <AccordionContent>
                     {route.component ? (
                       <div className="pt-2">
+                        {route.name === 'Explore' && (
+                          <>
+                            <div className="mb-4">
+                              <div className="text-xs font-semibold text-muted-foreground mb-2 tracking-wider uppercase">
+                                Genres
+                              </div>
+                              <MobileMenuItem
+                                href="/genres/action"
+                                title="Action"
+                              >
+                                <SwordIcon className="w-4 h-4 mr-2 text-muted-foreground inline" />
+                                Action
+                              </MobileMenuItem>
+                              <MobileMenuItem href="/genres/rpg" title="RPG">
+                                <Gamepad2Icon className="w-4 h-4 mr-2 text-muted-foreground inline" />
+                                RPG
+                              </MobileMenuItem>
+                              <MobileMenuItem
+                                href="/genres/indie"
+                                title="Indie"
+                              >
+                                <JoystickIcon className="w-4 h-4 mr-2 text-muted-foreground inline" />
+                                Indie
+                              </MobileMenuItem>
+                              <MobileMenuItem
+                                href="/genres/strategy"
+                                title="Strategy"
+                              >
+                                <BrainIcon className="w-4 h-4 mr-2 text-muted-foreground inline" />
+                                Strategy
+                              </MobileMenuItem>
+                              {/* Add more genres as needed */}
+                            </div>
+                            <div>
+                              <div className="text-xs font-semibold text-muted-foreground mb-2 tracking-wider uppercase">
+                                Other
+                              </div>
+                              <MobileMenuItem
+                                href="/collections/top-sellers"
+                                title="Top Sellers"
+                              >
+                                <TrendingUpIcon className="w-4 h-4 mr-2 text-muted-foreground inline" />
+                                Top Sellers
+                              </MobileMenuItem>
+                              <MobileMenuItem
+                                href="/collections/most-played"
+                                title="Most Played"
+                              >
+                                <UsersIcon className="w-4 h-4 mr-2 text-muted-foreground inline" />
+                                Most Played
+                              </MobileMenuItem>
+                              <MobileMenuItem
+                                href="/collections/top-wishlisted"
+                                title="Top Wishlisted"
+                              >
+                                <StarIcon className="w-4 h-4 mr-2 text-muted-foreground inline" />
+                                Top Wishlisted
+                              </MobileMenuItem>
+                              <MobileMenuItem
+                                href="/collections/top-new-releases"
+                                title="Top New Releases"
+                              >
+                                <CalendarCheck2Icon className="w-4 h-4 mr-2 text-muted-foreground inline" />
+                                Top New Releases
+                              </MobileMenuItem>
+                              <MobileMenuItem
+                                href="/stats/releases"
+                                title="Release Stats"
+                              >
+                                <BarChart3Icon className="w-4 h-4 mr-2 text-muted-foreground inline" />
+                                Release Stats
+                              </MobileMenuItem>
+                              <MobileMenuItem href="/sales" title="Sales">
+                                <TagIcon className="w-4 h-4 mr-2 text-muted-foreground inline" />
+                                Sales
+                              </MobileMenuItem>
+                              <MobileMenuItem
+                                href="/freebies"
+                                title="Free Games"
+                              >
+                                <GiftIcon className="w-4 h-4 mr-2 text-muted-foreground inline" />
+                                Free Games
+                              </MobileMenuItem>
+                              {/* Add more links as needed */}
+                            </div>
+                          </>
+                        )}
                         {route.name === 'Browse' && (
                           <>
                             <MobileMenuItem href="/search" title="Search">
@@ -347,34 +504,6 @@ export default function Navbar() {
                             >
                               Check out games currently on sale with great
                               discounts.
-                            </MobileMenuItem>
-                          </>
-                        )}
-                        {route.name === 'Rankings' && (
-                          <>
-                            <MobileMenuItem
-                              href="/collections/top-sellers"
-                              title="Top Sellers"
-                            >
-                              Top sellers on the Epic Games Store
-                            </MobileMenuItem>
-                            <MobileMenuItem
-                              href="/collections/most-played"
-                              title="Most Played"
-                            >
-                              Most played games on the Epic Games Store
-                            </MobileMenuItem>
-                            <MobileMenuItem
-                              href="/collections/top-wishlisted"
-                              title="Top Wishlisted"
-                            >
-                              Top wishlisted games on the Epic Games Store
-                            </MobileMenuItem>
-                            <MobileMenuItem
-                              href="/collections/top-new-releases"
-                              title="Top New Releases"
-                            >
-                              Top new releases on the Epic Games Store
                             </MobileMenuItem>
                           </>
                         )}
@@ -419,11 +548,13 @@ export default function Navbar() {
               return (
                 <NavigationMenuItem key={route.name} className="bg-transparent">
                   <NavigationMenuTrigger
-                    onClick={() =>
-                      navigate({
-                        to: route.href,
-                      })
-                    }
+                    onClick={() => {
+                      if (route.href) {
+                        navigate({
+                          to: route.href,
+                        });
+                      }
+                    }}
                     className={cn(
                       'bg-transparent',
                       'hover:text-white z-50',
