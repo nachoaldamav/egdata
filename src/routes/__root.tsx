@@ -21,6 +21,7 @@ import type { auth } from '@/lib/auth';
 import { authClient } from '@/lib/auth-client';
 import { Toaster } from '@/components/ui/sonner';
 import styles from '@/styles.css?url';
+import { ExtensionProvider } from '@/providers/extension';
 
 const getClientSession = queryOptions({
   queryKey: ['session'],
@@ -334,7 +335,7 @@ function RootDocument({ children }: Readonly<{ children: React.ReactNode }>) {
                   <Navbar />
                   <PreferencesProvider>
                     <CookiesProvider initialSelection={analyticsCookies}>
-                      {children}
+                      <ExtensionProvider>{children}</ExtensionProvider>
                     </CookiesProvider>
                   </PreferencesProvider>
                   <ComparisonPortal />

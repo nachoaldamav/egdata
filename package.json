@@ -70,6 +70,7 @@
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
     "h3": "^1.15.3",
+    "idb": "^8.0.3",
     "input-otp": "^1.4.2",
     "jose": "^5.10.0",
     "js-cookie": "^3.0.5",
@@ -116,7 +117,9 @@
   },
   "packageManager": "pnpm@10.12.1",
   "pnpm": {
-    "ignoredBuiltDependencies": ["es5-ext"],
+    "ignoredBuiltDependencies": [
+      "es5-ext"
+    ],
     "onlyBuiltDependencies": [
       "@biomejs/biome",
       "@parcel/watcher",

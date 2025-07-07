@@ -12,6 +12,7 @@ import { Badge } from '../ui/badge';
 import { calculatePrice } from '@/lib/calculate-price';
 import { useLocale } from '@/hooks/use-locale';
 import { platformIcons } from './platform-icons';
+import useExtension from '@/hooks/use-extension';
 
 export function GameCard({ offer }: { offer: SingleOffer }) {
   const { locale } = useLocale();
@@ -227,6 +228,7 @@ export function OfferCard({
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   content?: React.ReactNode;
 }) {
+  const { addId, removeId, ownedStatus } = useExtension();
   const { genres } = useGenres();
   const [gradient, setGradient] = useState<string | null>(null);
 
@@ -252,6 +254,13 @@ export function OfferCard({
   useEffect(() => {
     extractGradient(gradientImage).then(setGradient);
   }, [gradientImage]);
+
+  useEffect(() => {
+    addId(offer.id, offer.namespace);
+    return () => removeId(offer.id, offer.namespace);
+  }, [addId, removeId, offer]);
+
+  const owned = ownedStatus[`${offer.id}:${offer.namespace}`];
 
   return (
     <Link
@@ -314,13 +323,16 @@ export function OfferCard({
             }}
           />
         </div>
-        <OfferBadges offer={offer} />
+        <OfferBadges offer={offer} owned={owned} />
       </Card>
     </Link>
   );
 }
 
-function OfferBadges({ offer }: { offer: SingleOffer }) {
+function OfferBadges({
+  offer,
+  owned,
+}: { offer: SingleOffer; owned: boolean | undefined }) {
   const badges = useMemo(() => {
     const badges: string[] = [];
 
@@ -332,8 +344,12 @@ function OfferBadges({ offer }: { offer: SingleOffer }) {
       badges.push('Pre-Purchase');
     }
 
+    if (owned === true) {
+      badges.push('Owned');
+    }
+
     return badges;
-  }, [offer.tags, offer.prePurchase]);
+  }, [offer.tags, offer.prePurchase, owned]);
 
   return badges.length > 0 ? (
     <Badge variant={'default'} className="absolute top-2 right-2">
