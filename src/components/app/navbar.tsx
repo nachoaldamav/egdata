@@ -53,6 +53,7 @@ import {
   GiftIcon,
   StarIcon,
   CalendarCheck2Icon,
+  ListIcon,
 } from 'lucide-react';
 import { httpClient } from '@/lib/http-client';
 import type { GenreResponse } from '@/routes/genres';
@@ -205,6 +206,15 @@ const ExploreMenu = () => {
             >
               <CalendarCheck2Icon className="w-4 h-4 text-muted-foreground" />
               Top New Releases
+            </Link>
+          </li>
+          {/* Link to rest of the collections */}
+          <li>
+            <Link
+              to="/collections"
+              className="flex items-center gap-2 px-2 py-2 rounded hover:bg-accent/30 focus:bg-accent/40 transition text-xs font-medium outline-none text-primary underline"
+            >
+              See all collections
             </Link>
           </li>
         </ul>
