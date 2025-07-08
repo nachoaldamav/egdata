@@ -130,7 +130,7 @@ const ExploreMenu = () => {
   return (
     <div className="grid grid-cols-2 gap-2 p-6 w-[600px]">
       {/* Rankings + Others Column */}
-      <div className="pl-8">
+      <div className="border-r pr-8">
         <h4 className="text-xs font-semibold text-muted-foreground mb-4 tracking-wider uppercase">
           Rankings
         </h4>
@@ -203,7 +203,7 @@ const ExploreMenu = () => {
         </ul>
       </div>
       {/* Genres Column */}
-      <div className="border-r pr-8">
+      <div className="pl-8">
         <h4 className="text-xs font-semibold text-muted-foreground mb-4 tracking-wider uppercase">
           Genres
         </h4>
