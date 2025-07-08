@@ -129,38 +129,6 @@ const ExploreMenu = () => {
 
   return (
     <div className="grid grid-cols-2 gap-2 p-6 w-[600px]">
-      {/* Genres Column */}
-      <div className="border-r pr-8">
-        <h4 className="text-xs font-semibold text-muted-foreground mb-4 tracking-wider uppercase">
-          Genres
-        </h4>
-        <ul className="space-y-1 list-none">
-          {isLoading && (
-            <li className="text-muted-foreground text-sm">Loading...</li>
-          )}
-          {genres?.slice(0, 6).map((genre) => (
-            <li key={genre.genre.id}>
-              <Link
-                to="/search"
-                search={{
-                  tags: genre.genre.id,
-                }}
-                className="flex items-center gap-2 px-2 py-2 rounded hover:bg-accent/30 focus:bg-accent/40 transition text-sm font-medium outline-none"
-              >
-                {genre.genre.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <div className="mt-4">
-          <Link
-            to="/genres"
-            className="flex items-center gap-2 px-2 py-2 rounded hover:bg-accent/30 focus:bg-accent/40 transition text-xs text-primary underline font-medium outline-none"
-          >
-            See all genres
-          </Link>
-        </div>
-      </div>
       {/* Rankings + Others Column */}
       <div className="pl-8">
         <h4 className="text-xs font-semibold text-muted-foreground mb-4 tracking-wider uppercase">
@@ -233,6 +201,38 @@ const ExploreMenu = () => {
             </Link>
           </li>
         </ul>
+      </div>
+      {/* Genres Column */}
+      <div className="border-r pr-8">
+        <h4 className="text-xs font-semibold text-muted-foreground mb-4 tracking-wider uppercase">
+          Genres
+        </h4>
+        <ul className="space-y-1 list-none">
+          {isLoading && (
+            <li className="text-muted-foreground text-sm">Loading...</li>
+          )}
+          {genres?.slice(0, 6).map((genre) => (
+            <li key={genre.genre.id}>
+              <Link
+                to="/search"
+                search={{
+                  tags: genre.genre.id,
+                }}
+                className="flex items-center gap-2 px-2 py-2 rounded hover:bg-accent/30 focus:bg-accent/40 transition text-sm font-medium outline-none"
+              >
+                {genre.genre.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-4">
+          <Link
+            to="/genres"
+            className="flex items-center gap-2 px-2 py-2 rounded hover:bg-accent/30 focus:bg-accent/40 transition text-xs text-primary underline font-medium outline-none"
+          >
+            See all genres
+          </Link>
+        </div>
       </div>
     </div>
   );
